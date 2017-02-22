@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5231 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:40 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Power to kwh/day extended to kwhd_plus and kwhd_minus | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Power to kwh/day extended to kwhd_plus and kwhd_minus</h3>
+        <span class="submitted">Submitted by <a href="../user/5624.html" title="View user profile.">KlausA</a> on Tue, 27/05/2014 - 17:29</span>
+        <div class="content"><p>I have a Battery System with Xtender 3.5kW which I charge with&nbsp; 5kW Solar only when the house would export energy. I discharge the battery in when the house buy energiy from the grid. My goal is to hold the import / export energy to zero.</p>
+<p>Sorry for my english its not my first language.</p>
+<p>I read out the actual power from the Battery system. While charging it is a positive power. In the evening I switch to grid feed mode I discharge the batterie in this time it is a negative power.</p>
+<p>I want to know how many kWh I charged per day and how many kWh I discharged. The input process power to kWhd would sum up both values</p>
+<p>I extend in /www/emoncms/Modules/input the file process_model.php</p>
+<p>add 2 lines to get_process_list()</p>
+<p>$list[31] = array(_(&quot;PowPlus to kWh/d&quot;),ProcessArg::FEEDID,&quot;powerplus_to_kwhd&quot;,1,DataType::DAILY,&quot;Power&quot;);&nbsp; &nbsp;&nbsp; // Klaus<br />
+	$list[32] = array(_(&quot;PowMinus&nbsp; to kWh/d&quot;),ProcessArg::FEEDID,&quot;powerminus_to_kwhd&quot;,1,DataType::DAILY,&quot;Power&quot;); //Klaus</p>
+<p>please just take the next free array numbers in $list[...]</p>
+<p>and define functions &quot;powerplus_to_kwhd&quot; and &quot;powerminus_to_kwhd&quot;</p>
+<p>If this is usefull for anybody</p>
+<p>greetings from rainy Munich (3.38 kw sun input this day)</p>
+<p>Klaus</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>public function powerplus_to_kwhd($feedid, $time_now, $value)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $new_kwh = 0;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Get last value<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $last = $this-&gt;feed-&gt;get_timevalue($feedid);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $last[&#39;time&#39;] = strtotime($last[&#39;time&#39;]);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!isset($last[&#39;value&#39;])) $last[&#39;value&#39;] = 0;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $last_kwh = $last[&#39;value&#39;]*1;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $last_time = $last[&#39;time&#39;]*1;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($last_time &amp;&amp; ((time()-$last_time)&lt;7200))<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // kWh calculation<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $time_elapsed = ($time_now - $last_time);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $kwh_inc = ($time_elapsed * $value) / 3600000.0;<br />
+	if ($kwh_inc &gt; 0) {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $new_kwh = $last_kwh + $kwh_inc;<br />
+	}<br />
+	else {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; $new_kwh = $last_kwh;<br />
+	}&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // in the event that redis is flushed the last time will<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // likely be &gt; 7200s ago and so kwh inc is not calculated<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // rather than enter 0 we enter the last value<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $new_kwh = $last_kwh;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $feedtime = mktime(0, 0, 0, date(&quot;m&quot;,$time_now), date(&quot;d&quot;,$time_now), date(&quot;Y&quot;,$time_now));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;feed-&gt;update_data($feedid, $time_now, $feedtime, $new_kwh);</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return $value;<br />
+	&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp; public function powerminus_to_kwhd($feedid, $time_now, $value)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $new_kwh = 0;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Get last value<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $last = $this-&gt;feed-&gt;get_timevalue($feedid);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $last[&#39;time&#39;] = strtotime($last[&#39;time&#39;]);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!isset($last[&#39;value&#39;])) $last[&#39;value&#39;] = 0;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $last_kwh = $last[&#39;value&#39;]*1;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $last_time = $last[&#39;time&#39;]*1;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($last_time &amp;&amp; ((time()-$last_time)&lt;7200))<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // kWh calculation<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $time_elapsed = ($time_now - $last_time);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $kwh_inc = ($time_elapsed * $value) / 3600000.0;<br />
+	if ($kwh_inc &lt; 0) {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $new_kwh = $last_kwh + $kwh_inc;<br />
+	}<br />
+	else {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; $new_kwh = $last_kwh;<br />
+	}&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // in the event that redis is flushed the last time will<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // likely be &gt; 7200s ago and so kwh inc is not calculated<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // rather than enter 0 we enter the last value<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $new_kwh = $last_kwh;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $feedtime = mktime(0, 0, 0, date(&quot;m&quot;,$time_now), date(&quot;d&quot;,$time_now), date(&quot;Y&quot;,$time_now));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;feed-&gt;update_data($feedid, $time_now, $feedtime, $new_kwh);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return $value;<br />
+	&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5236.html" class="topic-previous" title="Go to previous forum topic">‹ Event Module on Debian Server - no permission error</a>
+              <a href="4355.html" class="topic-next" title="Go to next forum topic">Multi zone heating scheduler development ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5231 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:40 GMT -->
+</html>

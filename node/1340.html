@@ -1,0 +1,478 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>MK2 PV code on emonTx feeding emonGLCD &amp; emonBase | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/3">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">MK2 PV code on emonTx feeding emonGLCD &amp; emonBase</h3>
+        <span class="submitted">Submitted by Guest on Thu, 15/11/2012 - 15:42</span>
+        <div class="content"><p>Hi,<br />
+	As there appears to be a considerable amount of interest in getting an emonTx unit running Robin&rsquo;s MK2 code (calypso_rae on this forum) and communicating with emonGLCD / emon Base &hellip; I thought it was about time I publish where I am at with my project.<br />
+	I have had an emonTx running since April diverting excess PV power to my immersion heater or a storage heater using a Crydom and associated Filter.&nbsp; Although this worked, I was not really happy with my level of control at low generation power and my wife constantly reminded me about that &ldquo;buzz&rdquo; in the hallway!</p>
+<p>
+	<a href="http://openenergymonitor.org/emon/sites/default/files/emonTx boxed.JPG"><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/emonTx boxed.JPG" style="width: 350px; float: left; height: 233px; margin-left: 10px; margin-right: 10px" /></a></p>
+<p><a href="http://openenergymonitor.org/emon/sites/default/files/emonGLCD Diverting.JPG"><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/emonGLCD Diverting.JPG" style="width: 350px; float: right; height: 233px; margin-left: 10px; margin-right: 10px" /></a>The&nbsp;emonTx with CT1 connected to the Grid, and CT3 connected to the Solar PV generation meter, AC psu and 5v USB supply are also connected.<br />
+	The top LED is the TriColour LED (one taken from the emonGLCD) which flashes Red or Green depending on whether we are importing or exporting.&nbsp;<br />
+	Showing Red today as there is not much daylight out there so we are generating less than we are using.&nbsp; The bottom LED flashes Amber every cycle the Triac fires though sadly not today.</p>
+<p>To the right&nbsp;an image of the display taken when the unit was diverting.</p>
+<p>
+	So I have been thinking about adapting Robin&rsquo;s MK2 code for use on the emonTx since August.&nbsp; Then I saw Ian Beck&rsquo;s post (Series530 on this forum) and thought &ldquo;job done, let&rsquo;s give it a go&rdquo;. I needed to make some changes because I didn&rsquo;t want to increase the size of my neatly boxed emonTx but that basically meant changing a few output pins for LEDs and Triac trigger.&nbsp; Unfortunately I didn&rsquo;t have a great deal of success with Ian&rsquo;s code, although it worked (once I got the current transformer around the right way), the display readings were not consistent with what I experienced with my original emonTx code and set-up.<br />
+	However I was now inspired to put some effort into my original plan &ndash; Create a re-entrant version of emonlib.&nbsp; In this case, by re-entrant, I mean making each call to CalcVI handle only one sample of voltage and current.&nbsp; It would then calculate real power etc. after the number of specified crossings and reset the counters to zero ready for the next set of calls to CalcVI.&nbsp; I also wanted CalcVI to take into account the readings already taken this iteration of the loop by Robin&rsquo;s code.&nbsp; I have also added some enhancements to allow for more accurate detection of crossing zero each half cycle based on Ian&rsquo;s calibration routines.<br />
+	A note on Ian&rsquo;s calibration routines &hellip; I thought it was nice to have these routines in the code (space permitting), but I personally don&rsquo;t think that it is appropriate to try and calibrate each time the unit is switched on. This is mainly because, if I understand correctly, the calibration is only valid for the specified measured mains voltage at the time of calibration. My mains voltage (on the end of overhead cables) goes up and down all day.&nbsp; So what I have done in my code is to allow for the measured mains voltage to be keyed in at start-up, but if after 10 secs there is no input via the serial port, then the main loop starts without any further calibration.&nbsp; The idea here is to capture the various parameters and then change to code to reflect the parameters of your own set-up. The 10 sec delay also allows the electronics to settle.<br />
+	The net result is that Robin&rsquo;sMK2 code remains virtually intact, the only addition being a few lines to turn on an LED an increment a counter to show if the Triac is fired this cycle.<br />
+	Towards the end of Robin&rsquo;s MK2 code, where it says processing for negative half cycles, I have added my calls to the new CalcVI (packaged in the PowerCalc library).&nbsp; The first call for &ldquo;ct1&rdquo; uses the already sampled values of V &amp; I and the second call (I have used &ldquo;ct3&rdquo; in this example) provides values of zero to the new CalcVI which causes it to perform the analogue reads itself.<br />
+	At the end of the main loop, I do a quick check to see how many cycles have passed and after 200, that would be 4 secs at 50cps, I pick up the latest power calculations from the ct1.PowerCalc routines, flash the LED Green or Red depending on whether we are importing or exporting and send off the data using the on board RFM12B.<br />
+	Oh and I also use the Watch Dog Timer to reset in the event that the code gets hung somewhere.<br />
+	My code in emonGLCD and emonBase follows the basic sketches already on the github although I have enhanced to code to :<br />
+	emonGLCD<br />
+	&bull; Handle a GMT offset using the switches<br />
+	&bull; Backup cumulative power to emonBase in case the emonGLCD is restarted due to a fault<br />
+	&bull; Display the %power diverted to the immersion and provide approximate power calculation<br />
+	&bull; Provide a second menu screen to display such things as temperature, supply voltage time and GMT offset.<br />
+	&bull; Vary the backlight according to the ambient light level<br />
+	&bull; Correct the temperature display &ndash; provide a calibration offset<br />
+	emonBase<br />
+	&bull; Add the appropriate GMT offset to the time (in this example Cosm / Pachube) but works just as well for emonCMS<br />
+	&bull; Hold a backup of the cumulative power readings from emonGLCD<br />
+	&bull; Only update the time from the internet if the &ldquo;date&rdquo; is supplied (otherwise you can reset the time on the emonGLCD to midnight which resets the cumulative results)<br />
+	&bull; To restrict the amount of data sent and stored on the internet, send the average of the individual power readings every 30 secs.&nbsp;<br />
+	In terms of hardware, I have only modified the emonTx unit to support a Tristate LED instead of the single green LED supplied (I used one of the LEDs supplied with my emonGLCD&nbsp; - I thought that 2 on the emonGLCD was unnecessary) This was easily done by adding an additional resistor connected at the back of the board to digital output PD7 picked up from P4 pin 2.&nbsp; I then added an additional LED to the back of the board by adding a resister to PD5 which I picked up from P2 pin 2 and fixing the other leg of the Yellow LED to the GRD pin of SPI/ISP.&nbsp; I use this to show when the Triac has been switched on although an LED could easily be added to the same Arduino pin as the actual MOC4031 and mounted with the Triac.&nbsp; I connect the emonTx to the MOC4031 and BTA41 usung the jack socket labelled as the pulse counter which means I fire the triac from DIO3/PD3, Pin 5 of the ATMega328.<br />
+	I have used another consumer unit (fuse box) to power my PV controlled loads &ndash; let&rsquo;s call it the DPCU box for short. In my set-up I have connected the main isolator of the DPCU to a MCB in the main consumer unit.&nbsp; This is for two reasons, firstly I repurposed an existing consumer unit that was previously connected to storage heaters, and secondly, I can provide additional protection to the new control circuits. The system would still work if the DPCU was connected directly to the mains.&nbsp; Inside the DPCU I have added MOC3041(s) and BTA41(s) to switch the supply from the main DPCU Isolator to individual MCBs.&nbsp; A point to not is that the Triac get warm, so you need to allow for a large heat sink &ndash; I have an aluminium plate plus black finned heat sinks and it still gets warm to touch.&nbsp; A simple twisted pair connects the emonTx via the Pulse Counter Jack to the DPCU.<br />
+	A point to note when fitting the Current Transformer.&nbsp; After a realising that the Triac was being armed at the wrong times, I determined that Robin&rsquo;s code when run on an emonTX appears to expect&nbsp; to see negative as Grid Import from current sensor so if you have fitted the CT sensor to emonTx with the writing facing away from the meter as per the emonTx instructions, then you will need to turn it the other way around.&nbsp; You can change the code in the relevant places instead but as it worked when I swapped around the transformer I left things alone and haven&rsquo;t got around to working out where and in how many places the code would need to be changed.<br />
+	A point to note about Ian&rsquo;s code.&nbsp; This is included and used for calibration only. This is not required for normal operation and could be removed.&nbsp; I have included Ian&rsquo;s test at the beginning for completeness as well as Robin&rsquo;s.<br />
+	So many thanks to Robin for the MK2 code, Ian for the Calibration code, Glyn and Trystan for the building blocks as well as Paul Reed, Stuart and Robert Wall who have all made major contributions via this forum and get us to where we are today.</p>
+<p>
+	<a href="http://openenergymonitor.org/emon/sites/default/files/emonTx mods.JPG"><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/emonTx mods.JPG" style="width: 300px; height: 200px" /></a><a href="http://openenergymonitor.org/emon/sites/default/files/DPCU.JPG"><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/DPCU.JPG" style="width: 300px; float: right; height: 200px; margin-left: 10px; margin-right: 10px" /></a></p>
+<p>The picture on the left&nbsp;is the back of the emonTx showing how I added a couple of resistors to mount the extra LED and power the other side of the TriColour LED.<br />
+	The little ribbon cable you can just see to the right is my extension cable to the programming port.&nbsp; This is so I don&rsquo;t need to unscrew the case every time I want to upload or monitor.&nbsp; The extension plug&nbsp; mounted on a tiny piece of strip board fits neatly under&nbsp; the removable compartment lid that used to hold my batteries &ndash; and still could!</p>
+<p>The picture on the right is the DPCU (Diverted Power Consumer Unit which is in my hallway with the panel removed so that you can see the Triac mounted on a heat sink in the Consumer Unit.<br />
+	This is fed from the main consumer unit next to it and the data lead from the emonTx unit above it.</p>
+<p>Below are some images that I took today when the sun decided to grace us with its presence. On the left the PV panels are generating and diverting around 26% of the mains cycles&nbsp;to heat my water leaving only 11w to export,&nbsp; On the right is the second menu display showing the time (picked up from the internet) and offset by +1 GMT and at this time the Vrms was reported as 245.2V.&nbsp;<br />
+	<a href="http://openenergymonitor.org/emon/sites/default/files/emonGLCD Diverting.JPG"><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/emonGLCD Diverting.JPG" style="width: 300px; height: 200px" /></a><a href="http://openenergymonitor.org/emon/sites/default/files/GLCDmenu2.JPG"><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/GLCDmenu2.JPG" style="width: 300px; float: right; height: 200px; margin-left: 10px; margin-right: 10px" /></a></p>
+<p>These are the graphs I picked up from Cosm later so that you can actually see what was generated, diverted and what w imported / exported&nbsp;from / to the grid.</p>
+<p><a href="http://openenergymonitor.org/emon/sites/default/files/Cosm Graphs.jpg"><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/Cosm Graphs.jpg" style="width: 650px; height: 701px" /></a></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/1478" class="topic-previous" title="Go to previous forum topic">‹ How to solve 3-ph voltage measurement?</a>
+              <a href="/emon/node/1480" class="topic-next" title="Go to next forum topic">Masking interrupts ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-7322"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Thu, 15/11/2012 - 19:00.</div>
+    <div class="content">
+     <p>Wow! I think this is going to make a lot of people very happy.</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7365"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1163" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1163.gif" alt="markcarter10&#039;s picture" title="markcarter10&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1163" title="View user profile.">markcarter10</a> on Sat, 17/11/2012 - 09:36.</div>
+    <div class="content">
+     <p>Thank you for sharing!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7367"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Sat, 17/11/2012 - 10:55.</div>
+    <div class="content">
+     <p>My only question would be whether there&#39;s enough cooling available, having the heatsink enclosed within the CU?</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7369"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="jrobbie&#039;s picture" title="jrobbie&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by jrobbie (not verified) on Sat, 17/11/2012 - 11:38.</div>
+    <div class="content">
+     <p>It is warm to touch on full power Paul, but still operates within the spec of the Triac - I did measure it with a thermometer a month or so back, but I&nbsp;don&#39;t recall the exact temperature. I am currently using a bit of aluminium and two finned heat-sinks all inside the CU, expanded after I too thought it was running a bit warm. So far I haven&#39;t tried to make a better heat-sink but there is potential to add a side panel and external fins if required. Multiple Triacs shouldn&#39;t generate more heat unless you were to have a commercial system generating more than the 4kw max at present. &nbsp;You would only have one on at a time or more than one running at less than full power.</p>
+<p>John</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7374"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Sat, 17/11/2012 - 14:31.</div>
+    <div class="content">
+     <p>The triac dissipates less than 12 W at 3 kW load. I haven&#39;t done the sums, my guess is that would be in the same order as a full house of MCBs at full load. The acid test is temperature rise inside the box. If the temperature remains below about 35&deg;C (say a 15&deg; rise above ambient), then it&#39;s probably OK (I&#39;m thinking of cooking the rest of the wiring and/or derating the MCB&#39;s; not the triac, which is good to a junction temperature of 120&deg;C).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7376"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Sat, 17/11/2012 - 18:39.</div>
+    <div class="content">
+     <p>Can you write a bit more about how you&#39;ve connected the triac to the emonTX? Is it one of the standard circuits from one of the other threads?</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7384"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="jrobbie&#039;s picture" title="jrobbie&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by jrobbie (not verified) on Sun, 18/11/2012 - 08:46.</div>
+    <div class="content">
+     <p>I used the circuit on the MOC3041 datasheet Paul, which is the same circuit that Ian and Robin used, changing the resistor on pin 1 to the appropriate value for the supply voltage.&nbsp; I actually used a TLP3041 because I happened to have one lying around, and this operates in much the same way.&nbsp; I will draw up a circuit diagram for completeness and to show the connection to the emonTx with the minor mods I made for the LEDs and voltage connection to the 3041 - hopefully today.</p>
+<p>J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7628"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1163" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1163.gif" alt="markcarter10&#039;s picture" title="markcarter10&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1163" title="View user profile.">markcarter10</a> on Sat, 24/11/2012 - 18:48.</div>
+    <div class="content">
+     <p>Your emonbase sketch (Ex_NanodeRF_Power_RTCrelay_GLCDtemp_and_Cosm_2v5F3) won&#39;t compile in Arduino IDE v1.02 , or &nbsp;v1.01</p>
+<p>What needs to be done to bring it up to date?</p>
+<p>I&#39;m following your work and I&#39;m not sure how much work this would entail?</p>
+<p>or would it be easier to download V1.0?</p>
+<p>Still a way to go yet for me to get going</p>
+<p>I&#39;m building the emonGLCD unit at the moment</p>
+<p>regards</p>
+<p>&nbsp;</p>
+<p>Mark</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7630"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/10" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/10" title="View user profile.">glyn.hudson</a> on Sat, 24/11/2012 - 20:17.</div>
+    <div class="content">
+     <p>Hi Mark,</p>
+<p>Great work, this looks live a tidy setup. I though this deserves more attention, hope you don&#39;t mind my creating a blog post to highlight your work:</p>
+<p><a href="http://openenergymonitor.blogspot.com/2012/11/solar-pv-excess-power-into-immersion.html">http://openenergymonitor.blogspot.com/2012/11/solar-pv-excess-power-into-immersion.html</a></p>
+<p>I have attempted a quick summary, with link to your post for more info. Please let me know if I&#39;ve made any errors.</p>
+<p>We would really like to get the solar PV immersion control system better documented since at the moment all golden nuggets&nbsp;of &nbsp;information are dotted about the forums. I have designated an area on the wiki for the documentation of a solar PV immersion control system: <a href="http://wiki.openenergymonitor.org">wiki.openenergymonitor.org</a>. I wold love to see your system or a similar system (Ian&#39;s?) documented there.&nbsp;</p>
+<p>However, I think before a top (application level) documentation article is compiled we need a building block (<a href="http://openenergymonitor.org/emon/buildingblocks">http://openenergymonitor.org/emon/buildingblocks</a>) entry detailing the basics of the how a triac works, the&nbsp;triac electronic circuit and the theory behind the MKII PV code.</p>
+<p>Trystan&nbsp;and I feel that such documentation articles would be best compiled by those familiar with the system. Any volunteers would be much appreciated. I have been in communication with Robin, I believe he is best placed to compile the building blocks topics mentioned above. Maybe you (Mark) or Ian Beck would be interested in working on an &#39;application&#39; level documentation for the wiki page?</p>
+<p>Keep up the good work! The PV MKII developments are a great contribution to the project.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7632"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1163" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1163.gif" alt="markcarter10&#039;s picture" title="markcarter10&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1163" title="View user profile.">markcarter10</a> on Sat, 24/11/2012 - 21:19.</div>
+    <div class="content">
+     <p>Glyn</p>
+<p>Please note well</p>
+<p>It is Jrobbie&#39;s work, I just started to follow his work</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7667"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Mon, 26/11/2012 - 08:24.</div>
+    <div class="content">
+     <p>The key point about Robin&#39;s Mk2 code is that it operates <u><em>continuously</em></u>.&nbsp; Voltage and current are sampled 50+ times per mains cycle, <u><em>every</em></u> mains cycle.&nbsp; Distribution of surplus power via the triac is part of that sequence.&nbsp; Mk2 never pauses, that&#39;s why it gives such good performance.</p>
+<p>Anything that waits before doing a time-limited measurement is really not based on Robin&#39;s code.</p>
+<p>Regards to all,</p>
+<p>Robin</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7723"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1399" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1399.jpg" alt="Series530&#039;s picture" title="Series530&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1399" title="View user profile.">Series530</a> on Tue, 27/11/2012 - 11:49.</div>
+    <div class="content">
+     <p>Robin and I had a discussion some time ago about offering what I have been doing on a more formal level. If I am honest, I am very willing to do this. What has stopped me is two things: firstly, the fact that I have had issues correlating my results with the standard results offered in the building blocks and, secondly, almost back to back business trips, which have stifled my progress.</p>
+<p>on the first matter I have completely rewritten my sketch so that it now uses pretty well the standard building blocks that are offered in the forum while still using Robins approach for the energy bucket. Unlike the building block method it is a pretty well continuous monitor with just an occasional RF12 transmission to the emonGLCD. I also have the feature of remote temperature monitoring but only when the energy bucket is not filling or depleting.</p>
+<p>I wanted an additional feature whereby my Elster AC100 could be periodically read and the generation data sent to the GLCD. I had a play with that last weekend but couldn&#39;t get the system to successfully work with interrupt masking. What I want to do is to only poll the pulses from the irda port when there is no solar generation and the energy bucket is not affected. As soon as I try to mask and unmask the interrupts it doesn&#39;t seem to work.</p>
+<p>on the issue of the calibration, it works and isn&#39;t bad. If I am honest though, it is nowhere near as good as I would like it to be. I have been using my enviR optismarts&nbsp;as my reference and trying to tune things with various coils of wire and light bulbs. This all works fine with wire but seems to fail miserably &nbsp;with a real load. I can tune to a decent correlation at some power values but it falls away badly at others. I suspect that power factor is partly to blame but I also think that there is another issue somewhere ... But I haven&#39;t worked out where as yet. I will buy an IAM device this week and see what that says. ... Another reference point so to speak.</p>
+<p>&nbsp;</p>
+<p>Progress is hampered by my second issue. I&#39;ve been away on business trips for much of each week for at least the past two months. With a stack of other stuff to do around the house it&#39;s a bit of a struggle to then work on the OEM. I hope to have a little more time at home as we near Christmas so that may give me time to play.</p>
+<p>&nbsp;</p>
+<p>when things are working better I would be more than happy to work on something more formal. If anybody wants to PM to discuss, feel free. I&#39;m six hours behind the UK at the moment so may take a whole to respond. I plan to return home on Thursday evening though.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7733"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Tue, 27/11/2012 - 16:44.</div>
+    <div class="content">
+     <p>A Mk2 + emontx + glcd + A100C&nbsp;reader + temp inputs combination would be almost perfection for me, and I suspect for many other people here too.</p>
+<p>I *do* understand about the time constraints, though.</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7742"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="jrobbie&#039;s picture" title="jrobbie&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by jrobbie (not verified) on Tue, 27/11/2012 - 19:10.</div>
+    <div class="content">
+     <p>Sorry for the delayed response(s), I have been away.</p>
+<p>Mark Re: <em>Your emonbase sketch (Ex_NanodeRF_Power_RTCrelay_GLCDtemp_and_Cosm_2v5F3) won&#39;t compile in Arduino IDE v1.02 , or&nbsp; v1.01</em></p>
+<p>this is the line to change (in the DHCP_dns section)</p>
+<p>&nbsp; if (!ether.dhcpValid()) dhcp_status = 0;&nbsp;&nbsp;&nbsp;&nbsp; // v1.0.1 lib if dhcp expired start request for new lease by changing status<br />
+	&nbsp; if (ether.dhcpExpired()) dhcp_status = 0;&nbsp;&nbsp;&nbsp;&nbsp; // v1.0.0 lib if dhcp expired start request for new lease by changing status</p>
+<p>I didn&#39;t have much with the reliability in connecting to Cosm using the 1.0.1 library code for these ethernet calls so I reverted back to using the 1.0 code.&nbsp; That runs with no problem.</p>
+<p>&nbsp;</p>
+<p>John</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7743"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="jrobbie&#039;s picture" title="jrobbie&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by jrobbie (not verified) on Tue, 27/11/2012 - 19:34.</div>
+    <div class="content">
+     <p>Robin, &nbsp;</p>
+<p>Re <em>The key point about Robin&#39;s Mk2 code is that it operates continuously.&nbsp; Voltage and current are sampled 50+ times per mains cycle, every mains cycle.&nbsp; Distribution of surplus power via the triac is part of that sequence.&nbsp; Mk2 never pauses, that&#39;s why it gives such good performance.</em></p>
+<p><em>Anything that waits before doing a time-limited measurement is really not based on Robin&#39;s code.</em></p>
+<p>I fully understand that your code will be affected by any interruption to the the ability to sample multiple times per cycle.&nbsp; That is why I had to code a <u><strong>new </strong></u>version of calcVI which was re-entrant or perhaps I should have said &quot;Real Time&quot;.&nbsp; There are no For next loops or While loops the samples and calculations are processed each time the routine is called and a final value generated after a number of passes through the mid point &#39;zero crossing&#39;.</p>
+<p>As it uses the same code as calcVI for the calculations the results are as good as the emonlib library.</p>
+<p>To avoid any confusion with the original calcVI, I have now created a version of the emonlib library with a new component called R_calcVI and modified CurrentTx / VoltageTx to support the provision of the mid rail value - although I am not sure how much difference specifying the mid rail point will improve accuracy.</p>
+<p>If Glyn would like to adopt this new emonlib - which incidentally is backward compatible with any code calling the common element VoltageTx - I am happy to provide it so that it can be uploaded to the Git Hub.</p>
+<p>John</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7744"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="jrobbie&#039;s picture" title="jrobbie&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by jrobbie (not verified) on Tue, 27/11/2012 - 19:40.</div>
+    <div class="content">
+     <p>Hi Glyn,</p>
+<p>&nbsp;</p>
+<p>Yes I am happy to help with some words, but may need some help from others too, like Robert and Robin to assist with the operation and logic behind the base MK2 code. As indicated in in my last post to the forum ...</p>
+<p>I also have a new version of emonlib which incorporates&nbsp;my Real time, Re-entrant version of calcVI, now called R_calcVI so this could be supplied and included as a single module.&nbsp;</p>
+<p>&nbsp;</p>
+<p>Regards,</p>
+<p>&nbsp;</p>
+<p>John&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7746"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Tue, 27/11/2012 - 20:37.</div>
+    <div class="content">
+     <p><em>jrobbie: I fully understand that your code will be affected by any interruption to the the ability to sample multiple times per cycle.&nbsp; That is why I had to code a <u><strong>new </strong></u>version of calcVI which was re-entrant or perhaps I should have said &quot;Real Time&quot;.&nbsp; There are no For next loops or While loops the samples and calculations are processed each time the routine is called and a final value generated after a number of passes through the mid point &#39;zero crossing&#39;.</em></p>
+<p>John, the point I was making that my Mk2 code doesn&#39;t stop after a while, it just keeps on going.&nbsp; By that means, its rapid response time is available at all times, whenever the kettle goes on.&nbsp; The explanation above suggests to me that your system pauses after a while to deal with the results of the measurement that it has just taken.&nbsp; The line that caught my eye in your original post was:</p>
+<p><em>It would then calculate real power etc. after the number of specified crossings and reset the counters to zero ready for the next set of calls to CalcVI.</em></p>
+<p>Again, this suggests to me that the action stops while something different is done.</p>
+<p>Please don&#39;t mis-understand the point I&#39;m making. There&#39;s nothing wrong with monitoring or distributing power in this way if that&#39;s what you want to do.&nbsp; That&#39;s exactly how my Mk1 setup worked, it being based firmly around the original <strong>calcVI()</strong> routine, in <strong>emonLib</strong>.&nbsp; I just get rather touchy when people talk about adapting or using &quot;Robin&#39;s code&quot; within an arrangement that doesn&#39;t operate continuously.</p>
+<p>From a personal point of view, I feel more pleased with my contribution on the measurement side of things than on the output side.&nbsp; The triac work had already been done by the likes of Paul Reed.&nbsp; The energy-bucket, which is nothing more than a simple accumulator, fits nicely between the two.&nbsp; Yes, I did work out how to put all the bits together, so to that extent it is my code.&nbsp;</p>
+<p>If anyone wants to use &quot;Robin&#39;s Mk2 code&quot; in its original form, they&#39;re most welcome to do so.&nbsp; And if you&#39;re rather change it into something different, that&#39;s fine too.&nbsp; But, please, just give it a new name!</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7752"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="jrobbie&#039;s picture" title="jrobbie&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by jrobbie (not verified) on Tue, 27/11/2012 - 22:33.</div>
+    <div class="content">
+     <p>My set up doesn&#39;t stop either Robin, it samples continuously. However every so often there is a bit more processing to do to handle the saving of the accumulated samples and sending via the wireless interface. During this processing, the loop will clearly be slightly longer, but it does not appear to make any material difference to the operation.</p>
+<p>J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7790"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MK2 PV code on emonTx feeding emonGLCD & emonBase</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 28/11/2012 - 18:06.</div>
+    <div class="content">
+     <p><em>During this processing, the loop will clearly be slightly longer, but it does not appear to make any material difference to the operation.</em></p>
+<p>I&#39;m glad to hear it.&nbsp; By only doing other things when close to zero-crossing points, any energy that is &#39;missed&#39; should be minimal.&nbsp; With 50 samples per mains cycle, less than 1% of the energy content is in the first four samples.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/1340"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-ciSZyMC6qYCvQfmqSM0x065JWEccd3_4CSuOkotAPC4" value="form-ciSZyMC6qYCvQfmqSM0x065JWEccd3_4CSuOkotAPC4"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

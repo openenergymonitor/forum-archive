@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2311 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:29:40 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Current offset and linearity issues | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Current offset and linearity issues</h3>
+        <span class="submitted">Submitted by Guest on Sun, 28/04/2013 - 19:03</span>
+        <div class="content"><p>Hi all.<br />
+	I am currently building and trying to decide how to use my emon-system.<br />
+	I have soldered an emontx and made a simple test sketch to see how it works, and I am having some offset/linearity problems with the current sensors.<br />
+	I have connected three sensors to the emontx, all three are hooked around a current-carrying wire, and I am pushing various loads through that wire.<br />
+	I have a good quality power meter on the same outlet as reference.</p>
+<p>These are my measurements:<br />
+	Power meter reading/ average emontx reading:<br />
+	0/40<br />
+	10/50<br />
+	30/70<br />
+	50/70<br />
+	1000/1000<br />
+	80/100<br />
+	225/230<br />
+	170/180<br />
+	85/105<br />
+	100/115</p>
+<p>As you can see, the difference starts at app. 40 watts, falling to 0 watts at 1 kW.</p>
+<p>Is the emontx just somewhat imprecise at low power, am I missing some calibration constants somewhere, or should I just try to compensate/&quot;work around it&quot; with a bit of math?</p>
+<p>My sketch: (based on the github samples):</p>
+<p>// EmonLibrary examples openenergymonitor.org, Licence GNU GPL V3</p>
+<p>#include &quot;EmonLib.h&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Include Emon Library<br />
+	EnergyMonitor emon1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Create an instance<br />
+	EnergyMonitor emon2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Create an instance<br />
+	EnergyMonitor emon3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Create an instance<br />
+	//EnergyMonitor emon4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Create an instance</p>
+<p>void setup()<br />
+	{&nbsp;<br />
+	&nbsp; Serial.begin(9600);<br />
+	&nbsp;<br />
+	&nbsp; emon1.current(0, 111.1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration.<br />
+	&nbsp; emon2.current(1, 111.1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration.<br />
+	&nbsp; emon3.current(3, 111.1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration.<br />
+	//&nbsp; emon3.current(4, 111.1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration.<br />
+	}</p>
+<p>void loop()<br />
+	{<br />
+	&nbsp; double Irms1 = emon1.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms2 = emon2.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms3 = emon3.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	//&nbsp; double Irms4 = emon4.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp;<br />
+	&nbsp; Serial.print(Irms1*230.0);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Apparent power<br />
+	&nbsp; Serial.print(&quot; &quot;);<br />
+	&nbsp; Serial.print(Irms2*230.0);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Apparent power<br />
+	&nbsp; Serial.print(&quot; &quot;);<br />
+	&nbsp; Serial.print(Irms3*230.0);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Apparent power<br />
+	&nbsp; Serial.print(&quot; &quot;);<br />
+	&nbsp; //Serial.print(Irms4*230.0);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Apparent power<br />
+	&nbsp; Serial.println(&quot; &quot;);<br />
+	&nbsp;</p>
+<p>}</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="3771.html" class="topic-previous" title="Go to previous forum topic">‹ Using more than one AC-AC adapter </a>
+              <a href="3770.html" class="topic-next" title="Go to next forum topic">Use  EmonTH with NanodeRF SMT  ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-11685"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Current offset and linearity issues</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 28/04/2013 - 20:43.</div>
+    <div class="content">
+     <p>What you are seeing is almost certainly noise pickup, probably from the digital section of the processor. Remember the full scale current, if you are using the standard YHDC 100 A c.t. represents 24 kW so 40 W represents 0.16% of the maximum reading, and remember, the analogue to digital converter has only 1024 steps. If you look at the Building Blocks section, you will find this page about measurements at low currents: <a href="https://learn.openenergymonitor.org/?redirect=measurement-implications-of-adc-resolution-at-low-current-values" title="Measurement implications of ADC resolution at low current values">Measurement implications of ADC resolution at low current values</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11699"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="RBJensen&#039;s picture" title="RBJensen&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Current offset and linearity issues</h3>
+
+    <div class="submitted">Submitted by RBJensen (not verified) on Mon, 29/04/2013 - 14:13.</div>
+    <div class="content">
+     <p>Thanks.</p>
+<p>I think I get the point as described on that page, although I don&#39;t really understand the examples.</p>
+<p>So there was also some information about that. This site has an incredible amount of information, but it seems to take a while to learn where to look.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18085"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5146.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5146.jpg" alt="franknfurther&#039;s picture" title="franknfurther&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Current offset and linearity issues</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5146.html" title="View user profile.">franknfurther</a> on Sat, 01/02/2014 - 13:32.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>I am having a very similar problem. Even if the source current is switched off completely (or the CT is empty, i.e no wire gong through), I am measuring a current of around 250mA. If I multiply that with 230V then this means I am measuring about 50W, which is a lot more than nothing.</p>
+<p>However, if I unplug the current transformer then the measured current goes down to 0.</p>
+<p>Any advice would be much appreciated!</p>
+<p>Regards,</p>
+<p>Frank</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18088"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Current offset and linearity issues</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 01/02/2014 - 14:26.</div>
+    <div class="content">
+     <p>Are you using an emonTx, and if so which one? The V2 was susceptible to noise from the processor getting into the inputs; that problem has been much reduced in the V3. But it doesn&#39;t sound like that is your problem. My immediate thought is there is some voltage pickup getting in to the current input, your first move might be to put the c.t. on the neutral rather than the line. If it&#39;s already on the neutral, then that theory is probably wrong. The next thought is are there any high-power radio transmitters nearby? I&#39;ve not seen any reports of problems where this turned out to be the cause, but it&#39;s worth asking. Are you measuring real power or apparent power? The way the maths works means that noise and interference gets rectified if you&#39;re calculating rms current and hence appears much larger, whereas if you use the voltage and calculate average (real) power directly, the noise being essentially random tends to average towards zero.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18099"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5146.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5146.jpg" alt="franknfurther&#039;s picture" title="franknfurther&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Current offset and linearity issues</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5146.html" title="View user profile.">franknfurther</a> on Sat, 01/02/2014 - 20:41.</div>
+    <div class="content">
+     <p>HI Robert,</p>
+<p>Thanks for your note. I am using the TX shield with an Arduino Uno. I have four CTs, and they all do the same, with or without wire going through them. There is actually a Wifi access point right behind the wall, just one meter away. Just to be sure I will check the measurements with the wifi access point switched off tomorrow.&nbsp;</p>
+<p>I am actually measuring the rms current only, which according to what you are saying could be the cause. I shall also try to look into that tomorrow. However, if that is the problem, then how do I measure three times rms&nbsp;power with the shield since it only has one voltage input jack?</p>
+<p>Thanks again,</p>
+<p>Frank</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18102"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Current offset and linearity issues</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 01/02/2014 - 21:25.</div>
+    <div class="content">
+     <p>Do I infer you have a 3-phase supply? I believe the emon range was designed primarily for the UK where a three phase supply to domestic premises is extremely rare. You can get a reasonable approximation by using the 3-phase sketch (download from Github) to measure real power across 3 phases, though as I explained very recently in another thread, it is an approximation and depends on the phase voltages being balanced.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18198"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5146.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5146.jpg" alt="franknfurther&#039;s picture" title="franknfurther&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Current offset and linearity issues</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5146.html" title="View user profile.">franknfurther</a> on Wed, 05/02/2014 - 20:42.</div>
+    <div class="content">
+     <p>Hi Robert, sorry for taking so long to get back you. I have been&nbsp;traveling. Yes, here in the Netherlands where I live the standard household supply is 3x25Amp. I have also measured the voltages of the 3 phases sporadically a few times and it seems to be very stable (i.e. 230V&nbsp;+/- 2-3V), so whatever I would be going to measure on the voltage side would be adding more inaccuracy compared to simply assuming the voltage to be constant.&nbsp;</p>
+<p>The one big uncertainty here is that we have an electric car, and when it charges it easily draws power of around 3-4kW. Then the voltage will probably drop, however, I still need to test that.</p>
+<p>I think I shall use the one voltage input for monitoring that phase in the longer run to see if my line of argumentation holds true for my connection. For other users, especially those living on the countryside, this might be a less suitable approach as the voltage in you area depends on the quality of the grid in that area and especially so on the network transformer that takes the voltage from the mid-voltage grid down to 400V/3x230V. Most modern transformers automatically&nbsp;set the voltage to a fixed value.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2311"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-pQATZj5eskNPMJPviVCwOCa5ZKvbnGDCetUTUuR_uD4" value="form-pQATZj5eskNPMJPviVCwOCa5ZKvbnGDCetUTUuR_uD4"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2311 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:29:40 GMT -->
+</html>

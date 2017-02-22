@@ -1,0 +1,547 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3556 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:39:01 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>EmonTH with multiple DS18B20 | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">EmonTH with multiple DS18B20</h3>
+        <span class="submitted">Submitted by <a href="../user/5190.html" title="View user profile.">Schism</a> on Tue, 07/01/2014 - 13:10</span>
+        <div class="content"><p>Hi,</p>
+<p>I have searched, but very new to this, so apologies if I&#39;ve missed something obvious.</p>
+<p>I&#39;d like to have an&nbsp;EmonTH reporting three temperature figures: bottom of tank, top of tank (both with&nbsp;DS18B20) and ambient (on board sensor).</p>
+<p>I&#39;ve had a look at the EmonTH firmware and see that it doesn&#39;t support multiple DS18B20 sensors out of the box - we check if <a href="https://github.com/openenergymonitor/emonTH/blob/master/emonTH_DHT22_DS18B20/emonTH_DHT22_DS18B20.ino#L189-194">at least one is attached</a>, then <a href="https://github.com/openenergymonitor/emonTH/blob/master/emonTH_DHT22_DS18B20/emonTH_DHT22_DS18B20.ino#L228">read from the first</a>.</p>
+<p>I think can manage to get the readings from multiple sensors -&nbsp;getTempC(allAddress[i]) for i in 0..j ?</p>
+<p>Do I then just need to modify the&nbsp;Payload struct as follows and it will automagically appear on emoncms.org as an extra input?</p>
+<pre>
+typedef struct {
+          int temp;
+          int temp_external1;
+          int temp_external2;
+          int humidity;    
+          int battery;                                                        
+} Payload;</pre><p>If not, I could use a hint on how to update the payload.</p>
+<p>Thinking as I type, is it safe to assume that oneWire.search() returns deterministically based on some ordering of the sensor serial numbers? If so, the sensors will retain ordering after a reset, but if not, I need another steer on how to make sure that each physical sensor stays tied to their respective inputs.</p>
+<p>Thanks in anticipation,</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="6220.html" class="topic-previous" title="Go to previous forum topic">‹ emonglcd screen issuse</a>
+              <a href="6207.html" class="topic-next" title="Go to next forum topic">Problems getting correct voltage measurement ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-17370"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1399.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1399.jpg" alt="Series530&#039;s picture" title="Series530&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTH with multiple DS18B20</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1399.html" title="View user profile.">Series530</a> on Tue, 07/01/2014 - 14:21.</div>
+    <div class="content">
+     <p>A few things to consider... or things that I struggled with anyway ... :</p>
+<p>&nbsp;</p>
+<p>best to fix the addresses as I found that the software can behave in a random way otherwise:</p>
+<p>&nbsp;</p>
+<p>Here&#39;s my payload:</p>
+<p>&nbsp;</p>
+<p>typedef struct { int channel, TriacFires , Loops;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int vrms, irms, real_power, apparent_power, power_factor,joules,solar_real_power, temperature0, temperature1, temperature2 ;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } PayloadTX; // create structure - a neat way of packaging data for RF comms&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PayloadTX emontx;</p>
+<p>&nbsp;</p>
+<p>Three are listed below as examples:</p>
+<p>&nbsp; &nbsp; &nbsp; DeviceAddress OutsideTemp={0x28, 0xB0, 0x0E, 0x55, 0x04, 0x00, 0x00, 0x7C};<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DeviceAddress TankTop&nbsp;&nbsp;&nbsp; ={0x28, 0x28, 0xF5, 0x4D, 0x04, 0x00, 0x00, 0x9E};<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DeviceAddress TankBottom ={0x28, 0xF0, 0x1E, 0x4E, 0x04, 0x00, 0x00, 0xD9};</p>
+<p>&nbsp;</p>
+<p>This checks how many sensors are on the bus:</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;numberOfDevices= sensors.getDeviceCount();<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;Temperature sensors found : &quot;);Serial.println(numberOfDevices);</p>
+<p>&nbsp;</p>
+<p>This checks that the sensors are as expected:</p>
+<p>&nbsp; &nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!sensors.getAddress(OutsideTemp, 0)) Serial.println(&quot;Unable to find address for Outside temperature device ... check hard coded address&quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!sensors.getAddress(TankTop, 2)) Serial.println(&quot;Unable to find address for Top of tank temperature device ... check hard coded address&quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!sensors.getAddress(TankBottom , 1)) Serial.println(&quot;Unable to find address for Bottom of tank temperature device ... check hard coded address&quot;);</p>
+<p>This sets the resolution of each sensor based upon the stated address:</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sensors.setResolution(OutsideTemp, 11);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sensors.setResolution(TankTop, 11);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sensors.setResolution(TankBottom, 11);</p>
+<p>This verifies that the resolution has been set:</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;Sensor resolution is set to : &quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(sensors.getResolution(OutsideTemp), DEC); Serial.print(&quot; &quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(sensors.getResolution(TankTop), DEC);&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot; &quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(sensors.getResolution(TankBottom), DEC);<br />
+	&nbsp;</p>
+<p>This requests the sensor temperatures:</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sensors.requestTemperatures();</p>
+<p>This reads the Outside temperature sensor and stores it in a temporary variable:</p>
+<p>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float temp=(sensors.getTempC(OutsideTemp));&nbsp; // 3 currently supported. Add or remove units as you see fit</p>
+<p>This writes the data into a payload structure multiplying the result by 1, 10 or 100 as there is no way to send fractional data in a payload (you will need to scale it down again at the receiver)&nbsp;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emontx.temperature0=(temp)*ScaleBy;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; temp=(sensors.getTempC(TankTop));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emontx.temperature1=(temp)*ScaleBy;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; temp=(sensors.getTempC(TankBottom));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emontx.temperature2=(temp)*ScaleBy;</p>
+<p>&nbsp;</p>
+<p>Hope this helps</p>
+<p>&nbsp;</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17376"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5190.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTH with multiple DS18B20</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5190.html" title="View user profile.">Schism</a> on Tue, 07/01/2014 - 20:00.</div>
+    <div class="content">
+     <p>Excellent, thanks. I&#39;d missed the whole hardcoding of addresses completely.</p>
+<p>Time to get busy with the soldering iron so I can give this a try.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17400"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4253.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="charliemic&#039;s picture" title="charliemic&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTH with multiple DS18B20</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4253.html" title="View user profile.">charliemic</a> on Wed, 08/01/2014 - 13:32.</div>
+    <div class="content">
+     <p>To add to this, I found it useful to keep a log of all my temperature sensors and their respective addresses. So I have labelled them all and have a notepad file with the list of addresses on it. Saves confusion later or having to find their addresses everytime!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17430"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5190.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTH with multiple DS18B20</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5190.html" title="View user profile.">Schism</a> on Thu, 09/01/2014 - 11:03.</div>
+    <div class="content">
+     <p>Thanks, that&#39;s a good tip. I&#39;ve got a grab bag of ten to play with so it&#39;s probably quite a wise idea to churn through them now and document...</p>
+<p>I managed to modify the EmonTH&nbsp;default firmware to report two external sensors without too much trouble. I was worried that embedded would be a major departure from my day job but it&#39;s all nicely abstracted. The fact that the Pi just passes the extra payload straight through to emoncms&nbsp;which picks it up automatically was the icing on the cake :)</p>
+<p>Although it&#39;s almost trivial in retrospect, I&#39;m going to attempt a wiki update for this anyway, as I suspect it&#39;s a common &#39;recipe&#39; and I think it&#39;s a nice illustration for people like me (technical but no hardware background) that the emon&nbsp;kit is a great way to go...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17459"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTH with multiple DS18B20</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Thu, 09/01/2014 - 17:02.</div>
+    <div class="content">
+     <p>Please let me know when you have some working code, if you&#39;re happy it would be great to push an emonTH&nbsp;multi DS18B20 example to the emonTH github</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17498"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5190.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTH with multiple DS18B20</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5190.html" title="View user profile.">Schism</a> on Fri, 10/01/2014 - 21:37.</div>
+    <div class="content">
+     <p>My emonTH has the DHT22. I&#39;m trying to work out what would happen if my sketch ran on a module with the DS18B20 on board.</p>
+<p>Does that come wired to the same OneWire&nbsp;pin as the external sensors, so it would mainly be a question of establishing the address?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25379"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3514.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Simonk695&#039;s picture" title="Simonk695&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTH with multiple DS18B20</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3514.html" title="View user profile.">Simonk695</a> on Thu, 27/11/2014 - 22:54.</div>
+    <div class="content">
+     <p>&nbsp;</p>
+<p>I came across this thread while doing a search prior to&nbsp;uploading my own hot water tank monitor solution.&nbsp; It is currently running on two Jeenodes, the Rx has an GLCd type display, but will be ported to a Jeenode Tx and EmonGLCD Rx \ display over the next week or so.&nbsp; I will upload the current code over the weekend.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25489"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3514.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Simonk695&#039;s picture" title="Simonk695&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTH with multiple DS18B20</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3514.html" title="View user profile.">Simonk695</a> on Mon, 01/12/2014 - 22:26.</div>
+    <div class="content">
+     <p>The plan is to transmit the remote battery voltage back to the display and integrate this into a new screen on the GLCD code.</p>
+<p>Likewise the Template code shown in the next post.</p>
+<p>/*<br />
+&nbsp;Tank Temperature Display<br />
+&nbsp;Written by Simon K - 16/11/2014<br />
+&nbsp;Last updated: - See footer.<br />
+&nbsp;<br />
+&nbsp;Based on wireless emonGLCD by: Glyn Hudson, Trystan Lea<br />
+&nbsp;Builds upon JeeLabs RF12 library and Arduino.<br />
+&nbsp;Note that although the physical module is called &#39;RFM12B&#39;,<br />
+&nbsp;the library is &#39;RF12&#39;<br />
+*/</p>
+<p>//------------------------------------------------------------------------------------------------------------------------------------------------<br />
+// emonGLCD Home Energy Monitor example<br />
+// emonGLCD documentation <a href="../emonglcd.html" title="http://openEnergyMonitor.org/emon/emonglcd">http://openEnergyMonitor.org/emon/emonglcd</a><br />
+// Correct time is updated via NanodeRF which gets time from internet</p>
+<p>// GLCD library by Jean-Claude Wippler: JeeLabs.org<br />
+// 2010-05-28 &lt;jcw@equi4.com&gt; <a href="http://opensource.org/licenses/mit-license.php" title="http://opensource.org/licenses/mit-license.php">http://opensource.org/licenses/mit-license.php</a></p>
+<p>// THIS SKETCH REQUIRES:</p>
+<p>//&nbsp;- OneWire library&nbsp;http://www.pjrc.com/teensy/td_libs_OneWire.html<br />
+//&nbsp;- DallasTemperature&nbsp;http://download.milesburton.com/Arduino/MaximTemperature<br />
+//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or <a href="https://github.com/milesburton/Arduino-Temperature-Control-Library" title="https://github.com/milesburton/Arduino-Temperature-Control-Library">https://github.com/milesburton/Arduino-Temperature-Control-Library</a><br />
+//&nbsp;- JeeLib&nbsp;&nbsp;https://github.com/jcw/jeelib<br />
+//&nbsp;- RTClib&nbsp;&nbsp;https://github.com/jcw/rtclib<br />
+//&nbsp;- GLCD_ST7565&nbsp;&nbsp;https://github.com/jcw/glcdlib<br />
+//<br />
+// Other files in project directory (should appear in the arduino tabs above)<br />
+//&nbsp;- icons.ino<br />
+//&nbsp;- temp_templates.ino<br />
+//<br />
+//-------------------------------------------------------------------------------------------------------------------------------------------------</p>
+<p>#include &lt;JeeLib.h&gt;<br />
+#include &lt;GLCD_ST7565.h&gt;<br />
+#include &lt;avr/pgmspace.h&gt;<br />
+GLCD_ST7565 glcd;</p>
+<p>#include &lt;RTClib.h&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+// Real time clock (RTC) - used for software RTC to reset kWh counters at midnight</p>
+<p>#include &lt;Wire.h&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+// Part of Arduino libraries - needed for RTClib</p>
+<p>RTC_Millis RTC;</p>
+<p>//--------------------------------------------------------------------------------------------<br />
+// RFM12B Settings<br />
+//--------------------------------------------------------------------------------------------<br />
+#define MYNODE 15<br />
+// Should be unique on network, node ID 30 reserved for base station</p>
+<p>#define freq RF12_868MHZ&nbsp;&nbsp;&nbsp;&nbsp;<br />
+// frequency - match to same frequency as RFM12B module (change to 868Mhz or 915Mhz if appropriate)</p>
+<p>#define group 200</p>
+<p>unsigned long fast_update;<br />
+unsigned long slow_update;</p>
+<p>double temp,maxtemp,mintemp;</p>
+<p>//---------------------------------------------------<br />
+// Data structures for transferring data between units<br />
+//---------------------------------------------------</p>
+<p>typedef struct { int temp1, temp2, temp3; } PayloadTX;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+// neat way of packaging data for RF comms</p>
+<p>PayloadTX emontx;</p>
+<p>// Kept for when I transmit data up to the emoncms site.<br />
+// typedef struct { int temp1, temp2, temp3, battery; } PayloadTemp;<br />
+// PayloadTemp emontemp;</p>
+<p>int hour = 12, minute = 0;<br />
+double usekwh = 0;</p>
+<p>//int cval_use;&nbsp; Replace with &#39;top_val&#39; etc.<br />
+int top_val;<br />
+int mid_val;<br />
+int low_val;<br />
+int volts =5;</p>
+<p>//--------------------------------------------------------------------------------------------<br />
+// Flow control<br />
+//--------------------------------------------------------------------------------------------</p>
+<p>unsigned long last_emontx;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+// Used to count time from last emontx update</p>
+<p>unsigned long last_emonbase;<br />
+// Used to count time from last emontx update</p>
+<p>
+void setup()<br />
+{<br />
+&nbsp;Serial.begin(9600);<br />
+&nbsp;delay(500);<br />
+&nbsp;//wait for power to settle before firing up the RF<br />
+&nbsp;<br />
+&nbsp;rf12_initialize(MYNODE, freq, group);<br />
+&nbsp;<br />
+&nbsp;delay(100);<br />
+&nbsp;//wait for RF to settle before turning on display<br />
+&nbsp;<br />
+&nbsp;glcd.begin(0x18);</p>
+<p>&nbsp;glcd.backLight(200);<br />
+&nbsp;<br />
+}</p>
+<p>
+void loop()<br />
+{<br />
+&nbsp;<br />
+if (rf12_recvDone())<br />
+&nbsp;{<br />
+&nbsp;&nbsp;if (rf12_crc == 0 &amp;&amp; (rf12_hdr &amp; RF12_HDR_CTL) == 0)&nbsp; // and no rf errors<br />
+&nbsp;&nbsp;&nbsp;{<br />
+&nbsp;&nbsp;&nbsp;&nbsp;int node_id = (rf12_hdr &amp; 0x1F);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;if (node_id == 10) {emontx = *(PayloadTX*) rf12_data; last_emontx = millis();}&nbsp;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;//Assuming 10 is the emonTx NodeID<br />
+&nbsp;&nbsp;&nbsp;/*<br />
+&nbsp;&nbsp;&nbsp;&nbsp;if (node_id == 12)&nbsp;&nbsp;&nbsp;//Assuming 12 is the emonBase node ID<br />
+&nbsp;&nbsp;&nbsp;&nbsp;{<br />
+&nbsp;&nbsp;&nbsp;&nbsp;RTC.adjust(DateTime(2012, 1, 1, rf12_data[1], rf12_data[2], rf12_data[3]));<br />
+&nbsp;&nbsp;&nbsp;&nbsp;last_emonbase = millis();<br />
+&nbsp;&nbsp;&nbsp;&nbsp;}<br />
+&nbsp;&nbsp;&nbsp;*/&nbsp;<br />
+&nbsp;&nbsp;&nbsp;}<br />
+&nbsp;}</p>
+<p>//--------------------------------------------------------------------------------------------<br />
+// Display update every 200ms<br />
+//--------------------------------------------------------------------------------------------<br />
+if ((millis()-fast_update)&gt;200)<br />
+&nbsp;{<br />
+&nbsp;&nbsp;fast_update = millis();<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;DateTime now = RTC.now();<br />
+&nbsp;&nbsp;int last_hour = hour;<br />
+&nbsp;&nbsp;hour = now.hour();<br />
+&nbsp;&nbsp;minute = now.minute();</p>
+<p>&nbsp;<br />
+&nbsp;&nbsp;top_val = (emontx.temp1);<br />
+&nbsp;&nbsp;mid_val = (emontx.temp2);<br />
+&nbsp;&nbsp;low_val = (emontx.temp3);<br />
+&nbsp;&nbsp;//volts&nbsp;&nbsp; = (emontx.battery);<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp;Serial.print(emontx.temp1);<br />
+&nbsp;&nbsp;Serial.println( );<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;draw_temp_page( &quot;Top&quot; ,top_val, &quot;Mid&quot;, mid_val, &quot;Low&quot;, low_val);</p>
+<p>&nbsp;&nbsp;draw_temperature_volts_footer(temp, volts);<br />
+&nbsp;&nbsp;glcd.refresh();</p>
+<p>&nbsp;&nbsp;// int LDR = analogRead(LDRpin);&nbsp; (Not used as no LDR fitted).<br />
+&nbsp;&nbsp;// Read the LDR Value so we can work out the light level in the room.<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp;// int LDRbacklight = map(LDR, 0, 1023, 50, 250);<br />
+&nbsp;&nbsp;// Map the data from the LDR from 0-1023 (Max seen 1000) to var GLCDbrightness min/max<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp;//int LDRbacklight = (50);<br />
+&nbsp;&nbsp;// Set back light level as no LDR fitted.&nbsp; Must be between 0 and 255.<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp;//LDRbacklight = constrain(LDRbacklight, 0, 255);&nbsp;&nbsp;<br />
+&nbsp;&nbsp;// Constrain the value to make sure its a PWM value 0-255<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp;//if ((hour &gt; 22) ||&nbsp; (hour &lt; 5)) glcd.backLight(0); else glcd.backLight(LDRbacklight);<br />
+&nbsp;&nbsp;// Turn the back-light off at night.<br />
+&nbsp;}<br />
+/*<br />
+if ((millis()-slow_update)&gt;5000)<br />
+&nbsp;{<br />
+&nbsp;&nbsp;slow_update = millis();</p>
+<p>&nbsp;&nbsp;<br />
+&nbsp;&nbsp;Temperature sensing removed for now;<br />
+&nbsp;&nbsp;sensors.requestTemperatures();<br />
+&nbsp;&nbsp;temp = (sensors.getTempCByIndex(0));<br />
+&nbsp;&nbsp;if (temp &gt; maxtemp) maxtemp = temp;<br />
+&nbsp;&nbsp;if (temp &lt; mintemp) mintemp = temp;<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp;// Temperature sending remove for now.<br />
+&nbsp;&nbsp;// emonglcd.temperature = (int) (temp * 100);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;// set emonglcd payload<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp;// rf12_sendNow(0, &amp;emonglcd, sizeof emonglcd);<br />
+&nbsp;&nbsp;// send temperature data via RFM12B using new rf12_sendNow wrapper -glynhudson<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp;rf12_sendWait(2);<br />
+&nbsp;&nbsp;<br />
+&nbsp;}<br />
+*/&nbsp;<br />
+}</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25490"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3514.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Simonk695&#039;s picture" title="Simonk695&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTH with multiple DS18B20</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3514.html" title="View user profile.">Simonk695</a> on Mon, 01/12/2014 - 22:30.</div>
+    <div class="content">
+     <p>Requires modifying to add the battery voltage collection and an outside air temperature sensor.</p>
+<p>Work&nbsp; in progress.&nbsp; All credit to the original authors, without who&#39;s talents I would not have been able to get my head around all this and produce a branch of THEIR code.</p>
+<p>&nbsp;</p>
+<p>#include &quot;utility/font_helvB24.h&quot;<br />
+#include &quot;utility/font_helvB14.h&quot;<br />
+#include &quot;utility/font_helvB12.h&quot;<br />
+#include &quot;utility/font_clR4x6.h&quot;<br />
+#include &quot;utility/font_clR6x8.h&quot;</p>
+<p>//------------------------------------------------------------------<br />
+// Draws a page showing a single power and energy value in big font<br />
+//------------------------------------------------------------------<br />
+void draw_temp_page(char* upper, double top_val, char* middle,&nbsp; double mid_val,&nbsp; char* lower,&nbsp; double low_val)<br />
+{<br />
+&nbsp; glcd.clear();<br />
+&nbsp; glcd.fillRect(0,0,128,64,0);<br />
+&nbsp;<br />
+&nbsp; char str[50];&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; //variable to store conversion<br />
+&nbsp; glcd.setFont(font_clR6x8);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;<br />
+&nbsp; strcpy(str,upper);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Draw the value of temp1<br />
+&nbsp; strcat(str,&quot; of Tank:&quot;);<br />
+&nbsp; glcd.drawString(0,0,str);<br />
+&nbsp;<br />
+&nbsp; strcpy(str,middle);&nbsp;<br />
+&nbsp; strcat(str,&quot; of Tank:&quot;);<br />
+&nbsp; glcd.drawString(0,16,str); //was 38<br />
+&nbsp;<br />
+&nbsp; strcpy(str,lower);&nbsp;<br />
+&nbsp; strcat(str,&quot; of Tank:&quot;);<br />
+&nbsp; glcd.drawString(0,32,str);<br />
+&nbsp;<br />
+&nbsp; // Top of tank<br />
+&nbsp; glcd.setFont(font_helvB12);&nbsp;<br />
+&nbsp; itoa((int)top_val,str,10);<br />
+&nbsp; strcat(str,&quot;c&quot;);&nbsp;&nbsp;<br />
+&nbsp; glcd.drawString(80,0,str);<br />
+&nbsp;<br />
+&nbsp; // Middle of tank.<br />
+&nbsp; glcd.setFont(font_helvB12);<br />
+&nbsp; itoa((int)mid_val,str,10);<br />
+&nbsp; strcat(str,&quot;c&quot;);<br />
+&nbsp; glcd.drawString(80,16,str);&nbsp;</p>
+<p>&nbsp; // Bottom of tank.<br />
+&nbsp; glcd.setFont(font_helvB12);<br />
+&nbsp; itoa((int)low_val,str,10);<br />
+&nbsp; strcat(str,&quot;c&quot;);<br />
+&nbsp; glcd.drawString(80,32,str);&nbsp;&nbsp;<br />
+}</p>
+<p>
+//------------------------------------------------------------------<br />
+// Draws a footer showing outside ait temperature and the remote battery voltage<br />
+//------------------------------------------------------------------<br />
+// void draw_temperature_time_footer(double temp, double mintemp, double maxtemp, double hour, double minute)</p>
+<p>void draw_temperature_volts_footer(double temp, double volts)</p>
+<p>{<br />
+&nbsp; glcd.drawLine(0, 47, 128, 47, WHITE);&nbsp;&nbsp;&nbsp;&nbsp; //middle horizontal line</p>
+<p>&nbsp; char str[50];<br />
+&nbsp; // Draw Temperature<br />
+&nbsp; glcd.setFont(font_helvB12);&nbsp;<br />
+&nbsp; dtostrf(temp,0,1,str);<br />
+&nbsp; strcat(str,&quot;C&quot;);<br />
+&nbsp; glcd.drawString(0,50,str);&nbsp;<br />
+&nbsp;<br />
+&nbsp; // Draw Volts<br />
+&nbsp; glcd.setFont(font_helvB12);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp; itoa((int)volts,str,10);<br />
+&nbsp; strcat(str,&quot;V&quot;);<br />
+&nbsp;&nbsp;&nbsp; glcd.drawString(80,50,str);<br />
+}</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3556"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-ZbMCIrWYytDE8ytG8pK03kMAdZRZwbJDAsf1p_0u0uY" value="form-ZbMCIrWYytDE8ytG8pK03kMAdZRZwbJDAsf1p_0u0uY"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3556 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:39:01 GMT -->
+</html>

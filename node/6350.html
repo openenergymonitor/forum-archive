@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>kWh feeds corrupted after Raspberry Pi reboot - prevention | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/5">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">kWh feeds corrupted after Raspberry Pi reboot - prevention</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/7424" title="View user profile.">bradtpt</a> on Fri, 26/12/2014 - 10:57</span>
+        <div class="content"><p>I&#39;ve been playing with the low-write&nbsp;Raspberri Pi image&nbsp;of emoncms&nbsp;(emonSD-13-08-14.img.zip) for a few weeks now and found that&nbsp;time sensitive feeds such as Power-&gt;kWh are corrupted with huge negative numbers after a reboot of the Pi, be it graceful or otherwise.</p>
+<p>What I have discovered is this is due to the system time always resetting to 1970 on reboot as the pi doesn&#39;t have a RTC and the <strong>feedwriter&nbsp;</strong>service manages to start and begin processing data before <strong>ntp</strong> grabs the current time from the network. &nbsp;My home installation which is connected by&nbsp;wired&nbsp;Ethernet seems to be immune to this&nbsp;for the most part, but my work setup connects by wifi and everytime I reboot&nbsp;I end up with corrupted kWh feeds.</p>
+<p>I noticed a file called <strong>fake-hwclock.data</strong>&nbsp;in <strong>~/data</strong> which contains&nbsp;a date and time close to what the current time actually is. &nbsp;A bit more digging revealed <strong>fake-hwclock</strong> is setup as a service which should run when&nbsp;the pi boots and update the date and time with the contents of that file, it also runs as a cron job every hour and updates <strong>~/data/</strong><strong>fake-hwclock</strong>&nbsp;with the current date and time, it is also executed when you shutdown or reboot.</p>
+<p>The framework all seemed to be in place for this to work, but it&nbsp;wasn&#39;t it doing its job on bootup. &nbsp;The problem appears to be&nbsp;in <strong>/etc/init.d/fake-hwclock</strong></p>
+<p>The line</p>
+<p><strong># Default-Start: &nbsp; &nbsp; S</strong></p>
+<p>needs to be changed to read</p>
+<p><strong># Default-Start: &nbsp; &nbsp; 2 3 4 5</strong></p>
+<p>&nbsp;</p>
+<p>Then run the following commands to update the startup rc?.d folders with the new settings.</p>
+<p><strong>&nbsp;$ sudo update-rc.d -f fake-hwclock remove</strong></p>
+<p><strong>&nbsp;$ sudo update-rc.d fake-hwclock defaults</strong></p>
+<p>&nbsp;</p>
+<p>I temporarily&nbsp;disabled <strong>ntp </strong>and did some testing and after every reboot the system would come up with the time&nbsp;only being about 1&nbsp;min&nbsp;behind time, just the duration of the system&nbsp;rebooting. &nbsp;Such a small change in time over a couple of samples until <strong>ntp </strong>picks up the correct time won&#39;t introduce a noticeable error to the kWh feeds like 40 odd years will!</p>
+<p>I&#39;d found a few threads on here where people had experienced the feeds corrupting, whilst what I offer here doesn&#39;t provide a solution for a &quot;now broken&quot; feed with bad data, at least it provides a means to hopefully prevent anything breaking in future.</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/6370" class="topic-previous" title="Go to previous forum topic">‹ Automated Test Framework for Unit, integration and system test?</a>
+              <a href="/emon/node/6340" class="topic-next" title="Go to next forum topic">emoncms - redis error ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-26141"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: kWh feeds corrupted after Raspberry Pi reboot - prevention</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Fri, 26/12/2014 - 12:46.</div>
+    <div class="content">
+     <p>Hi Bradley</p>
+<p>Good to aee another approach to tackling this issue, there is a <a href="http://openenergymonitor.org/emon/node/5877">&quot;Read-only image time issues&quot;</a>&nbsp;thread on this with an alternative fix. The issue is as you say,&nbsp;the npt not getting the time before starting other processes but the actual&nbsp;cause is&nbsp;that fake-hwclock&nbsp;is&nbsp;unreachable (at that point in time)&nbsp;via the symlinked data partition copy.</p>
+<p>Your fix above changes the order of things at boot where as&nbsp;&quot;ntp-backup&quot; tackles the problem by putting fake-hwclock back where it was intended to be to correct the start-up timing&nbsp;and directly tackles&nbsp;the read-only issue the relocation was intended to fix&nbsp;by managing the read-only status when the current time needs to be saved to&nbsp;fake-hwclock.</p>
+<p>There usually is more than one way&nbsp;to skin the preverbal cat but a small advantage of the &quot;ntp-backup&quot; is that it&#39;s unlikely to get overwritten by a future&nbsp;update to ntp or fake-hwclock&nbsp;as the fix is an add-on&#39; rather than edits and relocations.</p>
+<p>As it doesn&#39;t use the data partition it is also portable for any raspbian&nbsp;image rather than just the&nbsp;emonSD-13-08-14.img.zip and incidentally&nbsp;opens up the future possibility of not having the 3rd data partition until&nbsp;enoncms&nbsp;is enabled which&nbsp;would fix another &quot;quirk&quot;&nbsp;of that&nbsp;SD card image by&nbsp;making&nbsp;&quot;raspi-config&nbsp;expand SD&nbsp;file system&quot; available to the many users not running emoncms locally.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26143"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7424" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="bradtpt&#039;s picture" title="bradtpt&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: kWh feeds corrupted after Raspberry Pi reboot - prevention</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7424" title="View user profile.">bradtpt</a> on Fri, 26/12/2014 - 13:20.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>Yes, it was only shortly after posting my &quot;fix&quot; I discovered your thread listed above and subsequently&nbsp;ntp-backup. &nbsp;I learnt a lot working through the issues&nbsp;to get my fix working but the points you put forward about ntp-backup make it much more appealing and as such I plan on installing it. &nbsp;I also used the instructions in that thread of yours to re-zero my kWh feeds using manual .json entries through a web browser&nbsp;which was very convenient. A big thanks for your work.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/6350"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Pa48htNrNwkZlQi6fQ1uG_TwRmS96UoUdXtPkVzdMIE" value="form-Pa48htNrNwkZlQi6fQ1uG_TwRmS96UoUdXtPkVzdMIE"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

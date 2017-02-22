@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6079 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:01:32 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>PV diverter with remote load switched by MQTT | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">PV diverter with remote load switched by MQTT</h3>
+        <span class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Sat, 08/11/2014 - 02:04</span>
+        <div class="content"><p>Hey guys,</p>
+<p>I have just installed and switched on my first PV diverter. It is a bit of a custom setup so I thought I would share what I have done in case anyone else is interested.</p>
+<p>I have an existing solar hot water system, using evacuated tubes and a circulating pump. My HWC has two elements, one in the middle and one at the bottom.&nbsp;The existing solar H2O&nbsp;system is hooked up to the middle element and gives the cylinder a boost at 4am if it is below 45 degrees. This has been working very well. In summer it never kicks in but in winter it runs every night for an hour or so to heat the cylinder up to temp.</p>
+<p>My electricity provider pays&nbsp;me a nice healthy 25c/kWh for the first 150kWh exported each month, and then it drops&nbsp;down to 10c/kWh for anything extra. My daytime importing rate is about 34c/kWh and at night this drops to 15c/kWh. So for the first 150kWh of export I am better off collecting the 25c/kWh, and boosting the HWC at night for only 15c/kWh. But once I exceed 150kWh&nbsp;I am better off, by 5c/kWh, to heat the cylinder during the day (via PV diversion).&nbsp;</p>
+<p>I want to use the bottom element in the HWC&nbsp;for PV diversion since this will provide the greatest thermal storage. The existing solar H2O system is great only using the middle element as I only want to heat half the cylinder when boosting - it is a 350l tank!</p>
+<p>However the HWC is in a different location to my electrical distribution board and there is only a single circuit running to the HWC. Therefore I have to be very careful to ensure that both the elements are never on at the same time, as this would exceed the load permitted on the wiring and could cause major problems!</p>
+<p>The wiring diagram is attached. I am using a mechanical SPDT relay to ensure only one side of the circuit can ever be powered up. This is switched by the existing solar H2O controller. The N/O side of the relay is connected to the middle element and is only activated when the solar H2O controller decides it needs to boost. The N/C side of the relay is then connected to a Crydom D2425 SSR (thanks to Robin for pointing me in this direction!) which is switch by an Arduino living in my HWC cupboard (used for other automation tasks like controlling my underfloor heating system. This Arduino is controlled by my home automation software via MQTT and had a spare digital pin which I have connected directly to the SSR input.</p>
+<p>That is it for the HWC side of the design. There is a photo attached of the finished job.</p>
+<p>The next part of the puzzle was how to control the SSR. I have an Arduino in the cupboard next to my distribution board, with the EmonTX Arduino shield. The Arduino I am using has onboard ethernet so I have modified Robins &#39;continuous_monitoring&#39; sketch to publish readings over MQTT. This has been working great for the last few months.&nbsp;</p>
+<p>For this project I added some extra features to the sketch. The first was to allow the PV diversion logic to be turned on/off via MQTT. This would allow my home automation system (openHAB) to monitor the amount of exported energy each month and only enable the PV diverter once I hit the magic 150kWh. The second part was to incorporate Robins diverter logic and modify it slightly so that I could switch my remote load via MQTT.</p>
+<p>​I have attached the sketch. So far it is working an absolute treat! This morning I hit 150kWh of export and all of a sudden my PV diverter switched on. So far today it has been happily switching the lower element of my HWC on/off and keeping my export to an absolute minimum.&nbsp;</p>
+<p>So firstly a big thanks to Robin for his patience and guidance in helping me get to this point! I was really hoping to buy some hardware off him but due to the rather unique design I wasn&#39;t able to support his store this time. And also thanks to Robert who helped out a lot with getting my EmonTX monitoring system up and running.</p>
+<p>I am extremely pleased with the setup. The&nbsp;system allows me to make automated decisions about when to enable the diverter as well as being able to override the system and boost the HWC (via the SSR) all&nbsp;using MQTT via openHAB.&nbsp;</p>
+<p>Due to my existing solar H2O system I will probably disable the PV diverter during the middle of summer since that is more than capable of keeping the HWC above 60 degrees. This is easily done via a rule in openHAB.&nbsp;</p>
+<p>The next phase is to build my own solar H2O controller - so that I have full control over that as well as being able to monitor the HWC temps. This would allow me to disable the PV diverter when the HWC gets hot enough, as well as provide more things to graph/monitor in EmonCMS!</p>
+<p>So thanks to all on this great forum, I hope someone gets some use or ideas from what I have done.</p>
+<p>Best regards, Ben</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="6092.html" class="topic-previous" title="Go to previous forum topic">‹ Use your Nissan Leaf ELV as a battery backup for your house</a>
+              <a href="5787.html" class="topic-next" title="Go to next forum topic">Latest SD+HDD software? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-25048"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7167.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7167.jpg" alt="pb&#039;s picture" title="pb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: PV diverter with remote load switched by MQTT</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7167.html" title="View user profile.">pb</a> on Sun, 09/11/2014 - 09:13.</div>
+    <div class="content">
+     <p>Sounds like you have a good setup there.  Shame Meridian are changing the buyback scene:<br />
+<a href="http://www.meridianenergy.co.nz/save-energy-and-money/generate-your-own-energy/pricing-and-metering/" title="http://www.meridianenergy.co.nz/save-energy-and-money/generate-your-own-energy/pricing-and-metering/">http://www.meridianenergy.co.nz/save-energy-and-money/generate-your-own-...</a></p>
+<p>The new rates of 10c in winter and 7c in summer essentially make it a non-starter to install a PV system. </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/6079"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Zfjzft2R4GaIZMCasChecE5sG5-v9eYeAmO9g1y6cN8" value="form-Zfjzft2R4GaIZMCasChecE5sG5-v9eYeAmO9g1y6cN8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6079 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:01:32 GMT -->
+</html>

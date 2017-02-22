@@ -1,0 +1,528 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1981 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:02:33 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Wireless Bike Light using your code | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Wireless Bike Light using your code</h3>
+        <span class="submitted">Submitted by <a href="../user/608.html" title="View user profile.">Dawn</a> on Wed, 30/01/2013 - 21:59</span>
+        <div class="content"><p>I am using two RFM12bs to send code from the pushbutton to turn on or off my lights wirelessly on for my bike. &nbsp;I have altered the send code that you use to send the energy code. &nbsp;Everything works except that when I press for example, I press the button once, the code send -1 but then after a while even though nothing is pressed it resets itself to zero.&nbsp;</p>
+<p>&nbsp;</p>
+<p>The code works fine when I take out the watchdog but I was wondering if there is a way to keep the watchdog and save the variable somehow for lower power?</p>
+<p>&nbsp;</p>
+<p>Below is code</p>
+<p>#include &lt;JeeLib.h&gt;</p>
+<p>#include &lt;Arduino.h&gt;</p>
+<p></p>
+<p>#define CLICK_DEBOUNCE_DELAY 20<br />
+	#define CLICK_MULTICLICK_DELAY 250<br />
+	#define CLICK_HELDDOWN_DELAY 5000<br />
+	#define CLICK_PULLUP HIGH</p>
+<p>// For now limit to tripleclicks<br />
+	#define CLICK_MAX_BUTTON_PRESSES 3</p>
+<p>// the decoded functions<br />
+	#define CLICK_TRIPLECLICKED -3<br />
+	#define CLICK_DOUBLECLICKED -2<br />
+	#define CLICK_SINGLECLICKED -1<br />
+	#define CLICK_SINGLECLICK 1<br />
+	#define CLICK_DOUBLECLICK 2<br />
+	#define CLICK_TRIPLECLICK 3<br />
+	#define CLICK_SINGLEHOLD CLICK_MAX_BUTTON_PRESSES + 1<br />
+	#define CLICK_DOUBLEHOLD CLICK_MAX_BUTTON_PRESSES + 2<br />
+	#define CLICK_TRIPLEHOLD CLICK_MAX_BUTTON_PRESSES + 3<br />
+	#define pin 7<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Arduino pin connected to the button<br />
+	&nbsp;&nbsp;&nbsp; boolean reading;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Current button state<br />
+	&nbsp;&nbsp;&nbsp; boolean active;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Type of button - active LOW or HIGH<br />
+	&nbsp;&nbsp;&nbsp; boolean lastReading;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // previous button reading<br />
+	&nbsp;&nbsp;&nbsp; int buttonPressNr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Number of times button is pressed within CLICK_MULTICLICK_DELAY milliseconds<br />
+	&nbsp;&nbsp;&nbsp; boolean debouncedButton;&nbsp;&nbsp; // the currently debounced button state<br />
+	&nbsp;&nbsp;&nbsp; long lastBounceTime;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; int click =0;</p>
+<p>#define Button_Push 6<br />
+	// the Button<br />
+	//const int buttonPin1 = 7;<br />
+	//ClickButton button1(buttonPin1, LOW,CLICK_PULLUP);</p>
+<p>// Needs to store the previous returned button click code<br />
+	int lastClickCode = 0;</p>
+<p>int val = 0;<br />
+	int old_val = 0;<br />
+	int state = 0;</p>
+<p>#define freq RF12_915MHZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Frequency of RF12B module can be RF12_433MHZ, RF12_868MHZ or RF12_915MHZ. You should use the one matching the module you have.<br />
+	const int nodeID = 10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // emonTx RFM12B node ID<br />
+	const int networkGroup = 210;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // emonTx RFM12B wireless network group - needs to be same as emonBase and emonGLCD</p>
+<p>const int UNO = 1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Set to 0 if your not using the UNO bootloader (i.e using Duemilanove) - All Atmega&#39;s shipped from OpenEnergyMonitor come with Arduino Uno bootloader<br />
+	#include &lt;avr/wdt.h&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>#include &lt;JeeLib.h&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Download JeeLib: <a href="http://github.com/jcw/jeelib" title="http://github.com/jcw/jeelib">http://github.com/jcw/jeelib</a><br />
+	ISR(WDT_vect) { Sleepy::watchdogEvent(); }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Attached JeeLib sleep function to Atmega328 watchdog -enables MCU to be put into sleep mode inbetween readings to reduce power consumption</p>
+<p>typedef struct { int buttonState;} PayloadTX;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // create structure - a neat way of packaging data for RF comms<br />
+	PayloadTX emontx;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // On-board emonTx LED</p>
+<p>void setup()<br />
+	{<br />
+	&nbsp; Serial.begin(9600);<br />
+	&nbsp; rf12_initialize(nodeID, freq, networkGroup);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // initialize RFM12B<br />
+	&nbsp; rf12_sleep(RF12_WAKEUP);<br />
+	&nbsp; if (UNO) wdt_enable(WDTO_8S);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Enable anti crash (restart) watchdog if UNO bootloader is selected. Watchdog does not work with duemilanove bootloader&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Restarts emonTx if sketch hangs for more than 8s<br />
+	&nbsp; pinMode(pin,INPUT);<br />
+	&nbsp; pinMode(Button_Push,OUTPUT);<br />
+	}</p>
+<p>void loop () {<br />
+	&nbsp; digitalWrite(Button_Push,HIGH);</p>
+<p>	&nbsp; reading = digitalRead(pin);<br />
+	// if (!active) reading = !reading;&nbsp;&nbsp; // Just to make the button logic in code active-high</p>
+<p>&nbsp; long now = (long)millis();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // prevents rollover issue by using signed arithmetic (I think)</p>
+<p>&nbsp; // If the switch changed, due to noise or pressing reset the debouncing timer<br />
+	&nbsp; if (reading != lastReading) lastBounceTime = now;</p>
+<p>&nbsp; // If no buttons were pressed within doubleClickDelay milliseconds, start a new buttonpress cycle<br />
+	&nbsp; if (now - lastBounceTime &gt; CLICK_MULTICLICK_DELAY) buttonPressNr = 0;</p>
+<p>&nbsp; // Check if a debounced, changed state has occured<br />
+	&nbsp; if (now - lastBounceTime &gt; CLICK_DEBOUNCE_DELAY &amp;&amp; reading != debouncedButton)<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; // whatever the reading is at, it&#39;s been there for longer<br />
+	&nbsp;&nbsp;&nbsp; // than the debounce delay, so take it as the actual current state:<br />
+	&nbsp;&nbsp;&nbsp; debouncedButton = reading;</p>
+<p>&nbsp;&nbsp;&nbsp; // Check if the button is currently pressed down or not<br />
+	&nbsp;&nbsp;&nbsp; if (debouncedButton) click = ++buttonPressNr;<br />
+	&nbsp;&nbsp;&nbsp; else click = 0 - buttonPressNr;<br />
+	&nbsp; }</p>
+<p>&nbsp; // limit number of clicks / button presses<br />
+	&nbsp; if (buttonPressNr &gt; CLICK_MAX_BUTTON_PRESSES) buttonPressNr = CLICK_MAX_BUTTON_PRESSES;</p>
+<p>&nbsp; // Check to see if a button is held down for a longer time<br />
+	&nbsp; if (debouncedButton &amp;&amp; (now - lastBounceTime &gt; CLICK_HELDDOWN_DELAY) &amp;&amp; click &lt; (CLICK_MAX_BUTTON_PRESSES+1))<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; // Set function according to a preceding doubleclick or not<br />
+	&nbsp;&nbsp;&nbsp; click += CLICK_MAX_BUTTON_PRESSES;<br />
+	&nbsp; }</p>
+<p>&nbsp; lastReading = reading;<br />
+	&nbsp; Serial.println(click);<br />
+	&nbsp; emontx.buttonState = click;<br />
+	&nbsp;<br />
+	send_rf_data();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // *SEND RF DATA* - see emontx_lib</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>Thanks,</p>
+<p>Dawn</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2085.html" class="topic-previous" title="Go to previous forum topic">‹ just an idea...</a>
+              <a href="2052.html" class="topic-next" title="Go to next forum topic">Wireless water and electricity monitoring ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-9543"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 31/01/2013 - 17:20.</div>
+    <div class="content">
+     <p>I can&#39;t see where you are resetting the watchdog timer. That&#39;s why it is timing out, and when that happens the program restarts from the top. You need &quot;wdt_reset();&quot; somewhere in your main loop.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9581"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/608.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Dawn&#039;s picture" title="Dawn&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/608.html" title="View user profile.">Dawn</a> on Sun, 03/02/2013 - 00:21.</div>
+    <div class="content">
+     <p>That did the trick.</p>
+<p>Thanks.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9582"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Sun, 03/02/2013 - 08:18.</div>
+    <div class="content">
+     <p>Isn&#39;t it also transmitting continuously? I can&#39;t see anything in loop() that causes any delay. If you&#39;re running on batteries, and to restrict radio channel use, you only need to transmit when the button is pressed.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9615"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/608.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Dawn&#039;s picture" title="Dawn&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/608.html" title="View user profile.">Dawn</a> on Tue, 05/02/2013 - 14:52.</div>
+    <div class="content">
+     <p>I do want to do that along with other low power techniques but haven&#39;t written the code yet. &nbsp;I keep running into unexpected issues with the signal.</p>
+<p>cheers,</p>
+<p>Dawn.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9617"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 05/02/2013 - 16:47.</div>
+    <div class="content">
+     <p>What kind of unexpected issues? They might be related to you transmitting continuously!</p>
+<p>If I&#39;m reading your code correctly, you&#39;re transmitting a number that relates to the history of button-presses every time your code loops, i.e. continuously, essentially limited only by the time taken to do the print statement and transmit the data.</p>
+<p>I&#39;ve no idea what you are actually trying to achieve, nor what you have at the receiving end, but it looks to me as if you are putting half your intelligence in the transmitter and half in the receiver. It would be easier if you concentrated all - or very nearly all - of the intelligence at one end or the other. Can I suggest that you rethink the overall strategy along these lines:</p>
+<p>At the transmitter, debounce the switch and then send one code once (or maybe a small number of times, say 3 times at 100 ms intervals) meaning &quot;the button has been pressed&quot;. Then at the receiver you implement the decoding to - I presume - toggle the lamp on and off for each button press.</p>
+<p>Using that strategy, you could make it so that your pushbutton connected the power to the transmitter, which then transmitted the code more-or-less immediately. That would be the ultimate battery-saving technique - for the transmitter at any rate. The receiver clearly needs to be powered continuously in order to be able to receive the commands.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9639"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/608.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Dawn&#039;s picture" title="Dawn&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/608.html" title="View user profile.">Dawn</a> on Wed, 06/02/2013 - 16:16.</div>
+    <div class="content">
+     <p>Is this what you mean?</p>
+<p>Code from emontx lib.</p>
+<p>void send_rf_data()<br />
+	{<br />
+	&nbsp; rf12_sleep(RF12_WAKEUP);<br />
+	&nbsp; // if ready to send + exit loop if it gets stuck as it seems too<br />
+	&nbsp; int i = 0; while (!rf12_canSend() &amp;&amp; i&lt;10) {rf12_recvDone(); i++;}<br />
+	&nbsp; rf12_sendStart(0, &amp;emontx, sizeof emontx);<br />
+	&nbsp; // set the sync mode to 2 if the fuses are still the Arduino default<br />
+	&nbsp; // mode 3 (full powerdown) can only be used with 258 CK startup fuses<br />
+	&nbsp; rf12_sendWait(2);<br />
+	&nbsp; rf12_sleep(RF12_SLEEP);<br />
+	}</p>
+<p>void emontx_sleep(int seconds) {<br />
+	&nbsp; if (emontx.battery &gt; 3300) {<br />
+	&nbsp;&nbsp;&nbsp; for (int i=0; i&lt;seconds; i++) {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; delay(1000);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (UNO) wdt_reset();<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp; } else Sleepy::loseSomeTime(seconds*1000);<br />
+	}</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9644"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 07/02/2013 - 01:04.</div>
+    <div class="content">
+     <p>Dawn, I&#39;m struggling to see the overall picture. I&#39;m seeing some of the detail but I&#39;m missing a lot - like what&#39;s happening at the receiving end. I&#39;m worried that you&#39;re bogged down in detail when the detail isn&#39;t the problem. Can you tell me in words what you are trying to achieve and broadly how you are going about it?</p>
+<p>(I&#39;m looking for:<br />
+	When I press the button on the transmitter once, it turns the light on.<br />
+	When I press it twice in quick succession, it turns the light off.<br />
+	In between, the light stays in the last state, either on or off.<br />
+	In the receiver, the light is connected to a DIO pin via a driver transistor.</p>
+<p><em>alternatively</em></p>
+<p>When I press the button on the transmitter once, it sends a code every 10 s to turn the light on.<br />
+	When I press it twice in quick succession, it sends a code to turn the light off.<br />
+	If the transmitter goes out of range, the light turns off automatically after 25 s.</p>
+<p>or something like that).</p>
+<p>The emontx library that you quoted: the first function sends the data, the second sleeps the transmitter for a number of seconds, as a battery-saving measure. The first you will need, I don&#39;t think the second is going to be much use to you, but at this stage I can&#39;t tell for sure.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9956"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/608.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Dawn&#039;s picture" title="Dawn&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/608.html" title="View user profile.">Dawn</a> on Mon, 18/02/2013 - 21:59.</div>
+    <div class="content">
+     <p>Robert,</p>
+<p>Thank you for your reply. &nbsp;Sorry, it took so long to get back to you. &nbsp;I was having a hardware issue that took sometime to get sorted out. &nbsp;I put up a very rough draft of project here, <a href="http://cycedtobike.com/project.html" title="http://cycedtobike.com/project.html">http://cycedtobike.com/project.html</a></p>
+<p>The main problem is that after 2-5 minutes it stops working and then it has to be reset. &nbsp;I tried a few different things with the code and it did not help. &nbsp;I am thinking that the issue is because the watchdog probably needs to be used to prevent crashing, although when I put it in the code, it did not seem to help.</p>
+<p>Does that seem right? or is there another issue going on?</p>
+<p>&nbsp;</p>
+<p>Thanks,</p>
+<p>&nbsp;</p>
+<p>Dawn.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9957"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Mon, 18/02/2013 - 08:21.</div>
+    <div class="content">
+     <p>I had a quick look at your circuit diagrams and I noticed that you have no series resistors for your optocoupler diodes. This will cause very large currents to flow which will at the very least flatten your battery quickly and may damage the ATmega chip.</p>
+<p>You shouldn&#39;t need a watchdog if your code is working correctly. It&#39;s only intended as failsafe for when things go haywire.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9975"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/608.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Dawn&#039;s picture" title="Dawn&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/608.html" title="View user profile.">Dawn</a> on Mon, 18/02/2013 - 17:40.</div>
+    <div class="content">
+     <p>I did add latter while trying to trouble shoot a 1k resistor to the optocoupler&nbsp;but I still keep running into the same problem.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9978"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 18/02/2013 - 20:10.</div>
+    <div class="content">
+     <p>The hardware problem:</p>
+<p>I have not checked up on the opto-isolator that you&#39;re using, but having no current limiting resistor is, as Martin says, definitely wrong; but equally a 1 kOhm resistor sounds far too high. The LED in the opto is likely to require about the same current as any other LED, so I would expect a series resistor of around 100 R. You need enough current for the opto-isolator to work, but not so much that it blows up the Arduino.</p>
+<p>Also as Martin says, the watchdog should reset the Arduino if the software locks up for an unknown and unforeseen reason. Ideally, it should never have a need to work.</p>
+<p>The software problems:</p>
+<p>It&#39;s a long shot, but use the very latest JeeLib release for the RFM12B drivers. An issue was discovered with the EmonGLCD software, and fixed within the last few days. It seems unlikely that you have the same conditions, but it&#39;s worth using the latest version nonetheless.</p>
+<p>As for any other problems in there: sorry, my crystal ball has clouded over. Tell me in words what you are trying to achieve with the button(s), and I&#39;ll try to help you. You really can&#39;t expect me to spot a basic flaw in your logic until I know what you are trying to do. If you need to keep your specification secret, that&#39;s fine, send it to me in a PM.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9985"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/608.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Dawn&#039;s picture" title="Dawn&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/608.html" title="View user profile.">Dawn</a> on Mon, 18/02/2013 - 22:06.</div>
+    <div class="content">
+     <p>Robert,</p>
+<p>Trying the new release for the RFM12B driver is a really good idea. &nbsp; Yes, I think you are right, the resistor.</p>
+<p>Also, I posted a quick demo video and code here,&nbsp;http://cycedtobike.com/project.html. &nbsp;The video and code is at the bottom of the page. &nbsp;Is this the specifications you are talking about?</p>
+<p>&nbsp;</p>
+<p>Thanks,</p>
+<p>&nbsp;</p>
+<p>Dawn.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9987"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 18/02/2013 - 23:22.</div>
+    <div class="content">
+     <p>Sorry, that video won&#39;t download for me. All I want is some words - in the form that I posted on Thu, 07/02/2013 - 01:04. Now I&#39;ve got the circuit diagrams of your transmitter - but it still doesn&#39;t show the pushbutton(s) - and the receiver, I&#39;ve got a better idea of your hardware.</p>
+<p>One point regarding that: you seem to be switching the a.c. supply to the electro-luminescent panels, but you&#39;re not switching the d.c. supply to the inverter. This means that the inverter will be running all the time and will drain your batteries. That might be a problem you want to address.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9988"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/608.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Dawn&#039;s picture" title="Dawn&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/608.html" title="View user profile.">Dawn</a> on Tue, 19/02/2013 - 07:29.</div>
+    <div class="content">
+     <p>What it does is</p>
+<p>when I push the button once, the device transmits &nbsp;-1, and the el panel flashes on the right side and the left side is off</p>
+<p>when I push the button twice,the device transmits&nbsp; -2 and one&nbsp;the el panel flashes on the left side and the right side is off</p>
+<p>when I delay click,the device transmits &nbsp;0 and both el panels are flashing.</p>
+<p>I reloaded the jeelabs library and it seems to be working better but it does need testing to be sure.</p>
+<p>&nbsp;</p>
+<p>I know that my code need a lot of cleaning up, but added a zip file is that helps.</p>
+<p>&nbsp;</p>
+<p>Thanks,</p>
+<p>Dawn.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9991"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 19/02/2013 - 11:10.</div>
+    <div class="content">
+     <p>That&#39;s what I needed! OK, I&#39;ll take a look at the code later today or tomorrow and try to see what&#39;s wrong.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10002"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 19/02/2013 - 17:16.</div>
+    <div class="content">
+     <p>I see a gap in your specification: What turns the indications off?</p>
+<p>And what is a &quot;delay click&quot;? Is it hold the button down for a long time?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10028"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/608.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Dawn&#039;s picture" title="Dawn&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/608.html" title="View user profile.">Dawn</a> on Wed, 20/02/2013 - 18:41.</div>
+    <div class="content">
+     <p>I turn the indicator off by switching off the power with switched on my battery pack.</p>
+<p>And yes, the delay click is holding it for a second or longer.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10254"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless Bike Light using your code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 02/03/2013 - 23:00.</div>
+    <div class="content">
+     <p>These two sketches seem to work for me using &quot;standard shop&quot; emonTx as the transmitter and nanodeRF as the receiver.</p>
+<p>I think the main problem was there were no delays in the main loop so it was catching its own tail. RF is now only sent every 400 ms.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/1981"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-POm_osMMGoliGTYn-9aKo0CjHHsOXpq1XfsgTgX0b7s" value="form-POm_osMMGoliGTYn-9aKo0CjHHsOXpq1XfsgTgX0b7s"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1981 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:02:33 GMT -->
+</html>

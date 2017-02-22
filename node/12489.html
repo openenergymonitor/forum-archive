@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12489 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:41:12 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Configuring an Apache reverse SSL proxy for node-red | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Configuring an Apache reverse SSL proxy for node-red</h3>
+        <span class="submitted">Submitted by <a href="../user/8729.html" title="View user profile.">Peter Galbavy</a> on Fri, 08/04/2016 - 12:43</span>
+        <div class="content"><p>I haven&#39;t really got anywhere else to share this and all the help pages online are for much older versions of node-red than current.</p>
+<p>This is not for an emonpi (yet) but for my Ubuntu hosted emoncms server.</p>
+<p>I wanted to host node-red on the same URL as emoncms but also wanted SSL/TLS only connections. The problem with node-red (and node.js in general) is the websocket.</p>
+<p>This presented a challenge as I have never had to deal with websockets via SSL before. The solution is, fundamentally:</p>
+<p>Assuming node-red is&nbsp;set-up to SSL and present itself on&nbsp;a URL starting with <a href="https://localhost:1880/nodered" title="https://localhost:1880/nodered">https://localhost:1880/nodered</a>, which require some changes to settings.js:</p>
+<pre>
+     httpRoot: &#39;/nodered&#39;,</pre><p>Then you need to enable your Apache setup to use mod_proxy and all the dependencies (common enough and OS dependent, so google that bit)</p>
+<p>Then, in the VirtualHost blcok for the SSL site:</p>
+<pre>
+​    &lt;VirtualHost _default_:443&gt;
+...
+        SSLProxyEngine On
+        ProxyPreserveHost On
+        ProxyRequests Off
+        ProxyPass /nodered/comms wss://localhost:1880/nodered/comms
+        ProxyPass /nodered <a href="https://localhost:1880/nodered" title="https://localhost:1880/nodered">https://localhost:1880/nodered</a>
+        ProxyPassReverse /nodered/comms wss://localhost:1880/nodered/comms
+        ProxyPassReverse /nodered https://localhost:1880/nodered​
+...
+
+</pre><p>The difference to other on-line guides I have found, is what used to be /debug and /debug/ws is now rooted under /comms but there is no mention of this on-line.</p>
+<p>The above assumes node-red is running on the same host, hence the use of locahost. The other thing that took ages was that secure websockets needs a wss: at the start of the URL, not ws:</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12490.html" class="topic-previous" title="Go to previous forum topic">‹ Graphing Problems</a>
+              <a href="12484.html" class="topic-next" title="Go to next forum topic">Daily Total Not Resetting ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12489 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:41:12 GMT -->
+</html>

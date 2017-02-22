@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2004 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:37:41 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Problems with floating point values.  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Problems with floating point values. </h3>
+        <span class="submitted">Submitted by Guest on Fri, 08/02/2013 - 01:08</span>
+        <div class="content"><p>Hi,</p>
+<p>&nbsp;</p>
+<p>I am trying to log data to emoncms from my water meter using a pulse input.&nbsp; I am running standard emonbase with no modifcations on a NanodeRF.&nbsp; I&#39;m running emontx on a Nanode&nbsp; that has been modified for pulse counting.&nbsp; One of my values is a floating point value, the other is a integer.&nbsp; However when I receive the floating point on the emonbase it comes out as two separate values.&nbsp; See below.</p>
+<p>Data sent: /api/post.json?apikey=alkahjsdfkhadsfkjhasdlkjasdlkjhdsaflhjk&amp;node=1&amp;csv=31754,16902,2<br />
+	&nbsp;</p>
+<p>&nbsp;</p>
+<p>Likewise on emoncms I get 3 values instead of 2.&nbsp; This is what my struct looks like on the emontx.</p>
+<p>&nbsp;</p>
+<p>typedef struct { float flowrate; int pulse;} PayloadTX;</p>
+<p>&nbsp;</p>
+<p>Does anyone have any ideas why the floating point values is being interpreted in this manner?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1641.html" class="topic-previous" title="Go to previous forum topic">‹ Enclosures, aerials and ground planes</a>
+              <a href="761.html" class="topic-next" title="Go to next forum topic">emonGLCD v1.4 schematic ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-9667"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/380.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-380.jpg" alt="mharizanov&#039;s picture" title="mharizanov&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems with floating point values. </h3>
+
+    <div class="submitted">Submitted by <a href="../user/380.html" title="View user profile.">mharizanov</a> on Fri, 08/02/2013 - 06:40.</div>
+    <div class="content">
+     <p>The CSV method expects only int&nbsp;values, typically a float is converted to an int for transmission purposes by multiplying by 100 and then divided by 100 (by multiplying by 0.01) back at the receiving end.&nbsp;</p>
+<p>&nbsp;</p>
+<p>Exmple with temperatures</p>
+<p>1) reading 21.34 degrees C</p>
+<p>2) multiplied by 100 = 2134 int value</p>
+<p>3) emoncms processing rule 2134*0.01 = 21.34</p>
+<p>&nbsp;</p>
+<p>That of course may lose some precision in the flowt, depending on your needs</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10170"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="ieris&#039;s picture" title="ieris&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems with floating point values. </h3>
+
+    <div class="submitted">Submitted by ieris (not verified) on Thu, 28/02/2013 - 08:05.</div>
+    <div class="content">
+     <p>Hello,</p>
+<p>&nbsp; having different story about floating point values ...&nbsp; this time about MySQL data type float (<a href="http://dev.mysql.com/doc/refman/5.5/en/problems-with-float.html" title="http://dev.mysql.com/doc/refman/5.5/en/problems-with-float.html">http://dev.mysql.com/doc/refman/5.5/en/problems-with-float.html</a>)</p>
+<p>Reading gas counter and sending readings as integers that&#39;s ok. Running on RFM12PI.</p>
+<p>After receiving it and multiplying by 0.01 to get exact value performing accumulator function to keep gas counter exact value. And at this point problem comes up. When values are small they are stored ok in database (like, temp - 21.34, gas reading 0.03, etc.), but when values are big they are stored rounded in database.</p>
+<p>Example: having gas counter at 19464,63 - in database feeds and feed_x table it is stored as 19464,6. After getting reading by example 0.03 it remains the same, because after adding reading to value and MySQL internal rounding it is again 19464.6.</p>
+<p>Changed data type for involved columns to decimal(10,2) solved that problem for me. But this is only temporary solution. :(</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2004"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-50EJU_n4s6lfElBr_gqaq8eVe_UVFozl0XnWUd12C_0" value="form-50EJU_n4s6lfElBr_gqaq8eVe_UVFozl0XnWUd12C_0"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2004 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:37:41 GMT -->
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2629 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:08:25 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Extra pulses and update time | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Extra pulses and update time</h3>
+        <span class="submitted">Submitted by <a href="../user/2738.html" title="View user profile.">Tomis</a> on Sat, 27/07/2013 - 08:47</span>
+        <div class="content"><p>Hi</p>
+<p>1.Now I have couple of Pollucom meters (with pulse output) installed(1 pulse= 1kWh,pulse widht&nbsp;125ms). I have the basic pulse counting sketch and I am having strange extra pulses. Pulse accumulator shows pulses even when I am not charging anything. Sometimes even hundreds of pulses.</p>
+<p>What could be the cause of this?&nbsp;</p>
+<p>Now I put one smithtrigger&nbsp;to reduce the noise but still having these pulses. In oscillosscope&nbsp;the pulse is neat and no extra is founded. Could it be the 0.001 multiplier in pulse sketch? Or in the code or is it still having some noise in the line?</p>
+<p>2. Is the data lost if update time in emoncms&nbsp;is sometimes over 60s or 6minutes? Perhaps emontx is in bad place or perhaps it gets stuck sometimes?</p>
+<p>&nbsp;</p>
+<p>Thanks again!</p>
+<p>Ps. In accumulator picture first there are charging pulses but after the &quot;silence&quot; it started to make some own pulses. I have had these same problems with heat pump energy meters s0&nbsp;(pulse output) so meter should be OK.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2756.html" class="topic-previous" title="Go to previous forum topic">‹ Solar PV with 2 Emontx</a>
+              <a href="2748.html" class="topic-next" title="Go to next forum topic">First build questions - operating voltage and &#039;floating&#039; CT measurement ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-13866"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Extra pulses and update time</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 27/07/2013 - 10:51.</div>
+    <div class="content">
+     <p>I see in your sketch you have:</p>
+<pre class="rteindent1">
+int ppwh = 0.001;</pre><p>You cannot do that! <strong>ppwh</strong> is an integer, <strong>0.001</strong> is a decimal fraction. It will not go into an integer, it will be rounded to zero. You should make that 1 and change the line where it is used.</p>
+<p>How are you getting the pulses out of the meter and in to your hardware. That is the most likely place for your problem to be. Did the Schmitt trigger reduce the problem or was there no improvement? The interrupt is generated on the falling edge of the pulse. Using your oscilloscope, look very carefully at the falling edge. If it oscillates, that could be your problem. If the rising edge is cleaner, you could try that, or maybe a small capacitor would damp any oscillations.</p>
+<p>I would also suspect that there might be interaction with the temperature measuring part of your sketch. Does the pulse input work properly if you have a sketch that has only the pulse input?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13870"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2738.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Tomis&#039;s picture" title="Tomis&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Extra pulses and update time</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2738.html" title="View user profile.">Tomis</a> on Sat, 27/07/2013 - 12:00.</div>
+    <div class="content">
+     <p>Yes i was almost sure that 0.001 was not correct but somehow there was reasonable numbers coming out. I have not used it because I was happy with 1 pulse=1kwh</p>
+<p>All the temperatures is working OK but this pulse calculation is not. I will try only the pulse calculation sketch.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13876"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2738.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Tomis&#039;s picture" title="Tomis&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Extra pulses and update time</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2738.html" title="View user profile.">Tomis</a> on Sat, 27/07/2013 - 17:10.</div>
+    <div class="content">
+     <p>Okay pulse sketch didn&acute;t work either. &nbsp;There are still some voltage spikes. I made LPF to that 125ms so we will see if this helps.</p>
+<p>How about the second question? I am just wondering because the update time changes quite alot.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13877"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Extra pulses and update time</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 27/07/2013 - 18:24.</div>
+    <div class="content">
+     <p>So that proves I think that you are seeing multiple interrupts for each pulse.</p>
+<p>I don&#39;t believe the software can generate multiple increments of pulseCount, so that leaves your hardware. You have not answered my question about that: how are you getting the pulses out of the meter and in to your hardware?</p>
+<p>I&#39;m no expert on emoncms, so I cannot help you there.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13892"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2738.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Tomis&#039;s picture" title="Tomis&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Extra pulses and update time</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2738.html" title="View user profile.">Tomis</a> on Sun, 28/07/2013 - 08:11.</div>
+    <div class="content">
+     <p>Before I was thinking there was something wrong with my code but now I think it is more like general spikes...ground problem? I accidentally&nbsp;founded hundreds of spikes in oscilloscope(data pin) when I connected the wood boiler on. Exhaust thermocouple and&nbsp;pollucom&nbsp;is connected to boiler through metal piping/chimney.</p>
+<p>In emontx&nbsp;side there is only regular 5v&nbsp;Nokia charger connected to wall with several other chargers.</p>
+<p>I use the normal pulse input, VCC&nbsp;goes to pollucom&nbsp;switch and then comes back. Now there is lpf and smithtrigger&nbsp;before data pin. PD resistor is in place and some other to get smithtrigger&nbsp;to work properly.</p>
+<p>Now I havent had any extra pulses but I have to test if it still works when charging the boiler after I put the Lowpassfilter.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13900"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Extra pulses and update time</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 28/07/2013 - 10:49.</div>
+    <div class="content">
+     <p>It does indeed sound as if interference from your wood boiler is the problem. Is there one or more motors in there: a pump, a blower, or a feed? I would overhaul the boiler and look for the source of the problem - it could be anything but more likely to be a loose connection or worn relay contacts . You might even find you prevent a breakdown next winter. Nothing you do in software or in your Arduino is as good as removing the source of the noise.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13911"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2738.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Tomis&#039;s picture" title="Tomis&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Extra pulses and update time</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2738.html" title="View user profile.">Tomis</a> on Fri, 30/08/2013 - 14:46.</div>
+    <div class="content">
+     <p>I think you are right. Even central vacuum cleaner(eurplug) gives noises when measuring directly from pollucom pulse lines!</p>
+<p>And even putting ground directly to meter wont help.</p>
+<p>My electricity&nbsp;is measured/verified 2007 so the wood boiler is number one suspect. On/off switch at least.</p>
+<p>All ideas are welcome.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13913"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Extra pulses and update time</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 28/07/2013 - 18:38.</div>
+    <div class="content">
+     <p>Is the metal of the pipes and chimney earthed? All metal parts than can be touched should be connected to a good earth. The connections for the thermocouple and the pollucom must be insulated from the metalwork.</p>
+<p>Use a powerful inspection lamp and check everything electrical in your boiler. Believe nothing is correct until you have checked every detail. You are looking for loose connections, screws and nuts not tight, plugs and sockets that have lost spring pressure, broken wires, badly crimped terminals, worn or burned switch and relay contacts, signs of burning or oxidisation, any place where there might be arcing.&nbsp; Also look for missing earth bonding connections.</p>
+<p>Are there &quot;universal&quot; motors with commutators and carbon brushes? Those should have a suppressor fitted. Is the suppressor good? If the commutator or brushes are worn, or the armature winding is damaged, they will spark badly and cause interference.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13915"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2738.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Tomis&#039;s picture" title="Tomis&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Extra pulses and update time</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2738.html" title="View user profile.">Tomis</a> on Sun, 28/07/2013 - 19:46.</div>
+    <div class="content">
+     <p>I looked the earth as well and it is. A jump cable grounding directly to meters housing would not help either. Wood boiler has it own feeder cable.</p>
+<p>I put pollucoms pt100 directly to the pipe surface with thermal grease. It is not forbidden in installation manual however installation kit is different and comes with plastic mounting. Perhaps I should put insulation tape around the pipe first.</p>
+<p>There is a exhaust blower but it seems to run without noises. Thanks I keep checking and buy new switches to the boiler.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14707"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2738.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Tomis&#039;s picture" title="Tomis&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Extra pulses and update time</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2738.html" title="View user profile.">Tomis</a> on Fri, 30/08/2013 - 14:46.</div>
+    <div class="content">
+     <p>This seems to be sorted now with LPF&nbsp;and wood boiler fixings.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2629"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-A6-XCmHExdJNG629GpFKmTQG8pcMpclKu3bdOSivRlI" value="form-A6-XCmHExdJNG629GpFKmTQG8pcMpclKu3bdOSivRlI"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2629 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:08:25 GMT -->
+</html>

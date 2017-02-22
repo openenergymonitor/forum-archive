@@ -1,0 +1,437 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11821 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:14 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonHub mosquitto MQTT authentication | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonHub mosquitto MQTT authentication</h3>
+        <span class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Thu, 17/12/2015 - 18:23</span>
+        <div class="content"><p>Currently, the mosquito&nbsp;server running on the emonPi / emonBase as part of our pre-built SD card does not require any authentication. This works great when using MQTT internally on localhost to move data between emonhub&nbsp; &gt; emoncms &gt; emonPiLCD etc.&nbsp;</p>
+<p>However, if we were to open the MQTT&nbsp;port (1883) to the web to use the MQTT server for other purposes, (e.g control) we will need authentication.&nbsp;</p>
+<p>It&#39;s easy to add authentication to mosquitto;</p>
+<p><em>sudo nano&nbsp;/etc/mosquitto/mosquitto.conf</em></p>
+<p>Add the lines:</p>
+<p><em>allow_anonymous false<br />
+password_file /etc/mosquitto/passwd</em></p>
+<p>To generate a password file, use the mosquitto_passwd tool. It will prompt for a password, then create a hashed password file.&nbsp;</p>
+<p>$ sudo mosquitto_passwd -c /etc/mosquitto/passwd username</p>
+<p><em>Note: if you don&#39;t have&nbsp;mosquitto_passwd available, you may need to install the latest version of mqtt from the mosquitto PPA. Instructions are in the emonHub Readme:&nbsp;<a href="https://github.com/openenergymonitor/emonhub">https://github.com/openenergymonitor/emonhub</a>.&nbsp;</em></p>
+<p>However, emonHub does&nbsp;not support authentication with mosquitto. I have made a start on adding authentication support. <s>I have created a new branch called auth</s>&nbsp;(Update branch has been tested and merged into emonpi branch):&nbsp;<a href="https://github.com/openenergymonitor/emonhub">https://github.com/</a>openenergymonitor/emonhub</p>
+<p>Here are the&nbsp;changes to the&nbsp;<a href="https://github.com/openenergymonitor/emonhub/commit/50ddef1242dcfabb373c543551c6b82ffd7c248f">mqtt interfacer</a>. If authentication with mosquitto is required, credentials can be added to emonhub.conf file:</p>
+<p>&nbsp;Type = EmonHubMqttInterfacer<br />
+&nbsp; &nbsp; [[[init_settings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; mqtt_host = 127.0.0.1<br />
+&nbsp; &nbsp; &nbsp; &nbsp; mqtt_port = 1883<br />
+&nbsp; &nbsp; &nbsp; &nbsp; mqtt_user = user<br />
+&nbsp; &nbsp; &nbsp; &nbsp; mqtt_passwd = passwrd</p>
+<p>All seems to be working well. emonhub is authenticating with&nbsp;mosquitto and publishing data. I can subscribe to the emonhub/rx/# topic in nodeRED and see the data.</p>
+<p>However, no data seems to be posted to Emoncms. I&#39;m not sure how exactly the data gets from MQTT to Emoncms. Is there another script that does this that will also require authentication?</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10961.html" class="topic-previous" title="Go to previous forum topic">‹ Talking to an SMA solar inverter from emonPI and emonCMS - MQTT</a>
+              <a href="11813.html" class="topic-next" title="Go to next forum topic">Emonhub on Pi - serial buffer overflow - read loop iteration speed ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-37149"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Thu, 17/12/2015 - 18:49.</div>
+    <div class="content">
+     <p>Ah got it I need to add authentication support to Emoncms nodes module.....tomorrows job :-)&nbsp;</p>
+<p><a href="https://github.com/emoncms/nodes/blob/9.0/nodes_mqtt_process.php">https://github.com/emoncms/nodes/blob/9.0/nodes_mqtt_process.php</a></p>
+<p>Can Emoncms nodes read the authentication credentials from emonhub.conf file?&nbsp;</p>
+<p>Here&#39;s a PHP MQTT with authentication example.&nbsp;</p>
+<p><a href="https://www.cloudmqtt.com/docs-php.html">https://www.cloudmqtt.com/docs-php.html</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37151"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 17/12/2015 - 19:51.</div>
+    <div class="content">
+     <p>Good to&nbsp;you have&nbsp;started on the MQTT authentication.</p>
+<p>The nodes module does have all the MQTT settings hardcoded into it, (as is the redis config I just discovered)&nbsp; if modules can pick up globals from the main program it shouldn&#39;t be hardcoded as there is also the &quot;phpmqtt_input.php&quot; script for the generic inputs module and the &quot;publish to mqtt&quot; process to consider too, there is probably some &quot;event&quot; processes in the pipeline that may require MQTT too.</p>
+<p>Ideally all the emoncms&nbsp;MQTT&nbsp;settings should come from the settings.php, currently only the broker IP and an enabled flag have been broken out to the settings.php. The port is hardcoded in multiple places and as yet there are no password or username required for authentication. If using MQTT over ssl then a different port is used so if using outside the LAN then it should be accessible to change too.</p>
+<p>The settings.php already has mysql, redis and&nbsp;smtp&nbsp;server details so expanding on&nbsp;the current MQTT&nbsp;settings there would seem the best place.</p>
+<p>The nodes module only reads the [nodes] section of emonhub.conf.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37175"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Fri, 18/12/2015 - 12:10.</div>
+    <div class="content">
+     <p>Yes, agree nodes module needs to take MQTT settings from settings.php</p>
+<p>I have merged the auth branch into the emonPi branch of emonHub. I have tested the changes I made the emonHub to support authentication and if no username and password is set in emonhub.conf it will default to initiating user/pass as blank which will work on un-authenticated mosquitto servers.</p>
+<p>If authentication is required just add the following to emonhub.conf:</p>
+<p>&nbsp;Type = EmonHubMqttInterfacer<br />
+&nbsp; &nbsp; [[[init_settings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; mqtt_host = 127.0.0.1<br />
+&nbsp; &nbsp; &nbsp; &nbsp; mqtt_port = 1883<br />
+&nbsp; &nbsp; &nbsp; &nbsp; mqtt_user = user<br />
+&nbsp; &nbsp; &nbsp; &nbsp; mqtt_passwd = passwrd</p>
+<p>I&#39;m now going to take a look at Emoncms nodes module PHP&nbsp;MQTT&nbsp;authentication.&nbsp;</p>
+<p>Yes, we would like to move towards supporting MQTT&nbsp;on emoncms.org. Have you got any thoughts how best this could be implemented. Maybe we could start another thread and collect input from other folk.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37178"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8839.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="joyrider3774&#039;s picture" title="joyrider3774&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8839.html" title="View user profile.">joyrider3774</a> on Fri, 18/12/2015 - 13:09.</div>
+    <div class="content">
+     <p>is the nodes module installed by default ? i&#39;m not sure what it is but i have added support for mqtt authentication myselve only doing this described here <a href="11769.html" title="http://openenergymonitor.org/emon/node/11769">http://openenergymonitor.org/emon/node/11769</a> did i forget a place where mqtt is used ? i think i did a grep statement but it could be i overlooked something. Those simple changes i made to my emoncms installation made mqtt authentication already work and i&#39;m still using it like that. Although i have to note that i&#39;m only using it to transmit feed values to mqtt, i&#39;m not reading from mqtt</p>
+<p>or is de nodes module some extra addon ?</p>
+<p>&nbsp;</p>
+<p>edit: did not see emonhub, emonhub and emoncms is probably something diffrent ?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37184"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Fri, 18/12/2015 - 17:15.</div>
+    <div class="content">
+     <p>emonHub is different to Emoncms. We use emonHub to read data from the RFM69Pi&nbsp;or emonPi via serial and publish to MQTT. Emoncms then subscribes to MQTT&nbsp;and pulls in the data.&nbsp;</p>
+<p>Authentication support has now been added to Emoncms&nbsp;MQTT input script and publish to MQTT&nbsp;process list. See commits today.&nbsp;</p>
+<p>MQTT authentication support has also been added to&nbsp;&nbsp;Emoncmcs nodes mode. This is currenttly in the &#39;auth&#39; branch. Would be grateful if you could test. &nbsp;</p>
+<p><a href="https://github.com/emoncms/nodes/tree/auth">https://github.com/emoncms/nodes/tree/auth</a></p>
+<p>The user credentials are set in setting.php e.g&nbsp;</p>
+<p>
+&nbsp; &nbsp; $mqtt_enabled = true; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Activate MQTT by changing to true<br />
+&nbsp; &nbsp; $mqtt_server = &quot;127.0.0.1&quot;;<br />
+&nbsp; &nbsp; $mqtt_port = 1883;<br />
+&nbsp; &nbsp; $mqtt_user = &quot;&quot;;<br />
+&nbsp; &nbsp; $mqtt_password= &quot;&quot;;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37187"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4638.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borpin123&#039;s picture" title="borpin123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4638.html" title="View user profile.">borpin123</a> on Fri, 18/12/2015 - 18:59.</div>
+    <div class="content">
+     <p>Can the MQTT interfaces be fixed so they accept valid JSON as well please?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37191"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8839.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="joyrider3774&#039;s picture" title="joyrider3774&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8839.html" title="View user profile.">joyrider3774</a> on Fri, 18/12/2015 - 20:48.</div>
+    <div class="content">
+     <p>@glyn.hudson</p>
+<p>posting to my password protected mosquito from within emoncms (using feed processlist) works. however there&#39;s a bug here <a href="https://github.com/emoncms/emoncms/blob/master/scripts/phpmqtt_input.php#L79" title="https://github.com/emoncms/emoncms/blob/master/scripts/phpmqtt_input.php#L79">https://github.com/emoncms/emoncms/blob/master/scripts/phpmqtt_input.php...</a></p>
+<p>that line should be $log-&gt;error (&quot;Cannot connect to MQTT Server&quot;); instead of $log-&gt;error &quot;Cannot connect to MQTT Server&quot;;</p>
+<p>it seems it was a echo statement before but now you&#39;re calling a method from a class so ( and ) are needed.</p>
+<p>That script does not work on windows so I could not test MQTT input I&#39;ll see if i can modify the script for my own needs. It uses hard coded Linux paths for making it a daemon but on windows that path does not exist.</p>
+<p>It gave me these errors, all normal since my emoncms installation is located on a windows box. I&#39;ll change the script without touching your code for MQTT and see if it works then&gt;</p>
+<p>C:\wamp\www\emoncmsnew\scripts&gt;php phpmqtt_input.php</p>
+<p>Warning: fopen(/var/lock/phpmqtt_input.lock): failed to open stream: No such file</p>
+<p>or directory in C:\wamp\www\emoncmsnew\scripts\phpmqtt_input.php on line 32</p>
+<p>Call Stack:<br />
+&nbsp;&nbsp;&nbsp; 0.0010&nbsp;&nbsp;&nbsp;&nbsp; 268168&nbsp;&nbsp; 1. {main}() C:\wamp\www\emoncmsnew\scripts\phpmqtt_input<br />
+.php:0<br />
+&nbsp;&nbsp;&nbsp; 0.0010&nbsp;&nbsp;&nbsp;&nbsp; 269024&nbsp;&nbsp; 2. fopen() C:\wamp\www\emoncmsnew\scripts\phpmqtt_input.<br />
+php:32</p>
+<p>
+Warning: flock() expects parameter 1 to be resource, boolean given in C:\wamp\ww<br />
+w\emoncmsnew\scripts\phpmqtt_input.php on line 33</p>
+<p>Call Stack:<br />
+&nbsp;&nbsp;&nbsp; 0.0010&nbsp;&nbsp;&nbsp;&nbsp; 268168&nbsp;&nbsp; 1. {main}() C:\wamp\www\emoncmsnew\scripts\phpmqtt_input<br />
+.php:0<br />
+&nbsp;&nbsp;&nbsp; 0.0030&nbsp;&nbsp;&nbsp;&nbsp; 269848&nbsp;&nbsp; 2. flock() C:\wamp\www\emoncmsnew\scripts\phpmqtt_input.<br />
+php:33</p>
+<p>Already running</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37192"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8839.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="joyrider3774&#039;s picture" title="joyrider3774&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8839.html" title="View user profile.">joyrider3774</a> on Fri, 18/12/2015 - 21:00.</div>
+    <div class="content">
+     <p abp="717">okay I commented out line 32 and 33 and then it runs on windows.</p>
+<p abp="719">I then did a C:\Program Files (x86)\mosquitto&gt;mosquitto_pub.exe -t rx/16 -u myuser-P mypassword -m 20.500</p>
+<p abp="720">and node 16 is created with a value of 20.5 so I guess it works&nbsp;except for the logging bug.</p>
+<p abp="720">However, I did not test connecting to a non password protected mosquito to see if that still works.</p>
+<p abp="720">Someone else could probably try that out.</p>
+<p abp="721">&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37194"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4638.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borpin123&#039;s picture" title="borpin123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4638.html" title="View user profile.">borpin123</a> on Fri, 18/12/2015 - 21:00.</div>
+    <div class="content">
+     <p>Try it with a valid JSON string.&nbsp; Does it still work? I could only make it work with a Comma delimited list of values.&nbsp; I posted a suggested change so it works for valid JSON payload.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37195"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8839.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="joyrider3774&#039;s picture" title="joyrider3774&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8839.html" title="View user profile.">joyrider3774</a> on Fri, 18/12/2015 - 21:05.</div>
+    <div class="content">
+     <p abp="965">I do not think valid json will work. see <a href="https://github.com/emoncms/emoncms/blob/stable/scripts/phpmqtt_input.php#L119">https://github.com/emoncms/emoncms/blob/stable/scripts/phpmqtt_input.php#L119 </a></p>
+<p abp="965">It still seems to expect comma separated values (or a single value) as far as I can tell. Have not looked in detail to it though.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37207"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Fri, 18/12/2015 - 23:45.</div>
+    <div class="content">
+     <p>Thanks for noticing the logging error, it&#39;s <a href="https://github.com/emoncms/emoncms/tree/master">been fixed</a>. Thanks so much for testing being an&nbsp;authenticated MQTT&nbsp;guinea&nbsp;pig :-)</p>
+<p>None of us here develop on windows or&nbsp;have access to windows machines, therefore&nbsp;dev might be a bit Linux centric. However, I can see value in Emoncms working nice on windows boxes. I would appreciate feedback (ideally pull requests!) as to how we can make the system also work on&nbsp;windows server.&nbsp;&nbsp;&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37209"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8839.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="joyrider3774&#039;s picture" title="joyrider3774&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8839.html" title="View user profile.">joyrider3774</a> on Sat, 19/12/2015 - 01:15.</div>
+    <div class="content">
+     <p abp="719">Actually, core emoncms works &quot;out of the box&quot; on a windows box. No modifications are needed. I basically just installed WAMP and then placed emoncms inside the www directory, edited settings.conf and all is good. It&#39;s been running on my Intel Nuc for like&nbsp;a month and a half without a problem. This script was the only thing that needed modification, and all I did was remove lines 32 and 33 about the locking part since that&#39;s related to linux for the daemon.</p>
+<p abp="720">Once those lines were removed, I opened a cmd prompt and ran php.exe with that script as the parameter. The cmd prompt keeps running and MQTT is monitored then.</p>
+<p abp="721">There probably is a way to install this script as a windows service by using something like this <a abp="722" href="https://nssm.cc/">https://nssm.cc/</a> It can make any program (but most probably non gui ones) a windows service. I have not tested this though. I&nbsp; use my Intel Nuc as a server and there are a dozen open cmd windows all running different things like node-red, mosquito, home assistant, OpenHAB, etc.</p>
+<p abp="723">Oh yes, I did make another change to one of the modules. I can&#39;t remember then name of it. (events?) It checks to see if an emon node hasn&#39;t been updated for a while, and sends an email message listing those. But I think that script did not work anymore on Linux with the latest emoncms version. I modified it to suit my needs and make it work for what I needed it to do (based on my nodes). so it&#39;s not &quot;generic&quot;.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37251"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sat, 19/12/2015 - 17:42.</div>
+    <div class="content">
+     <p>After more testing, MQTT authentication support has been merged into the main 9.0 branch of the nodes module.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37265"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Sat, 19/12/2015 - 22:51.</div>
+    <div class="content">
+     <p>@glyn - is there any documentation yet about how EmonCMS MQTT input processing works? I.e. what format the MQTT payloads need to be, topic names etc? Cheers, Ben.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37301"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4638.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borpin123&#039;s picture" title="borpin123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4638.html" title="View user profile.">borpin123</a> on Sun, 20/12/2015 - 21:18.</div>
+    <div class="content">
+     <p>It simply accepts a comma separated list.&nbsp; If you are trying to receive data sent from another system it probably will not work.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37307"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sun, 20/12/2015 - 23:18.</div>
+    <div class="content">
+     <p>Yes you can publish from any device just publish a csv of values to topic&nbsp;emonhub/rx/NODEID/values&nbsp;</p>
+<p>We are working on improving mqtt support and updating docs.&nbsp;</p>
+<p>There is some docs here:&nbsp;<a href="https://github.com/emoncms/emoncms/blob/stable/scripts/phpmqtt_input.php">https://github.com/emoncms/emoncms/blob/stable/scripts/phpmqtt_input.php</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37715"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4638.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borpin123&#039;s picture" title="borpin123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonHub mosquitto MQTT authentication</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4638.html" title="View user profile.">borpin123</a> on Fri, 01/01/2016 - 12:38.</div>
+    <div class="content">
+     <p>Yes you can publish from any device but only if you are able to publish an invalid JSON string (a list of CSV values).&nbsp; The current MQTT support does not comply with the MQTT standard (such as it is) as EmonCMS does not accept valid JSON.</p>
+<p>I&#39;m trying to publish from another system that generates valid JSON and EmonCMS wil not accept it.</p>
+<p>Line 119 is the start of the problem as it assumes CSV not a valid MQTT JSON message.</p>
+<p>Cheers</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11821"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-FSOFCWAdfuRgaPs5sx7Su7gf7YFKnym3KjcRJ05QDOg" value="form-FSOFCWAdfuRgaPs5sx7Su7gf7YFKnym3KjcRJ05QDOg"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11821 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:14 GMT -->
+</html>

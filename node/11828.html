@@ -1,0 +1,709 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11828 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:48:45 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>EmonTX , millis function and settled variable | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">EmonTX , millis function and settled variable</h3>
+        <span class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Fri, 18/12/2015 - 18:06</span>
+        <div class="content"><p>Hi all</p>
+<p>Recently my emontx V2 stopped transmiting. After i connect it with the laptop, i&#39;ve noticed that the problem is with the millis() function and the&nbsp; settled boolean variable.</p>
+<p>The variable in the begining comes false, but in this line &#39;if (!settled &amp;&amp; millis() &gt; FILTERSETTLETIME) settled = true;&#39; it becomes true.</p>
+<p>The problem is that millis is always inferior to 5000 which is the value of FILTERSETTLETIME and so the settled is never true and so it never enters the code to send data to the base.</p>
+<p>I&#39;ve debuged the values of the censors and they come up with very strange values.</p>
+<p>So, Can anyone tell me what is going on?</p>
+<p>Thanks</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11755.html" class="topic-previous" title="Go to previous forum topic">‹ Device module - Autoconfigured devices</a>
+              <a href="12162.html" class="topic-next" title="Go to next forum topic">Using reporter to Emoncms.org with emoncms on linux hosting ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-37189"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 18/12/2015 - 19:25.</div>
+    <div class="content">
+     <p>The real problem is millis() is an unsigned long and it <i>should</i> go to 2^32 - 1, and then roll over to zero. So my first suspicion is your sketch is restarting before 5 s have elapsed. If your serial monitor prints </p>
+<p>emonTX CT123 Voltage example<br />
+OpenEnergyMonitor.org</p>
+<p>every time it transmits the data, then this is certainly what is happening, and that is wrong.</p>
+<p>If you recompile with the latest emonLib, which uses a different (low pass) filter that is initialised to very near to its quiescent state, the requirement to wait for the filters to settle before transmitting the first results vanishes, and you can remove the variable "settled" and the conditional around the code that transmits the data.</p>
+<p>e.g.</p>
+<pre>
+  <strike>// because millis() returns to zero after 50 days ! </strike>
+	  <strike>if (!settled && millis() > FILTERSETTLETIME) settled = true; </strike>
+	
+	  <strike>if (settled)                      // send data only after filters have settled</strike>
+	  <strike>{ </strike>
+	    send_rf_data();                 // *SEND RF DATA* - see emontx_lib
+	    digitalWrite(LEDpin, HIGH); delay(2); digitalWrite(LEDpin, LOW);      // flash LED
+	    emontx_sleep(5);      // sleep or delay in seconds - see emontx_lib
+	  <strike>} </strike>         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37208"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Fri, 18/12/2015 - 23:57.</div>
+    <div class="content">
+     <p>I&#39;ll give it a try</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37226"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Sat, 19/12/2015 - 12:39.</div>
+    <div class="content">
+     <p>Well, it&#39;s not working. I&#39;ve put the library .h file in the arduino folder and made the changes. Do i need to change the file emontx_lib.ino as well?</p>
+<p>Why is it restarting? it&#39;s inside a loop..</p>
+<p>The output is this</p>
+<p>emonTX CT123 Voltage example<br />
+OpenEnergyMonitor.org<br />
+Node: 10 Freq: 433Mhz Network: 210<br />
+&nbsp;ap1: 5 rp1: 0 pf1:</p>
+<p>I&#39;m writing a series of Serial.print but it only prints the first 3....</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37228"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 19/12/2015 - 13:32.</div>
+    <div class="content">
+     <p>Has this been running ok and then just stopped or is it a fresh/revised install?</p>
+<p>Which sketch are you using, is it &quot;stock&quot; or had&nbsp;you made changes?</p>
+<p>What power supply are you using? if battery are they ok?&nbsp;could the power be dipping on an attempted send causing a reset hence millis() is always &lt;5000?</p>
+<p>Which IDE and Libs are you using, there have been significant changes to the arduino IDE and a lot of bugfixes implemented in later versions so early (in frequently used and tested) sketches may need tinkering with to keep them current.</p>
+<p>Is it using a rfm12&nbsp;or rfm68?</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37229"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Sat, 19/12/2015 - 14:05.</div>
+    <div class="content">
+     <p>It just stopped working. It was working fine.</p>
+<p>I&#39;ve made changes based on the emonTx_CT123 sketch.</p>
+<p>The IDE is 1.0.5 r2. I&#39;ve only changed the emonLib library and that was today.</p>
+<p>I&#39;m using a rfm12.</p>
+<p>The strange thing is that i haven&#39;t changed anything but it looks like it&#39;s always resetting.</p>
+<p>It&#39;s operating continuously for the past weeks. So i shouldn&#39;t be the software or the IDE. Or even the base. So it must be hardware?? maybe the ac-ac went puff??</p>
+<p>I&#39;ve attached the sketch i&#39;m using.</p>
+<p>The led on the board stays on and then blinks after about 10 seconds...</p>
+<p>Thanks</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37230"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Sat, 19/12/2015 - 14:34.</div>
+    <div class="content">
+     <p>I forgot to mention that i&#39;m using a 5v transformer to power it.</p>
+<p>And now, i&#39;ve disconnected the ac-ac and the 5v transformer. It&#39;s powered by the laptop and the result is the same</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37231"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Sat, 19/12/2015 - 14:38.</div>
+    <div class="content">
+     <p>Maybe some problem with the memory on board, if it has any...</p>
+<p>Any reset switch on the board?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37232"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 19/12/2015 - 15:00.</div>
+    <div class="content">
+     <p>I see there is a watchdog in the setup but I cannot see a &quot;wdt_reset();&quot; in the loop so it will only run for 8secs&nbsp;max before being reset by the watchdog.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37234"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Sat, 19/12/2015 - 15:16.</div>
+    <div class="content">
+     <p>In the original sketch there isn&#39;t one either although there is a wdt_enable.</p>
+<p>So should i put the wdt_reset or should i remove wdt_enable? and where should i put it?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37235"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Sat, 19/12/2015 - 15:18.</div>
+    <div class="content">
+     <p>In the emontx_lix sketch there is this code:</p>
+<p>void emontx_sleep(int seconds) {<br />
+&nbsp; // if (emontx.battery &gt; 3300) {<br />
+&nbsp;&nbsp;&nbsp; for (int i=0; i&lt;seconds; i++) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; delay(1000);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (UNO) wdt_reset();<br />
+&nbsp;&nbsp;&nbsp; }<br />
+&nbsp; // } else Sleepy::loseSomeTime(seconds*1000);<br />
+}</p>
+<p>and the sleep function is called inside the if at the end of the code</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37236"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 19/12/2015 - 15:28.</div>
+    <div class="content">
+     <p>The watchdog reset is hidden inside emontx_sleep()</p>
+<pre>
+void emontx_sleep(int seconds) {
+  // if (emontx.battery &gt; 3300) { 
+    for (int i=0; i&lt;seconds; i++) { 
+      delay(1000); 
+      if (UNO) wdt_reset();
+    } 
+  // } else Sleepy::loseSomeTime(seconds*1000);
+}
+</pre>         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37237"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 19/12/2015 - 15:33.</div>
+    <div class="content">
+     <p>Is the sketch definitely restarting every 8 s? Your answer was not clear. You said it prints 3 values, but you did not say what happens after that.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37238"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Sat, 19/12/2015 - 15:52.</div>
+    <div class="content">
+     <p>It is restarting after 8 seconds.</p>
+<p>I&#39;ve put some println around the code and now it doesn&#39;t print everything. It should print</p>
+<p>&nbsp; Serial.begin(9600);<br />
+&nbsp; Serial.println(&quot;emonTX CT123 Voltage example&quot;);<br />
+&nbsp; Serial.println(&quot;OpenEnergyMonitor.org&quot;);<br />
+&nbsp; Serial.print(&quot;Node: &quot;);<br />
+&nbsp; Serial.print(nodeID);<br />
+&nbsp; Serial.print(&quot; Freq: &quot;);</p>
+<p>But now it only prints what is on the attach. It seems i can&#39;t do a copy from the serial monitor...</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37241"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 19/12/2015 - 16:13.</div>
+    <div class="content">
+     <p>I can't see a major problem with your sketch. It runs for me without restarting, with or without an ac voltage input.</p>
+<p>What I have done to tidy up the print statements - because the characters were corrupted - is add a delay after each pair, e.g:<br />
+  Serial.print(" ap1: ");Serial.print(emontx.ap1);<b>delay(10);</b></p>
+<p>This is the result:</p>
+<p>emonTX CT123 Voltage example<br />
+OpenEnergyMonitor.org<br />
+Node: 10 Freq: 433Mhz Network: 210<br />
+ ap1: 2759 rp1: -2772 pf1: -100 ap2: -8092 rp2: -8092 pf2: -104 ap3: 2869 rp3: -2868 pf3: -99 Vrms: 22629<br />
+ ap1: 2758 rp1: -2771 pf1: -100 ap2: -8104 rp2: -8104 pf2: -105 ap3: 2859 rp3: -2865 pf3: -100 Vrms: 22622<br />
+ ap1: 2769 rp1: -2782 pf1: -100 ap2: -8126 rp2: -8126 pf2: -105 ap3: 2863 rp3: -2872 pf3: -100 Vrms: 22662<br />
+ ap1: 2753 rp1: -2766 pf1: -100 ap2: -8084 rp2: -8084 pf2: -105 ap3: 2858 rp3: -2867 pf3: -100 Vrms: 22614<br />
+ ap1: 2760 rp1: -2774 pf1: -100 ap2: -8103 rp2: -8103 pf2: -105 ap3: 2860 rp3: -2869 pf3: -100 Vrms: 22639<br />
+ ap1: 2767 rp1: -2781 pf1: -100 ap2: -8118 rp2: -8118 pf2: -105 ap3: 2868 rp3: -2877 pf3: -100 Vrms: 22662<br />
+ ap1: 2778 rp1: -2791 pf1: -100 ap2: -8125 rp2: -8125 pf2: -105 ap3: 2872 rp3: -2882 pf3: -100 Vrms: 22713<br />
+ ap1: 2752 rp1: -2766 pf1: -100 ap2: -8088 rp2: -8088 pf2: -105 ap3: 2853 rp3: -2863 pf3: -100 Vrms: 22600<br />
+ ap1: 2757 rp1: -2770 pf1: -100 ap2: -8087 rp2: -8087 pf2: -105 ap3: 2862 rp3: -2872 pf3: -100 Vrms: 22624<br />
+ ap1: 2761 rp1: -2775 pf1: -100 ap2: -8109 rp2: -8109 pf2: -105 ap3: 2865 rp3: -2875 pf3: -100 Vrms: 22645<br />
+ ap1: 2765 rp1: -2779 pf1: -100 ap2: -8117 rp2: -8117 pf2: -105 ap3: 2866 rp3: -2876 pf3: -100 Vrms: 22663 </p>
+<p>So I think there is something wrong with your hardware. </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37252"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Sat, 19/12/2015 - 17:45.</div>
+    <div class="content">
+     <p>The 5v supply and the ac-ac should be ok, since i&#39;m running from my laptop.</p>
+<p>I&#39;m going to check all the connections and see if something got loose.</p>
+<p>Are there any specific&nbsp; checks i can make with a multimeter? Besides what&#39;s in the setup and build guide?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37253"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 19/12/2015 - 17:55.</div>
+    <div class="content">
+     <p>The first suspect is the power supply. Check the 5 V and 3.3 V supplies. Your V2 is nearing the age where a dry joint might have corroded enough to become intermittent, so (using a hand lens if needs be) carefully look at all the soldered connections. It could also be the electrolytic capacitor, but I think that's less likely. Also take a careful look at the processor's reset line, because the purpose of that is to cause a reset.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38630"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Fri, 22/01/2016 - 15:37.</div>
+    <div class="content">
+     <p>After some days working ok, i got the same problem. I&#39;ve reconnected it to my pc and did some more tweaking. One thing i&#39;ve put is a condition to check if the the variable CT1 is 1 or zero before defining the values for the calibration, etc.</p>
+<p>Now it works ok, but i&#39;m betting that in a few days it will revert to it&#39;s ill state.</p>
+<p>I&#39;ve changed the 5v usb transformer but it&#39;s the same thing.</p>
+<p>Maybe the sensors&nbsp; get static electricity, or something else and it does a feedback to the board? It has happened that i remove the 5v power and put it back again and it goes ok.</p>
+<p>What does work better, is to resend the code, sometimes with some changes.</p>
+<p>Actually i have the board on my side and it has been ok. All of a sudden the led lights up and then starts blinking normal again. Looks like something did a reset on the board.</p>
+<p>The 5v power is from a charger of a smartphone. Can it be the problem? Or maybe the board is heating up?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38632"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 22/01/2016 - 16:16.</div>
+    <div class="content">
+     <p>The first suspect is indeed the 5 V charger. Read <a href="http://openenergymonitor.blogspot.co.uk/2011/08/not-all-usb-power-supplies-are-created.html">this</a>&nbsp;and you&#39;ll see why I suggest that as the first thing to check. You&#39;ll find very, very many posts if you search for &quot;noise&quot;.&nbsp;</p>
+<p>This &quot;<em>What does work better, is to resend the code, sometimes with some changes</em>.&quot; doesn&#39;t make sense if it&#39;s worked for some time before you saw the fault. How long had your V2 worked before the problem appeared?</p>
+<p>It could be static, what sensors do you have connected?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38633"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Fri, 22/01/2016 - 16:25.</div>
+    <div class="content">
+     <p>I assembled the V2 this year.</p>
+<p>I have 3 sensors connected. One is the &quot;normal&quot; blue one. The other 2 are mini versions of that sensor.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38634"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 22/01/2016 - 17:44.</div>
+    <div class="content">
+     <p><em>&quot;I assembled the V2 this year.&quot;</em><br />
+For how many weeks/months did it work correctly?&nbsp;</p>
+<p>What are the sensors, current&nbsp;transformers, temperature, ac adapter for voltage? Can you list everything you have connected? Where are they all located in your house?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38636"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Fri, 22/01/2016 - 18:19.</div>
+    <div class="content">
+     <p>I can list, yes. It will take a little time though.</p>
+<p>The board is fisicaly near the Panel along with the sensors.</p>
+<p>Does that Java program/arduino sketch to analyse the 5v works with the emontx V2?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38637"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 22/01/2016 - 18:50.</div>
+    <div class="content">
+     <p>&quot;<em>Does that Java program/arduino sketch to analyse the 5v works with the emontx V2?&quot;</em><br />
+Sorry, I don&#39;t know that. I have never needed to use it.<br />
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38754"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Tue, 26/01/2016 - 17:47.</div>
+    <div class="content">
+     <p>I&#39;ve comented the line rf12_sendWait in emontx_lib and the problem seems to go away. If i enable it, it restarts after a few seconds.</p>
+<p>This means the transmitter is at fault?</p>
+<p>Thanks</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38757"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 26/01/2016 - 18:40.</div>
+    <div class="content">
+     <p>That&#39;s weird. The purpose of that is to allow time for the transmitter to finish sending, putting the processor into low-power mode while it does so. It would need a very careful trawl through the JeeLib code to see exactly what is happening there. Is the message being transmitted - you seem to imply that it is.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38785"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Wed, 27/01/2016 - 01:20.</div>
+    <div class="content">
+     <p>something is sent but the base can&#39;t read them. It gives unreadable content</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38786"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 27/01/2016 - 02:31.</div>
+    <div class="content">
+     <p>If it just stopped working, the sketch hangs waiting for the transmission to complete, and&nbsp;the base can&#39;t read the content (presumably because the transmission didn&#39;t complete) but it used to, and it&#39;s not bad soldering, then it is looking like your RFM12B has died.</p>
+<p>What you can do about that is a whole new problem. Do you have access to, or know anyone who has a professional rework station? Because unsoldering and lifting that module without damaging the main PCB is almost impossible. If you search the web, I have seen a suggestion to make a soldering iron bit out of thick copper wire, bent so that you can melt all 16 joints at the same time. I can&#39;t say that I think it would be easy to do. </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38788"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Wed, 27/01/2016 - 06:12.</div>
+    <div class="content">
+     <p>I wonder if this could be the same as meso&#39;s problem (<a href="11977.html">http://openenergymonitor.org/emon/node/11977</a>) only this time with the wdog enabled?</p>
+<p>rjsc2000, does yours come good after a power-cycle (which seems to be the only way currently available to reset the RF module) or is it permanently stuck in the 8 second wdog reset even after you&#39;re power-cycled it?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38793"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Wed, 27/01/2016 - 10:28.</div>
+    <div class="content">
+     <p>Well, There were times when powering the board off and then on again would make everything normal, but after a few days or hours, it would return to the same problem. And there were times when it would stay the same.</p>
+<p>This all started when i noticed nothing was being sent because the of the millis function (see first post). After that i&#39;ve removed the if statement.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38802"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 27/01/2016 - 13:32.</div>
+    <div class="content">
+     <p>dBC:<br />
+This is a V2, but meso and today&#39;s&nbsp;http://openenergymonitor.org/emon/node/12089 are both V3 (and presumably RFM69s).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39192"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Sun, 07/02/2016 - 15:24.</div>
+    <div class="content">
+     <p>Hi again</p>
+<p>I&#39;ve checked the voltage in the RFM12B board while working and blinking as it should, and they looked fine. After a day or so running, it locked again. Every 8 seconds or so, the board would reset and start over. I think watchdog detected the lock up and reseted as it should be.</p>
+<p>I tested the voltages on the rfm12b again and the voltage was lower than 3.3 and sometimes zero.</p>
+<p>But the board itself was on top of a table without moving and without being touched.</p>
+<p>Anyway i&#39;ve desoldered it and will try to connect it in another board....</p>
+<p>I guess i&#39;ll have to buy another one and see if it works....</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39197"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Sun, 07/02/2016 - 16:54.</div>
+    <div class="content">
+     <p>In the shop there&#39;s the 868 version. Isn&#39;t there the 433 version?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39200"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Sun, 07/02/2016 - 18:49.</div>
+    <div class="content">
+     <p>By special request in the notes on the order...</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39341"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6718.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rjsc2000&#039;s picture" title="rjsc2000&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6718.html" title="View user profile.">rjsc2000</a> on Fri, 12/02/2016 - 10:11.</div>
+    <div class="content">
+     <p>I just saw that RFM69CW they sell in the store is compatible with RFM12B.</p>
+<p>If i want to switch will there be any major problems/modifications ?</p>
+<p>Thanks</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39344"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonTX , millis function and settled variable</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 12/02/2016 - 12:05.</div>
+    <div class="content">
+     <p>You&#39;ll need to remove the RFM12B module, which could be tricky. Are you talking about your emonTx V2? It&#39;s surface-mounted and if you don&#39;t have the proper equipment to remove it, you could very easily destroy your main pcb. Then it&#39;s a matter of setting the appropriate compiler directive (&quot;#define RF69_COMPAT 1&quot;) so that JeeLib&nbsp;includes the correct code, recompile and reload the sketch.</p>
+<p>So the major problem is likely to be physically getting the RFM12B off the pcb.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11828"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-QQWByzy68U37F7zQGcekLq0nCaH9bWf9K4HENk1wytQ" value="form-QQWByzy68U37F7zQGcekLq0nCaH9bWf9K4HENk1wytQ"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11828 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:48:46 GMT -->
+</html>

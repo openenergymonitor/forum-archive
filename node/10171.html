@@ -1,0 +1,479 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Using an emonTx V3.2 as a Mk2 PV Router | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/3">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Using an emonTx V3.2 as a Mk2 PV Router</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sat, 14/02/2015 - 20:07</span>
+        <div class="content"><p>To date, my Mk2 PV Router code has always been configured to run on an Arduino or an emonTx V2.&nbsp; Several people have expressed interest in a version which can run on an emonTx V3, in particular regarding how the output stage can be connected.</p>
+<p>This code has been set up for the RFu version of the emonTx V3 which I understand to be V3.2.&nbsp; This platform requires the use of the &lt;RFu_jeelib&gt; library rather than the standard one.&nbsp;&nbsp; The &quot;RFu&quot; library uses digital IO #3 for the RFM12B&#39;s IRQ line thereby freeing up digital IO #2 for general use.&nbsp; Digital IO #2 is available at the terminal strip and is used to drive the output stage.&nbsp; By connecting the other wire of the output pair to the 3.3 V connection, none of the terminal strip&#39;s connections need to accept more than one wire.&nbsp; The three wires from the Dallas OneWire temperature sensor neatly use other elements of this strip (photo).</p>
+<p>To check the operation of this new version, I set up a test rig (photo) comprising an emonTx V3 and a wired <a href="http://mk2pvrouter.co.uk/media/11986b29739f2914ffff8147d4355564.JPG">output stage</a> with a heatsink.&nbsp; There are two mains circuits for generation and consumption, and three CTs (photo).&nbsp; The objective of the Mk2 Router has always been to match consumption with generation, and this latest version appears to do the job as well as any other.</p>
+<p>The emonTx V3 has four CT inputs, but only CT4 has a sufficiently high sensitivity for control purposes.&nbsp; This channel is therefore used to monitor the grid supply.&nbsp; CT3 has been assigned to monitor the diverted power, and some additional code has been added to allow this flow of energy to be accumulated during each solar day.&nbsp; The total value is reset after a period of ten hours during which no surplus power has been detected (or 36 seconds when in its test mode).</p>
+<p>CT2 and CT1 are available for general use.&nbsp; For my test purposes, CT2 has been used to monitor the circuit for &#39;generation&#39;, and CT1 is unused.&nbsp; The on-board LED shows when the load has been instructed to be in the &quot;active&quot; state.</p>
+<p>The attached .txt file provides the results of a test sequence in which the operation of the system can be seen in detail.&nbsp; The first part of this file gives an explanation of the test method; the latter part is essentially the raw data as captured from the Serial Monitor.</p>
+<p>In order to work satisfactorily with the Dallas sensor, this version of the Mk2 code has been substantially re-structured.&nbsp; All of the Mk2&#39;s sampling and control activity now takes place within the ISR.&nbsp; The main code is only used for slower activities such as Serial, RF transmissions and temperature sensing.&nbsp; Prior to this change, any OneWire activites would have caused some data samples to be lost.&nbsp; With this new structure, delay() has no effect on the operation of the underlying control mechanism. &nbsp;</p>
+<p>The structure of each datalog message is:</p>
+<p>typedef struct {</p>
+<p>&nbsp;int power_grid_Watts; // uses CT4</p>
+<p>&nbsp;int power_diverted_Watts; // uses CT3</p>
+<p>&nbsp;int power_CT2_Watts;&nbsp;</p>
+<p>&nbsp;int power_CT1_Watts;&nbsp;</p>
+<p>&nbsp;int diverted_energy_WattHours; // uses CT3</p>
+<p>&nbsp;int Vrms_timesTen;&nbsp;</p>
+<p>&nbsp;int temperature_times100;&nbsp;</p>
+<p>} tx_struct;&nbsp;&nbsp;&nbsp; &nbsp;</p>
+<p>This version of my Mk2 Router may be of interest to anyone who already has an emonTx V3 in place, and is thinking about diverting their surplus power for some on-site purpose.&nbsp; With the emonTx V3 being a&nbsp; safe and well contained product, only an output stage would be needed.&nbsp; Self-contained output stages are available from my online Shop at <a href="http://www.mk2pvrouter.co.uk">www.mk2pvrouter.co.uk</a>&nbsp;</p>
+<p>In some premises, it is not possible for the output stage to be connected by wire.&nbsp; In such cases, the Router&#39;s control mechanism would have to be implemented using RF.&nbsp; It is possible for an emonTx to transmit both forms of RF data (for control and datalog purposes) with the remote node forwarding only the datalog messages to emonBase in an enhanced form.&nbsp; By this means, relevant information can be logged from both ends of the Mk2 link.&nbsp; If this kind of system is of interest, please contact me using the &#39;info&#39; email address on my Shop page.&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/10214" class="topic-previous" title="Go to previous forum topic">‹ current sensor working with air conditioner but not with washing machine !</a>
+              <a href="/emon/node/10252" class="topic-next" title="Go to next forum topic">RPi pulse import ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-28285"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7764" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="hercules71035&#039;s picture" title="hercules71035&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7764" title="View user profile.">hercules71035</a> on Sat, 28/02/2015 - 18:48.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>I&#39;m using your code on my emonTx V3. I get data from serial, so I just deleted some useless print, but it seems doesn&#39;t work! I have only CT4 and AC/AC adapter and this is my output (by serial):</p>
+<p>-------------------------------------<br />
+Sketch ID: emonTxV3_as_Mk2Router.ino</p>
+<p>ADC mode: &nbsp; &nbsp; &nbsp; free-running<br />
+Output mode: &nbsp; &nbsp;anti-flicker<br />
+&nbsp; offsetOfEnergyThresholds &nbsp;= 0.10<br />
+powerCal_grid (CT4) = &nbsp; &nbsp; 0.0450<br />
+powerCal_diverted (CT3) = 0.2500<br />
+powerCal_CT2 &nbsp;= &nbsp;0.2500<br />
+powerCal_CT1 &nbsp;= &nbsp;0.2500<br />
+voltageCal = &nbsp;0.8750<br />
+&gt;&gt;free RAM = 1165<br />
+&nbsp; capacityOfEnergyBucket_long = 3999999<br />
+&nbsp; lowerEnergyThreshold_long &nbsp; = 1599999<br />
+&nbsp; upperEnergyThreshold_long &nbsp; = 2399999<br />
+&gt;&gt;free RAM = 1155<br />
+----<br />
+1259200000325.2<br />
+1259200000257.7<br />
+1259200000257.9<br />
+1259200000258.0<br />
+1259200000258.1<br />
+1259200000258.5<br />
+1259200000258.4<br />
+1259200000258.4<br />
+1259200000258.4<br />
+1259200000258.4<br />
+1259200000258.1<br />
+1259200000258.1<br />
+1259200000258.3<br />
+1259200000258.2<br />
+1259200000258.2<br />
+1259200000258.2<br />
+1259200000258.2<br />
+1259200000258.2<br />
+1259200000258.2<br />
+1259200000258.2<br />
+1259200000258.1<br />
+1259200000258.1<br />
+1259200000258.0<br />
+1259200000258.0<br />
+1259200000258.0<br />
+1259200000258.0<br />
+1259200000258.1<br />
+1259200000258.1<br />
+1259200000258.1<br />
+1259200000258.1<br />
+1259200000258.2<br />
+1259200000258.3<br />
+1259200000258.3<br />
+1259200000258.3<br />
+1259200000258.3<br />
+1259200000258.3<br />
+1259200000258.4<br />
+1259200000258.5<br />
+1259200000258.5<br />
+1259200000258.4<br />
+1259200000258.4<br />
+1259200000258.4<br />
+1259200000258.0</p>
+<p>What is wrong?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28298"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sat, 28/02/2015 - 23:35.</div>
+    <div class="content">
+     <p>I&#39;m sorry, hercules71035, I don&#39;t know why you are getting that data.&nbsp;</p>
+<p>Have you tried running the sketch exactly as I posted it, without changing anything?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28314"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7764" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="hercules71035&#039;s picture" title="hercules71035&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7764" title="View user profile.">hercules71035</a> on Sun, 01/03/2015 - 11:07.</div>
+    <div class="content">
+     <p>No&nbsp;calypso_rae, I&#39;ve just commented some serial print in order to use emonTx&nbsp;via serial. Moreover, I added Serial.print(nodeId) at each cycle.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28323"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sun, 01/03/2015 - 15:12.</div>
+    <div class="content">
+     <p>The results file that I attached in the top post shows the display format when the sketch is run on an emonTx V3.2 exactly as posted.&nbsp; Yes, there is a lot of Serial, but that&#39;s no problem because all the clever stuff is now done within the ISR.&nbsp; The main code in loop() only deals with slower activities, which includes the Serial interface.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28324"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7764" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="hercules71035&#039;s picture" title="hercules71035&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7764" title="View user profile.">hercules71035</a> on Sun, 01/03/2015 - 15:19.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>thanks for the suggestions. I&#39;ve resolved. Some Serial.print() was worng!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28325"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Sun, 01/03/2015 - 15:59.</div>
+    <div class="content">
+     <p>Okay! you&#39;re all sorted now!</p>
+<p>I started editing and got sidetracked, when I came back you have posted. I&#39;ve still attached the sketch anyway as someone else may find it useful.</p>
+<p>Paul</p>
+<p>PS **untested** as i don&#39;t have a emonTx v3 for test purposes.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28329"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sun, 01/03/2015 - 21:23.</div>
+    <div class="content">
+     <p>Paul, what does your &#39;serial direct&#39; version do that is different than the original one?&nbsp;</p>
+<p>I&#39;m intrigued ...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28331"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Sun, 01/03/2015 - 23:27.</div>
+    <div class="content">
+     <p>Hi Robin, All I&#39;ve done is commented out <u>all</u> the serial prints and added just the&nbsp;serial prints to output the nodeID&nbsp;and&nbsp;data values only, so that the serial output is now a&nbsp;data stream of&nbsp;<span style="line-height:20.7999992370605px">&quot;</span>nodeID<span style="line-height:20.7999992370605px">&nbsp;</span>val1<span style="line-height:20.7999992370605px">&nbsp;</span>val2&nbsp;...<span style="line-height:20.7999992370605px">&quot; packets&nbsp;</span><span style="line-height:1.6">that means it&nbsp;can be hooked up to a Pi via the serial port rather than using an RF connection.</span></p>
+<p><span style="line-height:1.6">The serial output is &quot;OEM&quot; format that can be read by OEM&nbsp;software rather than human readable.</span></p>
+<p><span style="line-height:1.6">and I commented out the rf&nbsp;stuff too.</span></p>
+<p><span style="line-height:1.6">See&nbsp;</span><a href="http://wiki.openenergymonitor.org/index.php?title=EmonTx_V3#Direct_connection_emonTx_V3_.3E_Raspberry_Pi_GPIO">Direct connection emonTx V3 &gt; Raspberry Pi GPIO</a>&nbsp;</p>
+<p>Paul</p>
+<p>
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28336"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Mon, 02/03/2015 - 12:07.</div>
+    <div class="content">
+     <p>Thanks, Paul, that all makes sense now.&nbsp; I&#39;d not appreciated that the Serial port could be used in this alternative way.</p>
+<p>For the <a href="http://openenergymonitor.org/emon/node/10099">3-phase Router sketch</a> that I posted recently, the RF can be easily disabled by commenting out the statement&nbsp;<strong> #define RF_PRESENT</strong>.&nbsp; I must remember to include this feature on any future RF-enabled code.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28437"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7764" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="hercules71035&#039;s picture" title="hercules71035&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7764" title="View user profile.">hercules71035</a> on Sat, 07/03/2015 - 13:57.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>just a question: why there is no&nbsp;watt_hour measure in this sketch?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28448"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Hash&#039;s picture" title="Hash&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by Hash (not verified) on Sat, 07/03/2015 - 20:25.</div>
+    <div class="content">
+     <p>I remember checking out&nbsp;Calypso&#39;s diverter software&nbsp;many months ago, but &nbsp;was put off because they did not forward energy&nbsp;data to emoncms.</p>
+<p>​Reading the above, I suspect that has now changed, and the values are forwarded to emoncms, just like a normal emonTX, as well as acting as a diverter?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28449"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sat, 07/03/2015 - 20:38.</div>
+    <div class="content">
+     <p>Yes, integer data is indeed transmitted by RF, just as for the emonTx, and this sketch also acts as a diverter.</p>
+<p>Most sketches for the emonTx transmit average power rather than accumulated energy, so that&#39;s how I wrote this one.&nbsp; There is a similar sketch (Mk2_RFdatalog_4.ino) on my website&#39;s <a href="http://mk2pvrouter.co.uk/13601.html">Download page</a> which accumulates diverted energy in WattHours.&nbsp; It should not be too difficult to copy that extra logic into this code for the&nbsp;emonTx.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28450"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Hash&#039;s picture" title="Hash&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by Hash (not verified) on Sat, 07/03/2015 - 20:56.</div>
+    <div class="content">
+     <p>Average Power - is that the average power used/supplied between consecutive emoncms&nbsp;data updates.</p>
+<p>So what data format does &#39;accumulated energy&#39; use to&nbsp;send to emoncms? does it calculate the number of WattHours&nbsp;used/supplied between consecutive readings, which are then forwarded &amp;&nbsp;processed by emoncms?</p>
+<p>I&#39;m picking up that you are steering towards using &#39;accumulated energy&#39;, but I&#39;m not sure of any advantage gained?&nbsp;</p>
+<p>EDIT -&gt; It took a few minutes to sink in, but yes I can see the accuracy advantage!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28451"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sat, 07/03/2015 - 21:18.</div>
+    <div class="content">
+     <p><em>Average Power:&nbsp;</em> Between consecutive RF transmissions, the instantaneous power (V*I) is measured a large number of times.&nbsp; These values are summed and then divided by the number of contributions to get the average power.&nbsp; After a cal factor has been applied, this is the transmitted value (in Watts).&nbsp; This process occurs for each of the four channels, CT1 - CT4.</p>
+<p><em>Accumulated energy:</em> In sketches where I calculate the accumulated energy, the energy content in each mains cycle is calculated, and a register is updated whenever a complete WattHour has occurred.&nbsp; The total number of WattHours is then presented as an integer.&nbsp; In the diverter units that I supply from <a href="http://mk2pvrouter.co.uk/33001.html">mk2pvrouter.co.uk</a> this number (for the diverted energy channel) can be displayed using a 4-digit display on the front panel.&nbsp; When data is being sent to emonCMS, I thought that &quot;average power&quot; would be sufficient because the accumulated energy total can be readily obtained by subsequent processing.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28452"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3016" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3016" title="View user profile.">dBC</a> on Sat, 07/03/2015 - 21:28.</div>
+    <div class="content">
+     <p>By the strictest definitions of the terms, neither average power over an interval, nor accumulated energy over an interval is more accurate than the other. &nbsp;One is just the other divided by time. &nbsp;Provided you have one, and you know the interval, you can always derive the other. &nbsp;For example, my meter reports accumulated energy in WattSeconds every 10 seconds. &nbsp;If I divide that by 10, then I get average power over the 10 seconds.... no accuracy is lost, provided I keep the decimal place.</p>
+<p>Now if by &quot;average power&quot; what you mean is a short sampled snapshot of &quot;instantaneous&quot; power at the beginning of the interval, and then assume that was the average power for the entire interval, that&#39;s clearly not as accurate.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28453"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Hash&#039;s picture" title="Hash&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by Hash (not verified) on Sat, 07/03/2015 - 22:41.</div>
+    <div class="content">
+     <p>Looking at the sketch it&#39;s the former.</p>
+<p>So are there any advantages either way? I seem to remember Trystan&nbsp;discussing this, but I can&#39;t find the post now...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28456"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3016" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3016" title="View user profile.">dBC</a> on Sat, 07/03/2015 - 23:44.</div>
+    <div class="content">
+     <p>Depending on exactly what you&#39;re transmitting, one might be more robust than the other in the case of lossy transmissions. &nbsp; If your accumulated energy messages are accumulated energy since the beginning of time, then a lost message or two won&#39;t make any difference to your totals, because the lost details will at least be included in the next message you do receive. &nbsp;If I lose one of my &quot;accumulated energy in the last 10 seconds&quot; messages, then that information is lost forever.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28474"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sun, 08/03/2015 - 22:32.</div>
+    <div class="content">
+     <p>In my Mk2 Router sketches, &quot;accumulated energy&quot; means the total amount of energy that has been accumulated today.&nbsp; After ten hours of no surplus power being present, the total is cleared in readiness for the next day&#39;s haul.</p>
+<p>&quot;Average power&quot; means the average of all the instantaneous power values during the preceding interval.&nbsp; This approach has also been termed &quot;continuous monitoring&quot;.</p>
+<p>&quot;discrete monitoring&quot; is where power values are measured rapidly for a certain interval, but the process then waits&nbsp; for a while before starting again.&nbsp; This approach is no good when actively diverting surplus power, hence none of my own sketches work in this way.&nbsp; They all monitor continuously.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28477"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using an emonTx V3.2 as a Mk2 PV Router</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Mon, 09/03/2015 - 00:57.</div>
+    <div class="content">
+     <p><i>"This approach is no good when actively diverting surplus power"</i> &mdash;and can also be misleading when a rapidly switching large load, e.g. an induction hob, is in use.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/10171"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-0iuURYa7CsAeSzgWE65Rn75_3wImNEDWSnsSqkJVfmk" value="form-0iuURYa7CsAeSzgWE65Rn75_3wImNEDWSnsSqkJVfmk"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

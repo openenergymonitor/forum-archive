@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/54 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:34:28 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>How to build an arduino energy monitor - measuring current only | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h2 style="margin-top: 0.5em; margin-bottom: 0.9em; ">How to build an Arduino energy monitor - measuring mains current only.</h2>
+<p><img alt="" height="749" src="../sites/default/files/currentOnly_bb.png" width="493" /></p>
+<p>This guide details how to build a simple energy monitor on a breadboard that can be used to measure how much electrical energy you use in your home. It measures current, but uses an assumed fixed value for voltage (230V, if you&#39;re in the UK) and calculates apparent power. Although not as accurate as a monitor that measures voltage as well as current, it is a method commonly used in commercially available whole house energy monitors for reasons of simplicity and cost.</p>
+<p>Here&#39;s how to build it:</p>
+<h3>Step One &ndash; Gather Components</h3>
+<p><strong>You will need:</strong></p>
+<p class="rteindent1">1 Arduino</p>
+<p><strong>Current sensing electronics</strong></p>
+<p class="rteindent1">1 CT sensor YHDC SCT-013-000</p>
+<p class="rteindent1">1 Burden resistor 18 Ohms if supply voltage is 3.3V, or 33 Ohms if supply voltage is 5V.</p>
+<p class="rteindent1">2 10k Ohm resistors (or any equal value resistor pair up to 470k Ohm)</p>
+<p class="rteindent1">1 10uF capacitor</p>
+<p><strong>Other</strong></p>
+<p class="rteindent1">A breadboard and some single core wire.</p>
+<p class="rteindent1">Oomlout has a good Arduino + breadboard bundle <a href="http://www.oomlout.co.uk/arduino-prototyping-bundle-br-ardp-p-186.html?zenid=1f2d8abc7fe1ce7953446890ca648cbd">here &pound;29</a></p>
+<h3>Step Two &ndash; Assemble the electronics</h3>
+<p>The monitor consists of the current sensor (which produces a signal proportional to the mains current) and the sensor electronics that convert the signal into a form the Arduino can use.</p>
+<p>For a circuit diagram and detailed discussion of sensors and electronics see:</p>
+<p><a href="https://learn.openenergymonitor.org/?redirect=ct-sensors-introduction">CT Senors - Introduction</a></p>
+<p><a href="https://learn.openenergymonitor.org/?redirect=ct-sensors-interface">CT Sensors - Interfacing with an&nbsp;Arduino</a></p>
+<p><strong>Assemble the components per the diagram above.</strong></p>
+<h3>Step Three &ndash; Upload the Arduino Sketch</h3>
+<p>The sketch is the software that runs on the Arduino. The Arduino converts the raw data from its analog input into human readable values, then sends them to the serial port monitor.</p>
+<p><strong>a)&nbsp;Download&nbsp;EmonLib&nbsp;from&nbsp;github&nbsp;and place it in your Arduino&nbsp;libraries folder.</strong></p>
+<p>Download:&nbsp;<a href="https://github.com/openenergymonitor/EmonLib">EmonLib</a></p>
+<p><strong>b) Upload the &quot;current only&quot; example:</strong></p>
+<pre>
+#include&nbsp;<span style="color: #006699;">&quot;EmonLib.h&quot;</span>                   <span style="color: #7E7E7E;">// Include Emon Library</span>
+EnergyMonitor&nbsp;emon1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #7E7E7E;">// Create an instance</span>
+
+<span style="color: #CC6600;">void</span> <span style="color: #CC6600;"><b>setup</b></span>()
+{&nbsp;&nbsp;
+&nbsp;&nbsp;<span style="color: #CC6600;"><b>Serial</b></span>.<span style="color: #CC6600;">begin</span>(9600);
+&nbsp;&nbsp;
+&nbsp;&nbsp;emon1.current(1,&nbsp;111.1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #7E7E7E;">// Current: input pin, calibration.</span>
+}
+
+<span style="color: #CC6600;">void</span> <span style="color: #CC6600;"><b>loop</b></span>()
+{
+&nbsp;&nbsp;<span style="color: #CC6600;">double</span> Irms = emon1.calcIrms(1480);  <span style="color: #7E7E7E;">// Calculate Irms only</span>
+&nbsp;&nbsp;
+&nbsp;&nbsp;<span style="color: #CC6600;"><b>Serial</b></span>.<span style="color: #CC6600;">print</span>(Irms*230.0);	       <span style="color: #7E7E7E;">// Apparent power</span>
+&nbsp;&nbsp;<span style="color: #CC6600;"><b>Serial</b></span>.<span style="color: #CC6600;">print</span>(<span style="color: #006699;">&quot; &quot;</span>);
+&nbsp;&nbsp;<span style="color: #CC6600;"><b>Serial</b></span>.<span style="color: #CC6600;">println</span>(Irms);		       <span style="color: #7E7E7E;">// Irms</span>
+}
+
+</pre><p><strong>c) Open the Arduino serial window</strong></p>
+<p>You should now see two columns of values. Apparent power on the left, RMS current on the right.</p>
+</div>
+    
+    
+      </div>
+<div id="comments">
+  <a id="comment-1892"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Hazmatt&#039;s picture" title="Hazmatt&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to build an arduino energy monitor - measuring current only</h3>
+
+    <div class="submitted">Submitted by Hazmatt (not verified) on Wed, 22/06/2011 - 11:45.</div>
+    <div class="content">
+     <p>I have put a  6 channel version of the current only model to monitor two 3 phase motors. I have one ct on each leg of three phase of each motor. Then I hooked up the arduino to LCD and will output the amp draw to LCD screen. My problem is when I power it off of a 9 volt wall wart Analog 0 reads around 30 to 60, when I power it off of usb from my computer it will A0 will read zero just like the others. This is without any CT's plugged in. Someone told me I probably need a 10k pull down resistor. Just wondering if you agree or would this affect the circuit in a bad way.</p>
+<p>Any Help you can give me would be much appreciated. Thanks.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1894"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Hazmatt&#039;s picture" title="Hazmatt&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to build an arduino energy monitor - measuring current only</h3>
+
+    <div class="submitted">Submitted by Hazmatt (not verified) on Wed, 22/06/2011 - 20:14.</div>
+    <div class="content">
+     <p>When reading actual current A0 will read about 4x higher that A1-A5. Even using the same ct. Do I just need to scale it back hat much??</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1901"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to build an arduino energy monitor - measuring current only</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 25/06/2011 - 21:09.</div>
+    <div class="content">
+     <p>Hello Hazmatt, I dont know why this should happen? Have you tried swapping the CT's and so on? Amin did I think have a similar sounding problem with analog input 0, problem being solved when moving to other pins. Could you have overloaded the input at some point? Have you another arduino at hand to see if the problem is the same?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1902"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Hazmatt&#039;s picture" title="Hazmatt&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to build an arduino energy monitor - measuring current only</h3>
+
+    <div class="submitted">Submitted by Hazmatt (not verified) on Mon, 27/06/2011 - 11:53.</div>
+    <div class="content">
+     <p>I figured it out my problem was I forgot to complete connection of CT to burden resistor. I am so sorry. Thanks for your great tutorial thouh it was alot of help.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div></div></div><a id="comment-1883"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Michele&#039;s picture" title="Michele&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to build an arduino energy monitor - measuring current only</h3>
+
+    <div class="submitted">Submitted by Michele (not verified) on Mon, 20/06/2011 - 22:11.</div>
+    <div class="content">
+     <p>hi!<br />
+i have built this monitor with efergy ct sensor and 100 ohm burden resistor and i'm experiencing some problems<br />
+if i connect light loads (for example 60watt) everything works okk, but:<br />
+1) if i do not connect any device to the monitor i still read something like 10 watt!!!<br />
+2) if i connect big loads (from 300 to 2000 watt) the monitor reads wrong values (for example 290 instead of 300, 1700 instead of 2000, etc....)<br />
+any idea?<br />
+thank you very much!!</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1884"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Sergegsx&#039;s picture" title="Sergegsx&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to build an arduino energy monitor - measuring current only</h3>
+
+    <div class="submitted">Submitted by <a href="http://arduinocarblackbox.info/" rel="nofollow">Sergegsx</a> (not verified) on Mon, 20/06/2011 - 22:15.</div>
+    <div class="content">
+     <p>Its normal to measure something (10watts) when nothing is connected as analog reading go from 0 to 1024 so sometimes a 1 in the reading leads to something like 10 or 20 watts.<br />
+as for higher loads, you need to calibrate the unit with big loads so that this phenomenom is reduce to the max. but if your error is 290/300 then i guess is not that bad. as for 1700 instead of 2000, calibrate again.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div><a id="comment-1674"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arnon&#039;s picture" title="arnon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to build an arduino energy monitor - measuring current only</h3>
+
+    <div class="submitted">Submitted by arnon (not verified) on Thu, 28/04/2011 - 14:53.</div>
+    <div class="content">
+     <p>Is this project measures true rms?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-1605"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arteqw&#039;s picture" title="arteqw&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to build an arduino energy monitor - measuring current only</h3>
+
+    <div class="submitted">Submitted by arteqw (not verified) on Wed, 16/03/2011 - 13:42.</div>
+    <div class="content">
+     <p>&nbsp;There is possible to calculate Real Power using current only ?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1607"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to build an arduino energy monitor - measuring current only</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 16/03/2011 - 13:48.</div>
+    <div class="content">
+     <p>I'm afraid not, you really need the voltage measurement.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div><a id="comment-1509"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Amin&#039;s picture" title="Amin&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to build an arduino energy monitor - measuring current only</h3>
+
+    <div class="submitted">Submitted by <a href="http://www.bouhablog.com/" rel="nofollow">Amin</a> (not verified) on Sun, 23/01/2011 - 14:16.</div>
+    <div class="content">
+     <p>Hi Trystan,<br />
+Still waiting for the AC-AC adapter but couldn't wait to test the current only setup. It works beautifully, but only with purely resistive loads...<br />
+And also with something strange: it shows the correct results only with ICAL = 0.07 in the sketch... is it because my burden resistor is too small?</p>
+<p>Amin</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="item-list"><ul class="pager"><li class="pager-current first">1</li>
+<li class="pager-item"><a href="https://learn.openenergymonitor.org/?redirect=how-to-build-an-arduino-energy-monitor-measuring-current-only?page=1" title="Go to page 2" class="active">2</a></li>
+<li class="pager-next"><a href="https://learn.openenergymonitor.org/?redirect=how-to-build-an-arduino-energy-monitor-measuring-current-only?page=1" title="Go to next page" class="active">next ›</a></li>
+<li class="pager-last last"><a href="https://learn.openenergymonitor.org/?redirect=how-to-build-an-arduino-energy-monitor-measuring-current-only?page=1" title="Go to last page" class="active">last »</a></li>
+</ul></div></div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/54 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:34:29 GMT -->
+</html>

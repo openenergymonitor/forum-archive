@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/124 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:29:34 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Interrupt driven pulse counting with sleep mode | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h2>Interrupt driven pulse counter and sleep mode</h2>
+<p>This sketch detects pulses and prints the character P to the serial port.</p>
+<p>In order to reduce power consumption, the Atmega 328 is put into sleep mode between pulses. The interrupt pulse input (digital input pin 2 or 3) is used to wake the device.</p>
+<p>Unfortunately a power value can&#39;t be calculated as the timers do not run in sleep mode.</p>
+<p>Kudos to&nbsp;Donal Morrissey for his clear tutorial on Arduino sleep mode: <a href="http://donalmorrissey.blogspot.com/2010/04/putting-arduino-diecimila-to-sleep-part.html">Sleeping Arduino</a></p>
+<pre>
+#include &lt;avr/sleep.h&gt;
+
+#ifndef cbi
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &amp;= ~_BV(bit))
+#endif
+#ifndef sbi
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#endif
+
+void setup()
+{
+  Serial.begin(115200);
+  
+  /* Setup the interrupt pin */
+  attachInterrupt(1, onPulse, FALLING);
+  
+  cbi( SMCR,SE );      // sleep enable, power down mode
+  cbi( SMCR,SM0 );     // power down mode
+  sbi( SMCR,SM1 );     // power down mode
+  cbi( SMCR,SM2 );     // power down mode
+}
+
+void loop()
+{
+  //-------------------------------------------------------------
+  // 1) Enter sleep mode
+  //-------------------------------------------------------------
+  //cbi(ADCSRA,ADEN);    // switch Analog to Digital converter OFF
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  sleep_enable();
+  sleep_mode();
+
+  // The arduino is now sleeping...
+  
+  //-------------------------------------------------------------
+  // 2) Program will resume from here on interrupt
+  //-------------------------------------------------------------
+  sleep_disable();
+  sbi(ADCSRA,ADEN);    // switch Analog to Digitalconverter ON
+  
+  Serial.print(&#39;P&#39;);
+  
+  delay(10);
+}
+
+void onPulse()
+{ 
+  // It continues in the main loop 
+}</pre><p>&nbsp;</p>
+</div>
+    
+    
+      </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/124 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:29:34 GMT -->
+</html>

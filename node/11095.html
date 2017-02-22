@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11095 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:46:14 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Computing AC voltage &amp; phase difference(HELP) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Computing AC voltage &amp; phase difference(HELP)</h3>
+        <span class="submitted">Submitted by <a href="../user/8323.html" title="View user profile.">lamela</a> on Mon, 10/08/2015 - 12:22</span>
+        <div class="content"><p>Hey everyone! I&#39;ve connected the input based on this link from the building blocks:&nbsp;http://openenergymonitor.org/emon/buildingblocks/measuring-voltage-with-an-acac-power-adapter</p>
+<p>I&#39;m able to read the value from the arduino and I know you have to compute the values based on&nbsp;this link: <a href="http://playground.arduino.cc/Main/DirectMathVoltmeter" title="http://playground.arduino.cc/Main/DirectMathVoltmeter">http://playground.arduino.cc/Main/DirectMathVoltmeter</a></p>
+<p>&nbsp;</p>
+<p>1) The value from analog input on the arduino needs to divide&nbsp;1023 then&nbsp;*5&nbsp;and afterwards I have to divide back the Resistors 1 &amp; 2 to get the&nbsp;values before the voltage dividing.&nbsp;What comes after that? What about the transformer AC-AC power adapter? Shouldn&#39;t I need another math to step back up the values to get the final measurement?</p>
+<p>&nbsp;</p>
+<p>2) I&#39;ve looked at this link:http://openenergymonitor.org/emon/buildingblocks/arduino-sketch-voltage-and-current&nbsp;</p>
+<p>and I want to ask if it is the measurement of the phase difference of the two inputs current &amp; voltage?&nbsp;</p>
+<p>Here is my code:&nbsp;</p>
+<p>const int analogIn0 = A0;<br />
+const int analogIn1 = A1;<br />
+int mVperAmp = 185; // use 100 for 20A Module and 66 for 30A Module<br />
+int RawCurrentValue= 0;<br />
+int RawVoltageValue= 0;<br />
+int ACSoffset = 2500;&nbsp;<br />
+int Denominator = 0;<br />
+float AcVoltage = 0;<br />
+float Voltage0 = 0;<br />
+float Voltage1 = 0;<br />
+float Amps = 0;</p>
+<p>void setup(){&nbsp;<br />
+&nbsp;Serial.begin(9600);<br />
+}</p>
+<p>void loop(){<br />
+&nbsp;<br />
+&nbsp;RawCurrentValue = analogRead(analogIn0);<br />
+&nbsp;RawVoltageValue = analogRead(analogIn1);</p>
+<p>&nbsp;Denominator = (10000)/(130000);<br />
+&nbsp;<br />
+&nbsp;Voltage0 = (RawCurrentValue / 1023.0) * 5000;&nbsp;<br />
+&nbsp;Voltage1 = (RawVoltageValue / 1023.0) * 5000;&nbsp;<br />
+&nbsp;AcVoltage = (Voltage1 / Denominator ) ;<br />
+&nbsp;Amps = ((Voltage0 - ACSoffset) / mVperAmp);<br />
+&nbsp;<br />
+&nbsp;<br />
+Serial.print(Amps);<br />
+Serial.print(&quot;, &quot;);<br />
+Serial.println(AcVoltage);</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>If it is, how do I do the measurement on&nbsp;this code?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11096.html" class="topic-previous" title="Go to previous forum topic">‹ emonTX Shield - how do I set it up?</a>
+              <a href="11079.html" class="topic-next" title="Go to next forum topic">EmonTX Current Sensors ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-33207"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Computing AC voltage & phase difference(HELP)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 10/08/2015 - 20:32.</div>
+    <div class="content">
+     <p>The "Building Blocks" pages are just that - the essential first steps. I suggest you download and study emonLib - that is a set of fully developed methods, one is used in the sketch that you link to, and that will in fact give you - indirectly - the phase difference between current and voltage. I say 'indirectly' because what calcVI does is it calculates real power, rms voltage and rms current. Multiply the last two together and you have apparent power, and the ratio of real power to apparent power is power factor. <u>Provided that both current and voltage are pure sinusoids</u>, power factor = cos(&phi;). If one or both are not pure sinuoids, phase angle only has a meaning for the individual harmonics that make up the complex wave. I think the angle &phi; is what you're asking for.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11095"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-aEIGkDoXoQnJkYqPZEXIkZs5nmMDlUGEBmzwDbAqsOc" value="form-aEIGkDoXoQnJkYqPZEXIkZs5nmMDlUGEBmzwDbAqsOc"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11095 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:46:14 GMT -->
+</html>

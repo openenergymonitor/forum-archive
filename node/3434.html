@@ -1,0 +1,461 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3434 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:01:19 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Raspberry pi ,mcp3008, and python script substitue to emontx ? | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Raspberry pi ,mcp3008, and python script substitue to emontx ?</h3>
+        <span class="submitted">Submitted by Guest on Mon, 30/12/2013 - 01:59</span>
+        <div class="content"><p>hello guy&#39;s</p>
+<p>i&#39;m new to energy monitoring</p>
+<p>&nbsp;I bought 3 emontx&nbsp;v.2 and rfm12pi and it works really well, thank you!</p>
+<p>I am currently studying the possibility of expanding my system and use the raspberry pi for reading additional 4 ct with analog to digital converter (MCP3008) and a python script but the knowledge that I have in programming are intermediate level and I need to adapt the calcIrms of emonlib in my python script</p>
+<p>if someone could take a look and give me ideas</p>
+<p>this is a arduino emonlib</p>
+<blockquote><p>double EnergyMonitor::calcIrms(int NUMBER_OF_SAMPLES)<br />
+		{<br />
+		&nbsp;<br />
+		&nbsp;&nbsp; #if defined emonTxV3<br />
+		int SUPPLYVOLTAGE=3300;<br />
+		&nbsp;&nbsp; #else<br />
+		int SUPPLYVOLTAGE = readVcc();<br />
+		&nbsp;&nbsp; #endif</p>
+<p>&nbsp;<br />
+		&nbsp; for (int n = 0; n &lt; NUMBER_OF_SAMPLES; n++)<br />
+		&nbsp; {<br />
+		&nbsp;&nbsp;&nbsp; lastSampleI = sampleI;<br />
+		&nbsp;&nbsp;&nbsp; sampleI = analogRead(inPinI);<br />
+		&nbsp;&nbsp;&nbsp; lastFilteredI = filteredI;<br />
+		&nbsp;&nbsp;&nbsp; filteredI = 0.996*(lastFilteredI+sampleI-lastSampleI);</p>
+<p>&nbsp;&nbsp;&nbsp; // Root-mean-square method current<br />
+		&nbsp;&nbsp;&nbsp; // 1) square current values<br />
+		&nbsp;&nbsp;&nbsp; sqI = filteredI * filteredI;<br />
+		&nbsp;&nbsp;&nbsp; // 2) sum<br />
+		&nbsp;&nbsp;&nbsp; sumI += sqI;<br />
+		&nbsp; }</p>
+<p>&nbsp; double I_RATIO = ICAL *((SUPPLYVOLTAGE/1000.0) / 1023.0);<br />
+		&nbsp; Irms = I_RATIO * sqrt(sumI / NUMBER_OF_SAMPLES);</p>
+<p>&nbsp; //Reset accumulators<br />
+		&nbsp; sumI = 0;<br />
+		//--------------------------------------------------------------------------------------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>		&nbsp; return Irms;<br />
+		}</p>
+</blockquote>
+<p>&nbsp;</p>
+<p>and this is a part of my python script</p>
+<blockquote><p>SPICLK = 18<br />
+		SPIMISO = 23<br />
+		SPIMOSI = 24<br />
+		SPICS = 25</p>
+<p># set up the SPI interface pins<br />
+		GPIO.setup(SPIMOSI, GPIO.OUT)<br />
+		GPIO.setup(SPIMISO, GPIO.IN)<br />
+		GPIO.setup(SPICLK, GPIO.OUT)<br />
+		GPIO.setup(SPICS, GPIO.OUT)</p>
+<p># mcp3008 input<br />
+		votage_Supply = 0;<br />
+		ct1_adc = 1;<br />
+		ct2_adc = 2;<br />
+		ct3_adc = 3;<br />
+		ct4_adc = 4;</p>
+<p>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # read the analog pin<br />
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ct1 = readadc(ct1_adc, SPICLK, SPIMOSI, SPIMISO, SPICS)</p>
+</blockquote>
+<p>if someone could take a look and give me ideas</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="6290.html" class="topic-previous" title="Go to previous forum topic">‹ As climb emoncms the numbering of the gas meter</a>
+              <a href="2941.html" class="topic-next" title="Go to next forum topic">Thunder burnt the ethernet interface on my Raspberry Pi ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-17101"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Raspberry pi ,mcp3008, and python script substitue to emontx ?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 30/12/2013 - 13:28.</div>
+    <div class="content">
+     <p>Thats a nice idea! without knowing much about your exact setup would just adapting the calcIrms code like this work:</p>
+<p>&nbsp;&nbsp;&nbsp; import math</p>
+<p>&nbsp;&nbsp;&nbsp; SPICLK = 18<br />
+	&nbsp;&nbsp;&nbsp; SPIMISO = 23<br />
+	&nbsp;&nbsp;&nbsp; SPIMOSI = 24<br />
+	&nbsp;&nbsp;&nbsp; SPICS = 25</p>
+<p>&nbsp;&nbsp;&nbsp; # set up the SPI interface pins<br />
+	&nbsp;&nbsp;&nbsp; GPIO.setup(SPIMOSI, GPIO.OUT)<br />
+	&nbsp;&nbsp;&nbsp; GPIO.setup(SPIMISO, GPIO.IN)<br />
+	&nbsp;&nbsp;&nbsp; GPIO.setup(SPICLK, GPIO.OUT)<br />
+	&nbsp;&nbsp;&nbsp; GPIO.setup(SPICS, GPIO.OUT)</p>
+<p>&nbsp;&nbsp;&nbsp; # mcp3008 input<br />
+	&nbsp;&nbsp;&nbsp; votage_Supply = 0;<br />
+	&nbsp;&nbsp;&nbsp; ct1_adc = 1;<br />
+	&nbsp;&nbsp;&nbsp; ct2_adc = 2;<br />
+	&nbsp;&nbsp;&nbsp; ct3_adc = 3;<br />
+	&nbsp;&nbsp;&nbsp; ct4_adc = 4;</p>
+<p>&nbsp;&nbsp;&nbsp; NUMBER_OF_SAMPLES = 1000<br />
+	&nbsp;&nbsp;&nbsp; SUPPLYVOLTAGE = 3300<br />
+	&nbsp;&nbsp;&nbsp; ICAL = 111.1</p>
+<p>&nbsp;&nbsp;&nbsp; sumI = 0<br />
+	&nbsp;&nbsp;&nbsp; sampleI = 512<br />
+	&nbsp;&nbsp;&nbsp; filteredI = 0</p>
+<p>&nbsp;&nbsp;&nbsp; for n in range (0, NUMBER_OF_SAMPLES):<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastSampleI = sampleI</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # read the analog pin<br />
+	&nbsp;&nbsp;&nbsp; &nbsp; sampleI = readadc(ct1_adc, SPICLK, SPIMOSI, SPIMISO, SPICS)</p>
+<p>	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastFilteredI = filteredI<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; filteredI = 0.996*(lastFilteredI+sampleI-lastSampleI)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sqI = filteredI * filteredI<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sumI += sqI</p>
+<p>&nbsp;&nbsp;&nbsp; I_RATIO = ICAL * ((SUPPLYVOLTAGE/1000.0) / 1023.0)<br />
+	&nbsp;&nbsp;&nbsp; Irms = I_RATIO * math.sqrt(sumI / NUMBER_OF_SAMPLES)<br />
+	&nbsp;&nbsp;&nbsp; sumI = 0</p>
+<p>&nbsp;&nbsp;&nbsp; print Irms</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17138"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="jmg22&#039;s picture" title="jmg22&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Raspberry pi ,mcp3008, and python script substitue to emontx ?</h3>
+
+    <div class="submitted">Submitted by jmg22 (not verified) on Tue, 31/12/2013 - 06:32.</div>
+    <div class="content">
+     <p>Thanks you very much !!! :-)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17380"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="jmg22&#039;s picture" title="jmg22&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Raspberry pi ,mcp3008, and python script substitue to emontx ?</h3>
+
+    <div class="submitted">Submitted by jmg22 (not verified) on Wed, 08/01/2014 - 00:46.</div>
+    <div class="content">
+     <p>This is my final working python script for energy monitoring direct on the raspberry pi with the mcp3008</p>
+<p>#!/usr/bin/env python</p>
+<p># just some bitbang code for testing all 8 channels<br />
+	import math<br />
+	import RPi.GPIO as GPIO, time, os<br />
+	import urllib2<br />
+	import time</p>
+<p>apike = &quot;yourapikey&quot;<br />
+	emoncmspath = &quot;127.0.0.1/emoncms&quot;<br />
+	interval = 20 # 20 sec<br />
+	DEBUG = 1<br />
+	GPIO.setmode(GPIO.BCM)<br />
+	GPIO.setwarnings(False)</p>
+<p># this function is not used, its for future reference!<br />
+	def slowspiwrite(clockpin, datapin, byteout):<br />
+	GPIO.setup(clockpin, GPIO.OUT)<br />
+	GPIO.setup(datapin, GPIO.OUT)<br />
+	for i in range(8):<br />
+	&nbsp; if (byteout &amp; 0x80):<br />
+	&nbsp;&nbsp; GPIO.output(datapin, True)<br />
+	&nbsp; else:<br />
+	&nbsp;&nbsp; GPIO.output(datapin, False)<br />
+	&nbsp; byteout &lt;&lt;= 1<br />
+	&nbsp; GPIO.output(clockpin, True)<br />
+	&nbsp; GPIO.output(clockpin, False)</p>
+<p># this function is not used, its for future reference!<br />
+	def slowspiread(clockpin, datapin):<br />
+	GPIO.setup(clockpin, GPIO.OUT)<br />
+	GPIO.setup(datapin, GPIO.IN)<br />
+	byteout = 0<br />
+	for i in range(8):<br />
+	&nbsp; GPIO.output(clockpin, False)<br />
+	&nbsp; GPIO.output(clockpin, True)<br />
+	&nbsp; byteout &lt;&lt;= 1<br />
+	&nbsp; if (GPIO.input(datapin)):<br />
+	&nbsp;&nbsp; byteout = byteout | 0x1<br />
+	return byteout</p>
+<p># read SPI data from MCP3008 chip, 8 possible adc&#39;s (0 thru 7)<br />
+	def readadc(adcnum, clockpin, mosipin, misopin, cspin):<br />
+	if ((adcnum &gt; 7) or (adcnum &lt; 0)):<br />
+	&nbsp; return -1<br />
+	GPIO.output(cspin, True)</p>
+<p>GPIO.output(clockpin, False)&nbsp; # start clock low<br />
+	GPIO.output(cspin, False)&nbsp;&nbsp;&nbsp;&nbsp; # bring CS low</p>
+<p>commandout = adcnum<br />
+	commandout |= 0x18&nbsp; # start bit + single-ended bit<br />
+	commandout &lt;&lt;= 3&nbsp;&nbsp;&nbsp; # we only need to send 5 bits here<br />
+	for i in range(5):<br />
+	&nbsp; if (commandout &amp; 0x80):<br />
+	&nbsp;&nbsp; GPIO.output(mosipin, True)<br />
+	&nbsp; else:<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GPIO.output(mosipin, False)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; commandout &lt;&lt;= 1<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GPIO.output(clockpin, True)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GPIO.output(clockpin, False)</p>
+<p>adcout = 0<br />
+	# read in one empty bit, one null bit and 10 ADC bits<br />
+	for i in range(12):<br />
+	&nbsp; GPIO.output(clockpin, True)<br />
+	&nbsp; GPIO.output(clockpin, False)<br />
+	&nbsp; adcout &lt;&lt;= 1<br />
+	&nbsp; if (GPIO.input(misopin)):<br />
+	&nbsp;&nbsp; adcout |= 0x1</p>
+<p>GPIO.output(cspin, True)</p>
+<p>adcout /= 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # first bit is &#39;null&#39; so drop it<br />
+	return adcout</p>
+<p>	# change these as desired<br />
+	SPICLK = 18<br />
+	SPIMISO = 23<br />
+	SPIMOSI = 24<br />
+	SPICS = 25</p>
+<p># set up the SPI interface pins<br />
+	GPIO.setup(SPIMOSI, GPIO.OUT)<br />
+	GPIO.setup(SPIMISO, GPIO.IN)<br />
+	GPIO.setup(SPICLK, GPIO.OUT)<br />
+	GPIO.setup(SPICS, GPIO.OUT)</p>
+<p># Note that bitbanging SPI is incredibly slow on the Pi as its not<br />
+	# a RTOS - reading the ADC takes about 30 ms (~30 samples per second)<br />
+	# which is awful for a microcontroller but better-than-nothing for Linux</p>
+<p>#RMS calcule fonction<br />
+	def CalcIrms(cts):<br />
+	&nbsp;&nbsp;&nbsp; NUMBER_OF_SAMPLES = 1000<br />
+	&nbsp;&nbsp;&nbsp; SUPPLYVOLTAGE = 3300<br />
+	&nbsp;&nbsp;&nbsp; ICAL = 111.1<br />
+	&nbsp;&nbsp;&nbsp; sumI = 0<br />
+	&nbsp;&nbsp;&nbsp; sampleI = 512<br />
+	&nbsp;&nbsp;&nbsp; filteredI = 0<br />
+	&nbsp;&nbsp;&nbsp; for n in range (0, NUMBER_OF_SAMPLES):<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastSampleI = sampleI<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sampleI = readadc(cts, SPICLK, SPIMOSI, SPIMISO, SPICS)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #print sampleI<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastFilteredI = filteredI<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; filteredI = 0.996*(lastFilteredI+sampleI-lastSampleI)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sqI = filteredI * filteredI<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sumI += sqI<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; I_RATIO = ICAL * ((SUPPLYVOLTAGE/1000.0) / 1023.0)<br />
+	&nbsp;&nbsp;&nbsp; Irms = I_RATIO * math.sqrt(sumI / NUMBER_OF_SAMPLES)<br />
+	&nbsp;&nbsp;&nbsp; sumI = 0<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; return Irms<br />
+	# mcp3008 input<br />
+	ct1_adc = 0<br />
+	ct2_adc = 1<br />
+	ct3_adc = 2<br />
+	ct4_adc = 3<br />
+	# Convert the reading value in RMS</p>
+<p># ct1 and ct2&nbsp;monitor my 2 pole 240v main power&nbsp;<br />
+	while True:<br />
+	&nbsp;&nbsp;&nbsp; ct1 = CalcIrms(ct1_adc)*120 #ct1&nbsp;and ct2 are added by emoncms&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; ct2 = CalcIrms(ct2_adc)*120<br />
+	&nbsp;&nbsp;&nbsp; ct3 = CalcIrms(ct3_adc)*240<br />
+	&nbsp;&nbsp;&nbsp; ct4 = CalcIrms(ct4_adc)*240<br />
+	&nbsp;&nbsp;&nbsp; #print &quot;ct1: %.2f watt&quot; % ct1<br />
+	&nbsp;&nbsp;&nbsp; #print &quot;ct2: %.2f watt&quot; % ct2<br />
+	&nbsp;&nbsp;&nbsp; #print &quot;ct3: %.2f watt&quot; % ct3<br />
+	&nbsp;&nbsp;&nbsp; #print &quot;ct4: %.2f watt&quot; % ct4<br />
+	&nbsp;&nbsp;&nbsp; urllib2.urlopen(&quot;http://&quot;+emoncmspath+&quot;/input/post.json?node=8&amp;csv=&quot;+str(ct1)+&quot;,&quot;+str(ct2)+&quot;,&quot;+str(ct3)+&quot;,&quot;+str(ct4)+ &quot;&amp;apikey=&quot; + apike)<br />
+	&nbsp;&nbsp;&nbsp; time.sleep(interval)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17383"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="jmg22&#039;s picture" title="jmg22&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Raspberry pi ,mcp3008, and python script substitue to emontx ?</h3>
+
+    <div class="submitted">Submitted by jmg22 (not verified) on Wed, 08/01/2014 - 01:32.</div>
+    <div class="content">
+     <p>some pic of my system</p>
+<p>breadboard</p>
+<p><img alt="" src="../sites/default/files/IMG_2555.jpg" /></p>
+<p>Raspberry pi case</p>
+<p><img alt="" src="../sites/default/files/IMG_2557.jpg" /></p>
+<p>Outside module connected to raspberry pi</p>
+<p><img alt="" src="../sites/default/files/IMG_2548.jpg" /></p>
+<p>the raspberry pi are in my garage because the distribution board is in, and my interior finish is metal sheet , for this reason i put the rfm12pi&nbsp;outside with the sensors&nbsp;</p>
+<p>the mcp3008 measure main power and 2 complete circuit</p>
+<p>and i have 3 emontx inside home&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22712"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="aquadat0r&#039;s picture" title="aquadat0r&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Raspberry pi ,mcp3008, and python script substitue to emontx ?</h3>
+
+    <div class="submitted">Submitted by aquadat0r (not verified) on Sat, 26/07/2014 - 22:07.</div>
+    <div class="content">
+     <p>@jmg22 Thank you very much for sharing. I actually want to do this as well but connecting a CT Sensor to the MCP3008. Do you have a circuit diagram?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22721"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Raspberry pi ,mcp3008, and python script substitue to emontx ?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Mon, 28/07/2014 - 09:03.</div>
+    <div class="content">
+     <blockquote><p># a RTOS - reading the ADC takes about 30 ms (~30 samples per second)</p>
+</blockquote>
+<p>Sampling with a rate as low as that is nearly useless for correct RMS calculations. If &#39;undersampling&#39; is unavoidable than the sampling periode has to be exact and in an absolutely fixed relation to the signal frequency. This has been discussed a lot of times already.</p>
+<p>And I would use an MCP3208 as the added two bits in resolution do not cost a fortune.</p>
+<p>BR, J&ouml;rg.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25735"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7338.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Billyrudi&#039;s picture" title="Billyrudi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Raspberry pi ,mcp3008, and python script substitue to emontx ?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7338.html" title="View user profile.">Billyrudi</a> on Tue, 09/12/2014 - 22:45.</div>
+    <div class="content">
+     <p>Hi can you post your circuit? I have some problems to understand&nbsp; how it work!</p>
+<p>how i cal calc i icall value (111.1)?</p>
+<p>regards Paolo</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25743"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Raspberry pi ,mcp3008, and python script substitue to emontx ?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 10/12/2014 - 15:50.</div>
+    <div class="content">
+     <p>How the calibration values are calculated is all in Building Blocks.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25806"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7338.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Billyrudi&#039;s picture" title="Billyrudi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Raspberry pi ,mcp3008, and python script substitue to emontx ?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7338.html" title="View user profile.">Billyrudi</a> on Sat, 13/12/2014 - 08:42.</div>
+    <div class="content">
+     <p>Do you have the circuit diagram? Ragards paolo</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3434"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-_Pl9Wil_CooIGngSyYzSKnRlE2M1ORx_rmRkKbyvzQM" value="form-_Pl9Wil_CooIGngSyYzSKnRlE2M1ORx_rmRkKbyvzQM"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3434 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:01:22 GMT -->
+</html>

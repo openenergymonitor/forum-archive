@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/284 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:42:19 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Added code (at the end) in JSON part for value &lt; 0.10 | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Added code (at the end) in JSON part for value &lt; 0.10</h3>
+        <span class="submitted">Submitted by Guest on Sun, 13/11/2011 - 17:51</span>
+        <div class="content"><pre>
+//-----------------------------------------------------------------------------------------------
+// JSON functions
+//-----------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------
+// JSON structure characters
+//-----------------------------------------------------------------------------------------------
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //JSON structure uses &quot; = 34
+char jsonS[] = {'{',34,'\0'};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //JSON start characters
+char jsonB1[] = {34,':',34,'\0'};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //JSON characters between key and value
+char jsonB2[] = {34,',',34,'\0'};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //JSON characters between each data pair
+char jsonE[] = {34,'}','\0'};&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //JSON end characters
+
+//-----------------------------------------------------------------------------------------------
+// Adds start of JSON characters
+//-----------------------------------------------------------------------------------------------
+char * srtJSON ( char * destination )
+{
+&nbsp;&nbsp;&nbsp; strcat(destination,jsonS);&nbsp;
+}
+
+//-----------------------------------------------------------------------------------------------
+// Adds a JSON key and data pair to the string
+//-----------------------------------------------------------------------------------------------
+char * addJSON ( char * destination, const char * source, const double value )
+{
+&nbsp; strcat(destination,source);
+&nbsp; strcat(destination,jsonB1);
+&nbsp; strcat(destination,doubleString(value,2));
+&nbsp; strcat(destination,jsonB2);
+}
+
+//-----------------------------------------------------------------------------------------------
+// Adds end of JSON characters
+//-----------------------------------------------------------------------------------------------
+char * endJSON ( char * destination )
+{
+&nbsp;&nbsp;&nbsp; str[strlen(destination)-3]='\0';
+&nbsp;&nbsp;&nbsp; strcat(destination,jsonE);&nbsp;
+}
+
+//-----------------------------------------------------------------------------------------------
+// Converts a double in to a string
+//-----------------------------------------------------------------------------------------------
+char * doubleString(double value, int precision )
+{
+&nbsp;&nbsp; char intPartStr[20];
+&nbsp;&nbsp; char decPartStr[20];
+&nbsp;&nbsp; char doubleStr[20] = &quot;&quot;;
+&nbsp;&nbsp;
+&nbsp;&nbsp; if (value&lt;0)
+&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp; value=value*-1;
+&nbsp;&nbsp;&nbsp;&nbsp; strcat(doubleStr, &quot;-&quot;);&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; }
+&nbsp;&nbsp;
+&nbsp;&nbsp; int intPart = (int)value;
+&nbsp;&nbsp; double decPart = (value-intPart)*(pow(10,precision));
+
+&nbsp;&nbsp; itoa(intPart, intPartStr, 10);
+&nbsp;&nbsp; itoa((int)decPart, decPartStr, 10);
+&nbsp;&nbsp;
+&nbsp;&nbsp; strcat(doubleStr, intPartStr);&nbsp;&nbsp;
+&nbsp;&nbsp; strcat(doubleStr, &quot;.&quot;);
+&nbsp;
+<strong>// -------------------------------------------------------- &nbsp;<br /> // if value &lt; 0.10 </strong><strong><strong><br />// A value of 0.04 was displayed as 0.4  &nbsp;<br />// ---- </strong></strong><strong> &nbsp;<br />  if ((value - intPart) &lt; 0.1)<br /> &nbsp;&nbsp; strcat(doubleStr, &quot;0&quot;);<br />// ---------------------------------------------------------- <br /></strong>   strcat(doubleStr, decPartStr);
+   return doubleStr;
+}
+</pre>  <div class="forum-topic-navigation clear-block">
+          <a href="198.html" class="topic-previous" title="Go to previous forum topic">‹ Recording of Kwh</a>
+              <a href="274.html" class="topic-next" title="Go to next forum topic">emonbase newbee ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/284 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:42:19 GMT -->
+</html>

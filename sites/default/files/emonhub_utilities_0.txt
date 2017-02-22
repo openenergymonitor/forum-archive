@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# create the emonhub utilities script
+sudo sh -c 'cat > /usr/bin/emonhub' << EOF
+#!/bin/bash
+
+R=\$(touch ~/roorrw 2>/dev/null && { rm ~/roorrw; echo "RW"; } || echo "RO")
+
+case \$1 in
+    -c | --config)
+        if [ \$R == "RO" ] ; then  sudo mount -o remount,rw /dev/mmcblk0p2  / ; fi
+        sudo nano /etc/emonhub/emonhub.conf
+        if [ \$R == "RO" ] ; then  sudo mount -o remount,ro /dev/mmcblk0p2  / ; fi
+        ;;
+    -r | --restart)
+        sudo service emonhub restart;;
+    -s | --start)
+        sudo service emonhub start;;
+    -u | --update)
+        if [ \$R == "RO" ] ; then  sudo mount -o remount,rw /dev/mmcblk0p2  / ; fi
+        echo "Checking for emonHub updates..."
+        cd ~/emonhub
+        git pull
+        cd - >/dev/null
+        if [ \$R == "RO" ] ; then  sudo mount -o remount,ro /dev/mmcblk0p2  / ; fi;;
+    -v | --version)
+        sudo python /usr/share/emonhub/emonhub.py --version;;
+    -x | --exit)
+        sudo service emonhub stop;;
+    -dl | --display-log)
+        echo "Use 'ctrl-C' to quit displaying log messages."
+        echo
+        tail -f /var/log/emonhub/emonhub.log;;
+    -ol | --open-logfile)
+        sudo nano /var/log/emonhub/emonhub.log;;
+    -rl | --reset-logfile)
+        sudo sh -c 'echo "" > /var/log/emonhub/emonhub.log';;
+    -vl | --view-logfile)
+        cat /var/log/emonhub/emonhub.log;;
+    *)
+        echo
+        echo "The 'emonhub' command can be used with these valid options"
+        echo
+        echo "emonHub utilities"
+        echo "   -c  or --config        Opens the configuration file (emonhub.conf) for editing"
+        echo "   -h  or --help          Displays this help for emonHub utilities command options"
+        echo "   -r  or --restart       Restarts the emonhub service"
+        echo "   -s  or --start         Starts the emonhub service"
+        echo "   -u  or --update        Updates emonhub from the git repository (git pull)"
+        echo "   -v  or --version       Displays the emonHub version installed"
+        echo "   -x  or --exit          Exits emonHub by stopping the emonhub service"
+        echo
+        echo "emonHub logging"
+        echo "   -dl or --display-log   Display last 10 log messages and continue to monitor logging"
+        echo "   -ol or --open-logfile  Open logfile in text editor"
+        echo "   -rl or --reset-logfile Reset the current logfile (deletes existing log messages!)"
+        echo "   -vl or --view-logfile  View the entire logfile"
+        echo;;
+esac
+
+EOF
+
+# make the utilities script executable
+sudo chmod +x /usr/bin/emonhub
+
+# self-destruct
+rm -- "$0"
+
+

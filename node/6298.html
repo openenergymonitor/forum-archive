@@ -1,0 +1,581 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6298 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:38:54 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonTx V2 newbie - no data [SOLVED] | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonTx V2 newbie - no data [SOLVED]</h3>
+        <span class="submitted">Submitted by <a href="../user/7376.html" title="View user profile.">allmac</a> on Mon, 15/12/2014 - 13:19</span>
+        <div class="content"><p>Last weekend I did try my&nbsp;emonTx&nbsp;V2. However, I am not sure if I did all correctly.<br />
+Did I something wrong? I am completely&nbsp;lost.</p>
+<p>I tried two&nbsp;sample codes:</p>
+<p>This code I have aleatory data (values) while I have a reader connected. But when I remove it, I have only zeros:</p>
+<blockquote><p>// EmonLibrary examples openenergymonitor.org, Licence GNU GPL V3</p>
+<p>#include &quot;EmonLib.h&quot; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Include Emon Library<br />
+EnergyMonitor emon1; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Create an instance</p>
+<p>void setup()<br />
+{ &nbsp;<br />
+&nbsp; Serial.begin(9600);<br />
+&nbsp;&nbsp;<br />
+&nbsp; emon1.current(3, 111.11); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Current: input pin, calibration.<br />
+}</p>
+<p>void loop()<br />
+{<br />
+&nbsp; double Irms = emon1.calcIrms(1480); &nbsp;// Calculate Irms only<br />
+&nbsp;&nbsp;<br />
+&nbsp; Serial.print(Irms*230.0);&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Apparent power<br />
+&nbsp; Serial.print(&quot; &quot;);<br />
+&nbsp; Serial.println(Irms);&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Irms<br />
+}</p>
+</blockquote>
+<p>This code, I have only zeros... all the time.</p>
+<blockquote><p>/*<br />
+&nbsp; &nbsp; -----------------------------------------<br />
+&nbsp; Part of the openenergymonitor.org project<br />
+&nbsp; Licence: GNU GPL V3<br />
+*/&nbsp;</p>
+<p>#include &quot;EmonLib.h&quot; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Include Emon Library<br />
+EnergyMonitor ct1; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Create an instance</p>
+<p>&nbsp; int count = 0;<br />
+&nbsp; float meassurements[20];<br />
+&nbsp; float maximum = 0;<br />
+&nbsp; float minimum = 0;<br />
+&nbsp; float average_addition = 0;</p>
+<p>
+void setup()<br />
+{ &nbsp;<br />
+&nbsp; Serial.begin(9600);<br />
+&nbsp;&nbsp;<br />
+&nbsp; ct1.voltageTX(216.58, 1.7); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Calibration, phase_shift<br />
+&nbsp; ct1.currentTX(4, 111.1); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // CT channel, calibration.<br />
+&nbsp; delay(50);<br />
+&nbsp;&nbsp;<br />
+}</p>
+<p>void loop()<br />
+{<br />
+&nbsp; ct1.calcVI(20,2000); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Calculate all. No.of half wavelengths (crossings), time-out<br />
+&nbsp; Serial.print(ct1.realPower);<br />
+&nbsp; Serial.println(&#39; &#39;);<br />
+&nbsp;&nbsp;<br />
+&nbsp; meassurements[count] = ct1.realPower;<br />
+&nbsp; count++;<br />
+&nbsp; delay(50);</p>
+<p>&nbsp; if (count == 20){<br />
+&nbsp; &nbsp; maximum = minimum = meassurements[0];<br />
+&nbsp; &nbsp; average_addition = 0;<br />
+&nbsp; &nbsp; for (int i=0; i&lt;20; i++){<br />
+&nbsp; &nbsp; &nbsp; if (meassurements[i] &lt; minimum) minimum = meassurements[i];<br />
+&nbsp; &nbsp; &nbsp; if (meassurements[i] &gt; maximum) maximum = meassurements[i];<br />
+&nbsp; &nbsp; &nbsp; average_addition += meassurements[i]; &nbsp; &nbsp; &nbsp;<br />
+&nbsp; &nbsp; }<br />
+&nbsp; &nbsp; float average = average_addition / 20;<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; float nominador = 0;<br />
+&nbsp; &nbsp; for(int i =0; i &lt;20; i++){<br />
+&nbsp; &nbsp; &nbsp; &nbsp;nominador += pow ((meassurements[i] - average),2);<br />
+&nbsp; &nbsp; }<br />
+&nbsp; &nbsp; float standard_deviation;<br />
+&nbsp; &nbsp; standard_deviation = sqrt(nominador/20);<br />
+&nbsp; &nbsp; m<br />
+&nbsp; &nbsp; Serial.println(&quot;Max Min Average Standard-deviation&quot;);<br />
+&nbsp; &nbsp; Serial.print(maximum);<br />
+&nbsp; &nbsp; Serial.print(&#39; &#39;);<br />
+&nbsp; &nbsp; Serial.print(minimum);<br />
+&nbsp; &nbsp; Serial.print(&#39; &#39;);<br />
+&nbsp; &nbsp; Serial.print(average);<br />
+&nbsp; &nbsp; Serial.print(&#39; &#39;);<br />
+&nbsp; &nbsp; Serial.print(standard_deviation);<br />
+&nbsp; &nbsp; Serial.println(&#39; &#39;);<br />
+&nbsp; &nbsp; Serial.println(&#39; &#39;);<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; count = 0;<br />
+&nbsp; &nbsp; delay(10000);<br />
+&nbsp; }<br />
+}</p>
+</blockquote>
+  <div class="forum-topic-navigation clear-block">
+          <a href="6244.html" class="topic-previous" title="Go to previous forum topic">‹ RFM12Pi with RFM69CW</a>
+              <a href="3336.html" class="topic-next" title="Go to next forum topic">Howto Use RFM12pi without emoncms ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-25853"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 15/12/2014 - 13:43.</div>
+    <div class="content">
+     <p>What hardware do you have? EmonTx V2 + ( 5 V DC USB Power Supply OR FTDI Programmer )</p>
+<p>Do you also have a Current Transformer?</p>
+<p>Do you also have an AC-AC adapter?</p>
+<p>If you have NO AC-AC adapter: Load this sketch: <a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV2/emonTx_CT123" title="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV2/emonTx_CT123">https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV2...</a></p>
+<p>If you HAVE an AC-AC adapter: Load this sketch: <a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV2/emonTx_CT123_Voltage" title="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV2/emonTx_CT123_Voltage">https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV2...</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25879"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7376.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7376.jpg" alt="allmac&#039;s picture" title="allmac&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7376.html" title="View user profile.">allmac</a> on Tue, 16/12/2014 - 17:33.</div>
+    <div class="content">
+     <p>Hi... I have a&nbsp;EmonTx V2 + Arduino Duo.&nbsp;My steps were...</p>
+<p>1) soldered all parts (<a href="http://shop.openenergymonitor.com/emontx-arduino-shield-smt/" title="http://shop.openenergymonitor.com/emontx-arduino-shield-smt/">http://shop.openenergymonitor.com/emontx-arduino-shield-smt/</a>)<br />
+2) connected&nbsp;EmonTx to Arduino<br />
+3) connected CT sensor to&nbsp;EmonTx (and&nbsp;around my refrigerator power cord)<br />
+4) uploaded both codes</p>
+<p>But I am not able to understand results in&nbsp;Arduino&nbsp;Terminal (no CT or 9V AC Sample&nbsp;connected)</p>
+<blockquote><p>emonTX CT1234 example<br />
+OpenEnergyMonitor.org<br />
+Node: 10 Freq: 433Mhz Network: 210<br />
+CT1:0 CT2:19686 CT3:0 CT4:19685 VCC:5120<br />
+CT1:0 CT2:79 CT3:0 CT4:80 VCC:5120<br />
+CT1:0 CT2:55 CT3:0 CT4:50 VCC:5120<br />
+CT1:0 CT2:49 CT3:0 CT4:45 VCC:5120</p>
+</blockquote>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25885"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7376.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7376.jpg" alt="allmac&#039;s picture" title="allmac&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7376.html" title="View user profile.">allmac</a> on Tue, 16/12/2014 - 17:13.</div>
+    <div class="content">
+     <p>&nbsp;</p>
+<p>I had the following data reading only CT1...<br />
+But I am not able to understand what should be reading, what changes it when Power-supply is connected.&nbsp;</p>
+<p><span class="rangySelectionBoundary" id="selectionBoundary_1418748276488_8363464623689651" style="display:none; line-height:0">﻿</span>1) /emonTx_CT123.ino:</p>
+<p>​emonTX CT123 example<br />
+OpenEnergyMonitor.org<br />
+Node: 10 Freq: 868Mhz Network: 210<br />
+0 19670 19712 5120<br />
+0 70 64 5120<br />
+0 37 26 5120<br />
+0 37 24 5120<br />
+0 32 22 5120<br />
+0 31 22 5120<br />
+0 31 28 5120<br />
+0 3 6 5120<br />
+0 5 16 5120<br />
+0 9 21 5120<br />
+&nbsp;</p>
+<p>2)&nbsp;emonTx_CT123_Voltage.ino:</p>
+<p>emonTX CT123 Voltage example<br />
+OpenEnergyMonitor.org<br />
+Node: 10 Freq: 433Mhz Network: 210<br />
+0 0<br />
+emonTX CT123 Voltage example<br />
+OpenEnergyMonitor.org<br />
+Node: 10 Freq: 433Mhz Network: 210<br />
+0 0<br />
+&nbsp;</p>
+<p>3)&nbsp;emonTx_CT123_3Phase_Voltage.ino:</p>
+<p>emonTX CT123 Voltage 3 Phase example<br />
+OpenEnergyMonitor.org<br />
+Node: 10 Freq: 868Mhz Network: 210<br />
+Voltage: nan<br />
+&nbsp;Current 1: nan Power 1: nan VA 1: nan PF 1: nan<br />
+&nbsp;Current 2: nan Power 2: nan VA 2: nan PF 2: nan<br />
+&nbsp;Current 3: nan Power 3: nan VA 3: nan PF 3: nan</p>
+<p>Voltage: nan<br />
+&nbsp;Current 1: nan Power 1: nan VA 1: nan PF 1: nan<br />
+&nbsp;Current 2: nan Power 2: nan VA 2: nan PF 2: nan<br />
+&nbsp;Current 3: nan Power 3: nan VA 3: nan PF 3: nan</p>
+<p>
+4)&nbsp;emonTx_Pulse.ino:</p>
+<p>emonTX Pulse example<br />
+0W 0<br />
+0W 0<br />
+0W 0<br />
+0W 0</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><span class="rangySelectionBoundary" id="selectionBoundary_1418747820615_5974863006267697" style="display:none; line-height:0">﻿</span></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25888"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 16/12/2014 - 19:04.</div>
+    <div class="content">
+     <p>1. Please decide whether you have an emonTx V2 or an emonTx Shield V2 SMT. These are quite different, and require different sketches.</p>
+<p>2. Read the sections about the current sensor in &quot;CT and AC power adapter installation and calibration theory&quot; in Building Blocks. You will never measure a meaningful current if your CT is on a two-core or 3-core cable. This is how a current transformer is fitted:</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25894"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7376.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7376.jpg" alt="allmac&#039;s picture" title="allmac&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7376.html" title="View user profile.">allmac</a> on Wed, 17/12/2014 - 02:19.</div>
+    <div class="content">
+     <p>I am sorry... it is an&nbsp;emonTx Shield V2 SMT. I will try to understand this.</p>
+<p>I am using now shield sample. What make no sense to me is that CT1 to CT 4&nbsp;are 0 (zero)&nbsp;while&nbsp;no CT connected. But when I connect a CT it shows a big number and count down until 0 (zero)... later shows continuously&nbsp;a small number (between 1 and 15), even if CT is not close to any eletric cable.</p>
+<p>I am worry if it is really working or if I did something wrong soldering the board.&nbsp;Sorry for stupid doubts.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25905"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 17/12/2014 - 12:34.</div>
+    <div class="content">
+     <p>What you are seeing is the high pass filter in software settling, following the step change in input as you plug in the CT. It is perfectly normal. The small number after the filter has settled is digital noise from the processor leaking in to the analogue input. It will be smaller when you measure real power because the calculation averages the noise, but larger when you read current or apparent power because the rms calculation rectifies the noise. Again, that is normal and is usually less than 1% of the maximum reading.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25908"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7376.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7376.jpg" alt="allmac&#039;s picture" title="allmac&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7376.html" title="View user profile.">allmac</a> on Wed, 17/12/2014 - 13:12.</div>
+    <div class="content">
+     <p>I did a try in my office &quot;power room&quot; and it really appears to be OK (Watts: 3967.79 /&nbsp;Current: 31.24).<br />
+Specially after all your explanations.<br />
+​Thanx a lot Robert.</p>
+<p>No more stupid questions... promise.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25913"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7388.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Patric&#039;s picture" title="Patric&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7388.html" title="View user profile.">Patric</a> on Sat, 20/12/2014 - 12:10.</div>
+    <div class="content">
+     <p>Hi!</p>
+<p>I have same question regarding it&acute;s always showing a value around 12-15 Watts regarding CT is on cable or not. Is it possible with calibration to get to zero?</p>
+<p>When I light my&nbsp;40&nbsp;watts buld it&acute;s showing 52 watts in&nbsp;emoncms. Dosen&acute;t feel 1%&nbsp;accurate at all for me.</p>
+<p>Thanks in advance<br />
+Patric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25915"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 17/12/2014 - 22:17.</div>
+    <div class="content">
+     <p>No, calibration only affects the&nbsp;<em>ratio</em>&nbsp;<span style="font-size:12.7272720336914px; line-height:18.9090900421143px">measured</span><span style="font-size:12.7272720336914px; line-height:18.9090900421143px">&nbsp;</span><span style="font-size:13px; line-height:1.6">power&nbsp;:&nbsp;</span><span style="font-size:12.7272720336914px; line-height:18.9090900421143px">genuine</span><span style="font-size:12.7272720336914px; line-height:18.9090900421143px">&nbsp;</span><span style="font-size:13px; line-height:1.6">power, it does not affect the&nbsp;</span><em style="font-size:13px; line-height:1.6">zero.</em></p>
+<p>Think: y = mx + c&nbsp; &nbsp; &nbsp; - &nbsp;&#39;c&#39; is the zero offset, &#39;m&#39; is the calibration.&nbsp;</p>
+<p>Patric, &nbsp;is the maximum power that you can measure 4 kW? &nbsp;I think it is closer to 23&nbsp;kW.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25971"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7388.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Patric&#039;s picture" title="Patric&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7388.html" title="View user profile.">Patric</a> on Thu, 18/12/2014 - 20:07.</div>
+    <div class="content">
+     <p>No, I haven&acute;t tried&nbsp;to get max of my 10amp&nbsp;fuse. It should be 23 &nbsp;kW then. But I can&acute;t understand why it&acute;s always&nbsp;have to be +12watts&nbsp;then I measure my buld&nbsp;that is on 40&nbsp;watts. Is it not more accurate then this?&nbsp;</p>
+<p>If I put CT on all of my 20 fuses it&acute;s going to look that my house is consuming 300 watts even if everything&nbsp;is shut down.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25976"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 18/12/2014 - 22:24.</div>
+    <div class="content">
+     <p>And if you put a CT on the busbar or cable that supplies those 20 fuses, you will still read ~ 12 W. If you really only want to measure to 10 A, then you should remove the CT&#39;s burden resistor&nbsp;and replace it with one of higher value. A CT is a current source, so it is easy to calculate the resistance you need for the secondary current that corresponds to 10 A to develop the appropriate voltage. I don&#39;t know what you are using so I cannot be more specific.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25981"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 18/12/2014 - 23:45.</div>
+    <div class="content">
+     <p><em>Think: y = mx + c&nbsp; &nbsp; &nbsp; - &nbsp;&#39;c&#39; is the zero offset, &#39;m&#39; is the calibration.&nbsp;</em></p>
+<p>Now that you mention it, is there any reason you couldn&#39;t add a &#39;C&#39; to the calibration process? &nbsp;It would assume the background noise has a constant real component. &nbsp;Do you think that would be wildly optimistic?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25983"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 19/12/2014 - 00:34.</div>
+    <div class="content">
+     <p>Yes! If you look at the "power factor" of the noise, it can be anything from one cycle to the next.<br />
+If you're looking at real power, then because the noise (which is most troublesome in the current input because the signal is small) is multiplied by the voltage - the sign of which alternates - so alternate half cycles tend to cancel to some extent, you tend to get a significantly smaller noise error value than if you look at current, where the squaring of the rms calculation immediately rectifies the noise so there's no possibility of cancellation happening.</p>
+<p>The real problem is Patric is running at about 10% of full scale, and expecting 1% accuracy at 10% all with a 10-bit ADC - i.e. &plusmn;50 ADC steps to digitise the waveform - and he's using an Arduino, which we know is more susceptible to noise than the emonTx V2, which is more susceptible than the emonTx V3. That's a rough sum at 10 A, assuming he's using a 100 A CT. </p>
+<p>What are the numbers at 40 W, which is what he's complaining about? Assuming he's on a 230 V system, 40 W ~= 174 mA rms, and again assuming 100 A max, that is 0.174% of max input, so the current signal is 5 ADC steps from peak to peak. I'll leave you to work out how realistic the expectation of any sort of accuracy is at those levels.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25984"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Fri, 19/12/2014 - 00:54.</div>
+    <div class="content">
+     <p><em>Yes! If you look at the &quot;power factor&quot; of the noise, it can be anything from one cycle to the next.</em></p>
+<p>But over some large number of cycles, wouldn&#39;t the noise&#39;s contribution to real power be roughly stable? &nbsp;Any reason you couldn&#39;t subtract that value out?</p>
+<p><em>he real problem is Patric is running at about 10% of full scale</em></p>
+<p>Yes, and as you pointed out, that&#39;s easily solved. &nbsp;But an increasing number of OEM users seem to be complaining about the background power level they&#39;re seeing, and I&#39;m still having trouble getting my head around why you can&#39;t just subtract it out. &nbsp; My energy IC certainly lets me do that. &nbsp;I can subtract a Real Energy Offset, and a Reactive Energy Offset, although I need to be able to inject a very low level ideal input in order to measure the offsets required.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25991"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 19/12/2014 - 13:39.</div>
+    <div class="content">
+     <p>I think an increasing number of OEM users seem to be complaining about the background power level they're seeing, because I think we are only seeing the ones who use Arduino boards with a prototype stripboard/plugboard front end, and like Patric they are looking to measure currents accurately at around 10% or less of the available range. If they are happy and think they have an accurate measurement by subtracting a constant, that's fine. But surely it's better to at least alleviate the problem at source by scaling the input appropriately?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26001"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Fri, 19/12/2014 - 22:02.</div>
+    <div class="content">
+     <p>Absolutely. &nbsp;Just to be clear I totally agree with your suggestion as to what Patric should do, and have for this entire thread.</p>
+<p>Now, can&#39;t we also discuss Patric&#39;s suggestion about using calibration to get rid of background power levels? &nbsp;Is the observation that it&#39;s worse on Arduino/stripboard meters a reason not to see if we can improve it in software?</p>
+<p>It seems to me there are multiple ways to measure that noise offset, clamp your CT around a dead circuit like Patric has, or calibrate at 2 points:&nbsp;say 2kW and 4kW, and solve the line. &nbsp; &nbsp;If they&#39;ve already done all they can to reduce noise, and they&#39;ve scaled their CTs correctly for the job at hand, then, and only then, do you think that including a &quot; + c &quot; in the calibration process would further help?</p>
+<p>Your comments about &quot;noise power factor per cycle&quot;&nbsp;and &quot;think they have an accurate measurement by subtracting a constant&quot; makes me think you think it&#39;s bogus, and I&#39;m trying to understand why it&#39;s bogus.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26004"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 20/12/2014 - 00:08.</div>
+    <div class="content">
+     <p>Here is a very quick spreadsheet to show what happens. The &quot;signal&quot; is three&nbsp;cycle (50 samples, so reasonably representative) of a sine wave of 0 to 15 amplitude, to which is added RAND() * 3, then the rms is calculated and plotted against amplitude. So without the &#39;noise&#39;, you should have a straight line through the origin of&nbsp;slope 0.707. &nbsp;</p>
+<p>With the noise, this is what you get. Selecting the constant to give zero at zero current might appear to be correct, but is&nbsp;not the best solution in general. Plotting the curve for a lot of points would give the greatest confidence, but who&#39;s got the facilities&nbsp;to do that?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26006"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Sat, 20/12/2014 - 07:47.</div>
+    <div class="content">
+     <p>I thought we were talking about Power rather than RMS values. &nbsp;My spreadsheet takes a slightly different approach. &nbsp;To simplify things, I assume a pure V (230V RMS), and a noisy I. &nbsp;I start with a pure I at various current levels, and add in some noise. &nbsp;I did 5 seconds worth of data, at 50 samples/cycle, and calculate Power the traditional way: Sigma(V*I) over the 5 seconds and then scaled back into Watts.</p>
+<p>If you add white noise into I it has no impact on Power, because the pure V swing,&nbsp;the quality of your white noise and the lengthy 5 seconds of data ensures it averages 0. &nbsp; For noise in I to have an impact on Power, there&#39;s got to be some correlation between the noise&nbsp;and V. &nbsp;In real life, there&#39;s a myriad of sources for 50Hz&nbsp;noise in your current signal. &nbsp;It could be as simple as cross-talk from the V measurements, or the other I measurements, or lots of other sources.</p>
+<p>So for my noise, I used:</p>
+<p>0.02*rand() + 0.0002 * V.</p>
+<p>So the first component can add up to&nbsp;20mA&nbsp;and the second component adds a pure in-sync sine wave to the noise, with a peak of 65mA. &nbsp; I left it so I could tweak those contributions, and when you do you quickly see the first&nbsp;component makes no difference to the Power reading, &nbsp;it&#39;s all in the second. &nbsp;At those settings (plotted below), the noise contributes 10.6W to the power calculation (similar numbers to some of the anecdotal reports from the field).</p>
+<p>Regardless of what current I dial up on my pure I signal, Power always over-reads 10.6W once I add in the noise. &nbsp;In fact, it&#39;s obvious that it must (230V&nbsp;* 0.0002 * 230 = 10.58W)</p>
+<p><em>&nbsp;but who&#39;s got the facilities to do that?</em></p>
+<p>Aren&#39;t we just talking about a beefy resistive load, a trustworthy&nbsp;plug-through power meter, and then 1, 2, and 3 primary windings through your CT? &nbsp;That&#39;ll give you 3 points on the line, and it keeps you well&nbsp;away from&nbsp;the quantization errors you get if you try to measure down at 0.</p>
+<p>Of course, all of that assumes that the component of the noise that is an in-sync sine wave is constant, and I agree that&#39;s a big assumption.&nbsp;But perhaps not as big an assumption as assuming it doesn&#39;t exist at all, which I think is what happens when you don&#39;t include a &quot; + c&quot; in your Power calibration. &nbsp;Further in-situ measurements would help clarify that.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26020"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 20/12/2014 - 19:52.</div>
+    <div class="content">
+     <p>I thought we were talking about <i>both</i> power values, but concentrating on the apparent power,  because that's where it is perceived to be the bigger problem. </p>
+<p>If the residual noise contribution for real power is sufficiently stable, then it's probably acceptable to subtract a constant. But I don't think the same can be said for current and apparent power.</p>
+<p>At least we can agree that the best solution is careful attention to earthing, screening and filtering so as to reduce the unwanted input in the first place.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26041"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx V2 newbie - no data [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Mon, 22/12/2014 - 01:16.</div>
+    <div class="content">
+     <p>Yes, once the noise has gone through the RMS process, it&#39;s very hard to unscramble it. &nbsp;I agree with your comments about keeping it out in the first place (with one exception noted below). &nbsp;But whether you&#39;re building a meter with an Arduino and some stripboard, or you&#39;re designing a PCB for a leading meter manufacturer, there&#39;s always going to be noise. &nbsp;The techniques for dealing with it are the same, it&#39;s just a matter of degree. &nbsp;And wherever you live on the build spectrum, it&#39;s human nature (engineer&#39;s nature?) to want to extract the last bit of performance out of the hardware you&#39;ve built. &nbsp;But you also have to know the limitations of your hardware. &nbsp;It&#39;s crazy quoting 6 decimal places of resolution, when your hardware design means most of those digits are nonsense.</p>
+<p>When measuring very slow moving DC signals, noise is your friend. &nbsp;My rainwater tank level only ever changes when it&#39;s raining, or someone turns a tap on, so it&#39;s a perfect opportunity for some serious oversampling. &nbsp;I use a 4-20mA&nbsp;probe for that, and I can measure a dynamic range of 21mA (0 to 21) to a resolution of about 1.3uA all with an AVR 10-bit AtoD. &nbsp;My Fluke current loop calibrator lets me knock up the current 1uA at a time, and I can see that appear in my dials (subject to my 1.3uA stickiness). &nbsp;Without the noise to dither the fine detail out of the 10-bit chunkiness, I wouldn&#39;t achieve anything like that, it was just do big ~20uA steps instead.</p>
+<p>I&#39;m not sure dithering really helps with AC signals. &nbsp;The AC component of the signal you&#39;re trying to measure is already shaking things around for you which is all dithering aims to achieve. &nbsp;I guess if you were measuring a perfectly repetitive signal, and your timing was such that you started each conversion at exactly the&nbsp;same place on the signal&nbsp;each time around, then maybe some noise would help.</p>
+<p>Oversampling an AC signal helps a lot. &nbsp;I tell my energy chip to integrate the energy data for 10 seconds and then give it me, which I figure is a fairly friendly update rate to emoncms. &nbsp;But it also has the benefit that on a steady-state house, the reading is rock solid, you&#39;re lucky to see a 0.5W change between 10 second readings, and it also means a 5W load being switched on shows up easily. &nbsp;The obvious disadvantage is it can take up to 20 seconds for the dials to show the 5W load has been switched on.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/6298"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Osv_atliTm3We_CwZYzGL1yRJkNXwtthCn6yoV65wrE" value="form-Osv_atliTm3We_CwZYzGL1yRJkNXwtthCn6yoV65wrE"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6298 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:38:55 GMT -->
+</html>

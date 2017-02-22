@@ -1,0 +1,561 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/932 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:29:41 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Digital High Pass Filter with Infinite Input Response | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Digital High Pass Filter with Infinite Input Response</h3>
+        <span class="submitted">Submitted by Guest on Mon, 06/08/2012 - 18:15</span>
+        <div class="content"><p>Pretty good name.</p>
+<p>The formula i nEmonTx is:&nbsp;</p>
+<p><span style="font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 15px; text-align: left; background-color: rgb(238, 238, 238); ">&nbsp; xxxSample.Filtered&nbsp; = 0.996 *</span><strong style="font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 15px; text-align: left; background-color: rgb(238, 238, 238); ">&nbsp;</strong><span style="font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 15px; text-align: left; background-color: rgb(238, 238, 238); ">( xxxSample.PreviousFiltered +&nbsp;</span><strong style="font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 15px; text-align: left; background-color: rgb(238, 238, 238); ">(</strong><span style="font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 15px; text-align: left; background-color: rgb(238, 238, 238); ">xxxSample.New - xxxSample.Previous</span><strong style="font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 15px; text-align: left; background-color: rgb(238, 238, 238); ">)</strong><span style="font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 15px; text-align: left; background-color: rgb(238, 238, 238); ">&nbsp;);</span></p>
+<p>In the AVR 465 is:&nbsp;</p>
+<p>y[n] = 0.996 &times; y[n &minus;1]+ 0.996 &times; x[n]- 0.996 &times; x[n -1]</p>
+<p>﻿I'm trying to convert it to integer math but i didn't understand it deep enouth to do so.</p>
+<p>Can anyone explain it to me in simple terms? Any idea how to make it use integer math, like AVR465?</p>
+<p>The code on Avr465 is:</p>
+<div>&nbsp; // precision! The transfer function is as follows:</div>
+<div>&nbsp; //</div>
+<div>&nbsp; //<span class="Apple-tab-span" style="white-space:pre">	</span>y[n] = 0.996*y[n-1] + 0.996*x[n] - 0.996*x[n-1]</div>
+<div>&nbsp; Sample[Index].PreviousFiltered=Sample[Index].Filtered; &nbsp;// y[n] &lt;- y[n-1]</div>
+<div>&nbsp; TempL=255*(long)Sample[Index].Filtered;</div>
+<div>&nbsp; TempL=TempL&gt;&gt;8;</div>
+<div>&nbsp; TempI=Sample[Index].Fresh-Sample[Index].Previous;</div>
+<div>&nbsp; TempL=TempL+255*(long)TempI;</div>
+<div>&nbsp;</div>
+<div>Thanks.</div>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1652.html" class="topic-previous" title="Go to previous forum topic">‹ seems o work on CT3 and not CT1</a>
+              <a href="1618.html" class="topic-next" title="Go to next forum topic">How to destroy an Arduino ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-5558"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 06/08/2012 - 19:06.</div>
+    <div class="content">
+     <p>You cannot do integer maths on decimal fractions (e.g. 0.996). As soon as you include a decimal, the compiler will convert where necessary to do the multiplication, then when it has completed evaluating the right-hand side, it will truncate (or maybe round) the result and assign the value to the left-hand side variable.</p>
+<p>If you need a better answer, I think I/you need to read very carefully the language and compiler specifications. Generally, the compiler will promote the 'narrow' variable to a 'wider' variable, i.e char -&gt; int, int -&gt; long, float -&gt; double, int -&gt; float, long -&gt; double.</p>
+<p>Depending on the accuracy of the original values, you may or may not loose accuracy by truncating to integer. In general terms, integer arithmetic is significantly faster than floating point.</p>
+<p>[n] refers to this time, [n-1] refers to the previous time, x is the sample, y is the filtered result. Without looking up the app.note, I think they are extracting the 10-bit value from two 8-bit registers (which is where the ADC puts the answer). You are using high level code (AnalogRead( )) to do that - and possibly paying the price in execution time. My guess is the app.note way is quicker.</p>
+<p>If you want an explanation of the filter algorithm, Wikipedia has a good and complete one.&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-5564"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 06/08/2012 - 22:07.</div>
+    <div class="content">
+     <p>Not sure if this will add anything but&nbsp;we can show that&nbsp;</p>
+<p>&nbsp;</p>
+<div>TempL=255*(long)Sample[Index].Filtered;</div>
+<div>TempL=TempL&gt;&gt;8;</div>
+<div>&nbsp;</div>
+<div>gives the same answer as:</div>
+<div>&nbsp;</div>
+<div>TempL = (int) 0.996 *&nbsp;TempL;</div>
+<div>&nbsp;</div>
+<div>Lets say&nbsp;Sample[Index].Filtered is 652</div>
+<div>&nbsp;</div>
+<div>652 x 255 =&nbsp;166260</div>
+<div>&nbsp;</div>
+<div>166260 in binary is&nbsp;101000100101110100</div>
+<div>&nbsp;</div>
+<div>101000100101110100 bit shifted to the right (&gt;&gt;) by 8 is in effect removing the 8 bits on the right,</div>
+<div>&nbsp;</div>
+<div>which leaves us with:&nbsp;1010001001</div>
+<div>&nbsp;</div>
+<div>Which converted to decimal is&nbsp;649</div>
+<div>&nbsp;</div>
+<div>0.996 x 652 =&nbsp;649.392 converted to integer gives us the same answer.</div>
+<div>&nbsp;</div>
+<div>Usefull decimal to binary and back conversion tool:&nbsp;<a href="http://acc6.its.brooklyn.cuny.edu/~gurwitz/core5/nav2tool.html">http://acc6.its.brooklyn.cuny.edu/~gurwitz/core5/nav2tool.html</a></div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-5566"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 07/08/2012 - 08:10.</div>
+    <div class="content">
+     <p><em>Can anyone explain it to me in simple terms?</em></p>
+<p>&nbsp;</p>
+<p>Paulo,</p>
+<p>I did not have enough time on the weekend to finish my translation to integer math. But you just have to take the code from ABVR465! It works perfectly. I have it running for the voltage measurement and the runtime for the voltage calculations is down from ~60us to ~&lt;20us. The current measurement suffers a bit from the poor resolution and some 'residual' effects of the filtering algorithm (this was already explained somewhere here in the forum). Another problem of 'your' original code is, that there are too many samples taken. This sounds strange but leads to 'saturation' of the squared sum long variable. It would be nicer to take less samples into one calculation and average over more of these results. At the moment I solved this by using a float for the sum (not very nice!).</p>
+<p>The AVR465 code is not easy to understand, because it does not correspond directly to the formula written above! The reason is that the filtered and previousFiletered values are stored in a different format.</p>
+<p>What Trystan said about the conversion from float to integer is absolutely correct. What do you think where the factor 0.996 originally came from? It came from someone rewriting the original AVR465 code to float! (255/256 = 0.99609375)</p>
+<p>One small trick to shorten calculation time:</p>
+<p>TempL = 255*(long)sample;&nbsp;&nbsp;&nbsp; // 64 cycles with IAR compiler</p>
+<p>can be rewritten as:</p>
+<p>TempL = ((long)sample&lt;&lt;8)-sample;&nbsp; // 26 cycles</p>
+<p>because 255 = (256-1). This code is again much faster, because a shift by integer multiples of 8 just means throwing away one byte in the controller.</p>
+<p>Maybe I can email the code this evening. My PC has problems since friday evening and runs for maximum 2-3 minutes before freezing. I think I will have to set it up completely (possibly changing from XP to Win7 now).</p>
+<p>Regards, J&ouml;rg.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-5573"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Pcunha&#039;s picture" title="Pcunha&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by Pcunha (not verified) on Tue, 07/08/2012 - 12:36.</div>
+    <div class="content">
+     <p>Thank you everybody.</p>
+<p>I think i got it</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-5580"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 07/08/2012 - 16:27.</div>
+    <div class="content">
+     <blockquote><p>&quot;(255/256 = 0.99609375)&quot;</p>
+</blockquote>
+<p>I was under the impression that it related to the time constant of the equivalent analogue filter:&nbsp; RC =&nbsp; t . (a / (1-a))&nbsp; where t = iteration period and a = 0.996.</p>
+<p>I think they might have taken advantage of (255/256) as a happy coincidence.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-5581"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 07/08/2012 - 17:31.</div>
+    <div class="content">
+     <p><em>I think they might have taken advantage of (255/256) as a happy coincidence.</em></p>
+<p>&nbsp;</p>
+<p>What a coincidence! The filter would work very much the same with a=0.997 or a=0.995 or whatever (0.99609375 would have been a nice value as a 4 byte float has appr. 6-7 digits accuracy!) .<em> </em></p>
+<p>No, sorry,&nbsp;<em> </em> I am pretty sure it was the other way round <img src="../../../community.openenergymonitor.org/emon/sites/all/modules/fckeditor/fckeditor/editor/images/smiley/msn/wink_smile.html" alt="" />.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-5585"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 07/08/2012 - 19:04.</div>
+    <div class="content">
+     <p>I didn't phrase it very well. I think they wanted a value close to unity to get the appropriately long time constant, and (256-1)/256 gave a result 'close enough' that was easy to implement in integer arithmetic.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-5586"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 07/08/2012 - 19:15.</div>
+    <div class="content">
+     <p>Yes, sure, that is the real reason for using the factor (255/256) in integer calculation.</p>
+<p>For float calculation you could have equally well choosen one out of some millions of other possible factors.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8070"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sun, 09/12/2012 - 17:51.</div>
+    <div class="content">
+     <p>I don&#39;t think the Atmel code is doing what it claims to do.&nbsp; The comment is OK, albeit unhelpfully structured, but not the code which follows.&nbsp; In the emonLib routine, calcVI(), the HPF is written as:</p>
+<p>&nbsp;&nbsp;&nbsp; filteredV = 0.996*(lastFilteredV+sampleV-lastSampleV);</p>
+<p>This appears to match the &quot;algorithmic implementation&quot; at <a href="http://en.wikipedia.org/wiki/High-pass_filter">http://en.wikipedia.org/wiki/High-pass_filter</a> .&nbsp; Some extra brackets, to force integer maths, would be helpful as Jorg has already mentioned:</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; filteredV = 0.996*(lastFilteredV+<strong> ( </strong>sampleV-lastSampleV <strong>)</strong> );<br />
+	&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>The Atmel code appears to be trying to do a multiplication of 255/256 using bit-shifting.&nbsp; As Trystan has pointed out, this involves a left-shift by 8 places, subtraction of the original, and then a right shift of 8 places.&nbsp; But unless I&#39;m very much mistaken, that&#39;s not what the code (as posted at the top of this thread) is actually doing :(</p>
+<p>For extracting the AC content from a voltage sensor, where a large amplitude is available, integer maths may be OK because the rounding-down effect will not greatly affect the outcome.&nbsp; But for the current sensor, where the peak value may be just a few ADC levels, integer rounding would seem very bad news.&nbsp; An increase of 5 ADC levels from one sample to the next would be rounded down to 4 rather than 0.996*5 = 4.98.</p>
+<div style="color: rgb(0, 0, 0); font-size: 13.3333px; font-family: arial,helvetica,sans-serif; background-color: transparent; font-style: normal;">
+	&nbsp;</div>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8073"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Sun, 09/12/2012 - 18:39.</div>
+    <div class="content">
+     <p>Robin,</p>
+<p>the Atmel code is doing absolutely what they say (write) it does. Not quite easy to see, as some variables are not stored in the same format. Ok, the operation *255/256 results in a factor of ~0.9961, but that is a good enough approximation of 0.996. And in fact, every other factor near to 1 will work very much the same. The factor was chosen because it is relatively easy to calculate (0.995 would be much slower to calculate!).</p>
+<p>And then I am pretty sure that the (float) factor of 0.996 came in later, when someone &#39;translated&#39; the original integer code from the Atmel application note to floating point.</p>
+<p>BR, J&ouml;rg.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8084"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Mon, 10/12/2012 - 11:24.</div>
+    <div class="content">
+     <p>As posted at the top of this thread, the Atmel HPF code is:</p>
+<p>	&nbsp; // y[n] = 0.996*y[n-1] + 0.996*x[n] - 0.996*x[n-1]<br />
+	&nbsp; Sample[Index].PreviousFiltered=Sample[Index].Filtered;&nbsp; // y[n] &lt;- y[n-1]<br />
+	&nbsp; TempL=255*(long)Sample[Index].Filtered;<br />
+	&nbsp; TempL=TempL&gt;&gt;8;<br />
+	&nbsp; TempI=Sample[Index].Fresh-Sample[Index].Previous;<br />
+	&nbsp; TempL=TempL+255*(long)TempI;</p>
+<p>	The expression in the comment can be rearranged to give the familiar form that is used in calcVI():<br />
+	&nbsp; // y[n] =&nbsp;&nbsp; 0.996*(y[n-1] + x[n] - x[n-1])<br />
+	&nbsp; filteredV = 0.996*(lastFilteredV+sampleV-lastSampleV);</p>
+<p>	The attached spreadsheet shows how the filter reacts when presented with a step change of 100 levels.&nbsp; With floating point maths, the output decays at approx 0.4% per cycle (purple line), as expected.&nbsp; Simple integer maths, as shown by the yellow line, would clearly not be suitable.</p>
+<p>	Applying the same values to the Almel code:</p>
+<p>	In line -1, Fresh, Previous and PreviousFiltered are all 0:<br />
+	TempL = 255*(long)0 = 0;<br />
+	Templ = TempL&gt;&gt;8 = 0;<br />
+	TempI = Fresh - Previous = 0;<br />
+	TempL = TempL + 255*0 = 0;</p>
+<p>	In line 0, Fresh is 100, and Previous and PreviousFiltered are both 0:<br />
+	TempL = 255*(long)0 = 0;<br />
+	Templ = TempL&gt;&gt;8 = 0;<br />
+	TempI = Fresh - Previous = 100;<br />
+	TempL = TempL + 255*100 = 25500;</p>
+<p>	In line 1, Fresh and Previous are both 100, and PreviousFiltered is 25500:<br />
+	TempL = 255*(long)25500 = 6502500;<br />
+	Templ = TempL&gt;&gt;8 = 25400;<br />
+	TempI = Fresh - Previous = 0;<br />
+	TempL = 25400 + 255*0 = 25400;</p>
+<p>	In line 2, Fresh and Previous are both 100, and PreviousFiltered is 25400:<br />
+	TempL = 255*(long)25400 = 6477000;<br />
+	Templ = TempL&gt;&gt;8 = 25300;<br />
+	TempI = Fresh - Previous = 0;<br />
+	TempL = 25300 + 255*0 = 25300;</p>
+<p>	So the output does appear to be behaving as expected, albeit in a form that is 256 times greater than is suggested by the comment.&nbsp; To avoid integer rounding, it seems that the filtered value is always stored in a x256 form.&nbsp; At each loop, it is then multiplied again by 255 and divided by 256 (&gt;&gt;8).&nbsp; The necessary headroom for this operation is provided by the use of &#39;long&#39; (4-byte) values.</p>
+<p>	(From his comment, &quot;Not quite easy to see, as some variables are not stored in the same format&quot;, Jorg no doubt could see this all along!!)</p>
+<p>	I think the Atmel code would be more clear if written like this:</p>
+<p>	&nbsp; Sample[Index].Previous=Sample[Index].Fresh;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // store last i/p<br />
+	&nbsp; Sample[Index].PreviousFiltered=Sample[Index].Filtered;&nbsp;&nbsp;&nbsp; // store last o/p<br />
+	&nbsp; Sample[index].Fresh=ADC;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // get the new input value<br />
+	&nbsp; TempI=Sample[Index].Fresh-Sample[Index].Previous;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // the input change<br />
+	&nbsp; TempL= (long)TempI&lt;&lt;8;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // rescale the input change (x256)<br />
+	&nbsp; TempL=TempL + Sample[Index].PreviousFiltered;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // add the previous o/p<br />
+	&nbsp; TempL2=TempL&lt;&lt;8 - TempL;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // multiply by 255<br />
+	&nbsp; Sample[Index].Filtered=TempL2&gt;&gt;8;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // divide by 256</p>
+<p>	My way is actually more efficient, because I&#39;m doing six operations:</p>
+<p>	an &#39;int&#39; subtraction (to get the change in input)<br />
+	a &#39;long&#39; shift (to rescale the change in input, x256)<br />
+	a &#39;long&#39; addition (to include the previous output value)<br />
+	a &#39;long&#39; shift (to multiply the working value by 256)<br />
+	a &#39;long&#39; subtraction (to reduce the multiplication to 255)<br />
+	a &#39;long&#39; shift (to divide by 256)</p>
+<p>	Whereas, to achieve the same effect, they&#39;re doing an extra one:</p>
+<p>	a &#39;long&#39; shift (to multiply the previous output value by 256)<br />
+	a &#39;long&#39; subtraction (to reduce the multiplication to 255)<br />
+	a &#39;long&#39; shift (to divide by 256)<br />
+	an &#39;int&#39; subtraction (to get the change in input)<br />
+	a &#39;long&#39; shift (to multiply the change in input by 256)<br />
+	a &#39;long&#39; subtraction (to reduce the multiplication to 255) &lt;- unnecessary!<br />
+	a &#39;long&#39; addition (to combine both parts)</p>
+<p>	In my case, I combine the two components before doing the x255 operation.&nbsp; They are doing the same operation on each of the two components before they are combined, which is a less efficient use of the processor, IMHO.</p>
+<p>
+	&nbsp;&nbsp;<br />
+	&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8089"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Mon, 10/12/2012 - 16:46.</div>
+    <div class="content">
+     <p><em>Quote: (From his comment, &quot;Not quite easy to see, as some variables are not stored in the same format&quot;, Jorg no doubt could see this all along!!)</em></p>
+<p>Sorry Robin, when writing this I could just remember <strong>that</strong> it was something like this, but couldn&#39;t name it directly. Otherwise I had been more precise. But what you found is absolutely correct.</p>
+<p>It is not so easy to say (without simulation)&nbsp; if your code is really more efficient. The ATmega328 has a multiplication unit which could help to make the processing times lie very close together.</p>
+<p>PS: I just made a short test and your code is clearly more efficient! One multiplication by 255 costs around 50 cycles and your ((TempL&lt;&lt;8)-TempL) ~30 cycles. This might slightly depend on other circumstances and compiler optimization settings, but is a clear improvement!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8092"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Mon, 10/12/2012 - 21:21.</div>
+    <div class="content">
+     <p>Thanks, Jorg,</p>
+<p>I&#39;m busy doing a re-write of the standard measurement routines to use integer maths and bit-shifting.&nbsp; It certainly seems to be a lot quicker than all those floating point calculations.</p>
+<p>I feel sure that the <em>((TempL&lt;&lt;8)-TempL)</em> idea, as opposed to <em>TempL*255</em>, is well-established prior knowledge.&nbsp; My contribution is to combine the two components <em>before</em> doing the x255/256 processing.&nbsp; It seems such an obvious way to go that I can&#39;t imagine why Atmel would do it any other way.&nbsp; Maybe they hadn&#39;t looked at:&nbsp;</p>
+<p><em>filteredV = 0.996*(lastFilteredV+sampleV-lastSampleV);</em></p>
+<p>as many times as I have!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8093"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 11/12/2012 - 00:21.</div>
+    <div class="content">
+     <p>Robin,</p>
+<p>rereading this thread I actually saw that I originally made the proposal for the ((TempL&lt;&lt;8)-TempL) idea:</p>
+<p><em>One small trick to shorten calculation time:</em></p>
+<p><em>TempL = 255*(long)sample;&nbsp;&nbsp;&nbsp; // 64 cycles with IAR compiler</em></p>
+<p><em>can be rewritten as:</em></p>
+<p><em>TempL = ((long)sample&lt;&lt;8)-sample;&nbsp; // 26 cycles</em></p>
+<p>&nbsp;</p>
+<p>but just forgot about it (and that I even had done a processing time check ....). But your idea is also very good and saves about as much time or even more.</p>
+<p><em>&nbsp; </em></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8098"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Tue, 11/12/2012 - 11:32.</div>
+    <div class="content">
+     <p>Here&#39;s a spreadsheet to show how the Atmel HPF works with its dual x255/256 processing.&nbsp; I&#39;ve stopped the output line early so that an easy comparison can be made against the standard floating point x0.996 version.&nbsp; Atmel&#39;s logic gives virtually identical performance, but is much faster to execute using integer maths.</p>
+<p>The picture below is the same as in the spreadsheet:</p>
+<p>blue line: a step change fom 0 to 100 at T=0</p>
+<p>purple: filtered using floating point maths and 0.996</p>
+<p>yellow: as above, but with integer truncation</p>
+<p>cyan: ATMEL&#39;s x255/256 &#39;long&#39; implementation whereby integer truncation is reduced by 256</p>
+<p>&nbsp;</p>
+<p><a href="../sites/default/files/HPF_comparison.jpg"><img alt="" height="350" src="../sites/default/files/HPF_comparison.jpg" width="600" /></a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8102"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 11/12/2012 - 14:44.</div>
+    <div class="content">
+     <p>There is actually no reason why the Atmel math (or better integer math) should result in inferior performance. Integer math is the &#39;best&#39; and most exact math a microcontroller can do. Every +,-,* operation gives either the exact result or an overflow. Dividing is a different story where evil things can happen if it is not done with some care.</p>
+<p>This is completely different for float calculations. Here <strong>every</strong> operation <strong>can</strong> give an &#39;unexact&#39; result (or overflow, same as with integer). What is equally surprising is, that ((x+y)+z) can (and in many cases will) give a different result than (x+(y+z)).</p>
+<p>You simply have to be very careful when doing math with a microcontroller. It seems simpler to get reasonable results with float though, but certainly at the price of inferior runtime performance.&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8104"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arvidb&#039;s picture" title="arvidb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by arvidb (not verified) on Tue, 11/12/2012 - 15:21.</div>
+    <div class="content">
+     <p>Using part of an integer as a fraction is called &quot;fixed point math&quot;. There&#39;s some interesting (if you&#39;re a programmer nerd like me :) info here, for example:</p>
+<p><a href="http://en.wikipedia.org/wiki/Q_(number_format)">http://en.wikipedia.org/wiki/Q_(number_format)</a></p>
+<p>(... but read the Talk page, too. Apparently there are some problems with the article.)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8105"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Tue, 11/12/2012 - 16:09.</div>
+    <div class="content">
+     <p><em>Integer math is the &#39;best&#39; and most exact math a microcontroller can do.&nbsp; </em></p>
+<p>Yes, I would agree with that, J&ouml;rg.&nbsp; Floating point maths is just too easy!!</p>
+<p>Many years ago, I joined a team where all the talk was about dynamic ranges and the need for certain lengths of words at different points in the processing.&nbsp; Much of this went over my head, but a little is still retrievable.</p>
+<p>The Arduino needs 10 bits to store the 1024 possible output states from its ADC.&nbsp; If each sample stream is filtered as per Atmel&#39;s algorithm, the filtered values for V and I will each require 18-bits.&nbsp; Multiplying these together could result in overflow because a &#39;long&#39; is only 32-bits.&nbsp; I therefore think it sensible to left-shift a copy of each filtered value by 2 bits before they are multiplied together.&nbsp; We will then have a 32-bit value for instP.&nbsp; To allow many such contributions to be added together as sumP, each instP value will again need to be left-shifted, maybe by 6 or 8 bits. &nbsp; This approach should not be thought of as loss of information; rather, it is maintaining maximum resolution at all times.</p>
+<p>After each whole cycle, or half cycle, this accumulated value can be added to the energy bucket which emulates the supply meter.&nbsp; I see no reason why this can&#39;t all be done using integer maths; there&#39;s no need for the energy bucket to run from 0 to 3600J using floating point values.&nbsp; A &#39;long&#39; variable, used between, say, 0 and 256x256x256x42, would be just as good; it&#39;s perfectly linear, and much faster to operate.&nbsp; Rather than using powerCal to vary the supply rate to a fixed-size bucket, the buckets&#39;s capacity can simply be set to match the hardware.&nbsp; Each pulse of the supply meter would then equate to 256x256x256x42, or whatever, and the bucket&#39;s upper limit would be set to this value.&nbsp; Each Joule will still have the same effect, whether recorded as export (surplus PV) or import (dump load).&nbsp;</p>
+<p>Maybe the bucket should be an (unsigned) int rather than a long; that would still have a resolution of better than 0.1 Joules.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8171"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Digital High Pass Filter with Infinite Input Response</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Thu, 13/12/2012 - 17:13.</div>
+    <div class="content">
+     <p>Here&#39;s an even slicker version of the standard HPF using integer maths.&nbsp; Because the filtered value is stored at x256 scale, the x255/256 operation can be done very easily by just subtracting a &gt;&gt;8 version of the original.&nbsp; That&#39;s got to be better than the way that Atmel (and I) were doing it.&nbsp;</p>
+<p>&nbsp; Sample[Index].Previous=Sample[Index].Fresh;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // store last i/p<br />
+	&nbsp; Sample[Index].PreviousFiltered=Sample[Index].Filtered;&nbsp;&nbsp;&nbsp;&nbsp; // store last o/p<br />
+	&nbsp; Sample[index].Fresh=ADC;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // get the new input value<br />
+	&nbsp; TempI=Sample[Index].Fresh-Sample[Index].Previous;&nbsp;&nbsp; // find the input change<br />
+	&nbsp; TempL= (long)TempI&lt;&lt;8;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // rescale the input change (x256)<br />
+	&nbsp; TempL=TempL + Sample[Index].PreviousFiltered;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // add the previous o/p&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp; Sample[Index].Filtered=TempL-(TempL&gt;&gt;8); // subtract 1/256, same as x255/256&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	Thanks J&ouml;rg, pity I didn&#39;t spot this one :-(</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/932"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-5erjKUVfUGF2953_R0kwE8uee9xvdBi3tlYAc7ka01U" value="form-5erjKUVfUGF2953_R0kwE8uee9xvdBi3tlYAc7ka01U"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/932 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:29:42 GMT -->
+</html>

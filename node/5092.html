@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5092 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:05:50 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Creating a local EmonCMS installation on a Raspberry Pi | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Creating a local EmonCMS installation on a Raspberry Pi</h3>
+        <span class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 25/04/2014 - 13:06</span>
+        <div class="content"><p>(Transplanted from&nbsp;<a href="4908.html">http://openenergymonitor.org/emon/node/4908</a>&nbsp;for easier access)</p>
+<p>The easiest way is to put the image on BOTH the sd and the hdd, boot up on the sd and then edit the hdd to prepare it to boot to, so first you need to give the hdd a unique uuid and then mount the hdd</p>
+<p class="rteindent1"><strong>sudo tune2fs -U random -L hdd&nbsp; /dev/sda2</strong></p>
+<p class="rteindent1"><strong>sudo mkdir /media/hdd</strong></p>
+<p class="rteindent1"><strong>sudo mount /dev/sda2 /media/hdd</strong></p>
+<p>then edit the hdd&#39;s fstab</p>
+<p class="rteindent1"><strong>sudo nano /media/hdd/etc/fstab</strong></p>
+<p>change &quot; <strong>/dev/mmcblk0p2</strong> &quot; to &quot; <strong>/dev/sda2</strong> &quot; and Ctrl+x, y, enter,</p>
+<p>while we are here just edit the inittab (this step is only required if you&#39;re intending to use rfm2pi or serial port)</p>
+<p class="rteindent1"><strong>sudo nano /media/hdd/etc/inittab</strong></p>
+<p>edit the very last line by adding a hash so it reads &quot; <strong># T0:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100</strong> &quot;</p>
+<p>edit the cmdline.txt and reboot (the next 2 lines are 1 line wrapped, be sure it is entered as 1 line &quot;sudo&quot; to &quot;txt&#39;&quot;)</p>
+<p class="rteindent1"><strong>sudo sh -c &#39;echo &quot;dwc_otg.lpm_enable=0 console=tty1 root=/dev/sda2 rootfstype=ext4 elevator=deadline rootwait&quot; &gt; /boot/cmdline.txt&#39;</strong></p>
+<p class="rteindent1"><strong>sudo shutdown -r now</strong></p>
+<p>should now boot up to the hdd so add the repo to sources list, update and install (next 2 lines as one line again)</p>
+<p class="rteindent1"><strong>sudo sh -c &quot;echo &#39;deb <a href="http://emon-repo.s3.amazonaws.com/" title="http://emon-repo.s3.amazonaws.com">http://emon-repo.s3.amazonaws.com</a> wheezy unstable&#39; &gt;&gt; /etc/apt/sources.list&quot;</strong></p>
+<p class="rteindent1"><strong>sudo apt-get update</strong></p>
+<p class="rteindent1"><strong>sudo apt-get -y --force-yes install emoncms emoncms-module-event emoncms-module-rfm12pi</strong></p>
+<p>(if you do not need or want the event module or rfm2pi&nbsp;module delete them from that last line to suit)</p>
+<p><span style="font-size: 12px;">you will get asked a series of questions about </span>mysql<span style="font-size: 12px;"> and </span>emoncms<span style="font-size: 12px;"> passwords</span></p>
+<p>The first 2 questions are to set the root password for the mySQL database root user, it&#39;s most important you set this password correctly, The rest are questions about setting up the emoncms database and email. You can accept all the default values except the second emoncms question (4th overall) this password gives emoncms access to mySQL so It should be set to the MySQL root password you just entered for questions 1 &amp; 2. If you make a mistake with the emoncms settings it&#39;s not a problem as you can go through the questions again by using sudo dpkg-reconfigure emoncms --force.</p>
+<p>Once these settings are entered the databases and server will be created, this will take a while, once there done run&nbsp;</p>
+<p class="rteindent1"><strong>sudo a2ensite emoncms</strong></p>
+<p class="rteindent1"><strong>sudo a2enmod rewrite</strong></p>
+<p class="rteindent1"><strong>sudo /etc/init.d/apache2 restart</strong></p>
+<p>and if you have an rfm2pi installed also run</p>
+<p class="rteindent1"><strong>sudo service rfm12piphp start</strong></p>
+<p>go to http;//IP.ADD.OF.PI/emoncms and register a user and with any luck you&#39;re in.</p>
+<p>&nbsp;</p>
+<p>In future when you use sudo apt-get update &amp;&amp; sudo apt-get upgrade emoncms will get updated along with everything else.and a<span style="font-size: 12px;">s more modules become available in apt packaging you can install them with apt-get install as well but there maybe other steps also and that will be documented with each module.</span></p>
+<p>The second partition of your sdcard still holds a redundant copy of raspbian, you could copy just the boot partition to a smaller sdcard if you wanted to free up this sdcard or if not just leave it there and if ever you have an issue with your &quot;hdd&quot; version you can whip out the sdcard edit the /boot/cmdline.txt file on windows by changing &quot;/dev/sda2&quot; to &quot;/sda/mmcblk0p2&quot; and pop it back it the pi to boot into the sdcard image and explore / fix your hdd image.</p>
+<p>There are tidier methods to do this but this is by far the easiest way without another linux machine.<br />
+	&nbsp;</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1421.html" class="topic-previous" title="Go to previous forum topic">‹ OpenEnergyMonitor switchable energy measuring plug (like &quot;Spark&quot; on Kickstarter)</a>
+              <a href="5373.html" class="topic-next" title="Go to next forum topic">Separate emonTx for current clamp and AC-AC adapter ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-21067"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/937.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Creating a local EmonCMS installation on a Raspberry Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/937.html" title="View user profile.">Bramco</a> on Sat, 26/04/2014 - 10:23.</div>
+    <div class="content">
+     <p>Thanks Paul,</p>
+<p>This worked for me using just the boot image on the SD Card from the emoncms&nbsp;instructions at&nbsp;http://emoncms.org/site/docs/raspberrypihdd. So that&#39;s the file <strong>boot_23Feb14.img copied onto the SD</strong></p>
+<p>And the standard Raspbian&nbsp;image from the raspberry pi download page <strong>2014-01-07-wheezy-raspbian.img copied onto the HDD.</strong></p>
+<p>Of course It took a few tries due to typos. &nbsp;Resorted to setting right click in MobaXterm to paste so I could copy from your instructions and paste into the SSH session. Worked a treat.</p>
+<p>Also doing it this way meant that I didn&#39;t run into the problem I had in the other thread where RFM12Pi&nbsp;wasn&#39;t functioning. I did have to do a reboot after completing your instructions to see the inputs.</p>
+<p>&nbsp;</p>
+<p>Thanks again for writing this up in a seperate set of instructions - they should probably go onto the wiki somewhere.</p>
+<p>Simon</p>
+<p>PS Doing it with the standard Raspbian image also allowed me to run startx and set up wifi&nbsp;before starting to do everything which also helped a lot.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21070"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Creating a local EmonCMS installation on a Raspberry Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 26/04/2014 - 11:23.</div>
+    <div class="content">
+     <p>Glad it helped Simon.</p>
+<p>Although you should be ok with the &quot;alternative&quot; boot image on this occasion because I believe they are of the same &quot;era&quot; so the kernel files should be the same. It&#39;s worth mentioning incase of future issues the &quot;other&quot; files on the boot partition kernel.img &amp; start.elf etc etc MUST exactly match the kernel files in use the main partition or at some point in the future when there is an update to the kernel things will go horribly wrong,&nbsp;</p>
+<p>I&#39;m not familiar with&nbsp;MobaXterm&nbsp;so can&#39;t comment, I use putty or WinSCP&nbsp;both will copy and paste,</p>
+<p>Also as you mentioned xstart I thought I would mention that I also like to use windows remote desktop to raspberrypi&#39;s xrdp so I can have a remote &quot;xstart&quot; screen open on my windows PC. but I could never get it to work with any emonCMS&nbsp;image until I used this method. It is now fully functional.</p>
+<p>If you want/need to expand the partition on the hdd see Br1an&#39;s&nbsp;notes here&nbsp;<span style="font-size: 12px;"><a href="3889.html">http://openenergymonitor.org/emon/node/3889</a>.&nbsp;</span></p>
+<p><span style="font-size: 12px;">Paul</span></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22284"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Creating a local EmonCMS installation on a Raspberry Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Thu, 03/07/2014 - 15:24.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>It worked very well for me.</p>
+<p>I also installed Emonhub on the same RPI with this <a href="5289.html">guide.</a></p>
+<p>In that case do NOT install the rfm2pi module .</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22308"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Creating a local EmonCMS installation on a Raspberry Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 04/07/2014 - 08:13.</div>
+    <div class="content">
+     <p>Thanks Eric,</p>
+<p>You&#39;re right, he emoncms&nbsp;rfm2pi module is required only when emoncms&nbsp;needs to access the rfm2pi board directly. When using emonHub (or OEM gateway) the module should not be installed and will cause problems if it is.</p>
+<p>So where the guide above says</p>
+<blockquote><p><strong>sudo apt-get -y --force-yes install emoncms emoncms-module-event emoncms-module-rfm12pi</strong></p>
+</blockquote>
+<p>leave off the &quot;&nbsp;emoncms-module-rfm12pi&nbsp;&quot;, so to just install emoncms use</p>
+<blockquote><p><strong>sudo apt-get -y --force-yes install emoncms</strong></p>
+</blockquote>
+<p>and since the module is not installed you won&#39;t need to start the service so you don&#39;t need to run</p>
+<blockquote><p><strong>sudo service rfm12piphp start</strong></p>
+</blockquote>
+<p>When emonHub&nbsp;is fully released it should be available as a debian package and so emonHub will be able to be installed on the same command as emoncms</p>
+<blockquote><p><strong>sudo apt-get -y --force-yes install emoncms&nbsp;emonhub</strong></p>
+</blockquote>
+<p>so much neater.....</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5092"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-dVb4YKWv4GyvjHoamFwgjAjispm8z27Eplm-ipqPROA" value="form-dVb4YKWv4GyvjHoamFwgjAjispm8z27Eplm-ipqPROA"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5092 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:05:51 GMT -->
+</html>

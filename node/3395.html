@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3395 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:50 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Posting WAN Raspberry Pi IP address to emoncms - dev test idea | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Posting WAN Raspberry Pi IP address to emoncms - dev test idea</h3>
+        <span class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sun, 22/12/2013 - 15:49</span>
+        <div class="content"><p>Recently I have been testing controlling my heating system from emoncms running on a local raspberry Pi:&nbsp;<a href="http://openenergymonitor.blogspot.com/2013/12/emoncms-early-heating-control-demo.html">http://openenergymonitor.blogspot.com/2013/12/emoncms-early-heating-control-demo.html</a></p>
+<p>This works great when I&#39;m in the house (although I still need to work on a front-end UI), maybe this heating scheduler could be integrated:&nbsp;<a href="https://github.com/elyobelyob/boiler-scheduler-php">https://github.com/elyobelyob/boiler-scheduler-php</a>&nbsp;?</p>
+<p>I have opened http port on my router to give me access to emoncms on my local Pi from anywhere on the internet. This works well, although since I don&#39;t have any form dynamic DNS setup my WAN IP regularly changes. Setting up a dynamic DNS would solve this problem but since the Pi is also posting my data to a remote emoncms server I though why not get it to post it&#39;s external WAN IP to the remote emoncms as a number of feeds.</p>
+<p>Here is a bash script I wrote to do just that, I&#39;m a beginner when it comes to programming to please point out if you think this could be done easier.</p>
+<p>The setup I&#39;ve got working does require a small php&nbsp;script which returns the users IP to be put on the remote server. This script is then called from the local Pi and the IP address posted back to the remote server as four integer feeds. I set this script to run as cron ever couple of hours.&nbsp;</p>
+<p>Maybe something like this could form the basis of an emoncms Module in the future. I think it would also be very useful for people installing energy monitoring systems based using the Pi as an emonbase and require remote ssh access for debugging, updating etc</p>
+<address>
+	#!/bin/bash</address>
+<address>
+	: &lt;&lt;&#39;END&#39;<br />
+	Place the following PHP script as IP.php in the root directory of your remote server to return the users IP address</address>
+<p></p>
+<address>
+	&lt;?php<br />
+	//Gets the IP address<br />
+	$ip = getenv(&quot;REMOTE_ADDR&quot;) ;<br />
+	Echo $ip;<br />
+	?&gt;<br />
+	END</address>
+<address>
+	URL=&quot;http://REMOTE_<span style="font-size: 12px;">EMONCMS_</span><span style="font-size: 12px;">URL&quot;</span></address>
+<address>
+	API=&quot;REMOTE_EMONCMS_APIKEY&quot;<br />
+	PATH_TO_EMONCMS=&quot;/emoncms&quot;<br />
+	NODE_ID=30 &nbsp;#node ID for WAN IP to be posted to</address>
+<p></p>
+<address>
+	WANIP=`wget -q -O - $URL/ip`</address>
+<p></p>
+<address>
+	arr=$(echo $WANIP | tr &quot;.&quot; &quot;\n&quot;)</address>
+<address>
+	for x in $arr<br />
+	do<br />
+	&nbsp;&nbsp;&nbsp; ((i++))<br />
+	&nbsp;&nbsp;&nbsp; IP[$i]=&quot;$x&quot;;<br />
+	done</address>
+<p></p>
+<address>
+	echo ${IP[*]}</address>
+<p></p>
+<address>
+	curl --request GET &quot;$URL$PATH_TO_EMONCMS/input/post.json node=$NODE_ID&amp;csv=${IP[1]},${IP[2]},${IP[3]},${IP[4]}&amp;apikey=$API&quot;</address>
+  <div class="forum-topic-navigation clear-block">
+          <a href="3396.html" class="topic-previous" title="Go to previous forum topic">‹ error_log in pulse_diff and kwh_to_power</a>
+              <a href="3392.html" class="topic-next" title="Go to next forum topic">Node-RED    a visual tool for wiring the IoT  (with examples using OEM hardware) ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3395 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:50 GMT -->
+</html>

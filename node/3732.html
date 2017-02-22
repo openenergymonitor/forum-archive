@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3732 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:21:31 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonTX Firmware Help | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonTX Firmware Help</h3>
+        <span class="submitted">Submitted by <a href="../user/5385.html" title="View user profile.">Anthony_S</a> on Tue, 28/01/2014 - 22:38</span>
+        <div class="content"><p>Hi,</p>
+<p>Just need some help with some creating some firmware I&#39;m new to this whole editing firmware so just looking for some guidance and suggestions for my firmware.</p>
+<p>What I&#39;m looking to do is get the <strong>current only (</strong>no power calculations just output in amps<strong>), temperature and send via wireless RF</strong>. The CT clamps will connected to the mains.</p>
+<p>Below is what I have tried to put together will this work for what I want?&nbsp;</p>
+<p>Any help or suggestions to get this working or make it better will be much appreciated.</p>
+<p>Thanks</p>
+<p>#define emonTxV3</p>
+<p>#include &lt;RFu_JeeLib.h&gt;<br />
+	#include &lt;OneWire.h&gt;<br />
+	#include &lt;DallasTemperature.h&gt;<br />
+	#include &quot;EmonLib.h&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Include Emon Library<br />
+	EnergyMonitor ct1, ct2, ct3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Create three instances</p>
+<p>OneWire oneWire(4);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Setup one-wire on digital input pin 4<br />
+	DallasTemperature sensors(&amp;oneWire);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Pass the oneWire reference to Dallas Temperature.</p>
+<p>DeviceAddress address_T1 = { 0x28, 0x22, 0x70, 0xEE, 0x02, 0x00, 0x00, 0xB8 };</p>
+<p>#define freq RF12_433MHZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	const int nodeID = 10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // emonTx RFM12B node ID<br />
+	const int networkGroup = 210;<br />
+	typedef struct { int Irms1, Irms2 ,Irm3 ,Temperature;&nbsp; } PayloadTX;&nbsp;&nbsp;&nbsp;&nbsp; // create structure - a neat way of packaging data for RF comms<br />
+	&nbsp; PayloadTX emontx;</p>
+<p>void setup()<br />
+	{&nbsp;&nbsp;<br />
+	&nbsp; Serial.begin(9600);<br />
+	&nbsp; sensors.begin();</p>
+<p>&nbsp; ct1.currentTX(1, 115.6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // CT channel 1, calibration.<br />
+	&nbsp; ct2.currentTX(2, 115.6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // CT channel 2, calibration.<br />
+	&nbsp; ct2.currentTX(3, 115.6);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // CT channel 3, calibration.<br />
+	}</p>
+<p>void loop()</p>
+<p>{<br />
+	&nbsp; double Irms1 = ct1.calcIrms(1480);&nbsp;&nbsp; // Calculate RMS current 1<br />
+	&nbsp; double Irms2 = ct2.calcIrms(1480);&nbsp;&nbsp; // Calculate RMS current 2<br />
+	&nbsp; double Irms3 = ct3.calcIrms(1480);&nbsp;&nbsp; // Calculate RMS current 3&nbsp;</p>
+<p>&nbsp; Serial.println(Irms1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Print to serial Irms<br />
+	&nbsp; Serial.println(Irms2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Print to serial Irms<br />
+	&nbsp; Serial.println(Irms3);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Print to serial Irms</p>
+<p>sensors.requestTemperatures();</p>
+<p>&nbsp; double temperature = sensors.getTempC(address_T1);&nbsp; // Get the temperature of the sensor<br />
+	&nbsp; Serial.println(temperature);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Print temperature<br />
+	}</p>
+<p>void send_rf_data()<br />
+	{<br />
+	&nbsp; rf12_sleep(RF12_WAKEUP);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp; rf12_sendNow(0, &amp;emontx, sizeof emontx);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //send temperature data via RFM12B using new rf12_sendNow wrapper<br />
+	&nbsp; rf12_sendWait(2);<br />
+	&nbsp; rf12_sleep(RF12_SLEEP);<br />
+	}</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="3734.html" class="topic-previous" title="Go to previous forum topic">‹ Energy measurements being affected by RFM12B</a>
+              <a href="3730.html" class="topic-next" title="Go to next forum topic">Monitor with burst fire PV controller ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-17964"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX Firmware Help</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 28/01/2014 - 23:25.</div>
+    <div class="content">
+     <p>That won&#39;t work. More precisely, although you are getting and calculating all the values (which at a first glance appears to be OK), you aren&#39;t copying the values into the payload struct (emontx). So you&#39;re probably getting all zeros at the other end of the radio link.</p>
+<p>The next &#39;gotcha&#39; is the payload is all integers, for power in watts that&#39;s fine but for currents, it gives you steps of 240 W in terms of power. As your maximum is 100 A, and a signed integer is -32768 - +32767, you can afford to multiply by 100 before you assign it to the integer, and divide by 100 at the other end. The same argument goes for your temperature.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17965"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX Firmware Help</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 28/01/2014 - 23:28.</div>
+    <div class="content">
+     <p>Why not use the standard OEM emonTX sketch and do the calculations in emoncms??</p>
+<p>If you know the voltage and the power, you can easily ascertain the Current.</p>
+<p>&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17967"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5385.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Anthony_S&#039;s picture" title="Anthony_S&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX Firmware Help</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5385.html" title="View user profile.">Anthony_S</a> on Tue, 28/01/2014 - 23:50.</div>
+    <div class="content">
+     <p>I haven&#39;t really looked at emoncms Paul mainly just the emontx&nbsp;I wasn&#39;t aware of what you can do with it but thanks for letting me know that you can do it.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17968"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5385.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Anthony_S&#039;s picture" title="Anthony_S&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX Firmware Help</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5385.html" title="View user profile.">Anthony_S</a> on Tue, 28/01/2014 - 23:58.</div>
+    <div class="content">
+     <p>Thanks for replying Robert. &nbsp;</p>
+<p>Is it possible to do what I&#39;m trying to do overall? sorry I&#39;m kind of understanding what you mean.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17970"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX Firmware Help</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 29/01/2014 - 00:13.</div>
+    <div class="content">
+     <p>You&#39;re very nearly there! I think. My problem is that once you&#39;ve launched the data into the aether, I don&#39;t know what you want to do with it next. You need to come clean and fully explain what you&#39;re trying to achieve as the ultimate goal.</p>
+<p>I&#39;m assuming you want to stay fairly closely with OEM conventions, but you don&#39;t have to. The &#39;Payload&#39; is only integers because of emonCMS. If you want to use an emonGLCD or something else, the payload format can be whatever you like - but it&#39;ll be your job to sort the data out at the other end. (See part 2 of the RFM12 article in Building Blocks if you want the low-down on this.)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17971"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5385.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Anthony_S&#039;s picture" title="Anthony_S&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX Firmware Help</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5385.html" title="View user profile.">Anthony_S</a> on Wed, 29/01/2014 - 01:04.</div>
+    <div class="content">
+     <p>Again thanks for the information I&#39;m understanding more now.</p>
+<p>I&#39;m looking to get the current and temperature from the emonTX through the CT clamps and temp sensor then send the data to emonCMS. A bit like what the default V3 firmware does except have the current displayed instead of power.&nbsp;</p>
+<p>I have yet to check the output of my attempt at a working firmware through the arduino&nbsp;serial monitor before I pass it through the wirless to emonCMS that may be something to do first as well.</p>
+<p>Of course if this all can be done with the default firmware like what Paul said and just do the calculations on the front end then that might be easier for someone who is new to the process i&#39;m not sure as I haven&#39;t messed around with the emoCMS yet.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17982"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX Firmware Help</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 29/01/2014 - 19:45.</div>
+    <div class="content">
+     <p>The input type to emonCMS must be a signed integer. After that, it makes no real difference to emonCMS what the numbers you send it relate to in physical units. All it knows is it gets a series of integer values that have been forwarded by your Base. It&#39;s in the processing that you allocate meanings to the numbers, but you must bear in mind that the processing available to you is oriented towards energy rather than current, simply because that is most meaningful to most people as it&#39;s what they pay for. I think it would pay you to look at what processing is available inside emonCMS before you commit to anything. Look at emonCMS Docs and input processing, dashboards and visualisations; that should give you some idea of what&#39;s available.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3732"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-qWqQxAkdPUeQvNJf_7TOXOJ0IzV521W82EaCaxERAWc" value="form-qWqQxAkdPUeQvNJf_7TOXOJ0IzV521W82EaCaxERAWc"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3732 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:21:31 GMT -->
+</html>

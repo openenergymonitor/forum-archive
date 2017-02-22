@@ -1,0 +1,145 @@
+// Test sketch to phase lock an ATMega328 to the 50Hz mains supply
+// uses timer 1 as a reference oscillator and adjusts it's period to match the supply
+// resolution is 1 CPU clock period (usually 62.5ns/16MHz)
+// Martin Roberts 19/11/12
+
+#define LEDPIN 9 // LED will be lit when the PLL is locked
+#define SYNCPIN 6 // this output will be a 50Hz square wave locked to the 50Hz input
+#define SAMPPIN 8 // this output goes high each time the 50Hz input is sampled
+#define VOLTSPIN 2 // 50Hz input
+//#define VOLTSPIN 0 // for shield
+#define FILTERSHIFT 13 // for low pass filter to determine 50Hz input DC offset
+#define FILTERROUNDING (1<<(FILTERSHIFT-1))
+#define NUMSAMPLES 50 // number of times to sample each 50Hz cycle
+#define TIMERTOP (((20000/NUMSAMPLES)*16)-1) // terminal count for PLL timer
+#define PLLFILTERSHIFT 2 // for low pass PLL loop filter (max 2 for word variable)
+#define PLLFILTERROUNDING (1<<(PLLFILTERSHIFT-1))
+#define PLLFILTERLIMIT TIMERTOP // limit timer range to ~49-51Hz
+#define PLLFILTERMAX ((TIMERTOP+PLLFILTERLIMIT)<<PLLFILTERSHIFT)
+#define PLLFILTERMIN ((TIMERTOP-PLLFILTERLIMIT)<<PLLFILTERSHIFT)
+#define PLLLOCKRANGE 15 // allowable ADC range to remain locked
+#define PLLLOCKCOUNT 250 // number of cycles to determine if PLL is locked
+
+int sampleV;
+int voltsOffset=511; // start offset at ADC centre
+word finalTimerCount=TIMERTOP;
+word pllUnlocked=PLLLOCKCOUNT;
+boolean newCycle;
+int negCrossingVolts;
+float frequency;
+
+void setup()
+{
+  pinMode(LEDPIN, OUTPUT);
+  digitalWrite(LEDPIN, LOW);
+  pinMode(SYNCPIN, OUTPUT);
+  digitalWrite(SYNCPIN, LOW);
+  pinMode(SAMPPIN, OUTPUT);
+  digitalWrite(SAMPPIN, LOW);
+  Serial.begin(9600);
+  
+  // enable faster ADC reads, not required for this test but allows more samples/cycle
+  // change ADC prescaler to /64 = 250kHz clock
+  // slightly out of spec of 200kHz but should be OK
+  ADCSRA &= 0xf8;  // remove bits set by Arduino library
+  ADCSRA |= 0x06; 
+
+  //set timer 1 interrupt for required period
+  noInterrupts();
+  TCCR1A = 0; // clear control registers
+  TCCR1B = 0;
+  TCNT1  = 0; // clear counter
+  OCR1A = TIMERTOP; // set compare reg for timer period
+  bitSet(TCCR1B,WGM12); // CTC mode
+  bitSet(TCCR1B,CS10); // no prescaling
+  bitSet(TIMSK1,OCIE1A); // enable timer 1 compare interrupt
+  interrupts();
+}
+
+void loop()
+{
+  static unsigned long nextprint=0;
+  
+  if(millis()>=nextprint)
+  {
+    if(pllUnlocked) Serial.print("PLL is unlocked, ");
+    else Serial.print("PLL is locked,   ");
+    Serial.print("supply frequency: ");
+    Serial.print(frequency);
+    Serial.print("Hz, voltage offset: ");
+    Serial.print(voltsOffset);
+    Serial.print(", ADC value at negative crossing: ");
+    Serial.println(negCrossingVolts);
+    nextprint+=500;
+  }
+
+  if(newCycle)
+  {
+    // do per/mains cycle stuff here
+    frequency=(float)16000000/(((float)TIMERTOP+1)*(NUMSAMPLES-1)+finalTimerCount+1);
+    newCycle=false;
+  }
+}
+
+// timer 1 interrupt handler
+ISR(TIMER1_COMPA_vect)
+{
+  static byte samples=0;
+  static int oldV,lastV,newV;
+  static word filterTimerCount=TIMERTOP<<PLLFILTERSHIFT;
+  static long fVoltsOffset=511L<<FILTERSHIFT;
+  boolean rising;
+  
+  digitalWrite(SAMPPIN,HIGH);
+  // sample input and remove DC offset
+  sampleV = analogRead(VOLTSPIN);
+  newV=sampleV-voltsOffset;
+  
+  rising=(newV>lastV); // synchronise to rising zero crossing
+  lastV=newV;
+  
+  samples++;
+  if(samples>=NUMSAMPLES) // end of one 50Hz cycle
+  {
+    digitalWrite(SYNCPIN,HIGH);
+    samples=0;
+    if(rising)
+    {
+      // if we're in the rising part of the 50Hz cycle adjust the final timer count
+      // to move newV towards 0, only adjust if we're moving in the wrong direction
+      if(((newV<0)&&(newV<=oldV))||((newV>0)&&(newV>=oldV))) filterTimerCount-=newV;
+      // limit range of PLL frequency
+      if(filterTimerCount<PLLFILTERMIN) filterTimerCount=PLLFILTERMIN;
+      if(filterTimerCount>PLLFILTERMAX) filterTimerCount=PLLFILTERMAX;
+      // set the timer to the value determined by the PLL filter
+      finalTimerCount=((filterTimerCount+PLLFILTERROUNDING)>>PLLFILTERSHIFT);
+      OCR1A=finalTimerCount;
+      if(abs(newV)>PLLLOCKRANGE) pllUnlocked=PLLLOCKCOUNT; // we're unlocked
+      else if(pllUnlocked) pllUnlocked--;
+      digitalWrite(LEDPIN,pllUnlocked?LOW:HIGH);
+    }
+    else // in the falling part of the cycle
+    {
+      OCR1A=0; // shift out of this region fast
+      pllUnlocked=PLLLOCKCOUNT; // and we can't be locked
+    }
+    
+    oldV=newV;
+    newCycle=true; // set flag for outer loop
+  }
+  else OCR1A=TIMERTOP; // remaining timer cycles use calculated period
+  
+  if(samples==(NUMSAMPLES/2))
+  {
+    // this is the negative going zero crossing
+    digitalWrite(SYNCPIN,LOW);
+    negCrossingVolts=newV; // voltage should be 0 here too, check it
+  }
+
+  // update the low-pass filter used to determine voltage offset  
+  fVoltsOffset += (sampleV-voltsOffset); 
+  voltsOffset=(int)((fVoltsOffset+FILTERROUNDING)>>FILTERSHIFT);
+
+  digitalWrite(SAMPPIN,LOW);
+}
+

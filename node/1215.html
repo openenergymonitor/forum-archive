@@ -1,0 +1,344 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1215 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:36:49 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>RESOLVED - EmonTX voltage error | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">RESOLVED - EmonTX voltage error</h3>
+        <span class="submitted">Submitted by <a href="../user/885.html" title="View user profile.">logic</a> on Sun, 21/10/2012 - 20:20</span>
+        <div class="content"><p>I have had the Stontronics AC adaptor connected to my emontx for about 6 months with the calibration value of 238.56, and all had been fine.</p>
+<p>A few days ago&nbsp;I changed the adaptor for a Mascot 9580 with value 234.26 as I needed another AC adaptor to use elsewhere, and I thought I&#39;d fit the latest OEM supplied adaptor to my emonTX as I believe it&#39;s supposed to be slightly better(?).</p>
+<p>Since I have done this the system is indicating 163.5 V (Serial Print) &nbsp;instead of a correct 245 V.&nbsp; But when I change everything back to the original&nbsp;Stontronics adaptor it is also&nbsp;now indicating 163.5 V - and I only changed the calibration value and adaptor.</p>
+<p>Just incase I inadvertently altered something else I have just downloaded a fresh copy of the latest emonTX from Github and it is the same, 163.5V.&nbsp; I also updated the emonlib.</p>
+<p>&nbsp;</p>
+<p>Does anyone have any suggestions on what I may have done wrong?</p>
+<p>&nbsp;</p>
+<p>Thanks,&nbsp; Dennis</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1238.html" class="topic-previous" title="Go to previous forum topic">‹ Emontx +relay module???</a>
+              <a href="1213.html" class="topic-next" title="Go to next forum topic">Incorrect time from emoncms.org....sometimes ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-6815"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1587.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="edllew&#039;s picture" title="edllew&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RESOLVED - EmonTX voltage error</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1587.html" title="View user profile.">edllew</a> on Mon, 22/10/2012 - 04:50.</div>
+    <div class="content">
+     <p>I just had a similar problem (yesterday), and it turned out that EnergyMonitor::readVcc() was not building correctly for me.</p>
+<p>It is a #define problem.&nbsp; __AVR_ATmega328__ seems not to be is not properly #defined, so the snippet:</p>
+<p>&nbsp; #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__)<br />
+	&nbsp; ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);&nbsp;<br />
+	&nbsp; #elif defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)<br />
+	&nbsp; ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+	&nbsp; #endif</p>
+<p>is not getting compiled at all I think.&nbsp; There really should be an additional #elif for that potential compile-time error case.</p>
+<p>I just hardwired it to build correctly for me.&nbsp; I meant to mention this on the forums here but just got around to it now when this post reminded me.</p>
+<p>This may be particular to my system (linux-Ubuntu 12.04, Arduino 1.0.1).&nbsp; I am not familiar with the Arduino build environment internals, and I have not tried to track down the problem yet.&nbsp; I do have board set correctly in the IDE, I believe.</p>
+<p>-Ed</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6817"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/885.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="logic&#039;s picture" title="logic&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RESOLVED - EmonTX voltage error</h3>
+
+    <div class="submitted">Submitted by <a href="../user/885.html" title="View user profile.">logic</a> on Mon, 22/10/2012 - 08:41.</div>
+    <div class="content">
+     <p>Although I don&#39;t fully understand all of whats going on with those files, I have had a look at them and see where it is, and that there is no #define in the sketch.</p>
+<p>I&#39;ve tried adding a few #define __AVR_ATmega328__ and variations of it, but as I don&#39;t really know what I&#39;d doing then nothing seems to work.</p>
+<p>Thanks for your help</p>
+<p>Further to my initial post I remembered I had a 2nd emonTX which I have tried to rule out a hardware problem.&nbsp; It was the same.</p>
+<p>&nbsp;</p>
+<p>Dennis</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6821"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1587.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="edllew&#039;s picture" title="edllew&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RESOLVED - EmonTX voltage error</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1587.html" title="View user profile.">edllew</a> on Mon, 22/10/2012 - 14:54.</div>
+    <div class="content">
+     <p>Sorry , I should have suggested replacing the code I showed above with the following (adding the #else and #error):</p>
+<p>&nbsp; #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__)<br />
+	&nbsp; ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);&nbsp;<br />
+	&nbsp; #elif defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)<br />
+	&nbsp; ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+	&nbsp; #else<br />
+	&nbsp; #error &quot;missing __AVR__ type define in readVcc()&quot;<br />
+	&nbsp; #endif</p>
+<p>Then if the compile fails, you know you have the same problem I do, otherwise not.</p>
+<p>Good luck.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6823"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RESOLVED - EmonTX voltage error</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Mon, 22/10/2012 - 20:02.</div>
+    <div class="content">
+     <p>Sorry guys, I think I&#39;ve fixed the problem in emonLib. Could you confirm that the latest version of emonlib&nbsp;from GitHub works well for you.&nbsp;</p>
+<p>@logic the Mascot adapter is no &#39;better&#39; than the Stontronics one, it&#39;s just different. There is a good chance that it could be marginally worse since it&#39;s a smaller adapter. However we had the Mascot adapter <a href="https://learn.openenergymonitor.org/?redirect=report-mascot-9v-acac-adaptor">extensively tested</a>&nbsp;(thanks to Robert Wall) and it&#39;s performance is adequate. We are unable to source the Stontronics adapter anymore.&nbsp;There shouldn&#39;t be a noticeable&nbsp;difference between the two adapters in use.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6825"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/885.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="logic&#039;s picture" title="logic&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RESOLVED - EmonTX voltage error</h3>
+
+    <div class="submitted">Submitted by <a href="../user/885.html" title="View user profile.">logic</a> on Mon, 22/10/2012 - 20:51.</div>
+    <div class="content">
+     <p>Thanks</p>
+<p>Unfortunately the updated emonlib has not corrected the voltage reading.&nbsp; Thanks for the&nbsp;info on the adaptors, which I now realise was incidental to the program going wrong as I must have updated the libraries all at the same time.</p>
+<p>edllew, thanks for that info, but I think I&#39;d be better leaving all alone in there as I&#39;m not really too sure what I&#39;m doing with that define stuff.</p>
+<p>&nbsp;</p>
+<p>Dennis</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6853"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="ianjm&#039;s picture" title="ianjm&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RESOLVED - EmonTX voltage error</h3>
+
+    <div class="submitted">Submitted by <a href="../user/733.html" title="View user profile.">ianjm</a> on Thu, 25/10/2012 - 13:34.</div>
+    <div class="content">
+     <p>I have the same problem as Dennis</p>
+<p>My EmonTx had died (builders killed it with dust!).&nbsp;<br />
+	Just got round to replacing it with a new one yesterday - took the opportunity to download all the latest libraries at the same time and the latest emonTX.<br />
+	I am using emonTx_CT123_Voltage - currently have ct3 disabled and set to use RF12_868MHZ<br />
+	Not changed anything else.</p>
+<p>Powers are showing about half what they should be and voltage is showing around 162.00</p>
+<p>Any ideas why this is happening</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6871"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RESOLVED - EmonTX voltage error</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Fri, 26/10/2012 - 15:39.</div>
+    <div class="content">
+     <p>Oh dear, I can&#39;t see why this isnt working. The changes I made were to add support for different ATmega micro controllers to enabling the reading of the internal supply voltage of the chip, this voltage is used in the power calculation to account for running the emonTx off batteries which get slowly depleted.</p>
+<p>&nbsp;</p>
+<p>I changed</p>
+<p><em>long EnergyMonitor::readVcc() {<br />
+	&nbsp; long result;<br />
+	&nbsp; ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+	&nbsp; delay(2);<br />
+	&nbsp; ADCSRA |= _BV(ADSC);<br />
+	&nbsp; while (bit_is_set(ADCSRA,ADSC));<br />
+	&nbsp; result = ADCL;<br />
+	&nbsp; result |= ADCH&lt;&lt;8;<br />
+	&nbsp; result = 1126400L / result;<br />
+	&nbsp; return result;<br />
+	}</em></p>
+<p>to</p>
+<p>long EnergyMonitor::readVcc() {<br />
+	&nbsp; long result;<br />
+	&nbsp; #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__)<br />
+	&nbsp; ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+	&nbsp; #elif defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)<br />
+	&nbsp; ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+	&nbsp; #elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)<br />
+	&nbsp; ADMUX = _BV(MUX5) | _BV(MUX0);<br />
+	&nbsp; #elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)<br />
+	&nbsp; ADMUX = _BV(MUX3) | _BV(MUX2);<br />
+	&nbsp; #endif<br />
+	&nbsp; delay(2);&nbsp;&nbsp;&nbsp;&nbsp; // Wait for Vref to settle<br />
+	&nbsp; ADCSRA |= _BV(ADSC);&nbsp;&nbsp;&nbsp; // Convert<br />
+	&nbsp; while (bit_is_set(ADCSRA,ADSC));<br />
+	&nbsp; result = ADCL;<br />
+	&nbsp; result |= ADCH&lt;&lt;8;<br />
+	&nbsp; result = 1126400L / result;&nbsp;&nbsp; //1100mV*1024 ADC steps <a href="1186.html" title="http://openenergymonitor.org/emon/node/1186">http://openenergymonitor.org/emon/node/1186</a><br />
+	&nbsp; return result;<br />
+	}</p>
+<p>&nbsp;</p>
+<p>In EmonLib.cpp. I have attached the old EmonLib.cpp file. Try using this instead, you will need to replace the EmonLib.cpp file in your emonlib arduino library folder with this one:</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6874"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="ianjm&#039;s picture" title="ianjm&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RESOLVED - EmonTX voltage error</h3>
+
+    <div class="submitted">Submitted by <a href="../user/733.html" title="View user profile.">ianjm</a> on Fri, 26/10/2012 - 16:58.</div>
+    <div class="content">
+     <p>Hi All</p>
+<p>I have replaced the new emonlib with one I downloaded in september that does not have the new code in</p>
+<p>Voltages are now back to normal 238&nbsp;</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6884"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RESOLVED - EmonTX voltage error</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Fri, 26/10/2012 - 21:41.</div>
+    <div class="content">
+     <p>Ah, I think Robert Wall has just alerted me in an email. I missed the &#39;P&#39; off the ATmega328p</p>
+<p>This should have fixed the problem:</p>
+<p>#if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined (__AVR_ATmega328P__)<br />
+	&nbsp; ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);&nbsp;<br />
+	&nbsp; #elif defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)<br />
+	&nbsp; ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+	&nbsp; #elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)<br />
+	&nbsp; ADMUX = _BV(MUX5) | _BV(MUX0);<br />
+	&nbsp; #elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)<br />
+	&nbsp; ADMUX = _BV(MUX3) | _BV(MUX2);<br />
+	&nbsp; #endif</p>
+<p>The changes have been pushed to github. Could someone please confirm if this iw working for you.&nbsp;</p>
+<p>Cheers,&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6889"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="ianjm&#039;s picture" title="ianjm&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RESOLVED - EmonTX voltage error</h3>
+
+    <div class="submitted">Submitted by <a href="../user/733.html" title="View user profile.">ianjm</a> on Sat, 27/10/2012 - 09:41.</div>
+    <div class="content">
+     <p>Hi All</p>
+<p>Have downloaded the latest emonlib and it has resolved the problem with the voltage</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/1215"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-1vgNo5Vk4DExrwc84J3JhbgHY7bhq__0P1CeHcIYmAI" value="form-1vgNo5Vk4DExrwc84J3JhbgHY7bhq__0P1CeHcIYmAI"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1215 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:36:49 GMT -->
+</html>

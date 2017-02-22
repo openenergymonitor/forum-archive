@@ -1,0 +1,575 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10417 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:01:14 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>No Input in Emoncms | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">No Input in Emoncms</h3>
+        <span class="submitted">Submitted by <a href="../user/7935.html" title="View user profile.">tomrossi</a> on Tue, 31/03/2015 - 11:05</span>
+        <div class="content"><p>Hi</p>
+<p>i have a Raspberry B+ with 5 sensors 18B20.</p>
+<p>The sensors are working, but Emoncms input is not working. &quot;No input created&quot;</p>
+<p>I use the following script with my API Key(Read/Write), and changed also the sensor id.</p>
+<p>Please give me a tip, thank you in advance</p>
+<p>&nbsp;</p>
+<p>&lt;?php<br />
+//================ Config ===========================<br />
+//Replace your DS18B20 serial here!<br />
+$SENSORID = &quot;28-000005c68110&quot;;<br />
+&nbsp;<br />
+//Set the emoncms API Key, the Hostname or IP and the&nbsp;&nbsp;internal Sensor ID (Numeric only)<br />
+$EmonCMSApiKey = &quot;d5fc60b7e270c380ef0a2b418f632a84&quot;;<br />
+$EmonCMSHost = &quot;localhost&quot;;&lt;a href=&quot;http://cdn.raspberry.tips/2014/12/temperatur.php_.txt&quot;&gt;temperatur.php&lt;/a&gt;<br />
+$ecmsSENSORID = &quot;1&quot;;<br />
+//==================================================<br />
+&nbsp;<br />
+//BuildSensor Path<br />
+$SensorPath = &#39;/sys/bus/w1/devices/&#39;. $SENSORID .&#39;/w1_slave&#39;;<br />
+&nbsp;<br />
+// Open resource file for thermometer<br />
+$thermometer = fopen($SensorPath, &quot;r&quot;);<br />
+&nbsp;<br />
+// Get the contents of the resource<br />
+$thermometerReadings = fread($thermometer, filesize($SensorPath));<br />
+// Close resource file for thermometer<br />
+fclose($thermometer);<br />
+// We&#39;re only interested in the 2nd line, and the value after the t= on the 2nd line<br />
+preg_match(&quot;/t=(.+)/&quot;, preg_split(&quot;/\n/&quot;, $thermometerReadings)[1], $matches);<br />
+$temperature = $matches[1];<br />
+&nbsp;<br />
+//Write to emoncms - Example <a href="http://192.168.178.24/emoncms/input/post.json?node=1&amp;csv=100,200,300" title="http://192.168.178.24/emoncms/input/post.json?node=1&amp;csv=100,200,300">http://192.168.178.24/emoncms/input/post.json?node=1&amp;csv=100,200,300</a><br />
+// You may want to add other parsed values<br />
+$url = &#39;http://&#39; . $EmonCMSHost . &#39;/emoncms/api/post.json?node=&#39; . $ecmsSENSORID . &#39;&amp;csv=&#39; . $temperature .&#39;&amp;apikey=&#39; . $EmonCMSApiKey&nbsp;&nbsp;. &#39;&#39;;<br />
+&nbsp;<br />
+$ch = curl_init();<br />
+curl_setopt($ch, CURLOPT_URL,$url);<br />
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);<br />
+$contents = curl_exec ($ch);<br />
+curl_close ($ch);<br />
+?&gt;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10410.html" class="topic-previous" title="Go to previous forum topic">‹ Energy Monitoring Challenges</a>
+              <a href="10425.html" class="topic-next" title="Go to next forum topic">Emoncms Event Module problem [SOLVED] ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-29216"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 31/03/2015 - 11:49.</div>
+    <div class="content">
+     <p>Is "localhost" being resolved, or should you have the dotted IP address assigned by your router there?</p>
+<p>And what is the second statement on this line?<br />
+$EmonCMSHost = "localhost";&lt;a href="http://cdn.raspberry.tips/2014/12/temperatur.php_.txt"&gt;temperatur.php&lt;/a&gt;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29218"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7935.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="tomrossi&#039;s picture" title="tomrossi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7935.html" title="View user profile.">tomrossi</a> on Tue, 31/03/2015 - 12:05.</div>
+    <div class="content">
+     <p>Localhost is working</p>
+<p>I deleted the second statement out of the script</p>
+<p>Reboot Raspi</p>
+<p>No success.</p>
+<p>Any further tip</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29223"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 31/03/2015 - 15:00.</div>
+    <div class="content">
+     <p>As I understand it, emonCMS ought to accept ".../emoncms/api/post.json?node=..." but the preferred syntax is as you quote it in the comment (using "input/post"). My PHP's a bit rusty, have you checked that the assembled $url is correct?</p>
+<p>What is your set-up? Is this PHP running on the RPi - the same one that has emonCMS running on it?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29227"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7935.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="tomrossi&#039;s picture" title="tomrossi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7935.html" title="View user profile.">tomrossi</a> on Tue, 31/03/2015 - 17:37.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>yep it is a Raspberry B+</p>
+<p>PHP and emonCMS is running on it</p>
+<p>I followed this description</p>
+<p><a href="http://raspberry.tips/raspberrypi-tutorials/visualisierung-von-temperaturdaten-mit-emoncms/#comment-9842" title="http://raspberry.tips/raspberrypi-tutorials/visualisierung-von-temperaturdaten-mit-emoncms/#comment-9842">http://raspberry.tips/raspberrypi-tutorials/visualisierung-von-temperatu...</a></p>
+<p>My php is stored in /home/pi and is started with a cronjob</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29231"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 31/03/2015 - 19:03.</div>
+    <div class="content">
+     <p>I'll need to hand over to a RPi expert.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29239"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 31/03/2015 - 21:07.</div>
+    <div class="content">
+     <p>Although not an expert I have a couple of suggestions you could try.</p>
+<p>Firstly what is the result of manually&nbsp;entering a url string via a browser&nbsp;in the intended format? if not on the same machine use the numeric dotted IP address in place of &quot;localhost&quot;, In fact I would recommend using the IP address either way until you know it works. we know using&nbsp;&quot;localhost&quot; can be quirky&nbsp;so it hampers troubleshooting when you are less than sure of the expected result.</p>
+<p>Something like this (replace <strong>bold</strong> as required)</p>
+<blockquote><p>http://<strong>IP.OF.PI.HOST</strong>/emoncms/api/post.json?node=<strong>1</strong>&amp;csv=<strong>20</strong>&amp;apikey=<strong>abc123</strong></p>
+</blockquote>
+<p>​or in the other format&nbsp;as Robert suggests</p>
+<blockquote><p>http://<strong>IP.OF.PI.HOST</strong>/emoncms/input/post.json?node=<strong>1</strong>&amp;csv=<strong>20</strong>&amp;apikey=<strong>abc123</strong></p>
+</blockquote>
+<p>The guide you followed although only a couple of months old uses the debian packaged emoncms&nbsp;which although it should work as far as I know, is not guaranteed as it is no longer&nbsp;maintained. (this is why some users refer to the missing &quot;cog&quot; symbol that bug still exists in the deb even though it&nbsp;was fixed many months ago). But for now we will assume the deb version is ok.</p>
+<p>It was also pre-Pi 2 B and the config.txt needs editing to include the line</p>
+<blockquote><p><strong>dtoverlay=w1-gpio,gpiopin=4</strong></p>
+</blockquote>
+<p>at the end and reboot. Pin 4 being the &quot;usual&quot; w1 pin on the Pi. (If you intend to use the RFM2Pi module you should use another pin)</p>
+<p>My php isn&#39;t good enough to comment on the script but if you can confirm the server side of things by manually typing out the url and can confirm the w1 interface is working by using</p>
+<blockquote><p><strong>ls&nbsp;/sys/bus/w1/devices</strong></p>
+</blockquote>
+<p>If these parts work ok we can then look closer at the script if needed.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29261"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7935.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="tomrossi&#039;s picture" title="tomrossi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7935.html" title="View user profile.">tomrossi</a> on Wed, 01/04/2015 - 10:33.</div>
+    <div class="content">
+     <p>Changed localhost to my IP address</p>
+<p>Tried to fill the url with the creds i have (used csv=100, i don&#39;t know if ok)</p>
+<p>in both url&#39;s the webpage shows me</p>
+<p>OK</p>
+<p>as text</p>
+<p>The hardware should be ok, the sensors changes the value i hold them in my hand</p>
+<p>Script problem?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29262"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 01/04/2015 - 11:18.</div>
+    <div class="content">
+     <p>So it looks like the server and&nbsp;emoncms&nbsp;is working when the correct url is used. So we can assume it&#39;s not getting the (correct) url.&nbsp;</p>
+<blockquote><p>The hardware should be ok, the sensors changes the value i hold them in my hand<br />
+Script problem?</p>
+</blockquote>
+<p>Quite possibly but when you say the value of the sensors changes when you hold them, how are you determining that? If you get the value&nbsp;using</p>
+<blockquote><p>cat /sys/bus/w1/devices/<strong>SENSOR_ID</strong>/w1_slave</p>
+</blockquote>
+<p><span style="font-family: sans-serif, Arial, Verdana, 'Trebuchet MS'; font-style: normal; line-height: 20.7999992370605px;">then yes that confirms hardware is&nbsp;</span>available<span style="font-family: sans-serif, Arial, Verdana, 'Trebuchet MS'; font-style: normal; line-height: 20.7999992370605px;">&nbsp;to the script.</span><span style="font-family: sans-serif, Arial, Verdana, 'Trebuchet MS'; font-style: normal; line-height: 20.7999992370605px;">&nbsp;</span></p>
+<p><span style="font-family: sans-serif, Arial, Verdana, 'Trebuchet MS'; font-style: normal; line-height: 20.7999992370605px;">Is the php script running? Try commenting out the url created by the script and add one of the 2 you have tried and tested above don&#39;t use variables just hardcoded to test cron is triggering the script and the script can send ok.</span></p>
+<p><span style="font-family: sans-serif, Arial, Verdana, 'Trebuchet MS'; font-style: normal; line-height: 20.7999992370605px;">Having now looked a&nbsp;little closer at the script it appears to only be geared up for a single sensor so for now just focus on one sensor as you will need to </span></p>
+<p><span style="font-family: sans-serif, Arial, Verdana, 'Trebuchet MS'; font-style: normal; line-height: 20.7999992370605px;">A) edit the script to poll each of the 5 sensors and then construct a url string containing all 5 values&nbsp;</span></p>
+<p><span style="font-family: sans-serif, Arial, Verdana, 'Trebuchet MS'; font-style: normal; line-height: 20.7999992370605px;">B)&nbsp;edit the script to poll each of the 5 sensors and send a url string for each using a different node id</span></p>
+<p><span style="font-family: sans-serif, Arial, Verdana, 'Trebuchet MS'; font-style: normal; line-height: 20.7999992370605px;">C) duplicate the script and cron entry for each of the 5 sensors, each with it&#39;s own node id etc</span></p>
+<p><span style="font-family: sans-serif, Arial, Verdana, 'Trebuchet MS'; font-style: normal; line-height: 20.7999992370605px;">Obviously A) is the preferred method but C) is probably&nbsp;the easiest way to&nbsp;get you going if you were&nbsp;stuck.</span></p>
+<p><span style="font-family: sans-serif, Arial, Verdana, 'Trebuchet MS'; font-style: normal; line-height: 20.7999992370605px;">Paul</span></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29263"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7935.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="tomrossi&#039;s picture" title="tomrossi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7935.html" title="View user profile.">tomrossi</a> on Wed, 01/04/2015 - 12:07.</div>
+    <div class="content">
+     <p>Paul,</p>
+<p>the crontab seems not to run the script.</p>
+<p>Terminl: sudo nano /etc/crontab</p>
+<p>added:</p>
+<p>*/5 * * * * root /home/pi/temperatur.php</p>
+<p>Crontab should be ok, i assume</p>
+<p>If i open a second browser window with the hardcoded url and click on refresh the input of the other browser is filled</p>
+<p>Yep, i prefer to have the A methode, but this is for later</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29264"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 01/04/2015 - 13:11.</div>
+    <div class="content">
+     <p>To edit the crontab use<strong> </strong></p>
+<blockquote><p><strong>crontab -e</strong></p>
+</blockquote>
+<p>&quot; */5 * * * * root /home/pi/temperatur.php&quot;&nbsp;should be</p>
+<blockquote><p><strong>*/5 * * * * sudo&nbsp;php&nbsp;/home/pi/temperatur.php</strong></p>
+</blockquote>
+<p>This will run the script using php, with&nbsp;root user permissions</p>
+<p>Paul&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29265"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7935.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="tomrossi&#039;s picture" title="tomrossi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7935.html" title="View user profile.">tomrossi</a> on Wed, 01/04/2015 - 13:56.</div>
+    <div class="content">
+     <p>Its not working, url hardcoded or not.</p>
+<p>How can i check if the cronjob is running?</p>
+<p>If i run sudo php /home/pi/temperatur.php in the terminal system tells me</p>
+<p>Could not open input file: /home/pi/temperatur.php</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29266"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 01/04/2015 - 14:37.</div>
+    <div class="content">
+     <p>and what is returned if you run</p>
+<blockquote><p><strong>ls -la&nbsp;/home/pi/temperatur.php</strong></p>
+</blockquote>
+<p>I assume you are user &quot;pi&quot; and the file exists so it is probably a permission issue perhaps. But &quot;sudo&nbsp;php ...&quot; should of overcome that. Is there a typo in the filename or location?</p>
+<blockquote><p>sudo php <strong>/path/to/file</strong>.php</p>
+</blockquote>
+<p>should definitely work from the command line,</p>
+<p>Once it works from the command line we can recheck cron as&nbsp;maybe the script should be run without sudo from roots crontab eg</p>
+<blockquote><p><strong>sudo </strong>crontab -e</p>
+</blockquote>
+<p>&nbsp;and instead use&nbsp;the line&nbsp;</p>
+<blockquote><p>*/5 * * * * php&nbsp;/home/pi/temperatur.php</p>
+</blockquote>
+<p>if cron&nbsp;still doesn&#39;t work after getting it to work from &quot; sudo&nbsp;php ...&quot;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29268"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7935.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="tomrossi&#039;s picture" title="tomrossi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7935.html" title="View user profile.">tomrossi</a> on Wed, 01/04/2015 - 15:00.</div>
+    <div class="content">
+     <p>It seems that it don&#39;t like to see .php</p>
+<p>temperatur without&nbsp;.php works</p>
+<div>pi@raspberrypi ~ $ sudo ls -la /home/pi/temperatur</div>
+<div>-rwxrwxr-x 1 pi pi 1528 Apr &nbsp;1 15:43 /home/pi/temperatur</div>
+<div>pi@raspberrypi ~ $ sudo ls -la /home/pi/temperatur.php</div>
+<div>ls: cannot access /home/pi/temperatur.php: No such file or directory</div>
+<div>pi@raspberrypi ~ $ sudo php /home/pi/temperatur</div>
+<div>PHP Parse error: &nbsp;syntax error, unexpected &#39;$SensorPath&#39; (T_VARIABLE) in /home/pi/temperatur on line 14</div>
+<div>&nbsp;</div>
+<div>Now we have an error</div>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29269"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 01/04/2015 - 15:22.</div>
+    <div class="content">
+     <blockquote><p><strong>mv&nbsp;/home/pi/temperatur&nbsp;/home/pi/temperatur.php</strong></p>
+</blockquote>
+<p>Will resolve the naming issue,</p>
+<p>line 14 in the script in your OP is blank, so which line is now 14?&nbsp;</p>
+<p>&nbsp; &nbsp; $SensorPath = &#39;/sys/bus/w1/devices/&#39;. $SENSORID .&#39;/w1_slave&#39;;<br />
+&nbsp;or&nbsp;<br />
+&nbsp; &nbsp; $thermometer = fopen($SensorPath, &quot;r&quot;);</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29270"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7935.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="tomrossi&#039;s picture" title="tomrossi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7935.html" title="View user profile.">tomrossi</a> on Wed, 01/04/2015 - 15:25.</div>
+    <div class="content">
+     <p>This on</p>
+<p>$SensorPath = &#39;/sys/bus/w1/devices/&#39; . $SENSORID . &#39;/w1_slave&#39;;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29271"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7935.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="tomrossi&#039;s picture" title="tomrossi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7935.html" title="View user profile.">tomrossi</a> on Wed, 01/04/2015 - 15:34.</div>
+    <div class="content">
+     <p>If i try</p>
+<p>/sys/bus/w1/devices/28-0114652d46ff/w1_slave in th efile browser, it says it not vailid</p>
+<p>I think it is because the w1_slave is a text document</p>
+<p>Can this be?</p>
+<p>I have to leave no, i will have a look later in the evening</p>
+<p>Many thx in advance</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29272"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 01/04/2015 - 15:34.</div>
+    <div class="content">
+     <p>Did you get any response earlier using</p>
+<blockquote><p>cat /sys/bus/w1/devices/<em><strong>SENSOR_ID</strong></em>/w1_slave</p>
+</blockquote>
+<p>replacing&nbsp;<em><strong>SENSOR_ID</strong></em>&nbsp;with the ID of your chosen sensor? Is this &quot;ID&quot; also correctly typed in the the script?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29308"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7935.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="tomrossi&#039;s picture" title="tomrossi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7935.html" title="View user profile.">tomrossi</a> on Thu, 02/04/2015 - 06:44.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>this works</p>
+<p>pi@raspberrypi ~ $ cat /sys/bus/w1/devices/28-0114652d46ff/w1_slave&nbsp;<br />
+40 01 55 00 7f ff 0c 10 81 : crc=81 YES<br />
+40 01 55 00 7f ff 0c 10 81 t=20000</p>
+<p>Replace of the $SENSORID with the sensor ID is not working</p>
+<p>pi@raspberrypi ~ $ sudo php /home/pi/temperatur.php<br />
+PHP Parse error: &nbsp;syntax error, unexpected &#39;$SensorPath&#39; (T_VARIABLE) in /home/pi/temperatur.php on line 14<br />
+pi@raspberrypi ~ $&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29311"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 02/04/2015 - 07:01.</div>
+    <div class="content">
+     <p>That confirms the 1-wire bus is ok and the script isn&#39;t doing it&#39;s bit, which is where I stop being of any use I&#39;m afraid, as I&#39;m not fluent enough in php to be useful.</p>
+<p>You could try &quot;hardcoding&quot; the sensor id into line 14 to see if it&#39;s the use of a variable causing the issue or the variable itself.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29312"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7935.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="tomrossi&#039;s picture" title="tomrossi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7935.html" title="View user profile.">tomrossi</a> on Thu, 02/04/2015 - 07:19.</div>
+    <div class="content">
+     <p>I recreated the script, edit it once more and now it&nbsp;is working</p>
+<p>Strange</p>
+<p>I will try to go now for concept A mentioned earlier in the post.</p>
+<p>Cross the fingers</p>
+<p>&nbsp;</p>
+<p>Many thx to you Paul, create support!!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29317"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: No Input in Emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 02/04/2015 - 08:19.</div>
+    <div class="content">
+     <p>No problem,&nbsp;</p>
+<p>I can&#39;t give you any pointers for making the php multi sensor but I have just hashed a python script together from a couple of examples I found on-line, I&#39;m not able to test so can&#39;t guarantee it would work 1st go&nbsp;but it may help you adapt the php script or if you want to try it, rename it temperture.py, put it in /home/pi and in crontab use</p>
+<blockquote><p><strong>python</strong> /home/pi/temperatur<strong>e.py</strong></p>
+</blockquote>
+<p>in place of&nbsp;php&nbsp;/home/pi/temperatur.php</p>
+<p>When I get a chance I will try and complete the script so it works with emonHub rather than emonCMS directly.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10417"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-rq_v8nX7UTSjCO0L5C7DAoenNuOt1wz0e0IgT6OpCvY" value="form-rq_v8nX7UTSjCO0L5C7DAoenNuOt1wz0e0IgT6OpCvY"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10417 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:01:14 GMT -->
+</html>

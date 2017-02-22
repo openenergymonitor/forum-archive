@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11421 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:31 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonHub MQTT broker authentication security  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonHub MQTT broker authentication security </h3>
+        <span class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Fri, 16/10/2015 - 14:44</span>
+        <div class="content"><p>Great work everyone involved in getting emonHub to interface with MQTT, this a significant step forward in interoperability between OpenEnergyMonitor&nbsp;units and other IoT and home automation systems.&nbsp;</p>
+<p>Am I correct that emonHub does not currently support MQTT authentication? How difficult would it be to add this function? I think it would be a useful addition. If not possible, maybe mosquitto could be configured to allow unauthenticated connections only from local host and requite authentication&nbsp;from remote connections?</p>
+<p>I am looking to open up&nbsp;the MQTT&nbsp;broken on my emonPi to remote&nbsp;subscriptions / publishers. Obviously before opening up the MQTT port to the web I will need to add authentication. Adding authentication to the mosquito is pretty straightforward&nbsp;following the mosquitto&nbsp;instructions. The trickiest part I found wsa upgrading MQTT to the latest version from the mosquitto PPA. I notice the version of MQTT we currently have running on all emonPi&#39;s (shipping on pre-build SD card) is an older version of mosquito direct from the Raspbian&nbsp;sources.&nbsp;</p>
+<p><strong>Add mosquito PPA and update mosquito&nbsp;</strong></p>
+<p>$ wget <a href="http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key" title="http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key">http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key</a><br />
+$ sudo apt-key add mosquitto-repo.gpg.key<br />
+$ cd /etc/apt/sources.list.d/<br />
+$ sudo wget <a href="http://repo.mosquitto.org/debian/mosquitto-wheezy.list" title="http://repo.mosquitto.org/debian/mosquitto-wheezy.list">http://repo.mosquitto.org/debian/mosquitto-wheezy.list</a><br />
+$ apt-get update</p>
+<p>$ sudo apt-get install mosquitto -y</p>
+<p><strong>Open MQTT port port:&nbsp;</strong><br />
+$ sudo iptables -A INPUT -p tcp -m tcp --dport 1883 -j ACCEPT</p>
+<p><strong>Save the port rules to be persistent at boot:&nbsp;</strong><br />
+$ apt-get install iptables-persistent</p>
+<p>Then answer yes to save rules. If you need to edit the rules:<br />
+$&nbsp;sudo nano /etc/iptables/rules.v4</p>
+<p><strong>Create MQTT password file with username pi (can be anyusername)</strong><br />
+$&nbsp;sudo mosquitto_passwd -c /etc/mosquitto/passwd pi</p>
+<p>...then enter password twice when prompted&nbsp;</p>
+<p><strong>Create mosquitto&nbsp;config&nbsp;file to turn on authentication and point to location of password file&nbsp;</strong></p>
+<p>Add the following lines to config file in&nbsp;/etc/mosquitto/conf.d</p>
+<p><em>allow_anonymous false</em></p>
+<p><em>password_file /etc/mosquitto/passwd</em></p>
+<p>Or automate with:</p>
+<p>$&nbsp;sudo&nbsp;su</p>
+<p>printf &quot;allow_anonymous false\npassword_file /etc/mosquitto/passwd&quot; &gt;&gt;&nbsp;/etc/mosquitto/conf.d/mosquitto.conf</p>
+<p>$ exit</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11425.html" class="topic-previous" title="Go to previous forum topic">‹ Regenerating kwh/d graphs</a>
+              <a href="11409.html" class="topic-next" title="Go to next forum topic">Multi graph timeline not moving forward ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11421 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:31 GMT -->
+</html>

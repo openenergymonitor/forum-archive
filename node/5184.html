@@ -1,0 +1,398 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5184 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:24:44 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emoncms v 8.2.1 | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emoncms v 8.2.1</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 17/05/2014 - 07:56</span>
+        <div class="content"><p>I merged yesterday a series of fairly large changes that where sitting in the Development branch of emoncms into the master branch. The master branch version number is now v8.2.1</p>
+<p>This release features:</p>
+<p>- Improved feed engine status logging (as in INFO, WARN type logs rather than data logging)</p>
+<p>- npoints meta data separation for increased robustness</p>
+<p>- improved timezone support</p>
+<p>&nbsp;</p>
+<p><strong>Meta data npoints</strong><br />
+	The count of the number of datapoints in a phpfina, phpfiwa, phptimestore feed was stored in one meta data file (per feed) along with other meta such as the feed start time and feed interval. In the event of a system crash mid-write to a meta file there is a risk that several of these meta properties can get corrupted. Its only the npoints property that needs to be updated regularly the feeds start time and interval only gets written to once at feed creation. By separating the meta data that gets written at the start and the meta data that gets written to regularly into two different files we reduce the risk of corruption as the npoints count can be recovered independently from the data file size divided by 4 bytes per datapoint. The start time and interval are harder to recover from if you dont have a backup.</p>
+<p>As of v8.2.1 there are now two meta files per feed one for the meta data that does not get changed and another for the npoints value.</p>
+<p><strong>Improved timezone support</strong><br />
+	Daily data types now use the PHPTimeSeries engine rather than PHPFina and support a midnight reset time set by the user timezone setting under user account. This is a significant change as there was previously minimal support for different timezones if the system time was different from the user timezone.</p>
+<p>&nbsp;</p>
+<p><strong>Testing and upgrading</strong></p>
+<p>I&#39;ve been running this version on my own system for almost two weeks and I havent had any problems, to upgrade to it is just a matter of pulling in the latest changes and creating a fresh copy of the settings.php file. <strong>I would recommend doing a backup of your data before doing an upgrade via approach 2 here: <a href="http://emoncms.org/site/docs/backup" title="http://emoncms.org/site/docs/backup">http://emoncms.org/site/docs/backup</a> </strong></p>
+<p>A restart to the rfm12piphp script or oem_gateway will probably be required.</p>
+<p>I&#39;d appreciate feedback on the work to improve timezone support. To make use of it you will unfortunatly need to create new daily feeds using the PHPTimeSeries feed engine which is now the default engine for this feed type (as it will allow hour changes for summer time) (or if your still using mysql thats also fine). You could initially do a parallel test with new PHPTimeSeries daily feeds to check that they give the correct results. You will also need to select your timezone in the user &gt; account page.</p>
+<p>I havent yet upgraded emoncms.org, Il do that early next week.</p>
+<p>Thanks a lot,</p>
+<p>Trystan</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5257.html" class="topic-previous" title="Go to previous forum topic">‹ Coping with Integer limit when Pulse Counting and tracking running totals</a>
+              <a href="5256.html" class="topic-next" title="Go to next forum topic">Changing Bar Graph legend ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-21431"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 17/05/2014 - 20:42.</div>
+    <div class="content">
+     <p>Just updated to v8.2.1 and My Electric page has stopped working. I&#39;ve made a new settings.php, cleared the browser cache and rebooted emoncms.</p>
+<p>Please see screenshot below, there is no data, and the wrench does not open the config settings.</p>
+<p>Developer tools show the error;</p>
+<p>Uncaught TypeError: Cannot read property &#39;1&#39; of undefined&nbsp;&nbsp;&nbsp; myelectric?apikey=503hq2wgeqhj21e4qeqc241b5740b5e:283</p>
+<p>Paul</p>
+<p><img alt="" src="../sites/default/files/Emoncms_6.png" style="width: 750px; height: 547px;" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21434"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 18/05/2014 - 07:29.</div>
+    <div class="content">
+     <p>Hello Paul, thanks for testing. Can you check if the data is visible via the normal feeds vis? and do you know which line that error relates too?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21435"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 18/05/2014 - 07:35.</div>
+    <div class="content">
+     <p>For additional debugging it might also be useful to use the new logging tool (thanks to Dave McCraw):</p>
+<p>&nbsp;&nbsp;&nbsp; sudo pear channel-discover pear.apache.org/log4php<br />
+	&nbsp;&nbsp;&nbsp; sudo pear install log4php/Apache_log4php</p>
+<p>You may want to change line 102 in settings.php to the location of your emoncms installation if its not via the apt method</p>
+<p>ie from:</p>
+<p>&nbsp;&nbsp;&nbsp; $log4php_configPath = &#39;/etc/emoncms/emoncms_log4j.xml&#39;;</p>
+<p>to</p>
+<p>&nbsp;&nbsp;&nbsp; $log4php_configPath = &#39;/var/www/emoncms/logconfig.xml&#39;;</p>
+<p>Create a blank file for the logger to use in the location given in logconfig.xml which by default is the same directory as the emoncms installation and then ensure that log file has write permissions for www-data, pi and root.</p>
+<p>&nbsp;&nbsp;&nbsp; sudo chmod 660 emoncms.log</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21437"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 18/05/2014 - 08:35.</div>
+    <div class="content">
+     <p>I only have 2 PHPFINA feeds (both power to kwh/d), one of which feeds Myelectric. Both of these feeds are now frozen with no feeds vis, and showing SIZE: 0.0kb. - (They were OK before the update).</p>
+<p>Everything else seems OK, all other charts display OK.</p>
+<p>There is no line number or other info in the console.</p>
+<p>&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21438"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 18/05/2014 - 08:52.</div>
+    <div class="content">
+     <p>As for the log... I get the following error logged, repeated 94 times.</p>
+<p>WARN - 2014-5-18 09:49:30, PHPFina:get_meta meta file npoints () does not match filesize npoints (9) id=125<br />
+	WARN - 2014-5-18 09:49:30, PHPFina:post failed to fetch meta id=125<br />
+	WARN - 2014-5-18 09:49:31, PHPFina:get_meta meta file npoints () does not match filesize npoints (44) id=122<br />
+	WARN - 2014-5-18 09:49:31, PHPFina:post failed to fetch meta id=122<br />
+	WARN - 2014-5-18 09:49:38, PHPFina:get_meta meta file npoints () does not match filesize npoints (9) id=125<br />
+	WARN - 2014-5-18 09:49:38, PHPFina:post failed to fetch meta id=125<br />
+	WARN - 2014-5-18 09:49:38, PHPFina:get_meta meta file npoints () does not match filesize npoints (44) id=122<br />
+	WARN - 2014-5-18 09:49:38, PHPFina:post failed to fetch meta id=122<br />
+	WARN - 2014-5-18 09:49:38, PHPFina:get_meta meta file npoints () does not match filesize npoints (9) id=125<br />
+	WARN - 2014-5-18 09:49:38, PHPFina:post failed to fetch meta id=125</p>
+<p>&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21440"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 18/05/2014 - 09:39.</div>
+    <div class="content">
+     <p>Could you try pulling the latest changes, I spotted one error that might be it.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21441"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 18/05/2014 - 09:52.</div>
+    <div class="content">
+     <p>Yes, that's sorted it.<br />
+Everything appears ok now.</p>
+<p>Thanks</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21442"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 18/05/2014 - 09:55.</div>
+    <div class="content">
+     <p>Brilliant!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21443"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 18/05/2014 - 10:41.</div>
+    <div class="content">
+     <p>Version with fix has now been tagged 8.2.3 <a href="https://github.com/emoncms/emoncms/releases/tag/8.2.3" title="https://github.com/emoncms/emoncms/releases/tag/8.2.3">https://github.com/emoncms/emoncms/releases/tag/8.2.3</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21750"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Mon, 02/06/2014 - 07:32.</div>
+    <div class="content">
+     <p>Hmmm,</p>
+<p>since updating to V8.2.4 i regularly get feed data that is &#39;shifted&#39; in time. From 4 feeds shown in a multigraph one starts to be shifted by some hours or days into the future, then another one and at some time all four feeds &#39;begin&#39; at the current time (?).</p>
+<p>I lost all my data due to this some days ago when updating (feeds were overwritten with new data from the start) and recreated all feeds on the weekend. Now I have the same thing again.</p>
+<p>Why is the feed meta file touched at all? I thought that with the new changes the meta file is only written once when creating the feed?</p>
+<p>BR, J&ouml;rg.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21753"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 02/06/2014 - 09:22.</div>
+    <div class="content">
+     <p>Hello Jorg, O dear that doesn&#39;t sound good. There must be something going wrong at this point:</p>
+<p><a href="https://github.com/emoncms/emoncms/blob/master/Modules/feed/engine/PHPFina.php#L111" title="https://github.com/emoncms/emoncms/blob/master/Modules/feed/engine/PHPFina.php#L111">https://github.com/emoncms/emoncms/blob/master/Modules/feed/engine/PHPFi...</a></p>
+<p>Looking at it again its not very robust, in the event that the npoints meta file gets set to 0 it will set the starttime to now. I will extend it with a check that will only create the meta file if the start time is also 0 which should only be the case when the feed is first created.</p>
+<p>if ($meta-&gt;npoints[0] == 0 &amp;&amp; $meta-&gt;start_time==0) { }</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21755"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 02/06/2014 - 10:00.</div>
+    <div class="content">
+     <p>There we are commit done:</p>
+<p><a href="https://github.com/emoncms/emoncms/commit/715f47bf90c61066f5484df3a8d192ed980bdac3" title="https://github.com/emoncms/emoncms/commit/715f47bf90c61066f5484df3a8d192ed980bdac3">https://github.com/emoncms/emoncms/commit/715f47bf90c61066f5484df3a8d192...</a></p>
+<p>version is 8.2.5</p>
+<p><a href="https://github.com/emoncms/emoncms/releases/tag/8.2.5" title="https://github.com/emoncms/emoncms/releases/tag/8.2.5">https://github.com/emoncms/emoncms/releases/tag/8.2.5</a></p>
+<p>Before upgrading I would suggest everyone do a backup of their phpfiwa, phpfina and phptimestore data directories following approach 2 here: <a href="http://emoncms.org/site/docs/backup" title="http://emoncms.org/site/docs/backup">http://emoncms.org/site/docs/backup</a>.</p>
+<p>Make sure you disable oem_gateway/emonhub or raspberrypi_run and any posting to the http api&#39;s (stop apache) before copying the data files so that when you make the copy the data is in a state where its not being written to. (I&#39;ve added this as a note to the backup procedure)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21766"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Mon, 02/06/2014 - 15:42.</div>
+    <div class="content">
+     <p>Hi Trystan,</p>
+<p>good you found something. I will try that immediately.</p>
+<p>BR, J&ouml;rg.</p>
+<p>PS: it was my own fault not to backup the data files before updating emoncms. Everything on my server is automatically backed up every day ........... with the exception of the &#39;emoncmsdata&#39; directory. Don&#39;t ask why! (I think I thought that the size of the data files would be too big! Must have been very late again that day .....)</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21779"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Tue, 03/06/2014 - 08:41.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>Running import_full.php script I get the following errors:-</p>
+<p>PHP Notice:&nbsp; Use of undefined constant _ENABLE_PASSWORD_RESET_ - assumed &#39;_ENABL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; E_PASSWORD_RESET_&#39; in /var/www/emoncms/settings.php on line 56<br />
+	PHP Notice:&nbsp; Undefined variable: timestore_adminkey in /var/www/emoncms/scripts/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; usefulscripts/replication/import_full.php on line 15</p>
+<p>Notice: Undefined variable: timestore_adminkey in /var/www/emoncms/scripts/usefu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lscripts/replication/import_full.php on line 15<br />
+	PHP Fatal error:&nbsp; Class &#39;EmonLogger&#39; not found in /var/www/emoncms/Modules/feed/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; feed_model.php on line 30</p>
+<p>Fatal error: Class &#39;EmonLogger&#39; not found in /var/www/emoncms/Modules/feed/feed_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; model.php on line 30</p>
+<p>I am not using timestore on the server I am backing up as I changed all feeds to the PHP versions.</p>
+<p>Regards</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21782"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms v 8.2.1</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 03/06/2014 - 09:42.</div>
+    <div class="content">
+     <p>Hello Ian, I think I need to upgrade the backup scripts I will take a look later today.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5184"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-xGBU9e4rtVeM5-mcxxpU8eYGkrmdWnnN_yihvnzjuO0" value="form-xGBU9e4rtVeM5-mcxxpU8eYGkrmdWnnN_yihvnzjuO0"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5184 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:24:46 GMT -->
+</html>

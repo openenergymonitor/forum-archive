@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10185 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:31 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>EmonView (RaspberryPI Python version of emoncms) concept + MQTT | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">EmonView (RaspberryPI Python version of emoncms) concept + MQTT</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 17/02/2015 - 00:01</span>
+        <div class="content"><p>I&#39;ve been working on the idea of a dedicated version of emoncms designed for running on the raspberrypi (or other linux computer with rfm12pi or jeelink connected). The provisional name is emonview but that doesnt really describe what this version of emoncms is designed to do as Im intending that it also handles control, serving control UI like a heating system scheduler (keeping control within the home rather than using a control implementation in the cloud). Interested in hearing ideas for a better name.</p>
+<p>I&#39;ve been trying to implement a higher quality HTTP API as part of this which may be of particular interest <a href="https://github.com/trystanlea/emonview/blob/version2/docs/httpapi.md" title="https://github.com/trystanlea/emonview/blob/version2/docs/httpapi.md">https://github.com/trystanlea/emonview/blob/version2/docs/httpapi.md</a></p>
+<p>It also uses MQTT as the bridge between emonhub and &#39;emonview&#39; for updating the latest values. The way node data is stored in emonview reflects the way emonhub stores the nodes configuration and the way it handles node decoding. emonview uses the same conf file as emonhub.</p>
+<p>This is the line in the emonview server where the MQTT message from emonhub is received:<br />
+<a href="https://github.com/trystanlea/emonview/blob/version2/server.py#L262" title="https://github.com/trystanlea/emonview/blob/version2/server.py#L262">https://github.com/trystanlea/emonview/blob/version2/server.py#L262</a></p>
+<p>The MQTT topic name is: api/nodeid/values, and msg payload 100,200,300 (csv values) as produced by the output of the emonhub decoder.</p>
+<p>This is the line in the MQTT emonhub dispatcher where the MQTT message is sent (using pb66&#39;s template MQTT dispatcher)<br />
+<a href="https://github.com/TrystanLea/emonhub/blob/development/src/emonhub_reporter.py#L420" title="https://github.com/TrystanLea/emonhub/blob/development/src/emonhub_reporter.py#L420">https://github.com/TrystanLea/emonhub/blob/development/src/emonhub_repor...</a></p>
+<p>I&#39;ve moved away from the idea of emonhub sending MQTT messages (to emonview) with topics of the form:</p>
+<p>api/nodeid/varid/value<br />
+api/room/temperature/value</p>
+<p>to sending all the values in a csv: <em>api/nodeid/values 100,200,300</em> which is easier to work with inside emonview especially as the nodes interface aims to represent rfm12/69 network nodes. That said I dont see any reason why emonhub could not also send messages out with the full node/var api for other applications like node-red.</p>
+<p>Im now running emonview on my home setup (as well as the standard image) Im also copying developments I make in emonview across to emoncms such as improvements to the feed engines for better graphing and a series of application specific dashboards.&nbsp;</p>
+<p>Im also exploring the idea of a setup that does not need input processing in the way it was initially required in emoncms and am in the process of writing a post processing module that will make it possible initially to calculate accumulating kwh feeds from power feeds but could be extended.</p>
+<p>The code for emonview is on github here, it uses python, flask &amp; socketio :) Hope that gives a bit of an idea for what Im exploring, its ongoing work in progress, and there are lots of things around control packet implementation, input processing, post processing, dashboard implementation, config variable storage that need working on before this gets to something stable.</p>
+<p>The idea at the moment is to go through a period of faster development by exploring lots of options without constraining to one development path and trying to pull the entirety of emoncms&nbsp; cloud and raspberrypi versions&nbsp;along that at the same time</p>
+<p><a href="https://github.com/trystanlea/emonview" title="https://github.com/trystanlea/emonview">https://github.com/trystanlea/emonview</a></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11764.html" class="topic-previous" title="Go to previous forum topic">‹ Installed 9.2 and all up but cannot get Nodes to appear</a>
+              <a href="11769.html" class="topic-next" title="Go to next forum topic">add support for MQTT authentication ?  ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-28543"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6437.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6437.jpg" alt="Charly86&#039;s picture" title="Charly86&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonView (RaspberryPI Python version of emoncms) concept + MQTT</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6437.html" title="View user profile.">Charly86</a> on Tue, 10/03/2015 - 10:55.</div>
+    <div class="content">
+     <p>Hi Trystan,</p>
+<p>Nice job, I&#39;m trying to use this one as new project. To be honest, I&#39;m a little lost because the &quot;node&quot; part of emoncms&nbsp;had so much change during the past that I&#39;m not really sure this is the one I need&nbsp;to use for emoncms, but as it&#39;s new, I think so ;-)</p>
+<p>Well, that said, I followed your wiki and it&#39;s working fine. I would like now to have this part on a dedicated server and be able to send data using API but I did not succeeded&nbsp;to do so. Ideally I would like to just have REST api and be able to send data using simple command like&nbsp;http://myserver/emonview?node=10&amp;data=10,20,30 as it was done by emoncms core.</p>
+<p>Whatever post syntax will be fine (JSON, CSV, ..) But I&#39;m unable to get it working. What I tried is to remove emonhub from the loop because I don&#39;t need it and potentially also remove MQTT but for this one I&#39;m not sure it&#39;s possible.</p>
+<p>Would you mind provide me example on how to post data without emonhub ? I think I can live also with posting using mosquitto_pub syntax, but once again I did not succeded to do this.</p>
+<p>Any help and example would be greatly appreciated.</p>
+<p>Thanks for your nice job</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36808"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonView (RaspberryPI Python version of emoncms) concept + MQTT</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 07/12/2015 - 12:34.</div>
+    <div class="content">
+     <p>I&#39;ve moved the emonview repository from the emoncms github account to my personal github account here <a href="https://github.com/trystanlea/emonview" title="https://github.com/trystanlea/emonview">https://github.com/trystanlea/emonview</a> to keep the main emoncms repository cleaner. I would like to build on this at some point but for now its an idea on pause...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10185"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-KQ2nyatHsRJW-4sPlr4Mu-fUFNE0D6Jyk0j9HzmQ6aM" value="form-KQ2nyatHsRJW-4sPlr4Mu-fUFNE0D6Jyk0j9HzmQ6aM"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10185 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:31 GMT -->
+</html>

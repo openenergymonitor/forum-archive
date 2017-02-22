@@ -1,0 +1,664 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/363 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:53:34 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonBase Watchdog | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonBase Watchdog</h3>
+        <span class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Wed, 18/01/2012 - 21:54</span>
+        <div class="content"><p>The OEM sketch&nbsp;<a href="http://bit.ly/xjNfb2">http://bit.ly/xjNfb2</a> includes a nifty watchdog routine, and I can work out that it uses a variable 'ethernet_requests' to count the number of times that a server response 200 is not received and if it exceeds 10, then it introduces a 10 second delay which triggers the watchdog reset. That bit is fine.</p>
+<p>But... I can't work out how you have determined if a '200' OK code has been received!!</p>
+<p>Pachube's server is playing up at the moment and playing havoc with my Nanode, so I would like to use a similar watchdog in my sketch (I'm using ethercard too) if that's OK.</p>
+<p>Are you able to tell me what sections I would need as a minimum to add to achieve this (I don't need time &amp; date and can configure the watchdog increment routine OK).</p>
+<p>&nbsp;</p>
+<p>Many Thanks</p>
+<p>Paul</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="615.html" class="topic-previous" title="Go to previous forum topic">‹ How do you search the Forums - RESOLVED</a>
+              <a href="162.html" class="topic-next" title="Go to next forum topic">emoncms installation problem ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-2801"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 21/01/2012 - 14:53.</div>
+    <div class="content">
+     <p>&nbsp;By way of update...</p>
+<p>I have added....</p>
+<p>&nbsp;</p>
+<p>//-----------------------------------------------------------------------------------<br />
+// Ethernet callback<br />
+// recieve reply and decode<br />
+//-----------------------------------------------------------------------------------<br />
+int request_attempt = 0;<br />
+char line_buf[50];</p>
+<p>static void my_callback (byte status, word off, word len) {<br />
+get_header_line(2,off); &nbsp; &nbsp; &nbsp;// Get the date and time from the header<br />
+Serial.println(line_buf); &nbsp; &nbsp;// Print out the date and time</p>
+<p>get_reply_data(off);<br />
+if (strcmp(line_buf,&quot;ok&quot;)) {Serial.println(&quot;ok recieved&quot;); request_attempt = 0;}&nbsp;<br />
+//-----------------------------------------------------------------------------------</p>
+<p>...just before 'void setup ()', and added the decode_reply library, and 'request_attempt ++;' in the send loop but the request_attempt variable increments with every send, despite them being successful. i.e. the code above does not serial print &quot;ok received&quot; nor returns the request_attempt back to zero.&nbsp;</p>
+<p>The code above appears to contained in the Global Variables section of the sketch, but there is no call to it in the loop....</p>
+<p>I can't get my head around this Glyn!!<br />
+&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2815"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 21/01/2012 - 22:43.</div>
+    <div class="content">
+     <p>Hello Paul, the function <span class="Apple-style-span" style="font-family: 'Bitstream Vera Sans Mono', 'Courier New', monospace; line-height: 16px; white-space: pre; "><span class="k" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; font-weight: bold; ">static</span> <span class="kt" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; color: rgb(68, 85, 136); font-weight: bold; ">void</span> <span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">my_callback</span> <span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">(</span><span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">byte</span> <span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">status</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">,</span> <span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">word</span> <span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">off</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">,</span> <span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">word</span> <span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">len</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">)</span> <span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">{</span></span></p>
+<p>is a callback and is called here:</p>
+<p><span class="Apple-style-span" style="font-family: 'Bitstream Vera Sans Mono', 'Courier New', monospace; line-height: 16px; white-space: pre; "><span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">ether</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">.</span><span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">browseUrl</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">(</span><span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">PSTR</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">(</span><span class="s" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; color: rgb(221, 17, 68); ">&quot;/emoncms3/api/post.json?apikey=2d177d7311daf401d054948ce29efe74&amp;json=&quot;</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">),</span><span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">str</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">.</span><span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">buf</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">,</span> <span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">website</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">,</span> <strong><span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">my_callback</span></strong><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">);</span></span></p>
+<p>Its not actually looking for the 200 OK status code but for an ok sent by the server in the message body, this is given by emoncms. So maybe that would be why its not working with pachube.</p>
+<p>Do you know what the in body responce is from pachube?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2817"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 21/01/2012 - 22:50.</div>
+    <div class="content">
+     <p>Try adding the lines at the top of the function:</p>
+<p>get_header_line(1,off);</p>
+<p>Serial.print(line_buff);</p>
+<p>Then it might be possible too do something like this:</p>
+<p><span class="Apple-style-span" style="font-family: 'Bitstream Vera Sans Mono', 'Courier New', monospace; line-height: 16px; white-space: pre; "><span class="k" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; font-weight: bold; ">if</span> <span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">(</span><span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">strcmp</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">(</span><span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">line_buf,&quot;</span></span><span class="Apple-style-span" style="font-family: Consolas, Courier, monospace; font-size: 13px; white-space: pre; ">HTTP/1.1 200 OK&quot;</span><span class="Apple-style-span" style="font-family: 'Bitstream Vera Sans Mono', 'Courier New', monospace; line-height: 16px; white-space: pre; "><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">))</span> <span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">{</span><span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">ethernet_requests</span> <span class="o" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; font-weight: bold; ">=</span> <span class="mi" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; color: rgb(0, 153, 153); ">0</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">;</span> <span class="n" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">ethernet_error</span> <span class="o" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; font-weight: bold; ">=</span> <span class="mi" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; color: rgb(0, 153, 153); ">0</span><span class="p" style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">;}</span></span></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2818"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 22/01/2012 - 10:22.</div>
+    <div class="content">
+     <p>&nbsp;Hi Trystan.</p>
+<p>The reply body from Pachube is '﻿HTTP/1.1 200 OK' &nbsp;(you were correct).<br />
+I have tried this code in the Global section;</p>
+<p>//-----------------------------------------------------------------------------------﻿<br />
+// Ethernet callback<br />
+// recieve reply and decode<br />
+//-----------------------------------------------------------------------------------<br />
+int request_attempt = 0;<br />
+char line_buf[50];<br />
+static void my_callback (byte status, word off, word len) {<br />
+<strong>get_header_line(1,off)</strong>; &nbsp; &nbsp; &nbsp;// Get the date and time from the header<br />
+<strong>Serial.println(line_buf)</strong>; &nbsp; &nbsp;// Print out the date and time<br />
+get_reply_data(off);<br />
+if (strcmp(line_buf,&quot;HTTP/1.1 200 OK&quot;)) {Serial.println(&quot;ok recieved&quot;); request_attempt = 0;}<br />
+}<br />
+//-----------------------------------------------------------------------------------</p>
+<p>and this in the loop;</p>
+<p><div>&nbsp; &nbsp; // generate the header with payload - note that the stash size is used,</div>
+<div>&nbsp; &nbsp; // and that a &quot;stash descriptor&quot; is passed in as argument using &quot;$H&quot;</div>
+<div>&nbsp; &nbsp; Stash::prepare(PSTR(&quot;PUT http://$F/v2/feeds/$F.csv HTTP/1.0&quot; &quot;\r\n&quot;</div>
+<div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;Host: $F&quot; &quot;\r\n&quot;</div>
+<div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;X-PachubeApiKey: $F&quot; &quot;\r\n&quot;</div>
+<div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;Content-Length: $D&quot; &quot;\r\n&quot;</div>
+<div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;\r\n&quot;</div>
+<div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;$H&quot;),</div>
+<div>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; website, PSTR(FEED), website, PSTR(APIKEY), stash.size(), sd, <strong>my_callback</strong>);</div>
+<div>&nbsp;</div>
+<div>But I'm afraid it still doesnt acknowledge the server reply.</div>
+</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2819"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 22/01/2012 - 10:26.</div>
+    <div class="content">
+     <p>Hello Paul, does the&nbsp;<strong>Serial.println(line_buf)</strong>; &nbsp;print out:&nbsp;<span class="Apple-style-span" style="font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 15px; background-color: rgb(238, 238, 238); ">&quot;HTTP/1.1 200 OK&quot; to the serial window?</span></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2821"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 22/01/2012 - 10:40.</div>
+    <div class="content">
+     <p>&nbsp;No it doesn't, and it doesnt reset the request_attempt either.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2846"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 24/01/2012 - 13:20.</div>
+    <div class="content">
+     <p>&nbsp;...also, just found out that the Nanode 5 doesn't support the avr.wdt.h library anyway, so perhaps I need a different approach to this problem.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2847"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 24/01/2012 - 13:57.</div>
+    <div class="content">
+     <p>It's not the Nanode5 that doesn't support the watchdog its the&nbsp;arduino duemilanove bootloader. &nbsp;It's not too difficult to re-flash the ATmegs with the Uno (optiboot) bootloader. The isp_repair sketch included in the JeeLib library work well for this. See here for wiring instructions:</p>
+<p><a href="http://jeelabs.org/2011/05/29/summary-of-isp-options/" target="_blank" style="background-color: rgba(255, 255, 255, 0.917969); color: rgb(17, 85, 204); font-family: arial, sans-serif; font-size: 13px; ">http://jeelabs.org/2011/<wbr></wbr>05/29/summary-of-isp-options/</a></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2863"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 26/01/2012 - 16:51.</div>
+    <div class="content">
+     <p>&nbsp;Thanks Glyn, I have just re-flashed the Nanode as per above, and all went well. It's now running the Uno optiboot bootloader, and the avr/wdt.h library now loads and runs. &nbsp;:-)</p>
+<p>Have you any thoughts pls as to why I can't parse the HTTP reply from Pachube using your library? Trystan made a suggestion above but that didn't seem to work either. &nbsp;Watching the serial monitor, I get no reponse at all from the&nbsp;Serial.println(line_buf); section.</p>
+<p>I have found though that the existing ethercard library does serial print the HTTP reponse, so it is being called from somewhere in the ethercard library. I havn't managed to find where, or to capture the response though.</p>
+<p>Paul.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2871"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="smithgor&#039;s picture" title="smithgor&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by smithgor (not verified) on Thu, 26/01/2012 - 05:49.</div>
+    <div class="content">
+     <p>Thanks for raising this problem and trying to find a solution, guys.</p>
+<p>I'm also suffering with the problem of a Nanode initially linking to Pachube then for no reason ceasing to get the 200 code after hours or days. I know its a work-around, but It would be great to get a way to detect this dropout and do a reset.</p>
+<p>I'm not knowledgeable enough to develop / modify the code myself so hoping you will get a solution.</p>
+<p>Gordon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2898"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="igordutra&#039;s picture" title="igordutra&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by igordutra (not verified) on Mon, 30/01/2012 - 11:16.</div>
+    <div class="content">
+     <p>I'll try to make the callback function works this week. I'm not a real coder but will give it a try and share once I manage to get it working. Any help would be appreciated :)&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2904"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Baz Crosen&#039;s picture" title="Baz Crosen&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by Baz Crosen (not verified) on Mon, 30/01/2012 - 21:48.</div>
+    <div class="content">
+     <p>Thats good news Igor. I hope that youre successful. I have to keep restarting mine because Pachubes server keeps going down, and like smithgor above, Im new to this and unable to code it myself.</p>
+<p>Thank you for trying.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2907"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Mon, 30/01/2012 - 23:56.</div>
+    <div class="content">
+     <p>There have been many discussions lately regarding emonBase Nanode/NanodeRF instability.</p>
+<p>To constructively try and move forward, lets create a knowledge base of setups that are stable Vs. setups which are not. Hopefully this will help us to debug this issue and give us a framework in which to discuss problems.</p>
+<p>See forum thread:&nbsp;<a href="../emonbase/stability.html">http://openenergymonitor.org/emon/emonbase/stability</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2911"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 31/01/2012 - 00:23.</div>
+    <div class="content">
+     <p>&nbsp;The main problem (from my perpective) is that Pachube's servers over the past few weeks have become problematic.</p>
+<p>Pachube are aware of this problem, and are in the process of moving to a dedicated server which should provide a more stable service, but no timeline has been given.</p>
+<p>Whenever the Pachube servers stop responding, Arduinos and Nanodes across the globe lose their connection, and do not reconnect when the server is restored. If I compare when my Nanode has frozen with a feed search for 'frozen feeds' via Pachube's search engine, I can find hundreds of devices which have frozen at the exact time as mine. &nbsp;(&nbsp;<a href="https://pachube.com/feeds">https://pachube.com/feeds</a>&nbsp;)</p>
+<p>This suggests that once disconnected, the ethercard library struggles to reconnect, and hence why a watchdog is desirable.</p>
+<p>My current sketch (thanks re the bootloader Glyn!) now restarts every hour due to a watchdog timer, but although it's only been in use for 2 days, it's already recovered from one such server outage - about 2.15am 30/01/2012.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2992"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="igordutra&#039;s picture" title="igordutra&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by igordutra (not verified) on Fri, 03/02/2012 - 14:52.</div>
+    <div class="content">
+     <p>I haven't had time to work on the proper fix for the pachube sketch yet however I've done something very simple that so far is keeping my Nanode (duemilanove) sending data for over a day. Basically I reboot the board every 200 cycles (about every 20-30 minutes) using the following line:</p>
+<p><span style="background-color: rgba(255, 255, 255, 0.917969); color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; ">if (request_attempt &gt; 200) asm volatile (&quot; &nbsp;jmp 0&quot;); &nbsp;</span></p>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">instead of</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">&nbsp;</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">if (request_attempt &gt; 100) delay(10000);</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">&nbsp;</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">at the end of the sketch.</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">&nbsp;</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">My other Nanode (UNO) is posting data to emoncms for almost 2 days without a single crash using the latest emoncms sketch.</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">&nbsp;</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">My idea is to implement something similar to ArduWind (<a href="https://code.google.com/p/arduwind/source/browse/trunk/ArduWind.ino">https://code.google.com/p/arduwind/source/browse/trunk/ArduWind.ino</a>) to the pachube sketch that checks pachube response and also reboots the nanode at specific intervals.&nbsp;</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">&nbsp;</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">Igor</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">&nbsp;</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">&nbsp;</div>
+<div style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: 13px; background-color: rgba(255, 255, 255, 0.917969); ">&nbsp;</div>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2993"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="fjhug&#039;s picture" title="fjhug&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by fjhug (not verified) on Fri, 03/02/2012 - 16:00.</div>
+    <div class="content">
+     <p>Working for 13 days now. I have it working by resetting error flags if too many attempts. Didn't have to reset the NanodeRF once since.</p>
+<p>if (request_attempt &gt; 100) {<br />
+#ifdef UNO</p>
+<div>&nbsp; &nbsp; &nbsp; delay(10000); // Reset the nanode if more than 10 request attempts have been tried without a reply</div>
+<div>&nbsp; &nbsp; #else</div>
+<div>&nbsp; &nbsp; &nbsp; ether.begin(sizeof Ethernet::buffer, mymac);</div>
+<div>&nbsp; &nbsp; &nbsp; dhcp_status = 0;</div>
+<div>&nbsp; &nbsp; &nbsp; dns_status = 0;</div>
+<div>&nbsp; &nbsp; &nbsp; request_attempt = 0;</div>
+<div>&nbsp; &nbsp; &nbsp; error=0;</div>
+<p>&nbsp; &nbsp; #endif<br />
+}</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2998"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="igordutra&#039;s picture" title="igordutra&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by igordutra (not verified) on Fri, 03/02/2012 - 21:33.</div>
+    <div class="content">
+     <p>Mine just frozen now after about 24 hours :( I'll try your suggestion above and let it running over the weekend.</p>
+<p>Thanks!</p>
+<p>----</p>
+<p>Ops, just realised mine hasn't frozen. It was only waiting the end of the loop to reboot...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3000"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Fri, 03/02/2012 - 21:40.</div>
+    <div class="content">
+     <p>&nbsp;My 'UNO bootloaded' Nanode reboots every hour using the avr/wdt watchdog library routine, and so far it has recovered from several 'server down - feed frozen' incidents over the past 3 or 4 days. One of which was at 7am this morning, and the Nanode rebooted and reconnected succesfully by itself as shown below about 30 minutes later.&nbsp;</p>
+<p>&nbsp;</p>
+<pre style="word-wrap: break-word; white-space: pre-wrap; ">
+2012-02-03T07:00:23.022890Z,190
+2012-02-03T07:31:46.028208Z,197
+<br type="_moz" /></pre><p>It's not an elegent solution, but it works!</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3001"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="igordutra&#039;s picture" title="igordutra&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by igordutra (not verified) on Fri, 03/02/2012 - 22:04.</div>
+    <div class="content">
+     <p>I believe the UNO bootloader would be a better long term solution, at least the watchdog works properly... However as Glyn pointed out other day it would be good to have a duemilanove sketch working since it's the bootloader that comes as standard on Nanodes.</p>
+<p>I'm doing pretty much the same here, rebooting every hour but instead of using the watchdog I'm using asm volatile. So far it's been working well but I've just added the code to reset the error flags as suggested by fjhug. I'll keep monitoring it over the weekend. If it doesn't work I'll go back to the previous solution.</p>
+<p>On the other hand the other Nanode/UNO has been posting data to emoncms for about 2 days without a single problem...</p>
+<p>Once I get it working I'll simply use UNO bootloaders on all my Nanodes :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3009"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/380.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-380.jpg" alt="mharizanov&#039;s picture" title="mharizanov&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/380.html" title="View user profile.">mharizanov</a> on Sat, 04/02/2012 - 16:19.</div>
+    <div class="content">
+     <p>&nbsp;only a WDT reset is a true reset. the asm hack only restarts the software, not the hardware.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3013"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/380.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-380.jpg" alt="mharizanov&#039;s picture" title="mharizanov&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/380.html" title="View user profile.">mharizanov</a> on Sun, 05/02/2012 - 13:11.</div>
+    <div class="content">
+     <p>&nbsp;BTW is a Software reset possible for the&nbsp;<span style="background-color: rgb(245, 245, 245); font-family: Verdana; line-height: 16px; ">ENC28J60</span><span style="background-color: rgb(245, 245, 245); font-family: Verdana; line-height: 16px; ">&nbsp;? I read it is possible to issue SPI reset command, but no concrete code.</span></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3017"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="fjhug&#039;s picture" title="fjhug&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by fjhug (not verified) on Sun, 05/02/2012 - 15:17.</div>
+    <div class="content">
+     <div>&nbsp;the command &quot;ether.begin(sizeof Ethernet::buffer, mymac);&quot; in the code above effectively resets the ENC28J60 with a soft reset.</div>
+<div>It calls the &quot;initialize&quot; function from the ENC28J60 library. That's if you use the EhterCard library.&nbsp;</div>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3022"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/380.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-380.jpg" alt="mharizanov&#039;s picture" title="mharizanov&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/380.html" title="View user profile.">mharizanov</a> on Sun, 05/02/2012 - 16:37.</div>
+    <div class="content">
+     <p>&nbsp;Thanks, I didn't know that.</p>
+<p>I am using the EtherCard library.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3027"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="igordutra&#039;s picture" title="igordutra&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by igordutra (not verified) on Mon, 06/02/2012 - 08:48.</div>
+    <div class="content">
+     <p>@fjhug - Using your reset error flags code for 3 days now and not a single need to reboot the Nanode manually so far.</p>
+<p>@mharizanov - Asm hack worked for me for a couple days until I decided to test @fjhug's code. Tested it for 24 hours only and it was still (soft) rebooting at regular intervals. But @fjhug's code is probably a better solution! So I'll stick with it for a couple more days to see how it goes.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3040"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="igordutra&#039;s picture" title="igordutra&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by igordutra (not verified) on Sun, 12/02/2012 - 19:04.</div>
+    <div class="content">
+     <p>Nanode/Duemilanove stopped posting data today using fjhug's code, after 4 days. I'll try it on UNO to see how it goes.</p>
+<p>---</p>
+<p>5 days on UNO and no issues so far...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3280"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Scott216&#039;s picture" title="Scott216&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by Scott216 (not verified) on Tue, 28/02/2012 - 13:02.</div>
+    <div class="content">
+     <p>fjhug,</p>
+<p>When resetting the flags, why do you have #ifdef UNO?  Will this not work with duemilanove?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3282"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="fjhug&#039;s picture" title="fjhug&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by fjhug (not verified) on Tue, 28/02/2012 - 14:40.</div>
+    <div class="content">
+     <p>&nbsp;Yes it will on any version, I actually commented out the lines around the UNO. I was initially using Duemilanove to fix the issue. Moved to Uno a couple of weeks ago.</p>
+<p>In my latest code, I removed the UNO lines, so the code will work on UNO and Duemilanove.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3286"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Scott216&#039;s picture" title="Scott216&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by Scott216 (not verified) on Wed, 29/02/2012 - 16:41.</div>
+    <div class="content">
+     <p>According to <a href="http://forum.jeelabs.net/node/920">this post</a> on JeeLabs the HTTP&nbsp;response is sent to the serial monitor by tcpip.cpp.</p>
+<p>I'm having the same issue about not having access to the HTTP&nbsp;response with the ethercard.h library on my Nanode v5.&nbsp; I'm not an advanced coder, so I can't really figure this out myself.&nbsp; I hope someine comes up with a solution to detect errors when sending data to pachube.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3293"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="fjhug&#039;s picture" title="fjhug&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by fjhug (not verified) on Thu, 01/03/2012 - 13:34.</div>
+    <div class="content">
+     <p>&nbsp;Using the code in this <a href="376.html#comment-3246">post</a> gives you control of what to do with the reply from the server.</p>
+<p>You could check the returned HTTP code. It should be a good starting point.</p>
+<p>Good luck</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3878"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonBase Watchdog</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 17/04/2012 - 18:53.</div>
+    <div class="content">
+     <p>Has anyone tried the <a href="http://jeelabs.org/2012/04/11/ethercard-improvements/">recent improvement to Ethercard on the Jeelabs site</a>?</p>
+<p>They have made an addition to get an Ethernet reply back after you call tcpSend() in the EtherCard library, which looks promising.</p>
+<p>&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/363"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-LBJGQkQVraa790TxMzhPAcBYUj6ci749zHIIvyAGXOA" value="form-LBJGQkQVraa790TxMzhPAcBYUj6ci749zHIIvyAGXOA"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/363 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:53:34 GMT -->
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/5">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Mon, 07/07/2014 - 12:21</span>
+        <div class="content"><p>Over the last few weeks I have been investigating how to reduce the write load of emoncms to explore if it might be possible to achieve long term logging on SD cards.</p>
+<p><strong>A brief summary</strong></p>
+<p>Through a mix of buffered writing of feed data to disk, reduction of the number of meta and average data files written to and use of the FAT filesystem, my home raspberrypi now has a write load of 0.4kb_wrtn/s down from 197kb_wrtn/s.. almost 500x less and the writes are all append only (there&#39;s no regular writing of the same part of a file again and again). The question is could this mean years of SD card logging rather than months?</p>
+<p><strong>Write buffering</strong></p>
+<p>A single Emoncms PHPFina (PHP Fixed Interval No averaging) or PHPTimeSeries datapoint uses between 4 and 9 bytes. The write load on the disk however is a bit more complicated than that. Most filesystems and disk&#39;s have a minimum IO size that is much larger than 4-9 bytes, on a FAT filesystem the minimum IO size is 512 bytes this means that if you try and write 4 bytes the operation will actually cause 512 bytes of write load. But its not just the datafile that gets written to, every file has inode meta data which can also result in a further 512 bytes of write load. A single 4 byte write can therefore cause 1kb of write load.</p>
+<p>By buffering writes for as long as we can in memory and then writing in larger blocks its possible to reduce the write load significantly. The full investigation with a lot of benchmarking of different configurations including differences between FAT and Ext4 can be found here:</p>
+<p><a href="https://github.com/openenergymonitor/documentation/blob/master/BuildingBlocks/TimeSeries/writeloadinvestigation.md" title="https://github.com/openenergymonitor/documentation/blob/master/BuildingBlocks/TimeSeries/writeloadinvestigation.md">https://github.com/openenergymonitor/documentation/blob/master/BuildingB...</a></p>
+<p><strong>A minimal version of emoncms in python</strong></p>
+<p>To make the investigation easier I simplified emoncms down to the core parts needed on a raspberrypi to get basic timeseries graphing: serial listener, node decoder, basic feed engine and a ui consisting of a nodelist and a single rawdata visualisation type and wrote the result in python making use of Jerome and Paul&#39;s (pb66) excellent work on the emonhub serial listener and node decoder.</p>
+<p>Here&#39;s a diagram of the main components of the python app:</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/emon-py-system-diagram.png" style="width: 600px; height: 387px;" /></p>
+<p>And some screenshots of what it looks like:</p>
+<p>Node list:</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/emon-py_0.png" style="height: 409px; width: 600px;" /></p>
+<p>Basic graphing:</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/graph_1.png" style="height: 283px; width: 600px;" /></p>
+<p>The source code and an installation guide for this minimal python version of emoncms can be found here:</p>
+<p><a href="https://github.com/emoncms/development/tree/master/experimental/emon-py" title="https://github.com/emoncms/development/tree/master/experimental/emon-py">https://github.com/emoncms/development/tree/master/experimental/emon-py</a></p>
+<p>I posted on the EmonHub issues list about this on friday and I&#39;ve been having a bit of a discussion there with Paul <a href="https://github.com/emonhub/emonhub/issues/48" title="https://github.com/emonhub/emonhub/issues/48">https://github.com/emonhub/emonhub/issues/48</a></p>
+<p>Interested to hear people&#39;s thoughts on it.</p>
+<p><strong>Further development questions</strong> (copied from the end of the write load investigation page)</p>
+<p>Is the reduced write load and longer SD card lifespan that might result from using the FAT filesystem worth the increased chance of data corruption from power failure that Ext4 might prevent?</p>
+<p>It would be interesting to compare the performance of the FAT filesystem + 5 min application based commit time with the EXT4 filesystem with Journaling turned off and filesystem delayed allocation set to 5 min instead of write buffering in the application.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/5778" class="topic-previous" title="Go to previous forum topic">‹ (Solved) Problem with bar graph visualization of kWh/d</a>
+              <a href="/emon/node/5723" class="topic-next" title="Go to next forum topic">EmonCMS - custom dimension of the Dashboard surface ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-22368"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Mon, 07/07/2014 - 21:06.</div>
+    <div class="content">
+     <p>Done some further testing with the Ext2 filesystem this time which is a non-journaling filesystem, the results appear to be exactly the same as Ext4 suggesting that journaling is not as large a source of write load as I initially thought and that the main difference between the write load on FAT vs Ext4/Ext2 is probably the block size 512 vs 4096 which sounds logical to me.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22369"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Mon, 07/07/2014 - 21:42.</div>
+    <div class="content">
+     <p>Looking into it, its possible to set the Ext2/3/4 filesystem blocksize to 1024 rather than 4096. After backing up the 3rd data partition on the sd card I just ran:</p>
+<p>sudo umount /dev/mmcblk0p3</p>
+<p>sudo mkfs.ext4 -b 1024 /dev/mmcblk0p3</p>
+<p>sudo mount -a</p>
+<p>Copied the data back on to it, it then takes a while for the Ext4 partition to fully setup (there&#39;s a process in the background called ext4lazyinit that writes quite heavily for a few minutes) But after it finishes the write load drops to ~1.4 kb_wrtn/s down from ~3.2 kb_wrtn/s.</p>
+<p>So potentially a 2x reduction by dropping the block size from 4096 to 1024 on Ext4.</p>
+<p>The FAT filesystem with a blocksize of 512 bytes writes at 0.4 kb_wrtn/s for the same commit rate and number of feeds.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22783"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="simsasaile&#039;s picture" title="simsasaile&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by simsasaile (not verified) on Thu, 31/07/2014 - 09:34.</div>
+    <div class="content">
+     <p>Hi, really nice work with reducing the write load! I&#39;m currently testing your low write load-image and till now it seems to be all fine.</p>
+<p>Just a little question: the feeds &quot;Input on-time&quot; and &quot;Power to kwhd&quot; seems not present in this version. Can I add them anyhow? &nbsp;</p>
+<p>Or is there another way to count the on-time of an input?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22784"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Thu, 31/07/2014 - 09:50.</div>
+    <div class="content">
+     <p>simsasaile: I will try and do a blog post on this, the approach for the calculation of kwhd is different so instead of calculating daily values you instead either calculate accumulating watt hours on the emontx or use the power to kwh input processor. That generates an every increasing graph. You can then use either the myelectric page which pulls out the daily values or the newly update bargraph visualisation which has under vis &gt; bargraph a property called <strong>delta, </strong>if you set that to 1 it will calculate the difference between the total watt hours of each day giving you daily watt hours.</p>
+<p>The input on time process needs to be re-implemented in the same way producing an accumulating graph but there isnt a process to produce that accumulating graph yet of on-time.</p>
+<p>The reason for the change is that the low write image feed engines are append only which makes the buffering mechanism easier to implement and helps to reduce the amount of writes to the same sectors on the disk. But a move to calculating daily data on the fly from accumulating graphs provides its own advantages too as you can pull out daily totals at any timezone, or you can extract hourly, or monthly totals too.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22794"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="simsasaile&#039;s picture" title="simsasaile&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by simsasaile (not verified) on Thu, 31/07/2014 - 20:11.</div>
+    <div class="content">
+     <p>Hi Trystan,&nbsp;</p>
+<p>thanks for your really fast reply and the help! I&#39;m glad there is a way (or even two) to calculate the kWh/d-values the on-time is not so important.</p>
+<p>Cheers, Simsasaile</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23411"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/5027" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/5027" title="View user profile.">Eric_AMANN</a> on Fri, 29/08/2014 - 08:05.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>I would like to test the new emonSD-13-08-14 image on my Raspberry model B.</p>
+<p>One can see <a href="https://github.com/emoncms/emoncms/blob/bufferedwrite/docs/setup.md">here</a> that this ready-to-go SD card image has been tested to work on the new model B+.</p>
+<p>Will it work on my RPI model B ?</p>
+<p>Thank&#39;s</p>
+<p>Eric</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23414"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Fri, 29/08/2014 - 08:43.</div>
+    <div class="content">
+     <p>Hi Eric, Yes it will work on either.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23433"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/5027" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/5027" title="View user profile.">Eric_AMANN</a> on Fri, 29/08/2014 - 14:13.</div>
+    <div class="content">
+     <p>Thank&#39;s Paul.</p>
+<p>I did a try and it works as&nbsp; expected on the model B.</p>
+<p>Some points that may be added in <a href="https://github.com/emoncms/emoncms/blob/bufferedwrite/docs/setup.md">this great guide</a> :</p>
+<p>- how to expand the file system (I &#39;m using a 8 Go sd card)</p>
+<p>- how to modify the mysql root password (it&#39;s only mentioned how to modify the root password and the ssh password)</p>
+<p>&nbsp;</p>
+<p>In this low write buffer version, there is no kwh/d and history processes. I&#39;m wondering why these processes (and its associated engines) have not been implemented yet in this version.</p>
+<p>Is it because one can&#39;t reduce the disk write load when using these engines/processes ?</p>
+<p>Or is it because it was not needed to implement these engines/processes to validate the low write buffer approach ?</p>
+<p>Regards,</p>
+<p>Eric</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23500"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/6855" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="rollinga&#039;s picture" title="rollinga&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/6855" title="View user profile.">rollinga</a> on Mon, 01/09/2014 - 14:42.</div>
+    <div class="content">
+     <p>this is great job. I was looking for something like this to make my SD card last. Thanks a lot and hope to get more updates from this :D</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23792"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Sun, 14/09/2014 - 09:48.</div>
+    <div class="content">
+     <p>Hello Eric, the main reason for not yet implementing the power to kwh/d input processors is that the way the buffer works in the low write version means the writes can only be append only. It would be great to improve on this initial implementation to support editing/updating last or order datapoints, It&#39;s in the development plan I started writing here <a href="https://github.com/emoncms/emoncms/issues/244">https://github.com/emoncms/emoncms/issues/244</a></p>
+<p>The need however for power to kwh/d input processors is reduced however as you can now either calculate accumulating watt hours on the emontx or use the power to kwh input processor to generate an ever increasing watt hour graph. The myelectric page and new version of the bar graph visualisation can then pull out daily/monthly/any time division totals with the plus point of being able to do this at any timezone the user wishes at visualization time rather than pre-storage.</p>
+<p>There&#39;s some more on this here: <a href="http://openenergymonitor.org/emon/node/3995" title="http://openenergymonitor.org/emon/node/3995">http://openenergymonitor.org/emon/node/3995</a></p>
+<p>Trystan</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23824"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/5027" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/5027" title="View user profile.">Eric_AMANN</a> on Tue, 16/09/2014 - 09:41.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Thank&#39;s for replying Trystan. I understand that the need for kwh/d input processes is reduced but it will still be needed in some case. As a example to plot a multigraph that use both dayly and instantaneous data. (See attached). EDIT : kwh/D also needed for the zoom graph which is a very nice graph.</p>
+<p>I have difficulties in using the new version of the bar graph visualization. On EmonCMS.org, I tried to plot the kwh used per day in my home but I got a wrong graph (See attached). I guess I&#39;m using a wrong config (See attached). Is there a documentation on how to use that new bar graph vis ?</p>
+<p>Eric</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23832"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1332" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1332" title="View user profile.">JBecker</a> on Tue, 16/09/2014 - 11:41.</div>
+    <div class="content">
+     <p>Eric,</p>
+<p>for me the daily kWh bargraph works if I set the delta to 1. Don&#39;t ask why (or what the delta value means). Probably 1 for &#39;Yes&#39;?</p>
+<p>J&ouml;rg.</p>
+<p>PS: and the description behind the edit fields is shifted. So behind the Delta setting there should be the description &#39;Show diff (Wh feeds)&#39;. Then it makes sense that 1 means YES.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23833"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing emoncms write load for long term SD card logging and a minimal python version of emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Tue, 16/09/2014 - 11:40.</div>
+    <div class="content">
+     <p>Yes need to improve documentation and naming there, ideally have a dropdown for yes/no. Delta for show difference between each bar.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/5387"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-bIn65ZiGwM1YfR5uyq5cP10O2CTN3tWuKaCKnWInfT8" value="form-bIn65ZiGwM1YfR5uyq5cP10O2CTN3tWuKaCKnWInfT8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11769 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:31 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>add support for MQTT authentication ?  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">add support for MQTT authentication ? </h3>
+        <span class="submitted">Submitted by <a href="../user/8839.html" title="View user profile.">joyrider3774</a> on Sun, 06/12/2015 - 22:43</span>
+        <div class="content"><p abp="749">Hi,</p>
+<p abp="749">emoncms does not currently support mqtt authentication using a username and password. It&#39;s not that hard to add it in it seems, since the library used for mqtt support, already supports this it&#39;s just that emoncms does not support it currently.</p>
+<p abp="749">Here&#39;s what i did to add support for it:</p>
+<p abp="749">in settings.php add 2 new variables: default values if using no authentication should be NULL for both</p>
+<p abp="749">$mqtt_username = &quot;joyrider3774&quot;;<br abp="758" /><br />
+$mqtt_password = &quot;mypassword&quot;;</p>
+<p abp="749">in the file Modules\process\process_processlist.php change function publish_to_mqtt to this:</p>
+<p abp="749">public function publish_to_mqtt($topic, $time, $value)<br abp="770" /><br />
+&nbsp;&nbsp;&nbsp; {<br abp="771" /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; global $mqtt_username, $mqtt_password;<br abp="772" /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Publish value to MQTT topic, see: http://openenergymonitor.org/emon/node/5943<br abp="773" /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($this-&gt;mqtt &amp;&amp; $this-&gt;mqtt-&gt;connect(true, NULL, $mqtt_username, $mqtt_password)) {<br abp="774" /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;mqtt-&gt;publish($topic,$value,0);<br abp="775" /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;mqtt-&gt;close();<br abp="776" /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br abp="777" /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br abp="778" /><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return $value;<br abp="779" /><br />
+&nbsp;&nbsp;&nbsp; }</p>
+<p abp="749">&nbsp;</p>
+<p abp="749">if using mqtt input you should make the same change in \scripts \phpmqtt_input.php</p>
+<p abp="749">where mqtt-&gt;connect is called add the &quot;&nbsp;global $mqtt_username, $mqtt_password&quot; line and then change the connect statement to &quot;connect(true, NULL, $mqtt_username, $mqtt_password)&quot;</p>
+<p abp="749">if you do this everywhere where a mqtt connect call is made it&#39;s done (not sure where else this is used)</p>
+<p abp="749">if this somehow ever gets in the official version it might also be a good idea to make the port which is hardcoded at 1883 at the moment be an option, i have not done this in my installation.</p>
+<p abp="749">The problem i was having is that i was using mqtt also for other things in node-red other things that needed my mqtt (mosquito) server to be accessible from the internet (for owntracks) and i did not want to do this without having a password and login user setup for my mqtt server.</p>
+<p abp="749">i test this only for posting to mqtt have not tried suscribing to mqtt yet</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10185.html" class="topic-previous" title="Go to previous forum topic">‹ EmonView (RaspberryPI Python version of emoncms) concept + MQTT</a>
+              <a href="11768.html" class="topic-next" title="Go to next forum topic">Incorrect MAC address showing on Windows DHCP server [SOLVED] ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11769 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:31 GMT -->
+</html>

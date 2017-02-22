@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2720 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:13:23 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>EmonLibPro - getting it working on a EmonTx measuring 120V / 60 Hz  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">EmonLibPro - getting it working on a EmonTx measuring 120V / 60 Hz </h3>
+        <span class="submitted">Submitted by <a href="../user/3367.html" title="View user profile.">Dan Woodie</a> on Thu, 22/08/2013 - 02:37</span>
+        <div class="content"><p>A couple of months ago, chaveiro posted some new interrupt based code developed from the Solar Controller code (PV Router) by MartinR and others (please correct me if I have the authorship on these wrong). This code (and the original code it was based from) used interrupts to drive sampling routines that continuously sampled the various inputs integrating the power, and reporting out the summed power at user defined intervals (usually the standard 5 seconds). This is fairly different than the standard sketch that only measures 20 mains cycles every 5 seconds, assuming that represents the average power for that interval.</p>
+<p>The original code included two sample implementations of the subroutines, one for running on the Emon shield and one that simply reported values out to the serial port. Neither were setup to transmit using the RF module on the EmonTx. With chaveiro&#39;s assistance I was able to get this code to run on the EmonTx, and later to transmit by joining the measurement routines of the EmonLibPro library with the bare minimum RF transmit routines written into the PV Router code. From that I wanted to share what I learned in the hopes of giving feedback to the original EmonLibPro author (as requested in the original post) and also as a guide to others who may want to test it out. My code is attached at the bottom.</p>
+<p><strong>Running EmonLibPro on EmonTx without RF transmit</strong></p>
+<p>The first step was to use the example code that simply output to the serial port. I had to modify the ADC pin order in that code to match the different pinout of the EmonTx versus the shield. I also had to adjust the sampling rate down for the 3 CT setup and 60 Hz frequency, reducing it from the default 2000 samples/sec to 1500 samples/sec.</p>
+<p>const byte adc_pin_order[] = {2, 3, 0, 1, 4, 5};</p>
+<p>#define SAMPLESPSEC&nbsp;&nbsp; 1500</p>
+<p>In running that with only the AC transformer connected (no CTs since they are located in my power panel in the basement...) I was having issues with the code indicating timer overruns (shown by outputting a $ on the serial port) and then within 5 seconds or so, it would lock up. I tried reducing the sampling rate and other parameters without success. The lockups may have been caused by some memory overruns created when the loop does not properly lock onto the frequency, and starts measuring longer and longer intervals. Ultimately it appears to be related to an overcorrection of the PLL part of the algorithm. By taking the timer adjustment code in the .cpp file and using a fraction of the timer adjustment (0.75 or so), the code would lock on the 60 Hz AC voltage signal fine and read the measured current (nothing) as a very accurate 0.00 W. You could tell when the loop was well locked as the reported frequency was dead on at 60 .00 Hz, the measured power was 0.00W (instead of 0.04W or something similar), and the reported power factor was unity instead of 0.5 or lower. Again, this was all with no CT attached. When it was not locked, the reported power (which should be zero) would read +- 0.1W (still very accurate). When locked it was always 0.00W and 1.00 PF.</p>
+<p><strong>Adding the RF Transmit Code</strong></p>
+<p>Trying to integrate the EmonLibPro measurement routines with the standard sketch RF data transmit routines did not work. The code locked up and was unstable. Once I reviewed the PV Router code and saw the more minimalist RF code I attempted that and it worked better. You can see that the PLL algorithm becomes unlocked once you start adding in the RF transmissions. I noticed this while watching the output of the serial port. Using a delay of about 30+ seconds from the time it starts measuring to the first RF transmission, you can see the PLL locking well (&gt;80% of the data reported) before it starts transmitting, and then it shows almost exclusively unlocked once transmissions begin. Even with the PLL not fully locked, the data reported is very stable.</p>
+<p>The code is sensitive to the SAMPLEPSEC value, as changing that value made it improperly lock onto other frequencies and stay there. For example, trying 1920 samples/sec resulted in the loop locking onto a frequency of approximately 72 Hz instead of 60 Hz. I was able to get it to settle properly at a sampling frequency of 1620 Hz and that is what I am running at now.</p>
+<p><strong>Code Stability</strong></p>
+<p>When the code first starts up, it typically reports a frequency of 62.5 Hz on the first output, and then locks onto the proper 60 Hz frequency. Benchmarking the code over several days I could see the frequency occasionally jumping to 62.5 Hz and then back to 60 Hz. i was unsure if the PLL was really unstable, or the system had locked up and the watchdog timer I had brought over from the other code was rebooting it and I was seeing the first erroneous data measurement. In the most recent version of the code (posted here) I have added a routine that checks if a RF transmission is the first one and if so, sets the frequency to zero, to show up differently on Emoncms compared to just the PLL becoming unlocked for a few seconds. In the 24 hr since I have added that change I have not seen any reboots.</p>
+<p><strong>Code comparison</strong></p>
+<p>As I have mentioned elsewhere, I am working on a benchmark of this code, the PV router code, and the standard sketch to post here. I was mostly interested in which was the best for my own personal accuracy, but I figured the data would be useful to others as well. I need to crunch the numbers a bit more but I hope to be able to post that in the next week or two.</p>
+<p>Thanks to all whose code I have been able to learn from and utilize. Let me know if you have any questions or corrections.</p>
+<p>Dan</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11692.html" class="topic-previous" title="Go to previous forum topic">‹ Standardization of various Libraries?</a>
+              <a href="11682.html" class="topic-next" title="Go to next forum topic">Emonth ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-36362"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonLibPro - getting it working on a EmonTx measuring 120V / 60 Hz </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Fri, 27/11/2015 - 01:59.</div>
+    <div class="content">
+     <p>It was the first time i noticed this post...</p>
+<p>Nice Dan.</p>
+<p>I&#39;ve recently (6moths ago) updated the lib to be more precise, give it a look.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2720"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-LniXAmrOTZJRmg5yh0cMefoyTK3cBmLecTLVUOGgiCA" value="form-LniXAmrOTZJRmg5yh0cMefoyTK3cBmLecTLVUOGgiCA"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2720 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:13:23 GMT -->
+</html>

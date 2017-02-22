@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2157 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:53 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonCMS-issue in get_feed_data()(feed_model.php) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonCMS-issue in get_feed_data()(feed_model.php)</h3>
+        <span class="submitted">Submitted by <a href="../user/1236.html" title="View user profile.">n8w1ng</a> on Mon, 25/03/2013 - 16:03</span>
+        <div class="content"><p>Hey guys,</p>
+<p>Ive experienced a strange(at least to me) behavior of emonCMS to GET requests containing epoch timestamp.</p>
+<p>In the mysql db(emoncms), the time field is clearly defined as int(10) which is the epoch rounded to seconds. However GET requests containing int(10) epoch dont work(return nothing), if additional &quot;000&quot; are added, then the correct data are retrieved.</p>
+<p>&nbsp;</p>
+<p>Now, this get request returns nothing:</p>
+<p><a href="http://ip/emoncms/feed/data.json?id=FEEDID&amp;apikey=APIKEY&amp;start=1364223066&amp;end=1364223145&amp;dp=50" title="http://IP/emoncms/feed/data.json?id=FEEDID&amp;apikey=APIKEY&amp;start=1364223066&amp;end=1364223145&amp;dp=50">http://IP/emoncms/feed/data.json?id=FEEDID&amp;apikey=APIKEY&amp;start=136422306...</a></p>
+<p>&nbsp;</p>
+<p>but this one, returns correct data:</p>
+<p><a href="http://ip/emoncms/feed/data.json?id=FEEDID&amp;apikey=APIKEY&amp;start=1364223066000&amp;end=1364223145000&amp;dp=50" title="http://IP/emoncms/feed/data.json?id=FEEDID&amp;apikey=APIKEY&amp;start=1364223066000&amp;end=1364223145000&amp;dp=50">http://IP/emoncms/feed/data.json?id=FEEDID&amp;apikey=APIKEY&amp;start=136422306...</a></p>
+<p>result: [[1364223140000,&quot;323&quot;],[1364223135000,&quot;322&quot;], etc...</p>
+<p>&nbsp;</p>
+<p>So i went to the method get_feed_data() line 256 in feed_model.php and found this:</p>
+<p>$start = $start/1000; $end = $end/1000;</p>
+<p>....</p>
+<p>$time = $row[&#39;time&#39;] * 1000;</p>
+<p>It seems that the time value is not being divided since it ends up as epoch*1000.</p>
+<p>For now, i have commented out this piece of code n it works ok(takes/retrieves correct epoch )</p>
+<p>&nbsp;</p>
+<p>What do you think about this?Am i missing something?</p>
+<p>I will take a closer look at the whole method soon, but for now, any opinion,elaboration is welcome.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>edit: uncommenting the lines breaks the visualizations</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2156.html" class="topic-previous" title="Go to previous forum topic">‹ Multiple pins current sensor</a>
+              <a href="2150.html" class="topic-next" title="Go to next forum topic">Date Range in visualisations ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2157 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:53 GMT -->
+</html>

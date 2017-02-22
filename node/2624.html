@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Problems getting PV Router software running on 120 V AC / 60 Hz | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/4">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Problems getting PV Router software running on 120 V AC / 60 Hz</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/3367" title="View user profile.">Dan Woodie</a> on Fri, 26/07/2013 - 03:51</span>
+        <div class="content"><p>I could use some assistance in getting the Mk2 PV Router software running on a 60 Hz 120 V North American setup. The software looks like it has some very nice features, but I am having challenges adapting it to the differences in voltage and frequency we have here. I have an EmonTx that I know is working and runs the standard sketch appropriately. I have calibrated that sketch and it gives acceptable but noisy results (high amount of variation in measured signal from point to point). I am attempting to get the router code posted here (<a href="http://openenergymonitor.org/emon/node/1535" title="http://openenergymonitor.org/emon/node/1535">http://openenergymonitor.org/emon/node/1535</a>) running on my 60 Hz system, but without success.</p>
+<p>I am attaching the code in case something stands out to someone who understands the code better. A few notes on my system:</p>
+<p>North American (NA) power grid uses two phases of 120 V, 180 degrees apart, both going to a common neutral tied to ground. Most devices are connected between one of the two phases and neutral, while high power devices (hot water heater, oven, etc.) are tied between the two 120 V phases to give a 240 V connection. My solar power inverter ties to one of these two phases.</p>
+<p>AC adapter: I am using a 120 V AC to 9 V AC adapter, and have successfully calibrated it for the standard sketch with good accuracy. I am reading the voltage on one of the phases and reversing the direction of the other CT to account for the phase difference.</p>
+<p>CTs: I have 3 CTs, one standard SCT-013-000 that measures my solar output, and two Magnelab SCT-075-000 CTs (<a href="http://www.magnelab.com/products/Current-Voltage-Sensors/split-core-ac-current-sensor-sct-0750" title="http://www.magnelab.com/products/Current-Voltage-Sensors/split-core-ac-current-sensor-sct-0750">http://www.magnelab.com/products/Current-Voltage-Sensors/split-core-ac-c...</a>) since standard American power mains are too thick for the smaller SCT-013-000. Using the standard sketch I have calibrated the constants on these and shown the error to be less than 4% using a Fluke 3 phase power meter.</p>
+<p>I have changed the burden resistors from the standard ones for all three CTs since my current range is a bit different. All of the calibrations using the standard sketch were done and showed long term stability and relative accuracy, although the traces were much noisier than the power meter readings.</p>
+<p>I altered the PV router code to account for the differences in voltage, CTs, and the higher line frequency, but it did not seem to want to lock on to the signal well. Most of my testing has been done with only the AC adapter connected, seeing if it could properly lock onto the 60 Hz signal and read the voltage correctly. I had to alter the PLL code as it seemed to be over correcting, leading to stability issues. Telling it to alter the loop timing by about 1/3 of the calculated amount seemed to allow it to settle down and get it to lock onto the 60 Hz signal. Once that part of the code seemed happy, I took it down to connect it to the CTs, and it was reading exceedingly high and negative power readings. Readings that did not make any sense. I switched back to the standard sketch and it ran fine, so I don&#39;t think this is a hardware issue.</p>
+<p>Any assistance anyone can offer in seeing if I have missed anything would be appreciated. The code has a lot of items in it that seem to be set for 50 Hz, so adapting the code to a more general or changeable state would be good for longer term worldwide adoption. I am seeing from other code that a PLL solution, if working, gives a much less noisy signal, so I would really like to get this solution working. I really don&#39;t have a need for the routing function of the code, as in my part of the U.S.A., the power company is required to purchase my exported energy at market rates (referred to as net-metering). Somewhat like the meter running backwards, but if it runs back enough, they have to pay me. So, sending excess power out to the grid is perfectly fine.</p>
+<p>Again, thanks to all for your assistance. If I can get this code running I wanted to do a longer term (1 - 2 day) comparison between this code and the standard sketch, to look at measurement accuracy versus the Fluke power meter I have borrowed for the near term. Hopefully I can get this sketch running before I have to return it.</p>
+<p>Dan</p>
+<p>&nbsp;</p>
+<p>[ See&nbsp; <a href="http://openenergymonitor.org/emon/node/2679">Solar Controller / PV Router code - working on 60Hz / 120V power systems</a>&nbsp; for further details - RW]</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/2701" class="topic-previous" title="Go to previous forum topic">‹ Ct&#039;s</a>
+              <a href="/emon/node/2679" class="topic-next" title="Go to next forum topic">Solar Controller / PV Router code - working on 60Hz / 120V power systems ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-13836"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems getting PV Router software running on 120 V AC / 60 Hz</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Fri, 26/07/2013 - 13:20.</div>
+    <div class="content">
+     <p><em>I had to alter the PLL code as it seemed to be over correcting, leading to stability issues.</em></p>
+<p>I think that was to be expected. Martin&#39;s code uses the voltage at the crossing point as the correction to the loop frequency, so the loop gain depends on the slope of the voltage waveform at that point. If both the voltage amplitude is higher and the frequency is higher, the slope will be steeper and the loop gain will have increased with both these factor contributing. But I&#39;m a little surprised you found it necessary to reduce it to as low as a third to allow it to stabilise and lock.</p>
+<p>The sign of the power readings is simply a matter of convention and the phase of your c.t&#39;s in relation to the voltage, so not a major problem. The value is a problem. My first concern is the c.t&#39;s are only rated for 0.333 V (rms) output. What value is your burden and what is your full-scale current? One thing is sure (and probably the reason for all the noise), if you are running with 0.333 V rms out of the c.t. and with a 3.3 V analogue reference, you are only using a little more than a quarter of the available ADC range at maximum current (effectively, you have an 8-bit ADC rather than a 10-bit one).<br />
+	But having said all that, it doesn&#39;t explain why the non-PLL standard sketch gives good results and this doesn&#39;t - neither can I see the silly mistake.<br />
+	You said the current values are &quot;reading exceedingly high&quot;, but how high, as a multiple of what they should be? That might be a good clue.</p>
+<p>Just so that it&#39;s clear in my mind: The voltage you are measuring is one leg (120 V), the 200 A c.t&#39;s are CT1 &amp; CT2 and are on the two lines and facing opposite directions (such that both see the current drawn by a 240 V load, but only one sees the current drawn by a 120 V load). The PV is CT3. The total grid power is power1 + power2.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13839"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3367" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3367.jpg" alt="Dan Woodie&#039;s picture" title="Dan Woodie&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems getting PV Router software running on 120 V AC / 60 Hz</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3367" title="View user profile.">Dan Woodie</a> on Fri, 26/07/2013 - 13:50.</div>
+    <div class="content">
+     <p>Robert,</p>
+<p>Thanks for your looking over the code and all of your assistance over the past few weeks. Your assessment of the power / solar setup is correct with the exception that the CTs are not 200 A rated, but instead setup with a burden to max the EmonTx at about 75 A (rms), which is the limit on the main breaker. More details on that below.</p>
+<p>In digging in the PLL timing adjustment algorithm I had seen how the voltage is used to correct the time. This makes sense as at the crossing points, the slope of the sine wave is 1, leading to y=x or conversely, x=y. So your offset from zero in your voltage is equivalent to your timing adjustment you want to make (assuming you properly scale both). I did not see where any scaling was done, just using the raw voltage value. In terms of scaling it, I did not spend a lot of time optimizing that divider, instead, found that 1/2 to 1/3 seemed to work while 3/4 or so did not work consistently.</p>
+<p>In terms of the CTs, I did not purchase the Magnelab CTs with a built in burden resistor, so I am not at the 0.333V AC signal the web page indicates. The SCT-075-000 part number refers to the first one listed on the web page, with no burden and zener protection diodes. I felt that this would most closely match the standard CT in design. I then used the guidance under the Building Blocks section of the site to choose the correct burden resistor size based on the number of turns in the CT (7356:1 for the Magnelab CT) and the max current I expected (resulting in a burden of about 100 Ohms). I also changed the SCT-013-000 burden to about 47 Ohms to match closer to the 50A (rms) peak my PV outputs. All my testing with the standard sketch seems to indicate that these are right where they were planned to be. To calibrate them under the standard sketch I had all the kids turn on every device in the house until I felt the breaker might trip (they had a lot of fun with that!). I averaged the standard sketch reported power over about 1 minute in this mode and compared that to the average reported by my Fluke meter to adjust the parameters. For the PV output CT I did the same during the peak of a bright summer day. They now read within 2% or so when I check again.</p>
+<p>The values I got from Martin&#39;s code were erratic, about 10X higher than expected, and jumping both positive and negative. I would have thought it could be corrected by calibration but it was too erratic to even understand the data. I am including a screen shot of the Emoncms multigraph of the consumed and generated power. The large crazy center section running for most of July 23rd is when I let the Martin code just run. The time before and after that is my normal power usage / generation, with the highest peaks at about 8 kW. My best guess is that possibly the phase correction settings, which I did not alter, are setup for 50 Hz, but I was not sure being that far off on phase would give such erratic results. Instead it would simply skew the calculated power due to the I/V waves being shifted in code out of their actual phase.</p>
+<p>Any suggestions would be appreciated. Thanks for everyone&#39;s work on this entire project up to here. I have immensely enjoyed getting this up and running and doing the testing. I hope to be able to contribute some good benchmark data on the code to the community.</p>
+<p>Dan</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13840"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems getting PV Router software running on 120 V AC / 60 Hz</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Fri, 26/07/2013 - 14:27.</div>
+    <div class="content">
+     <p>I think you misunderstood what I was getting at with the c.t&#39;s (which was are you running them within their VA rating), but as the calibration was close the theoretical value, they are probably OK. (The 0.333 V output DOES matter - at maximum current it defines their rating.)</p>
+<p>I think you should try to correct the phase calibration - I agree I don&#39;t think it ought to make much difference, but it needs to be right eventually, so let&#39;s rule it out now. You should be able to calculate them (= * 1.25) knowing your new sample period; which being slower than Martins actually makes this worse - the other option might be to push the sample rate back up to closer to Martin&#39;s 50 * 50 * 3 = 7500 from your 25 * 60 * 4 = 6000, at say 30 samples per cycle</p>
+<p>Those values are nothing to do with calibration, there&#39;s something not happening right in the program flow - or an overflow in the maths? You do have a stable voltage reported? Do you see the same erratic values on the serial output? (If yes, that rules out the RFM12B link.)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13843"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3367" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3367.jpg" alt="Dan Woodie&#039;s picture" title="Dan Woodie&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems getting PV Router software running on 120 V AC / 60 Hz</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3367" title="View user profile.">Dan Woodie</a> on Fri, 26/07/2013 - 15:10.</div>
+    <div class="content">
+     <p>Yes, I did misunderstand about the CTs and I am not 100% sure I still understand. If I interpret what you are saying correctly, the concern is driving the CT to a higher voltage (~ 1.6 V instead of the 0.333V it was designed to run at) by using a higher burden resister than what a normal one would ship with, correct? I figured since this product line shipped with burden resistors scaled for up to 200 A, running it a 75 A would not drive the core into saturation, but apparently that is not the only concern, correct? So, the way to determine that would be:</p>
+<pre class="rteindent1">
+Normal peak operation in their 200A model supplied with a burden resistor
+200A X 1:7356 = 0.0272 A in the secondary winding
+0.333V X 0.0272A = 0.009 VA - under normal conditions
+
+My peak operation using an external 100 Ohm burden resistor
+75A X 1:7356 = 0.0102A in secondary winding
+100 Ohms X 0.0102A = 1.02V across resistor
+0.0102A X 1.02V = 0.01 VA - about 10% difference</pre><p>Did I do that correctly? In any case I agree that so far my numbers in the standard sketch match up with the power meter, so I feel that the CTs are doing their job. I will work on correcting the phase algorithm tonight. In terms of checking the RF, I believe I did hook up to the serial port and look at the data stream when the CTs were connected, but I can&#39;t be positive on that. In general when I load a new sketch on the EmonTx upstairs, I run it on the AC adapter there to verify it at least runs, then take it downstairs to the basement with a laptop that can read the serial stream to verify it is working on the CTs before looking at the data on Emoncms, but I have loaded and reloaded so many sketches this past week doing testing, I can&#39;t recall every time. All the other data is flowing over the RF connection just fine so I don&#39;t think there is a transmission error, but I will verify that.</p>
+<p>Thanks for your help and I will return when I have more to share.</p>
+<p>Dan</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13844"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems getting PV Router software running on 120 V AC / 60 Hz</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Fri, 26/07/2013 - 16:01.</div>
+    <div class="content">
+     <p><em>Did I do that correctly?</em> Driving the core into saturation and the side-effects thereof are the concerns, but otherwise that&#39;s pretty much all correct!</p>
+<p>Basically, a c.t is exactly the same as any other transformer except it is the &#39;wrong way round&#39; - the primary has few turns (usually 1) and the secondary has many. So in very general terms, if you think of how an ordinary voltage transformer behaves and exchange voltage and current, you&#39;ve got it. A c.t. is a constant current device, not a constant voltage one. Thus you overload a c.t. by open-circuiting it and then you get a huge voltage out, and no-load is when it is short-circuited and then you get no voltage out. It still has a maximum power output just like a voltage transformer, but that&#39;s at its rated current.</p>
+<p>If you have a low secondary voltage, high current transformer (e.g. like the one I use for testing c.t&#39;s: 6.3 V 8 A), it should be possible to throw together a test rig that you could use &#39;upstairs&#39; - with multiple turns through the c.t (s) to multiply the current and a car headlight bulb as a load. It might be worth the trouble. See the report in Building Blocks for the gory details.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13852"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems getting PV Router software running on 120 V AC / 60 Hz</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Fri, 26/07/2013 - 18:58.</div>
+    <div class="content">
+     <p>Dan,</p>
+<p>I just quickly tried your code using a signal generator for the 60Hz supply. Initially I had some jitter on the final sample but that appeared to be due to you using floating point arithmetic when updating the PLL.</p>
+<p>I removed the <em>timerCount-=(int)newV/3.1</em>; and put it back to <em>timerCount-=newV; </em>and it removes the jitter and locks fine for me so I&#39;m not sure why it didn&#39;t work for you.</p>
+<p>You have lots of free time between samples so you could probably update the samples per cycle as Robert suggested.</p>
+<p>The reason&nbsp;following&nbsp;line doesn&#39;t work is because you are converting to an integer (max 32768) and then multiplying by 16000000..</p>
+<p>//#define TIMERTOP (int)((1/SUPPLY_FREQUENCY)/NUMSAMPLES)*16000000 // terminal count for PLL timer</p>
+<p>I only had a quick look but it appears that you don&#39;t calculate cycleP3 anywhere but you use it to create totalP3</p>
+<p>-martin</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13941"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3367" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3367.jpg" alt="Dan Woodie&#039;s picture" title="Dan Woodie&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems getting PV Router software running on 120 V AC / 60 Hz</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3367" title="View user profile.">Dan Woodie</a> on Tue, 30/07/2013 - 13:39.</div>
+    <div class="content">
+     <p>Martin / Robert,</p>
+<p>Thank you for your assistance. I should have replied to your posts days ago, but I got excited by the information and went to work on it instead of returning to thank you. I saw the errors I had left in the code. In trying to change your 2 CT code to a 3 CT code I missed all of the places that the calculations occur. I am embarrased I didn&#39;t catch them before posting to the forums for assistance. In any case, I made some corrections but could not get the 3 CT code to work. I ended up starting back at your original code and making as few changes as needed to get it working on the 60 Hz / 120 V system using only 2 CTs. At that point it did lock on the 60 Hz frequency without changing the PLL equation. I ran it for a day and saw that although CT1 was reading accurately, CT2 was off by about 20%, which I then determined was due to the phase shifting calculations. I determined the changes that were needed there and am running a benchmark now. When I finish the benchmark I will share my results with everyone. Thanks again for your assistance.</p>
+<p>Dan</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14330"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems getting PV Router software running on 120 V AC / 60 Hz</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Wed, 14/08/2013 - 12:45.</div>
+    <div class="content">
+     <p>Dan has posted an update at <a href="http://openenergymonitor.org/emon/node/2679" title="http://openenergymonitor.org/emon/node/2679">http://openenergymonitor.org/emon/node/2679</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/2624"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-mqpik64hjAl2ItetdXZ5D7rONOwH7WzNr-cM9nAcK-E" value="form-mqpik64hjAl2ItetdXZ5D7rONOwH7WzNr-cM9nAcK-E"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

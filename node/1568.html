@@ -1,0 +1,587 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1568 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:37:21 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Measuring real and reactive power WITHOUT measuring voltage on EmonTX | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+        <span class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Thu, 06/12/2012 - 10:30</span>
+        <div class="content"><p>OEM is an awesome project!&nbsp; Thanks so much for sharing all your hard work.</p>
+<p>I have an interesting challenge.&nbsp; I need to be able to measure whole-house real power and reactive power.&nbsp; As I understand it, this can be achieved using the current EmonTX by connecting the EmonTX to both a CT clamp (to measure current) and an AC-AC adapter (to measure voltage).</p>
+<p>BUT I don&#39;t have a mains socket anywhere near my consumer unit, so I can only connect a CT clamp to the EmonTX and connect an AC-AC adapter to my Nanode base unit.&nbsp; But, as I understand it, in order to measure real power and reactive power, and to have these measurements accurate even when harmonics are present, I need to be able to sample the current and voltage waveforms many times per cycle, and to accurately align these current and voltage samples in time.&nbsp; This raises two issues when the current and voltage are being measured on different nodes, connected by a low-bit-rate RF link:</p>
+<ol>
+<li>
+		How to transfer of many (hundreds?&nbsp; thousands?) of samples from one node to the other?&nbsp; The RF link has no forward error correction so the chances of successfully transferring a thousand-byte packet is rather low.</li>
+<li>
+		How to synchronize time across both nodes?</li>
+</ol>
+<p>I&#39;ve been trying to hack together a solution and I&#39;d love your opinions on my proposed solution (or if you know of an existing solution then please let me know!):</p>
+<p>Let&#39;s assume that voltage measurements are done on the Nanode, current measurements are done on the EmonTX and the majority of the calculations are also done on the EmonTX (we&#39;ll see why in a moment).</p>
+<p>To tackle the challenge of having to send huge amounts of data over the RF link:</p>
+<p>Let&#39;s assume that the voltage waveform is a pure sine wave, but the current waveform has nasty harmonics. With this assumption, we no longer have to transfer many samples per cycle of the voltage waveform over the RF link; instead we just need to transfer a few parameters to define the sine wave (e.g. zero-crossing times and maximum amplitude).&nbsp; So we program the Nanode to send these parameters to the EmonTX and the EmonTX can then reconstruct the full voltage waveform using a trigonometry lookup table.&nbsp; This setup also means that the Nanode can get on with other time-consuming work in between sending calibration packets to the EmonTX.</p>
+<p>To tackle the time sync problem:</p>
+<p>Let&#39;s setup the EmonTX&#39;s interrupt service routine to timestamp the first valid byte of every packet it receives (using the micros() function). Let&#39;s setup the Nanode to send a packet to the EmonTX every, say, 5 seconds.&nbsp; This packet contains the instantaneous Nanode time and the voltage sine wave parameters for the last few AC cycles.&nbsp; Hopefully, the time taken to transmit a packet from the Nanode to the EmonTX will be relatively constant and something we can measure in the lab and set as a constant in the code.&nbsp; This way, the EmonTX can calculate the offset between its micros() clock and the Nanode&#39;s micros() clock.</p>
+<p>The end result is that the EmonTX can spend most of its time sampling the (messy) current waveform. It can calculate instantaneous power by multiplying the instantaneous current readings with the reconstructed voltage waveform; and this voltage waveform reconstruction can be kept reasonably in-sync with the actual voltage through regular callibration packets from the Nanode.</p>
+<p>Does that sound vaguely sensible?!</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1657.html" class="topic-previous" title="Go to previous forum topic">‹ EmonTX Low Power Temperature Node</a>
+              <a href="1656.html" class="topic-next" title="Go to next forum topic">Disconnecting the CT whilst under load. ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-8005"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 06/12/2012 - 13:43.</div>
+    <div class="content">
+     <p>I can see what you&#39;re getting at, but it sounds highly fraught. My considered opinion is it could be very hard getting this to work, and then I would have doubts about its reliability. What is the exact problem with monitoring voltage - are you able to get a low voltage cable back to your consumer unit - like a telephone extension type cable? The 9 V a.c would be quite happy in that.</p>
+<p>An alternative thought - I&#39;ve not built or tested this - would be to use a capacitive pick-up at your consumer unit. The idea is: normally, we use an adapter to provide 11 V a.c then divide it down 11:1 to get about 1 V rms with a resistive divider. You could achieve the same using a capacitive voltage divider, a large capacitor (low reactance) at the earthy end and at the high-voltage end a small capacitor (high reactance), which you make by wrapping a couple of dozen turns of well-insulated wire around the line cable. You need a high impedance op-amp external to the emonTx to interface to the ADC input, and don&#39;t use the bias circuits built into the emonTx pcb.</p>
+<p><a href="../sites/default/files/Capacitive%20p.t.%20bootstrapped.png"><img alt="" src="../sites/default/files/imagecache/avatar/Capacitive%20p.t.%20bootstrapped.png" style="width: 50px; height: 50px;" /></a></p>
+<p>(R4 + C3 simulate the input of the ADC).</p>
+<p>It was first published in this thread where there&#39;s a bit more explanation: <a href="1059.html#comment-6258" title="http://openenergymonitor.org/emon/node/1059#comment-6258">http://openenergymonitor.org/emon/node/1059#comment-6258</a> I proposed this a while ago, it was scaled for a 1 V p-p input (not 3.3 V) and I don&#39;t know whether anyone built it.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8008"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1774.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1774.html" title="View user profile.">PaulOckenden</a> on Thu, 06/12/2012 - 14:14.</div>
+    <div class="content">
+     <p>The Eco Eve device uses something similar. A bit of foil wrapped around one of the main grid cables.</p>
+<p>I&#39;m not sure it could accurately measure voltage, but it&#39;s a good way to get the phase angle.</p>
+<p>&nbsp;</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8010"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2484.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Thu, 06/12/2012 - 15:00.</div>
+    <div class="content">
+     <p>Thanks loads for your replies!</p>
+<blockquote><p><em>What is the exact problem with monitoring voltage?</em></p>
+</blockquote>
+<p>I should expand a bit on exactly what I&#39;m doing!&nbsp; I&#39;m doing a computer science PhD on smart meter disaggregation (aka non-intrusive load monitoring)*.&nbsp; I&#39;m kitting my home out with whole-house meters and wireless individual appliance monitors on every appliance.</p>
+<p>Next term, I&#39;m running an MSc student project on <a href="http://www.doc.ic.ac.uk/~dk3810/VADEEC_proposal.html">visualisation and analysis of electrical energy consumption</a> with about 10 students, each of whom will also install an EmonTX (to measure whole-house consumption) and IAMs.&nbsp; The problem is that most of these students live in rented accommodation, where their fuse box is in a communal area.&nbsp; Hence tinkering with their mains wiring (to install a socket) or running cables from their flat to the communal hall are not possible.</p>
+<blockquote><p><em>use a capacitive pick-up at your consumer unit</em></p>
+</blockquote>
+<p>I wasn&#39;t aware of this technique until today!&nbsp; Sounds very intriguing, I may well have a tinker.&nbsp; If I can use the capacitive pickup in the consumer box to get phase angle, and an AC-AC adapter on the base station to measure RMS voltage then I should be good to go.</p>
+<p>Thanks again for the replies!</p>
+<p>(By the way, there&#39;s also some discussion of this issue on the <a href="http://www.navitron.org.uk/forum/index.php/topic,18876.msg216233.html#msg216233">Navitron forum</a>).</p>
+<p>* Incidentally, the ultimate aim of my PhD is to produce an open source NILM package.&nbsp; Which I&#39;d certainly hope to make compatible with the OEM software.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8020"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 06/12/2012 - 23:49.</div>
+    <div class="content">
+     <p>I don&#39;t understand what Paul&#39;s concerns are with measuring voltage, once it has been calibrated - this technique is usual at high voltages ( I&#39;m not sure at what voltage it starts to get used, Alstom and ABB both advertise units for 72 kV upwards).</p>
+<p><a href="http://en.wikipedia.org/wiki/Capacitor_voltage_transformer" title="http://en.wikipedia.org/wiki/Capacitor_voltage_transformer">http://en.wikipedia.org/wiki/Capacitor_voltage_transformer</a></p>
+<p><em>&quot;If I can use the capacitive pickup in the consumer box to get phase angle, and an AC-AC adapter on the base station to measure RMS voltage then I should be good to go.</em>&quot;<br />
+	I&#39;m not sure how you&#39;d marry those two things to accurately calculate real power and apparent power - the real mains isn&#39;t a sine wave!&nbsp; (Read <a class="active" href="https://learn.openenergymonitor.org/?redirect=ac-power-arduino-maths" title="AC Power Theory - Arduino maths">AC Power Theory - Arduino maths</a> if you don&#39;t understand what I&#39;m inferring there).</p>
+<p>[I&#39;ve fixed the circuit diagram link in the post above. Note: the component values need changing for the emonTx, which requires a 1 V rms input centred at 1.65 V:&nbsp; R1 &amp; R2 should both be 820 k, and C2 can be reduced to 3n9 ]</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8022"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1774.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1774.html" title="View user profile.">PaulOckenden</a> on Fri, 07/12/2012 - 07:52.</div>
+    <div class="content">
+     <p>Robert, my comment was because there IS no calibration with the Eco Eye (which it what I was talking about). You just slap a bit of foil round the wire and that&#39;s it.</p>
+<p>I&#39;m assuming it&#39;s only used for phase angle. I suppose they could &#39;guess&#39; at 240V on first contact, and try to measure variance, but I think that would be highly dubious given the nature of the sensor.</p>
+<p>P.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8033"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 07/12/2012 - 13:50.</div>
+    <div class="content">
+     <p>Ah, I understand. I think Jack thought - as I did - that &quot;it&quot; referred to the capacitive p.t. in principle, not the Eco-Eye. The capacitive p.t. is used to measure voltage for metering and protection in power systems, which tends to suggest that properly constructed it will be accurate.</p>
+<p>But I can see how &quot;slapping a bit of foil&quot; would easily lead to a 50% or more variation in the value of the resulting capacitor. If the value you end up with is close to my estimate, then the calibration constant should take care of it. Otherwise, it&#39;s either start again with a longer piece of foil, or cut some off, of change the &#39;bottom&#39; capacitor so as to bring the voltage within a sensible range. As long as the &#39;top&#39; capacitor is stable in value (i.e. it doesn&#39;t move and nobody puts anything close to it), I don&#39;t see a problem.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8096"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2484.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Tue, 11/12/2012 - 09:55.</div>
+    <div class="content">
+     <p>Thanks for your replies.&nbsp; Very interesting stuff.</p>
+<p>If I understand it, a strategy is starting to form:</p>
+<ol>
+<li>
+		Use a bit of foil wrapped around a mains cable, as per the Eco-Eye.&nbsp; This will give us phase angle and, once calibrated, voltage.</li>
+<li>
+		Use an AC-AC adapter on the base station to provide regular voltage calibration updates.</li>
+</ol>
+<p>One thing is slightly worrying me though: would the voltage-step-down-capacitor introduce any latencies?&nbsp; Would we also have to calibrate phase angle?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8107"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 11/12/2012 - 17:44.</div>
+    <div class="content">
+     <p>I think you&#39;d need to check this, but I don&#39;t see a need for what amounts to regular checks on the value of the home-made capacitor.&nbsp; If everything is solid and there&#39;s no relative movement, the value should be stable. Simulation shows that the phase angle is quite possibly better than the AC-AC adapter - certainly it doesn&#39;t change with the applied voltage, and there&#39;s a phase angle calibration built in to the standard software. So there&#39;s probably no need for the ac adapter at the base station.</p>
+<p>I don&#39;t understand what you mean by &quot;latencies&quot;. Can you elaborate?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8154"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2484.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Thu, 13/12/2012 - 09:35.</div>
+    <div class="content">
+     <p>OK, that&#39;s great news that the capacitor should be stable.&nbsp; I still want to build an automated calibration system though (using an AC-AC adapter at the base) because my students will need to install this kit and they wont have much time to tinker.</p>
+<p>Will changes in humidity affect the calibration of the capacitor?</p>
+<blockquote><p><em>I don&#39;t understand what you mean by &quot;latencies&quot;. Can you elaborate?</em></p>
+</blockquote>
+<p>Sorry, you&#39;re right; I wasn&#39;t very clear.&nbsp; I meant: will the waveform reported by the capacitor be precisely in sync with the true voltage in the cable?&nbsp; Will the measured and the actual waveforms be precisely in sync or will there by a phase-shift?&nbsp; (I think you&#39;ve already answered this question by saying that &quot;<em>phase angle is quite possibly better than the AC-AC adapter - certainly it doesn&#39;t change with the applied voltage</em>&quot;.</p>
+<p>Thanks again.&nbsp; I should actually start building this stuff within the next few days.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8156"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2484.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Thu, 13/12/2012 - 10:13.</div>
+    <div class="content">
+     <p>By the way, which op-amp would you recommend?&nbsp; A bit of Googling suggests the <a href="http://www.national.com/ds/LM/LMC662.pdf">LMC662</a> has a very high input impedance. Input bias current is 2 femto amps!&nbsp; Does that sound about right?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8166"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 13/12/2012 - 14:19.</div>
+    <div class="content">
+     <p>Humidity? I don&#39;t think the cable insulation will absorb moisture, so unless it is condensing, I can&#39;t see it making much difference.</p>
+<p>LM662? Not really - it requires a 5 V supply and the emonTx runs off 3.3 V. So even if you do have 5 V available, you need to clamp the output to 3.3 V or you risk damaging the input of the A-D converter. I usually suggest one of the LMV321 family, which are good down to 2.7 V. The only problem is they are surface mount packages.</p>
+<p>	I don&#39;t think there&#39;s a need to go overboard on input impedance. By all means keep it as high as is sensible, you can quite easily check the effect of whatever impedance you think you might have with a simulation program.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8167"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2484.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Thu, 13/12/2012 - 14:46.</div>
+    <div class="content">
+     <blockquote><p><em>LM662? Not really - it requires a 5 V supply and the emonTx runs off 3.3 V</em></p>
+</blockquote>
+<p>Good catch!&nbsp; Thanks!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8168"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2484.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Thu, 13/12/2012 - 15:27.</div>
+    <div class="content">
+     <p>Maybe a <a href="http://uk.rs-online.com/web/p/operational-amplifiers/6674373/">MCP6043</a> op-amp would be a good choice?</p>
+<ul>
+<li>
+		Power supply: 1.4-6 volts, 0.6 micro amps</li>
+<li>
+		1pA input bias current</li>
+<li>
+		5 microVolts input voltage noise</li>
+<li>
+		DIP</li>
+</ul>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8172"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 13/12/2012 - 17:31.</div>
+    <div class="content">
+     <p>That one looks a possibility. Read section 4.4 of the data sheet though, as although the capacitor that it&#39;s driving - the sample &amp; hold capacitor - is very small, if you get any instability you know what to do. The feedback bootstrap capacitor should not have much effect as it already has loads of series resistance associated with it.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8174"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2484.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Thu, 13/12/2012 - 18:05.</div>
+    <div class="content">
+     <p>thank you so much for your amazing attention to detail!&nbsp; I must admit I hadn&#39;t read past page 3 of the data sheet!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8202"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arvidb&#039;s picture" title="arvidb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by arvidb (not verified) on Fri, 14/12/2012 - 14:15.</div>
+    <div class="content">
+     <p>I&#39;ve just bought 10 pcs of MCP6002 to use with emonTX. I thought I had made a nice find, and then you link to MCP604x family! Nice quiescent current on those!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8227"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 15/12/2012 - 02:26.</div>
+    <div class="content">
+     <p>But you&#39;ll notice that it&#39;s at the expense if the gain-bandwidth product. But it&#39;s enough for a unity gain buffer at 50 Hz not to suffer slew rate limiting!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8308"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2484.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Tue, 18/12/2012 - 09:20.</div>
+    <div class="content">
+     <p>A tiny bit of progress to report...</p>
+<p>Robert&#39;s circuit diagram calls for a 15pF capacitor on the mains cable.</p>
+<p>I splashed out on a <a href="http://uk.rs-online.com/web/p/lcr-meters/6873504">capacitance meter</a> (which I&#39;ll almost certainly sell after this project is over!) and a <a href="http://uk.rs-online.com/web/p/conduit-trunking-cable/7079088/">16mm diameter meter tail kit</a>.&nbsp; To create my capacitor, I used aluminium tape (the sort used to tape the gaps between insulation).&nbsp; It turns out that a 35mm stretch of tape gives a capacitance of 15pF.&nbsp; This value wobbles up and down depending on a number of things (like how close your hand is to the setup) so I can&#39;t be precise.&nbsp; The meter has an accuracy of +/- 2pF.</p>
+<p><a href="http://www.flickr.com/photos/37816297@N06/8281886328/"><img alt="" src="../../../farm9.staticflickr.com/8491/8281886328_35081b8866.jpg" style="width: 375px; height: 500px;" /></a></p>
+<p><a href="http://www.flickr.com/photos/37816297@N06/8281887954/"><img alt="" src="../../../farm9.staticflickr.com/8216/8281887954_3d027e366f.jpg" style="width: 500px; height: 375px;" /></a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8311"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 17/12/2012 - 20:29.</div>
+    <div class="content">
+     <p>I was aiming for a length of around that (I&#39;d done the maths, not spent money!), but not exceeding about 50 mm. You could of course have more capacitance there and increase the bottom capacitor <em>pro rata.</em></p>
+<p>What I don&#39;t think I&#39;ve mentioned: You can connect using screened cable, the cable capacitance will form part of that bottom capacitor and so the physical one may, depending on the cable you choose and the length, need to be reduced (or the top capacitor increased) to suit.</p>
+<p>As I said earlier, it&#39;s important that, once installed and calibrated, there&#39;s no physical movement nearby.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8316"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1774.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1774.html" title="View user profile.">PaulOckenden</a> on Mon, 17/12/2012 - 21:14.</div>
+    <div class="content">
+     <p>Length looks similarish to the eco-eye setup, which you can see bottom right in this photo:</p>
+<p>&nbsp;</p>
+<p><a href="../../../www.eco-eye.com/graphics/ecoeyesmartPV.html" title="http://www.eco-eye.com/graphics/ecoeyesmartPV.jpg">http://www.eco-eye.com/graphics/ecoeyesmartPV.jpg</a></p>
+<p>&nbsp;</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8325"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2484.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Tue, 18/12/2012 - 10:18.</div>
+    <div class="content">
+     <p>BTW, just to be sure: there&#39;s absolutely no risk of getting a electric shock from the &quot;mains capacitor&quot; is there?&nbsp; I assume that even if the &quot;aluminium tape&quot; plate of the capacitor does reach a dangerous potential difference, it will store so little charge that it poses no risk.&nbsp; (sorry, I know this is a dumb question)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8326"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1774.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1774.html" title="View user profile.">PaulOckenden</a> on Tue, 18/12/2012 - 10:39.</div>
+    <div class="content">
+     <p>No risk at all.&nbsp;</p>
+<p>If you want to double check, just grip one of your meter tails in your hand.&nbsp;</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8328"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2484.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Tue, 18/12/2012 - 10:51.</div>
+    <div class="content">
+     <p>ok, that&#39;s good news - thanks.&nbsp; (I must admit that I had tried testing the voltage produced by the alumium plate using my multimeter and then tried touching it... but I just wanted to double-check!).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8345"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 18/12/2012 - 14:22.</div>
+    <div class="content">
+     <p>If you are in any doubt, do the maths. You will have more current flowing through your body when you use a neon screwdriver.</p>
+<p>Do you really think I would have suggested this if there was the slightest risk to anyone?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8377"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 18/12/2012 - 21:17.</div>
+    <div class="content">
+     <p>Thinking about your capacitive v.t, you could minimise the external influences by screening it. The capacitance between the pickup foil and the (earthed) screen would - like the cable capacitance - need to be subtracted from the &#39;bottom&#39; capacitor.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8456"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2484.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Thu, 20/12/2012 - 09:55.</div>
+    <div class="content">
+     <blockquote><p><em>Thinking about your capacitive v.t, you could minimise the external influences by screening it</em></p>
+</blockquote>
+<p>Great tip, thank you.&nbsp; Should I worry about the impedance of the screened cable?&nbsp; Would 50 ohms be OK?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8462"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 20/12/2012 - 11:19.</div>
+    <div class="content">
+     <p>How long? You&#39;re not going to be using &gt;0.1 wavelengths, are you? [Hint: One wavelength at 50 Hz = 6000 km ! ! !] Capacitance is more of an issue, but as I said, it just adds to the &#39;bottom&#39; capacitor so you reduce that to suit. TV aerial downlead, single-core audio screened cable would be fine.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8485"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2484.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Measuring real and reactive power WITHOUT measuring voltage on EmonTX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2484.html" title="View user profile.">jack_kelly</a> on Thu, 20/12/2012 - 12:57.</div>
+    <div class="content">
+     <p>Great, thanks.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/1568"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-z4uSkFcz_V3yiJBiOGhFAd1DlHfv5nCRdHjyuf6rJAM" value="form-z4uSkFcz_V3yiJBiOGhFAd1DlHfv5nCRdHjyuf6rJAM"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1568 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:37:23 GMT -->
+</html>

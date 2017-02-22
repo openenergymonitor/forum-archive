@@ -1,0 +1,1499 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5743 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:12:49 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Simple invasive 3-phase energy monitor | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Simple invasive 3-phase energy monitor</h3>
+        <span class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Wed, 10/09/2014 - 17:53</span>
+        <div class="content"><p>Hi there,</p>
+<p>I am using a modified OEM energy monitoring hardware since more than a year now, with one voltage sensor and three CTs for the current measurement of the three mains phases. This system logs via the RFM12 and a Jeelink USB dongle to Emoncms on a Windows Home Server. This setup is running very reliably with an accuracy of better than ~4% compared to my power meter. I think it would be possible to get better accuracy by using individual voltage sensors on all phases.</p>
+<p>In Germany the majority of household have three phase supply. To be able to use three voltage senors it would be necessary to have three outlets within the distribution (for non-invasive mounting). I have never seen that. This means that you have to ask a friendly electrician to install these outlets. But then the whole thing is not really &#39;non-invasive&#39; any more (and the OEM solutions becomes quite complex with a lot of cabling). This is a dilemma which is hard to solve.</p>
+<p>So I came to another solution which is quite simple and uses mostly ready-made components:</p>
+<p>I am using Chinese 3-phase energy monitors since some time for professional purposes (PV-Systems with battery storage). A very nice unit of this type is the Eastron SDM630M. This device has integrated shunts for current measurement, a nice little display and an RS485 interface for data readout with Modbus protocol. A lot of measuring values can be read, including imported and exported energy, phase voltages, currents, frequency, reactive power and so on. Parameters for the RS485 can also be set via four small keys and the display.</p>
+<p>For data storage and visualization I decided use the new Emoncms &#39;low-write&#39; version on a Raspberry Pi. This was installed according to the installation instructions and worked &#39;out-of-the-box&#39;. The only thing missing on the RasbPi for direct connection to the SDM630 is an RS485 interface.</p>
+<p>To be able to use the already existing software for data collection on the RasPi (Emonhub), I simply made a &#39;clone&#39; of the RFM12Pi module. This now has an RS485 driver onboard instead of the RFM12 RF transceiver. Software on the RS485Pi board is the Opti-bootloader (same as on RFM12Pi) for Arduino compatibility and a small sketch for data readout via modbus. As the only available hardware UART is already used for communication with the RasbPi I had to use a software serial for the RS485 interface. (The &#39;ModbusMasterSoft&#39; library I use is a dirty hack of the existing ModbusMaster library and the AltSoftSerial library. I found no decent way to make these two work together, so I had to modify them)</p>
+<p>So the whole installation now consists of:</p>
+<p>- a Raspberry Pi with power supply and the RS485Pi interface board</p>
+<p>- the SDM630 energy meter</p>
+<p>(- and a cable in between :-))</p>
+<p>&nbsp;</p>
+<p>I (try to) attach the schematic drawing of the RS485Pi board (I am not using Eagle, sorry), the sketch for the RS485Pi board and some pictures. I am not totally sure if I am allowed to publish my hacked version of the two libraries but I just try.</p>
+<p>BR, J&ouml;rg.</p>
+<p>PS: I have 9 empty pcbs left of the RS485Pi. Please ask if interested.</p>
+<p>UPDATE 14.07.2015: to get rid of my extra (proprietary) hardware, I have written a small Python script which talks to the SDM630 via a cheap, chinese USB-RS485 adapter now. Give me a PN if you need any details. (thanks for the help, Yves!)</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11823.html" class="topic-previous" title="Go to previous forum topic">‹ AC Adapter polarity.</a>
+              <a href="11829.html" class="topic-next" title="Go to next forum topic">Emonpi POE ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-23732"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/349.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-349.jpg" alt="EnergyRnR&#039;s picture" title="EnergyRnR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/349.html" title="View user profile.">EnergyRnR</a> on Wed, 10/09/2014 - 21:56.</div>
+    <div class="content">
+     <p>J&ouml;rg,</p>
+<p>&nbsp;I&#39;m very interested in those pcbs. Nice idea. I did actually get a quote for a three phase meter from Shenzhen Star Instrument but they quoted $10000 just for the &#39;Data Acquisition System&#39; part so I didn&#39;t proceed.</p>
+<p>The din rail mounted unit you are using looks really neat.</p>
+<p>Thanks for taking the time to post the information ; what is the resistor just over the meter in the photo?</p>
+<p><span style="font-size: 12px; background-color: transparent;">Eamonn</span></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23735"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Wed, 10/09/2014 - 23:55.</div>
+    <div class="content">
+     <p>Eamonn,</p>
+<p>I can buy this unit here in Germany for &euro;87. This is not a bad price.</p>
+<p>The resistor you mention is the 120 ohm termination resistor for the RS485 bus. It has to be mounted externally on the &#39;last&#39; unit of the bus. You can actually use more than one SDM630 on the bus because the Modbus address is selectable.</p>
+<p>The blue current clamps are from the &#39;old&#39; OEM system which is still used in parallel.</p>
+<p>Please send a personal message with your address so that I can send a pcb or two.</p>
+<p>BR, J&ouml;rg.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23742"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1958.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1958.png" alt="fluppie007&#039;s picture" title="fluppie007&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1958.html" title="View user profile.">fluppie007</a> on Thu, 11/09/2014 - 08:58.</div>
+    <div class="content">
+     <p>How accurate is this unit? Is it comparable to the ABB B23 312-100 ?<br />
+	Where did you get it in Germany? Is there a webshop?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23747"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Thu, 11/09/2014 - 10:16.</div>
+    <div class="content">
+     <p>Should be available on your local ebay.</p>
+<p>German webshop is:</p>
+<p><a href="http://bg-etech.de/os/product_info.php?products_id=50">http://bg-etech.de/os/product_info.php?products_id=50</a></p>
+<p>BR, J&ouml;rg.</p>
+<p>PS: I am not able to attach the manual. Accuracy is Class 1.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23750"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Thu, 11/09/2014 - 13:38.</div>
+    <div class="content">
+     <p>Free shipping direct from China on this item $95 = &pound;59 = &pound;74</p>
+<p><a href="http://www.aliexpress.com/item/SDM630-DC-Mutli-Function-Four-Module-Three-Phase-100A-Direct-Connection-Digital-Din-Rail-Power-Meter/936679409.html" title="http://www.aliexpress.com/item/SDM630-DC-Mutli-Function-Four-Module-Three-Phase-100A-Direct-Connection-Digital-Din-Rail-Power-Meter/936679409.html">http://www.aliexpress.com/item/SDM630-DC-Mutli-Function-Four-Module-Thre...</a></p>
+<p>&nbsp;</p>
+<p>I like the look of these units - do they have a single phase model or can you simple ignore the inputs for the other 2 phases?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23751"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1958.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1958.png" alt="fluppie007&#039;s picture" title="fluppie007&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1958.html" title="View user profile.">fluppie007</a> on Thu, 11/09/2014 - 13:41.</div>
+    <div class="content">
+     <p>I just bought a house, so I might install this one in the new fuse box. Need to redo all the electricity in this house :-).</p>
+<p>What&#39;s the update rate? I saw it works on 9600 baud. Can it provide instant readings? If I read the code&nbsp;well, it&#39;s a 1&nbsp;Hz update rate.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23753"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Thu, 11/09/2014 - 13:47.</div>
+    <div class="content">
+     <p><em>Free shipping direct from China on this item $95 = &pound;59 = &pound;74</em></p>
+<p>(&euro;74?) Directly from Eastron I got a quote for 10-50 pieces of about &euro;60-65, but this is without any additional bank and customs charges. Not really a valid alternative.</p>
+<p>You can use the unit as a single phase meter, but there are much cheaper alternatives (e.g. DRS110M, not with exactly the same protocol, but also RS485).&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23754"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Thu, 11/09/2014 - 22:15.</div>
+    <div class="content">
+     <p><em>If I read the code well, it&#39;s a 1 Hz update rate.</em></p>
+<p>I chose 1 Hz just because it &#39;felt right&#39;. Much faster readout is probably not possible because of the protocol overhead, baud rate setting and the software emulation of the serial interface. And not necessary too.</p>
+<p>What I found is, that the voltage values change only every 5 or 6 seconds, so it seems they are internally averaged already. The power and current values change at least every second, I did not try to read any faster.</p>
+<p>Edit: I just tested it. Power values are updated every second, voltage values every 6 seconds. Readout of one single value takes roughly 30ms, readout of 9 values about 80ms (@9600 baud).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24813"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6291.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="yves&#039;s picture" title="yves&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6291.html" title="View user profile.">yves</a> on Sun, 26/10/2014 - 14:52.</div>
+    <div class="content">
+     <p>Hi J&ouml;rg</p>
+<p>it seems,&nbsp;others in central europe&nbsp;fighted the same 3 phase-&#39;war&#39;, i had ;-) but with slightly different solution.</p>
+<p>I got&nbsp;a solar generator installed this summer and for measurement, they installed me 2 Schneider Electric Energy Meters (with modbus onboard). I took an rs485 USB-Adapter from conrad&nbsp;and the minimalmodbus python library to read out the values from the pi. &nbsp;(was not completely pain-less; but works quit fine now)</p>
+<p>Regards Yves</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24819"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Sun, 26/10/2014 - 21:48.</div>
+    <div class="content">
+     <p>Hi Yves,</p>
+<p>nice to hear about your solution. Schneider sounds expensive :-))</p>
+<p>My point was that I wanted to be able to use the &#39;standard&#39; (&#39;low-write&#39;) SD-card image for Emoncms on the Raspberry Pi without any modifications and this was the reason why I decided to &#39;clone&#39; the RFM12Pi to get a 100% compatible RS485 board.</p>
+<p>So, your solution uses readily available hardware with a &#39;non-standard&#39; software and my solution uses proprietary hardware with standard software. As I am more a hardware guy, this choice was obvious for me. I have very little experience with Linux and also with the Python, PHP, ... stuff.</p>
+<p>BR, J&ouml;rg.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24909"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6291.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="yves&#039;s picture" title="yves&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6291.html" title="View user profile.">yves</a> on Sun, 02/11/2014 - 07:09.</div>
+    <div class="content">
+     <p>Hi J&ouml;rg</p>
+<p>@ expensive;&nbsp;You may be right, compared to the chinese&nbsp;meter. But here in Switzerland, it is one of the cheaper in the row of certificated meters. The price was a bit below 200 Euros.&nbsp;</p>
+<p>@ hardware; I understand. Bud i had only the pi (near the electric installation) and no rf parts around. So, it seemed to be &#39;right&#39; to tinker a little bit of software to send the data to emon...</p>
+<p>Regards Yves</p>
+<p><em>[Multiple duplicate posts deleted. Moderator - RW][Thanks Yves]</em></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25865"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7278.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7278.jpg" alt="Simone72&#039;s picture" title="Simone72&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7278.html" title="View user profile.">Simone72</a> on Tue, 16/12/2014 - 12:35.</div>
+    <div class="content">
+     <p>Hello everyone!</p>
+<p>As&nbsp;J&ouml;rg&nbsp;Becker I&#39;m lucky to retrieve values from an electrical meter class MID (ENERDIS&nbsp;ULYS&nbsp;MD80&nbsp;ULYSCOM&nbsp;MODBUS&nbsp;RS485-M&nbsp;+), I know it is not the cheapest ...<br />
+With an&nbsp;Arduino&nbsp;Mega 2560 and an&nbsp;ethernet&nbsp;shield + SD + RTC can do&nbsp;dataloggers&nbsp;locally with a nice CSV file.<br />
+I&#39;m finalizing the transfer of data from&nbsp;Arduino&nbsp;to&nbsp;Emoncms&nbsp;but I have a doubt about the final format.</p>
+<p>With the&nbsp;Arduino&#39;s&nbsp;ethernetserver&nbsp;I&nbsp;can send strings like this:</p>
+<p>GET/api/post?apikey=Myverylongerapikey&amp;node=0&amp;json={Voltage:236548,Current:14785,Power-Factor:78548,Active-Power:485250}</p>
+<p>It seems to work very well, but ...</p>
+<p>I&#39;m using the float but I do not know if I should send KW or W, kWh or Wh, A or mA?</p>
+<p>I&#39;m reading in&nbsp;imputAPIhelp&nbsp;but does not help me ;-)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25868"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 16/12/2014 - 13:02.</div>
+    <div class="content">
+     <p>What physical quantities you send depends on what <b><i>information</i></b> you want to send!</p>
+<p>1 kW = 1000 W.<br />
+A Watt is a measure of power (not necessarily electrical even). If you send W, the numbers are 1000 times bigger but you get that much more detail.</p>
+<p>1 kWh = 1000 Wh<br />
+A Watt.hour is a measure of energy, the power over a given time. This is the unit that measures the energy that you pay for.</p>
+<p>1 mA = 0.001 A.<br />
+It is the current drawn by (or maybe generated by) a device or appliance. It is meaningful in terms of the capacity of the wiring in your house, but it is not meaningful in terms of power or energy. If you need to know if a fuse is likely to rupture or a breaker trip, this will help you.</p>
+<p>So you need to decide what you want to know from your system.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25880"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7278.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7278.jpg" alt="Simone72&#039;s picture" title="Simone72&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7278.html" title="View user profile.">Simone72</a> on Tue, 16/12/2014 - 15:40.</div>
+    <div class="content">
+     <p>Thanks for the clarification Robert,<br />
+I have no problem to know what is an KW or a W,<br />
+my problem is more precisely about how to bring up the comma and two decimal places in the data that I send ...</p>
+<p>Currently I send 234568 mV and I would like to see 234,568V</p>
+<p>I think it&#39;s more a problem of my code with Arduino ...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25884"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 16/12/2014 - 16:15.</div>
+    <div class="content">
+     <p>I see now. Your question was less than clear.<br />
+I think you say you are sending a floating point number. But first some history. The original emonCMS could only accept integer values, therefore it was standard practice to send 23456 for the voltage (within the range -32768 - +32767) and multiply by 0.01 inside emonCMS to get the correct voltage - 234.56 V. If you are sending a floating point value, then there is no real difference between sending 234568 in mV, then multiplying by 0.001 at the receiving end, or multiplying by 0.001 at the sending end and sending 234.568 in V. If you have the value in mV in an integer and want to send the value in V with a decimal, then you multiply mV by 0.001 and store the number in a float. How many decimal places is a function of the display at the receiving end, it has nothing to do with the sending end. If you are <i>printing</i> the value with a decimal, then you need to look at the Arduino Help to see the details of the Serial.print command to control the number of decimal places. From the Arduino Help:</p>
+<p>Serial.println(1.23456, 0) gives "1"<br />
+Serial.println(1.23456, 2) gives "1.23"<br />
+Serial.println(1.23456, 4) gives "1.2346"</p>
+<p>But beware, there <i>might</i> be a problem with the decimal separator. In the UK, we use '.' whereas I see you use ','. If the system expects ',' to separate the values, then you have a problem.</p>
+<p>[Edited to add detail.]</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25886"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7278.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7278.jpg" alt="Simone72&#039;s picture" title="Simone72&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7278.html" title="View user profile.">Simone72</a> on Tue, 16/12/2014 - 18:48.</div>
+    <div class="content">
+     <p>Thanks Robert,<br />
+I saw some code and now I have this on the Arduino serial monitor:</p>
+<p>Connecting...<br />
+228.88<br />
+3.18<br />
+64.58<br />
+696.99<br />
+50.01<br />
+54.19<br />
+HTTP/1.1 200 OK<br />
+Date: Tue, 16 Dec 2014 18:33:01 GMT<br />
+Server: Apache/2.2.22 (Ubuntu)<br />
+X-Powered-By: PHP/5.3.10-1ubuntu3.15<br />
+Content-Length: 2<br />
+Connection: close<br />
+Content-Type: application/json</p>
+<p>ok<br />
+Disconnecting...</p>
+<p>The code I have rewritten is:</p>
+<p>&nbsp; //Create Data to Emoncms.org<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; &nbsp; Voltage = (Compact2Word(12,readRegs1))/1000.0;<br />
+&nbsp; &nbsp; &nbsp; Current = (Compact2Word(22,readRegs1))/1000.0;<br />
+&nbsp; &nbsp; &nbsp; PowerFactor = readRegs1[27]/1000.0;<br />
+&nbsp; &nbsp; &nbsp; ActivePower = Compact3Word(6,readRegs2)/1000.0;<br />
+&nbsp; &nbsp; &nbsp; Frequency = readRegs2[33]/1000.0;<br />
+&nbsp; &nbsp; &nbsp; ActiveEnergy = (Compact3Word(9,readRegs3))/10000.0;<br />
+&nbsp; &nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; //send values<br />
+&nbsp; &nbsp; sendData();<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; Serial.println(Voltage);<br />
+&nbsp; &nbsp; Serial.println(Current);<br />
+&nbsp; &nbsp; Serial.println(PowerFactor);<br />
+&nbsp; &nbsp; Serial.println(ActivePower);<br />
+&nbsp; &nbsp; Serial.println(Frequency);<br />
+&nbsp; &nbsp; Serial.println(ActiveEnergy);<br />
+&nbsp; }</p>
+<p>and this for sending to the Server:</p>
+<p>void sendData() {<br />
+&nbsp; // if there&#39;s a successful connection:<br />
+&nbsp; if (client.connect(emoncms, 80)) {<br />
+&nbsp; &nbsp; Serial.println(&quot;Connecting...&quot;);<br />
+&nbsp; &nbsp; // send the HTTP GET request:<br />
+&nbsp; &nbsp; client.print(&quot;GET /api/post?apikey=&quot;); // GET /api/post?apikey=Myapikey&amp;node=0&amp;json={Voltage:236548,Current:14785,Power-Factor:78548,Active-Power:485250}&nbsp;<br />
+&nbsp; &nbsp; client.print(apikey);<br />
+&nbsp; &nbsp; if (node &gt; 0) {<br />
+&nbsp; &nbsp; &nbsp; client.print(&quot;&amp;node=&quot;);<br />
+&nbsp; &nbsp; &nbsp; client.print(node);<br />
+&nbsp; &nbsp; }<br />
+&nbsp; &nbsp; client.print(&quot;&amp;json={Voltage:&quot;);<br />
+&nbsp; &nbsp; client.print(Voltage, 2); &nbsp; &nbsp;<br />
+&nbsp; &nbsp; client.print(&quot;,Current:&quot;);<br />
+&nbsp; &nbsp; client.print(Current, 2);<br />
+&nbsp; &nbsp; client.print(&quot;,Power-Factor:&quot;);<br />
+&nbsp; &nbsp; client.print(PowerFactor, 2); &nbsp;&nbsp;<br />
+&nbsp; &nbsp; client.print(&quot;,Active-Power:&quot;);<br />
+&nbsp; &nbsp; client.print(ActivePower, 2);&nbsp;<br />
+&nbsp; &nbsp; client.print(&quot;,Frequency:&quot;);<br />
+&nbsp; &nbsp; client.print(Frequency, 2);<br />
+&nbsp; &nbsp; client.print(&quot;,Active-Energy:&quot;);<br />
+&nbsp; &nbsp; client.print(ActiveEnergy, 2); &nbsp;<br />
+&nbsp; &nbsp; client.println(&quot;} HTTP/1.1&quot;);<br />
+&nbsp; &nbsp; client.println(&quot;Host:emoncms.org&quot;);<br />
+&nbsp; &nbsp; client.println(&quot;User-Agent: Arduino-ethernet&quot;);<br />
+&nbsp; &nbsp; client.println(&quot;Connection: close&quot;);<br />
+&nbsp; &nbsp; client.println();</p>
+<p>&nbsp; &nbsp; // note the time that the connection was made:<br />
+&nbsp; &nbsp; lastConnectionTime = millis();<br />
+&nbsp; }&nbsp;<br />
+&nbsp; else {<br />
+&nbsp; &nbsp; // if you couldn&#39;t make a connection:<br />
+&nbsp; &nbsp; Serial.println(&quot;Connection failed&quot;);<br />
+&nbsp; &nbsp; Serial.println(&quot;Disconnecting...&quot;);<br />
+&nbsp; &nbsp; client.stop();<br />
+&nbsp; }<br />
+}</p>
+<p>But in the page of Imputs of Emoncms&nbsp;I have that!</p>
+<p>See the image attached... Mistery...</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25889"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 16/12/2014 - 19:20.</div>
+    <div class="content">
+     <p>Are you saying that the numbers that you see on the local terminal do not agree with the numbers showing in emonCMS? Are you sure they should be the same? The numbers I would expect not to change much - voltage and frequency - have indeed not changed. If conditions changed, you can expect to see different values. While you are debugging, you would find it easier to replace the real data with artificial data that does not change, then you can check that the correct numbers are being transferred.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25966"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7278.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7278.jpg" alt="Simone72&#039;s picture" title="Simone72&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7278.html" title="View user profile.">Simone72</a> on Thu, 18/12/2014 - 17:41.</div>
+    <div class="content">
+     <p>Thanks Robert,<br />
+when I saved the image inputs page&nbsp;values had changed slightly but this is not the problem.</p>
+<p>If you see well the voltage has not recovered decimal numbers after the decimal point, same thing for the active power ...<br />
+The remaining values are consistent and fair.</p>
+<p>How so?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25970"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 18/12/2014 - 19:37.</div>
+    <div class="content">
+     <p>It does the same for me (always a maximum of 3 digits) and I cannot explain that. It needs someone who knows emonCMS better.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25973"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 18/12/2014 - 20:54.</div>
+    <div class="content">
+     <p>I think you&#39;ll find it&#39;s just rounding in&nbsp;the webpage rendering. From memory I think you get 2 decimal places below&nbsp;10 and 1 up to 100 and just whole numbers beyond that. It applies to both&nbsp;the input and the feed pages.</p>
+<p>I see all your inputs are logged to a feed, it you get the feed number from the feeds page and use this url in your browser (while logged in or add apikey) you should get the current unrounded value returned.</p>
+<blockquote><p><a href="http://emoncms.org/feed/value.json?id=">http://emoncms.org/feed/value.json?id=<em>12345</em></a></p>
+</blockquote>
+<p>The data is good to (again from memory) 14 digits of&nbsp;precision.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25978"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 18/12/2014 - 23:12.</div>
+    <div class="content">
+     <p>One trick I use when I want to see the extra precision is to display the feed value under the dial:</p>
+<p><img alt="" src="../sites/default/files/Screenshot-94.png" style="height:118px; width:500px" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25988"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7278.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7278.jpg" alt="Simone72&#039;s picture" title="Simone72&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7278.html" title="View user profile.">Simone72</a> on Fri, 19/12/2014 - 12:19.</div>
+    <div class="content">
+     <p>Tank you Paul,<br />
+as I understand it, when i&#39;m logged in, copy and paste the link and surprise ... FALSE!<br />
+Its so normal? :-)<br />
+My browser is chrome ... this is the problem?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26032"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 21/12/2014 - 14:26.</div>
+    <div class="content">
+     <p>Yes it&#39;s normal if you haven&#39;t edited the link for your own feedid, Chrome is fine, that&#39;s what I use too.</p>
+<p>You will need to add the feed id number of the feed in question, in my post I used &quot;12345&quot; as an example and when you click the link it will open a page and return false because there is no feed id number&nbsp;</p>
+<blockquote><p><a href="http://emoncms.org/feed/value.json?id=" title="http://emoncms.org/feed/value.json?id=">http://emoncms.org/feed/value.json?id=</a></p>
+</blockquote>
+<p>add the feedid&nbsp;you wish to look up to the end and enter............or</p>
+<p>If you are not logged in you should also add&nbsp;</p>
+<blockquote><p>&amp;apikey=</p>
+</blockquote>
+<p>and add you 32 digit api key to the end of that so you end up with&nbsp;</p>
+<blockquote><p>http://emoncms.org/feed/value.json?id=<strong>123</strong>&amp;apikey=<strong>1234abcd5678</strong></p>
+</blockquote>
+<p>​replacing the bold text with your own feed id and apikey..</p>
+<p>This was just suggested to show that your data was retaining the precision although displayed differently on the input page, dBC&#39;s suggestion above also demonstrates the point well.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26161"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7278.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7278.jpg" alt="Simone72&#039;s picture" title="Simone72&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7278.html" title="View user profile.">Simone72</a> on Sat, 27/12/2014 - 12:22.</div>
+    <div class="content">
+     <p>Thank You pb66!<br />
+I could check and actually the accuracy is maintained.<br />
+If the voltage I recovered &quot;227.88&quot;<br />
+Too bad that the display on the input / view is reduced ...</p>
+<p>Thank you all!</p>
+<p>Simone</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27655"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Fri, 13/02/2015 - 08:57.</div>
+    <div class="content">
+     <p>Jorg,</p>
+<p>your idea with SDM630DC and MODBUS Master library is great. Im working on it, but I got stuck. Im trying to use Jeenode with RFM12 instead of your plug,&nbsp;as my Raspi&nbsp;is too far from SDM630 to use your way. Jeenode is equal (almost) to UNO, but with limited group of Digital IO pins available (just D4,5,6,7). Your AltSoftSerial library has fixed communication pins 8,9,10 used for UNO based systems. I tried to redefine them, but I failed. Another option for me is to use hardware&nbsp;serial pins 0 and 1 as RFM12 comunicates&nbsp;via SPI and Serial 0 is unused in my project (except of image upload phase). But If Im using regular Modbus Master library, I get error during compilation in Arduino IDE (version 1.6) and I found info, that this library is not supported more. Do you have any idea how continue with my project. Im using Jeenodes&nbsp;with RFM12&nbsp;for may other monitoring tasks&nbsp;and that would be really great to use it as SDM630 monitorig node too.</p>
+<p>Radek</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27659"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Fri, 13/02/2015 - 10:16.</div>
+    <div class="content">
+     <p>Radek,</p>
+<p>if you have a free hardware serial, please use that. It will probably give less trouble. Although I was surprised to see that &#39;my&#39; solution of combining AltSoftSerial and Modbus library works nearly perfectly. And it gave me more control over switching of the RS485 enable. This clearly has to be adapted when using the hardware serial.</p>
+<p>My system is now running since &gt;5 months without a single problem. Although compared to the published version of the sketch, I have added some &#39;failsafe&#39; code. When switching &#39;nasty&#39; loads, I sometimes got &#39;hang-ups&#39; of the RS485. This is now solved by simply resetting the communication after failing for some seconds. And then the number of successful communication cycles is counted and then used in the averaging (instead of a fixed divisor).</p>
+<p>Hmm, which RS485 hardware (driver chip) are you using with the Jeenodes? I have some jeenodes lying around and could test a similar system. If you want me to check your code, send me a PM. I will try to find the reason for the compilation problems.</p>
+<p>BR, J&ouml;rg.</p>
+<p>PS: and thanks for coming back to the original subject of this thread ...... :-))</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27662"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Fri, 13/02/2015 - 10:43.</div>
+    <div class="content">
+     <p>At this moment Im using standard Arduino RS485 shield with MAX481&nbsp;chip&nbsp;from Sparkun, as there is easy to play with wiring changes (I have prepared MAX487 chip for final solution). When I use this shield&nbsp;with Arduino UNO and with your sketch, everything works great (except I have to rewire TX and RX pins from standard 0 and 1 to 8 and 9 according to AltSoftSerial library). What is interesting, it works even in direction pin 10&nbsp;is not used.</p>
+<p>The issue is to use pins, which are available on Jeenodes. There are 4,5,6,7 and 14,15,16,17 pins available at I/O ports and standard hardware TX/RX pins available at FTDI connector. I didnt find way, how to modify AltSoftSerial library to communicate via one of available pins. So I tried to replace ModbusMasterSoft library in your sketch by standard ModbusMaster library (which is, I hope, using standard hardware TX/RX pins). And I got complex compilation error message, see attach. Im also attaching your sketch modified for usage of ModbusMaster library and that Modbusmaster library itself to check, whether Im using the correct one. Im using Arduino&nbsp;IDE 1.6.</p>
+<p>Your any hint is more than welcome...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27663"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Fri, 13/02/2015 - 11:32.</div>
+    <div class="content">
+     <blockquote><p>What is interesting, it works even in direction pin 10&nbsp;is not used.</p>
+</blockquote>
+<p>Yes, they are using an unconventional way to enable the driver only for the &#39;active&#39; bits during transmission.</p>
+<p>I also had problems with the original Modbus Master library and specifying the serial port as a parameter. This is the reason why I &#39;hard-coded&#39; this in the end.</p>
+<p>I think the way to go is to try to get the original sketch going on the Jeenode. No idea atm why it is working for you on a UNO, but not on a Jeenode!?! Have to test this myself.</p>
+<p>J&ouml;rg.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27669"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Fri, 13/02/2015 - 13:09.</div>
+    <div class="content">
+     <p>Radek,</p>
+<p>I have just tried to use my original sketch (the one I just sent an hour ago) on the Jeenode and it seems to work! The &#39;pins&#39; 8 and 9 which are used for RX and TX by the AltSoftSerial library can be found on the Jeenode on the extension of the SPI header (pins 7 and 8). I have just connected these two pins to the RS485 shield (+ PWR and GND off course) and it happily sends out the Modbus requests on the RS485. I cannot test reception as I do not want to disconnect my SDM630 from my system.</p>
+<p>Please try and come back.</p>
+<p>J&ouml;rg.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27671"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Fri, 13/02/2015 - 13:43.</div>
+    <div class="content">
+     <p>Sounds promissing, Jorg&nbsp;!!! Im just playing with my system, so Im going to test your idea and get back to you with results. Stay tuned.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27676"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Fri, 13/02/2015 - 14:42.</div>
+    <div class="content">
+     <p>I just tested it. Good news is, this RX/TX pair at Jeenode really exist. Flashing TX ad RX diodes at RS485&nbsp;are shoving, that communication between sheet and SDM630 works. Also handset symbol at SDM630&nbsp; display says, it communicates to each other. Bad news is, serial monitor shows just repeating &quot;SDM630 testing...&quot; message, but no any values coming from SDM630.&nbsp;</p>
+<p>I found at Jeenode schema, that PB0 and PB1 (pins 8 and 9) are unused by jeenode itself, but PB2 (pin 10), used as a timer in AltSoftSerial library, is used by Jeenode as a SEL pin for RFM12&nbsp;module. Couldnt it be a problem?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27683"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Fri, 13/02/2015 - 17:11.</div>
+    <div class="content">
+     <p>I don&#39;t think pin 10 is a problem, as the AltSoftSerial description says that this pin can be used as a digital I/O (SEL function for RFM12B) without problems. Only the PWM function on this pin is lost because AltSoftSerial uses Timer2.</p>
+<p>Are you powering the RS485 shield with 5V or with 3.3V? The Atmel on a Jeenode works with 3.3V. I do not know if the RS485 shield is happy with this voltage because the MAX481 is a 5V device. But signals do look quite good.</p>
+<p>I can only see some spikes on the RX line. This could be due to the mentioned &#39;unconventional&#39; use of the Enable pins.</p>
+<p>Sorry that I cannot test with the SDM630, but it is now &#39;buried&#39; in my distribution. No chance to get at it without a lot of work.</p>
+<p>J&ouml;rg.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27702"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Sat, 14/02/2015 - 09:46.</div>
+    <div class="content">
+     <p>Jorg,</p>
+<p>I understand for sure you cannot dismount your SDM630 from your live&nbsp;system. I have the same situation, so I bought another SDM630 for testing and development purposes.</p>
+<p>As Im still not successful with Jeenode, I made interesting experiment. I moved whole setup (shield, wiring and sw sketch) from Jeenode to standard UNO board. And it works with pins 8 and 9. What is strange, results delivered but serial monitor:</p>
+<p>SDM630M Test Program 24.09.2014<br />
+8<br />
+&nbsp;10 0 0 0 0 0 0 61 9 0 0 0 0 0 0 0 0<br />
+3<br />
+&nbsp;10 237 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0<br />
+1<br />
+&nbsp;10 237 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0<br />
+2<br />
+&nbsp;10 237 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</p>
+<p>That value 237 is correct. But what is meaning of those single values at each second&nbsp;row? Does it mean, that only 1-3 successful reading from 10 in each series? If so, there si probably some problem with signal readings. Or am I wrong?</p>
+<p>Radek</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27708"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Sat, 14/02/2015 - 13:22.</div>
+    <div class="content">
+     <p>Yes, the single value is the number of successful complete readouts (voltage + power).</p>
+<p>I found a way to run the RS485 from the SDM630 to my desktop (the old cable was still lying there:-)) With the jeenode I can see that the correct values are read from the bus, but there seems to be a problem somewhere with extra bytes read or something like that.</p>
+<p>I have a feeling that the problems come from the unconventional way of controlling the enable pins (I see a lot of glitches on the scope) or the wrong voltage level.</p>
+<p>J&ouml;rg.</p>
+<p>&nbsp;</p>
+<p>PS: Bad weekend for debugging, today is my wives birthday, tomorrow my sons and an monday my own! So I am quite busy with other things :-)</p>
+<p>&nbsp;</p>
+<p>PPS: do you use a termination resistor on the SDM630 side?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27711"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 14/02/2015 - 13:24.</div>
+    <div class="content">
+     <p><i>"my wives birthday"</i><br />
+I'm sure you didn't mean that, J&ouml;rg.  "wives" is the plural, you meant "wife's" - belonging to one wife. ;-)<br />
+Anyway, Happy Birthday to them and to you. </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27713"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Sat, 14/02/2015 - 13:58.</div>
+    <div class="content">
+     <p>Haha, that would have been even harder .... :-)))&nbsp; (and illegal!).</p>
+<p>I had written &#39;wifes&#39; originally and then thoughtlessly used the correction function.</p>
+<p>Thank you! J&ouml;rg.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27716"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Sat, 14/02/2015 - 16:01.</div>
+    <div class="content">
+     <p>Radek,</p>
+<p>I just tried to &#39;bypass&#39; the &#39;unconventional&#39; enable method of the RS485 shield. Modified the ModbusMasterSoft.cpp to use pin 4 instead of pin 10 for Enable and connected that Jeenode pin to pins 2 and 3 of the Max (after removing the MOSFET). Works immediately!&nbsp;</p>
+<p>So this is a problem of the RS485 shield. If you do your own hardware you can easily fix this like just said.</p>
+<p>BR, J&ouml;rg.</p>
+<p>PS: I knew why I did not like the way they use the Enable .....</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27717"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Sat, 14/02/2015 - 16:06.</div>
+    <div class="content">
+     <p>Jorg,</p>
+<p>first of all, enjoy celebrating weekend with all of your wives :-).</p>
+<p>Just to let you know, I probably&nbsp;found a solution, how to read data from SDM into Jeenode&nbsp;reliable way&nbsp;and to forward them via RFM12 into EMONCMS. Im using hardware TX and RX pins and D7 at port 4 as a direction pin. Voltage is not a problem, RS485&nbsp;shield is powered by 3,3 V from Jeenode and there are no dropouts in value&nbsp;readings. Im no using Modbus&nbsp;Master Soft/AltSoftSerial library, but SimpleModbusMaster Library instead. It is very early prototype level yet, but it works!&nbsp;Im going to write&nbsp;simple sketch based on your original testing sketch to have unified platform. I will keep you informed. Stay tuned.</p>
+<p>Happy birthday to you and to whole your family.</p>
+<p>Radek</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27718"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Sat, 14/02/2015 - 16:20.</div>
+    <div class="content">
+     <blockquote><p>.......enjoy celebrating weekend with all of your wives :-).</p>
+</blockquote>
+<p>:-)) One is (sometimes more than) enough for me ....</p>
+<p>So you found the same solution to directly control the enable. This seems to be the only reliable solution. The nice thing with using a soft serial for RS485 is that you have the original hardware serial (via USB) free for debugging.</p>
+<p>And thanks for your birthday greetings!</p>
+<p>J&ouml;rg.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27719"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Sat, 14/02/2015 - 18:17.</div>
+    <div class="content">
+     <p>I didnt modified RS485 shield and in final setup there is direction control pin unused. Just four wires between Jeenode&nbsp;and RS485 shield. TX, RX, 3.3V, Ground. It works without any&nbsp;problems.</p>
+<p>Yes, you are right, it si nice to have FTDI port with TX and RX pins free for debuging and you havent to disconnect RX pin during&nbsp;each sketch upload. But final sketch is very elementar. You can see in attach example reading Voltage1 and Frequency and forwarding it to EMONCMS via RFM12.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30795"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8239.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Angelo306&#039;s picture" title="Angelo306&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8239.html" title="View user profile.">Angelo306</a> on Sun, 31/05/2015 - 06:48.</div>
+    <div class="content">
+     <p>Hello to all of you,</p>
+<p>I am really interested in your project and it is very good that you share your experience and knowledge with us. &nbsp;I would like to make a data logging and displaying Raspberry or Windows server taking data from a Siemens energy analyzer which has a modbus through Ethernet to send data.</p>
+<p>Can you give me your thoughts or very initial guidelines how to set this system up and if there is any ready made software for my application?</p>
+<p><i>[Duplicate post deleted. Moderator (RW)]</i></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30808"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Sun, 31/05/2015 - 12:42.</div>
+    <div class="content">
+     <p>Hi Angelo,</p>
+<p>my setup is based on energy meter SDM630DM, which is available for very affordable price (under $100) at Aliexpres, communicating via MODBUS RTU @&nbsp;RS 485 to Jeenode from Jeelabs, which is forwarding data to Emonhub running on Raspi&nbsp;and then&nbsp;to EMONCMS as final data logger and processor. Processed data are then available for presentation level at any third&nbsp;party web pages via very simple JSON commands or directly in EMONCMS Dashboards. It means, this is a real end to end solution. Besides of Arduino sketch, which is tailor made for this energy meter, all other chain parts are standard&nbsp;modules of Open energy monitor.</p>
+<p>Radek</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31012"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8239.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Angelo306&#039;s picture" title="Angelo306&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8239.html" title="View user profile.">Angelo306</a> on Sun, 07/06/2015 - 15:29.</div>
+    <div class="content">
+     <p>Hi Radek,</p>
+<p>&nbsp;</p>
+<p>thank you&nbsp;for your reply. I understand your setup but the thing is that I want to make a data-logging solution with the current energy analyzers that are already installed in various installations. Also the good thing with Modbus over TCP is that it can be connected to switches and get the data from a longer distance.</p>
+<p>Since I have the equipment I would like 1-2 guidelines in order to begin and then to proceed.</p>
+<p>&nbsp;</p>
+<p>Angelo</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32206"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 14/07/2015 - 10:05.</div>
+    <div class="content">
+     <p>I have just updated my installation. Instead of using my own proprietary &#39;RS485_Pi&#39; hardware, I have now changed to a cheap chinese USB-RS485 adapter (with CH340 chip). Cost is around 5&euro; on ebay and the unit works without any need to load drivers on the Raspberry Pi.</p>
+<p>To read out data from the SDM630 I have now done a little Python script, which is automatically started after boot-up (Yves, thanks for the help!). I am not very familiar with Python, so the script can for sure be improved. But it is working ok for me atm.</p>
+<p>BR, J&ouml;rg.</p>
+<p>PS: had to rename the Python script to .txt to be able to upload.</p>
+<p>&nbsp;</p>
+<p><em>Edit - munged API key in attachment for security - BT</em></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32270"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Wed, 15/07/2015 - 17:39.</div>
+    <div class="content">
+     <p>Good idea, Jorg, that RS485/USB adapter. I will try it too.</p>
+<p>My current effort is to eliminate&nbsp;Raspberry at all&nbsp;as a basestation. For monitoring of&nbsp;a few (up to some 10) temperatures Im just now testing great device ESP 01 with ESP8266 chip, which is forwarding data directly to EMONCMS&nbsp;in cloud via Wifi (combination of ESP01 and DS18B20). Thats really great piece of HW of a new IoT generation. Next step will be to mount ESP05 (variant of ESP01) directly to A/B connection of SDM630 and to forward measured data also to EMONCMS&nbsp;by this shortcut. Only limitation I see now with ESP8266 chip is, there is no A/D, so no analog input. But for reading local digital data and forwarding them to cloud, is&nbsp;is a great chip.&nbsp;&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32284"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Thu, 16/07/2015 - 07:31.</div>
+    <div class="content">
+     <p>/offtopic start</p>
+<p>I am also working with the ESP8266, great chip indeed! But I am just starting. One big problem for me atm is the high power consumption. It just means that a &#39;real&#39; power supply is needed, as is a PCB then and .....</p>
+<p>And the ESP8266 has an AD input, but this is possibly not connected to a pin of the ESP01. I am using the ESP03.</p>
+<p>I would prefer to use an external ADC (12-Bit MCP3208 or 16/18-Bit MCP342x) which could be easily connected via a (bit-banged) SPI or I&sup2;C.</p>
+<p>/offtopic stop :-))</p>
+<p>&nbsp;</p>
+<p>I wanted to use a readily available USB-RS485 now on the Raspberry Pi as for most users it is much easier to buy something than to build it (I had some requests for my RS485Pi hardware and could only send the remaining PCBs).&nbsp; &nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32290"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Thu, 16/07/2015 - 11:51.</div>
+    <div class="content">
+     <p>Great news, Jorg, you are also working on ESP8266 utilization. Lets stay in touch to share our experience with this excellent piece of HW. But to not disturb this topic, Im going to send you PM.</p>
+<p>Radek</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32299"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Thu, 16/07/2015 - 17:06.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>I have also started to use ESP8266&nbsp;with emoncms using mqtt as the communication channel. I think a lot of people would be interested if any discussion remained on the forum (under the appropriate topic).</p>
+<p>Regards</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32305"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Thu, 16/07/2015 - 23:33.</div>
+    <div class="content">
+     <blockquote><p>I think a lot of people would be interested if any discussion remained on the forum (under the appropriate topic).</p>
+</blockquote>
+<p>Very good idea! How can we do that? Just open up another thread with &#39;ESP8266 ....&#39; headline?</p>
+<p>J&ouml;rg.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32392"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Mon, 20/07/2015 - 07:15.</div>
+    <div class="content">
+     <p>Just got the info that the Eastron SDM630 energy meter is now MID approved (not sure since when). This means that it can be used for &#39;official&#39; metering puposes in European countries and Switzerland.</p>
+<p>BR, J&ouml;rg.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32408"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Mon, 20/07/2015 - 15:09.</div>
+    <div class="content">
+     <p>Just to let you know good news - I&nbsp;have just got running&nbsp;new measured data channel:&nbsp;sensor -&nbsp;powerfull Arduino DUE with 32bit CPU ,12bit&nbsp;AD and 3xHW serial -&nbsp;ESP8266 directly via WiFi&nbsp;to emoncms hosted at VPS. It eliminates Raspi with Emonhub and makes whole landscape and its communication much easier and transparent.&nbsp;And there are at least two HW serials available&nbsp;for SDM630 connection. Really great piece of HW is that ESP8266!</p>
+<p>​Radek</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32640"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="spaceboy&#039;s picture" title="spaceboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by spaceboy (not verified) on Sun, 26/07/2015 - 20:36.</div>
+    <div class="content">
+     <p>Hi everybody</p>
+<p>Just a quick question about the&nbsp;SDM630&nbsp;speed - can you please check how fast it updates the phase current reading?</p>
+<p>What I&#39;m thinking of is to use it also as current sensor, and use the home control system to disconnect unneeded load when the phase current is close to the main circuit breaker rating. This way my&nbsp;(future)&nbsp;house&nbsp;can save some &euro;200 yearly on fixed payments for reserved power.</p>
+<p>Many thanks!</p>
+<p>Petr</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32677"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Mon, 27/07/2015 - 09:01.</div>
+    <div class="content">
+     <p>Answer was somewhere in the thread above:</p>
+<blockquote><p>I just tested it. Power values are updated every second, voltage values every 6 seconds. Readout of one single value takes roughly 30ms, readout of 9 values about 80ms (@9600 baud).</p>
+</blockquote>
+<p>BR, J&ouml;rg.</p>
+<p>&nbsp;</p>
+<p>Ups, sorry, this didn&#39;t exactly answer your question. But I think that phase current will be updated every second, too. Not so easy for me to test it atm as the SDM630 is permanently installed now.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33177"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8519.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="helianto&#039;s picture" title="helianto&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8519.html" title="View user profile.">helianto</a> on Sun, 09/08/2015 - 22:29.</div>
+    <div class="content">
+     <p>One question...</p>
+<p>In datasheet of SDM630 said &quot;100A&quot;... that is 100A per phase or 100A total???... we want to monitoring one infantil school, so 100A probably is not enough...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33178"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8519.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="helianto&#039;s picture" title="helianto&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8519.html" title="View user profile.">helianto</a> on Sun, 09/08/2015 - 22:34.</div>
+    <div class="content">
+     <p>
+Very interesting project ... could you give more details ?<br />
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33181"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Mon, 10/08/2015 - 07:38.</div>
+    <div class="content">
+     <p>The information from Eastron says &#39;max. operational current 100A&#39;. This is per phase. The &#39;nominal current&#39; is only specified as 10A, whatever this means. This is probably the current for which the specified accuracy is guaranteed?!? I would suspect that with 3 x 100A there will be some heat production from the internal shunt resistors.</p>
+<p>if you need to work with higher maximum currents, there is also a version with external CTs. According to the data sheet you can specify the nominal current for these external CTs up to 9999A. No idea if this really works. And when working with external CTS, accuracy will depend on the exact type and data of the CT used (and there might be some calibration necessary).</p>
+<blockquote><p>Very interesting project ... could you give more details ?</p>
+</blockquote>
+<p>Yes, if you ask more specific questions :-))</p>
+<p>BR, J&ouml;rg.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33193"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8519.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="helianto&#039;s picture" title="helianto&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8519.html" title="View user profile.">helianto</a> on Mon, 10/08/2015 - 16:15.</div>
+    <div class="content">
+     <blockquote><p>Just to let you know good news - I&nbsp;have just got running&nbsp;new measured data channel:&nbsp;sensor -&nbsp;powerfull Arduino DUE with 32bit CPU ,12bit&nbsp;AD and 3xHW serial -&nbsp;ESP8266 directly via WiFi&nbsp;to emoncms hosted at VPS. It eliminates Raspi with Emonhub and makes whole landscape and its communication much easier and transparent.&nbsp;And there are at least two HW serials available&nbsp;for SDM630 connection. Really great piece of HW is that ESP8266</p>
+</blockquote>
+<p>&nbsp;</p>
+<p>We are very interested in this project... can you give us more details (we want to monitoring several schools, so&nbsp; arduino due is best option 12 analog inputs, and a really, really fast processor... )</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33194"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8519.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="helianto&#039;s picture" title="helianto&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8519.html" title="View user profile.">helianto</a> on Mon, 10/08/2015 - 16:29.</div>
+    <div class="content">
+     <blockquote><p>The information from Eastron says &#39;max. operational current 100A&#39;. This is per phase. The &#39;nominal current&#39; is only specified as 10A, whatever this means. This is probably the current for which the specified accuracy is guaranteed?!? I would suspect that with 3 x 100A there will be some heat production from the internal shunt resistors.</p>
+<p>if you need to work with higher maximum currents, there is also a version with external CTs. According to the data sheet you can specify the nominal current for these external CTs up to 9999A. No idea if this really works. And when working with external CTS, accuracy will depend on the exact type and data of the CT used (and there might be some calibration necessary).</p>
+<p>Very interesting project ... could you give more details ?</p>
+<p>Yes, if you ask more specific questions :-))</p>
+<p>BR, J&ouml;rg.</p>
+</blockquote>
+<p>&nbsp;</p>
+<p>Thanks... as said in other post we are a nonprofit association , which will implement the project euronet50-50 several schools in our area . The interesting of the power meter you indicate is the ease and accuracy (as you well said to be certain consumption should measure the voltage of each of the phases ... and this is complicated)<br />
+&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33244"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 11/08/2015 - 12:25.</div>
+    <div class="content">
+     <p>Helianto,</p>
+<p>I am still not sure which way you want to go. The OEM is an example of a <strong>non-invasive</strong> energy monitoring system. You say that you use an Arduino DUE with 12 bit ADC and so on. So this is clearly following the ideas of the OEM system.</p>
+<p>What I have shown here in this thread is an alternative to the OEM system (especially for three phase systems which are common here in Germany). This system is <strong>invasive</strong> and uses a commercially available meter (instead of the Arduino DUE with its 12 bit ADC).</p>
+<p>So, it is your turn now to decide which system you want to use.</p>
+<p>BR, J&ouml;rg.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33246"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8519.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="helianto&#039;s picture" title="helianto&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8519.html" title="View user profile.">helianto</a> on Tue, 11/08/2015 - 14:13.</div>
+    <div class="content">
+     <blockquote><p>Helianto,</p>
+<p>I am still not sure which way you want to go. The OEM is an example of a non-invasive energy monitoring system. You say that you use an Arduino DUE with 12 bit ADC and so on. So this is clearly following the ideas of the OEM system.</p>
+<p>What I have shown here in this thread is an alternative to the OEM system (especially for three phase systems which are common here in Germany). This system is invasive and uses a commercially available meter (instead of the Arduino DUE with its 12 bit ADC).</p>
+<p>So, it is your turn now to decide which system you want to use.</p>
+<p>BR, J&ouml;rg.</p>
+</blockquote>
+<p>&nbsp;</p>
+<p>Both of them...depending on the situation, if possible&nbsp; one eastron in the input of three phase, and one arduino due with 12 sensors to monitoring all output signals (each sector), schools usually has a lot of electric breakers in electric box.</p>
+<p>&nbsp;</p>
+<p>But this is only one complementary option.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33250"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 11/08/2015 - 14:55.</div>
+    <div class="content">
+     <p>SDM120C single phase meter with Modbus readout could be interesting for an invasive monitoring of output signals. It is quite affordable and you can avoid all the analogue circuitry, cabling and calibration.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33275"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Wed, 12/08/2015 - 12:37.</div>
+    <div class="content">
+     <p>Im curently measuring about&nbsp;3x50 A with SDM630 with no problems, no overheating. I asked Eastron reps and they confirmed, there is no problem to measure 3x100A with it.</p>
+<p>Regarding Arduino Due:</p>
+<p>Due as well as ESP8266 use 3,3V so no problem with level shifting. ESP8266 (ESP01) is powered from Due, which is powered from USB 5V/2A source via microUSB. No problem with overheating, it works already two weeks at my table&nbsp;continuously without any issues. You just connect 3,3V, Ground, TX and RX pin of ESP01 and Due and you sent proper AT commands from Due to ESP and it works incredibly great. Via other serial (there are 4 of them available at Due) you can connect SDM630&nbsp;and read values from that. And all other Arduino digital and analog inputs/outputs are available for you other sensors (for example DS18B20 or some analo flowmeter. There are no limits for you projects with this powerfull&nbsp;32bit&nbsp;CPU connected via wifi to internet.</p>
+<p>RB</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33709"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8519.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="helianto&#039;s picture" title="helianto&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8519.html" title="View user profile.">helianto</a> on Sun, 30/08/2015 - 15:05.</div>
+    <div class="content">
+     <p>Can someone tell me the difference between:</p>
+<p><a href="http://www.aliexpress.com/item/SDM530Modbus-Three-Phase-Four-Wire-Din-Rail-Energy-Meter-with-RS485-Modbus-RTU-and-Pulse-Output/32407883775.html" title="http://www.aliexpress.com/item/SDM530Modbus-Three-Phase-Four-Wire-Din-Rail-Energy-Meter-with-RS485-Modbus-RTU-and-Pulse-Output/32407883775.html">http://www.aliexpress.com/item/SDM530Modbus-Three-Phase-Four-Wire-Din-Ra...</a></p>
+<p>and</p>
+<p><a href="http://www.aliexpress.com/item/SDM630-DC-Mutli-Function-Four-Module-Three-Phase-100A-Direct-Connection-Digital-Din-Rail-Power-Meter/936679409.html?spm=2114.01020208.3.2.o5Cpbi" title="http://www.aliexpress.com/item/SDM630-DC-Mutli-Function-Four-Module-Three-Phase-100A-Direct-Connection-Digital-Din-Rail-Power-Meter/936679409.html?spm=2114.01020208.3.2.o5Cpbi">http://www.aliexpress.com/item/SDM630-DC-Mutli-Function-Four-Module-Thre...</a></p>
+<p>&nbsp;</p>
+<p>Thanks!!!!</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33731"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 31/08/2015 - 10:58.</div>
+    <div class="content">
+     <p>Don't rely on a factor's website, get the manufacturer's data sheets and/or manuals. At a first sight, the 530 has various models for different outputs, the 630 <i>might</i> incorporate all of these. You need to check carefully for the differences. As J&ouml;rg and Radek successfully use the 630, I think if you want to do the same as they are doing, you need the 630.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33732"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5908.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="rbreuss&#039;s picture" title="rbreuss&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5908.html" title="View user profile.">rbreuss</a> on Mon, 31/08/2015 - 11:06.</div>
+    <div class="content">
+     <p>Yes, Im using SDM630M DC and Im quite satisfied with. For single phase measuring Im using SDM220M. Both are very similar, supporting MODBUS communication. I dont know SDM530 (till now I didnt know, it even&nbsp;exist :-)). I definitely recommend to contact seller at Aliexpress (usualy&nbsp;John Yang from Eastron), he always explained all of my questions.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33733"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8519.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="helianto&#039;s picture" title="helianto&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8519.html" title="View user profile.">helianto</a> on Mon, 31/08/2015 - 11:22.</div>
+    <div class="content">
+     <p>Full catalog:</p>
+<p>&nbsp;</p>
+<p><a href="http://www.eastrongroup.com/uploads/Eastron 2015 general catalogue.pdf" title="http://www.eastrongroup.com/uploads/Eastron%202015%20general%20catalogue.pdf">http://www.eastrongroup.com/uploads/Eastron%202015%20general%20catalogue...</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33920"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8519.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="helianto&#039;s picture" title="helianto&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8519.html" title="View user profile.">helianto</a> on Sun, 06/09/2015 - 20:41.</div>
+    <div class="content">
+     <p>Answer from John Yang...</p>
+<p>&quot;The second one can measure more things , and the hardware standard is higher than the first one. The second one is better than the first one.&quot;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34408"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8519.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="helianto&#039;s picture" title="helianto&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8519.html" title="View user profile.">helianto</a> on Wed, 23/09/2015 - 17:54.</div>
+    <div class="content">
+     <p><img alt="" src="../../../dl.dropboxusercontent.com/u/3807080/fotos/esp8266-sdm120c-Aledav.jpg_%3b%20filename_%3dUTF-8%27%27esp8266-sdm120c-Aledav.jpg" style="width: 400px; height: 195px;" /></p>
+<p>&nbsp;</p>
+<p>Very interesting project...</p>
+<p><a href="http://www.esp8266.com/viewtopic.php?f=21&amp;t=1098&amp;start=5">http://www.esp8266.com/viewtopic.php?f=21&amp;t=1098&amp;start=5</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35200"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8882.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hskou&#039;s picture" title="hskou&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8882.html" title="View user profile.">hskou</a> on Wed, 21/10/2015 - 10:37.</div>
+    <div class="content">
+     <p>hi..</p>
+<p>&nbsp;</p>
+<p>I have newly bought&nbsp;a hybrid PV system, PV cells and battery storage, for controlling of the power flow to the grid is used a&nbsp;EASTRON&nbsp;SDM630 meter, everything is working fine, but my problem is the EASTRON is generating what seems to be&nbsp;white noise. I&nbsp;am also Radio Amateur,&nbsp;and the noise is&nbsp;interfering a lot.</p>
+<p>Question: Have any of you experienced this phenomena, if so please let me know. I have a feeling that he CE label&nbsp;on the unit, is not the prober CE label, but the Chinese Export label.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35201"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Wed, 21/10/2015 - 11:31.</div>
+    <div class="content">
+     <p>The purpose of the CE mark is to show that - according to the manufacturer or importer - the unit has been produced in accordance with the relevant specifications which will no doubt include EMI.&nbsp; The unit may therefore be offered for sale anywhere within the EEU without regional restriction.</p>
+<p>If you were to contact your local Trading Standards office, they should be able to follow up any technical queries with the manufacturer or importer on your behalf.</p>
+<p>That&#39;s my understanding of how the CE-mark scheme is intended to operate ...</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35209"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 21/10/2015 - 15:22.</div>
+    <div class="content">
+     <p>To add to Robin's comment, it is illegal to put on sale any equipment that should have a CE mark that does not, and that includes forgeries that attempt to deceive the purchaser.</p>
+<p>So if your meter does have a fake CE mark, Trading Standards will be keen to hear about it.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37152"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9137.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="cosmopaco&#039;s picture" title="cosmopaco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9137.html" title="View user profile.">cosmopaco</a> on Thu, 17/12/2015 - 20:18.</div>
+    <div class="content">
+     <p>We are working with Arduino and SDM120C.</p>
+<p>Leave a link, I hope it will be helpful.</p>
+<p><a href="http://domotica-arduino.es/foro/Thread-Gestor-de-Potencia" title="http://domotica-arduino.es/foro/Thread-Gestor-de-Potencia">http://domotica-arduino.es/foro/Thread-Gestor-de-Potencia</a></p>
+<p><a href="https://github.com/peninquen/Modbus-Energy-Monitor-Arduino/tree/master/Modbus-Energy-Monitor-Arduino" title="https://github.com/peninquen/Modbus-Energy-Monitor-Arduino/tree/master/Modbus-Energy-Monitor-Arduino">https://github.com/peninquen/Modbus-Energy-Monitor-Arduino/tree/master/M...</a></p>
+<p><i>[Please DON'T post multiple times. See "Read this before posting".  Moderator (RW)]</i></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37224"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9137.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="cosmopaco&#039;s picture" title="cosmopaco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Simple invasive 3-phase energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9137.html" title="View user profile.">cosmopaco</a> on Sat, 19/12/2015 - 10:22.</div>
+    <div class="content">
+     <p>Sorry!!!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5743"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-68nLq-V0jMJGZCoR6h5RNU0ZqDKRuFw5ccLBzccHGuI" value="form-68nLq-V0jMJGZCoR6h5RNU0ZqDKRuFw5ccLBzccHGuI"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5743 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:12:57 GMT -->
+</html>

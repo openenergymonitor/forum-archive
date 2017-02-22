@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11330 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:14:31 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Success with monitoring a gas meter | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Success with monitoring a gas meter</h3>
+        <span class="submitted">Submitted by <a href="../user/3052.html" title="View user profile.">engeeaitch</a> on Sun, 04/10/2015 - 07:47</span>
+        <div class="content"><p>Hi all &ndash; in case this is of any assistance to anyone else, I am sharing the success I have had with monitoring my gas meter.</p>
+<p>My gas meter is a Krom Schroder BK-G4 (also badged as Elster, I think).</p>
+<p>I used a reed switch which I got from Farnell: <a href="http://uk.farnell.com/standexmeder/mk03-1a66b-500w/reed-sensor/dp/1079476?ost=1079476">http://uk.farnell.com/standexmeder/mk03-1a66b-500w/reed-sensor/dp/1079476?ost=1079476</a>&nbsp;and&nbsp;attached this to the meter using blutac.&nbsp; (See the attached photo)</p>
+<p>The reed switch is not entirely symmetrical (the wires enter the switch closer to one edge) &ndash; I found that I needed to rotate the switch so that the wires were closest to the top of the meter to get the most reliable switching.</p>
+<p>I chose to use a spare Raspberry Pi to collect the pulses, and sent these back to my emoncms running on my main Raspberry Pi, using a pair of Ethernet powerline adapters (I had a spare adapter, which I used to connect to my existing adapter).</p>
+<p>I started by writing a Python script using the RPi.GPIO library, but found that I could not debounce the switch sufficiently despite playing with lots of different settings (I was using the debounce option provided by the library).</p>
+<p>So I chose to do the debouncing in hardware, using this device, again from Farnell: <a href="http://uk.farnell.com/maxim-integrated-products/max6816eus-t/debouncer-switch--25v-4sot143/dp/2085162?ost=2085162">http://uk.farnell.com/maxim-integrated-products/max6816eus-t/debouncer-switch--25v-4sot143/dp/2085162?ost=2085162</a>&nbsp; If you go down this route, have a close look at the physical dimensions &ndash; it&rsquo;s really tiny which makes it difficult to work with.&nbsp; The results so far have been very reliable. I&#39;ve attached a diagram of the circuit I used (I used 3.3V from the RPi as the Vcc). I&#39;ve also attached pictures of the debounce components.</p>
+<p>I have written some Python 3 scripts to capture the pulses and send these off to the emoncms.&nbsp; The local RPi needs to store all pulses it receives (in case the main Pi is down) and so I chose to set up a file containing the meter reading on the SD card, and to increment this value and send the actual meter reading to the emoncms, rather than just the pulses.</p>
+<p>I also chose to send a daily pulse to the emoncms, so that I could calculate the standing charge (cost per day, regardless of the gas usage) in the emoncms.</p>
+<p>I have attached my scripts in case anyone is interested (I am new to Python so please be forgiving!).</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11329.html" class="topic-previous" title="Go to previous forum topic">‹ CT not working?</a>
+              <a href="11327.html" class="topic-next" title="Go to next forum topic">EmonPI with 3/4 CT Inputs ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-34676"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8780.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8780.jpg" alt="PhilWadsley&#039;s picture" title="PhilWadsley&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Success with monitoring a gas meter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8780.html" title="View user profile.">PhilWadsley</a> on Sun, 04/10/2015 - 09:53.</div>
+    <div class="content">
+     <p>I am interested in the Gas Monitor. Is there any plan to integrate Gas Monitoring into the emonpi?</p>
+<p>Cheers</p>
+<p>Phil</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34678"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Success with monitoring a gas meter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 04/10/2015 - 11:04.</div>
+    <div class="content">
+     <p>A word of warning - if you're writing to the SD card with every pulse, you need to bear in mind the probable life of the card. There's plenty of information here about that. It was SD card life that triggered the creation of the "low write" RPi software.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34679"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3052.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="engeeaitch&#039;s picture" title="engeeaitch&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Success with monitoring a gas meter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3052.html" title="View user profile.">engeeaitch</a> on Sun, 04/10/2015 - 11:11.</div>
+    <div class="content">
+     <p>Yes - I am concerned about that.&nbsp; The only write that I am doing is once a minute to a small (7 byte) file, so there should be plenty of spare space on the card, but I can&#39;t decide if the SD card will automatically do some wear leveling or not.&nbsp; The other idea that I had was to create a copy once a day (say), and switch to using the copy.&nbsp; Any thoughts?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34682"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Success with monitoring a gas meter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 04/10/2015 - 11:39.</div>
+    <div class="content">
+     <p>You need to know whether the file is written in place, or a new file is written and the old deleted. Either way, the directory entry is probably being updated every minute anyway. </p>
+<p>My thoughts are how critical is it that you know the exact reading after a power failure (either RPi of course!) and how much gas are you prepared to lose, unaccounted for, if you save the reading in RAM for somewhat longer than a minute - maybe an hour or two?</p>
+<p>The obvious 'best' way would be to write to the SD card only every couple of hours or every day even, but detect the mains power and write immediately a low mains voltage was detected, having made sure the 5 V supply would hold up long enough for that to complete. I don't know if that's practical, though. I'm fairly certain one of the usual suspects - it must have been Martin Harizanov or J-C Wippler - did that with the EEPROM on an Arduino, but I've never been able to find it again.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34683"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3052.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="engeeaitch&#039;s picture" title="engeeaitch&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Success with monitoring a gas meter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3052.html" title="View user profile.">engeeaitch</a> on Sun, 04/10/2015 - 12:02.</div>
+    <div class="content">
+     <p>Ahh - I hadn&#39;t realised about the directory entry being updated.&nbsp; In that case, I think I will change the write to once an hour - that&#39;s 8,760 per year - hopefully it will be able to cope with that (and I could live with having to&nbsp;buy a new SD card once a year!)</p>
+<p>I might even try and get fancy, and when the monitoring script starts, query my emoncms for the latest reading, and use that if it is greater than the value held on the card.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34685"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Success with monitoring a gas meter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 04/10/2015 - 13:31.</div>
+    <div class="content">
+     <p>I think the accumulators in emonCMS do something like that - I understand they are able to correctly keep track of the incrementing reading even though the counter behind the incoming reading might have been reset. In your case, it seems to me that you might have the problem in both directions - either RPi might have missed something, so that complicates it considerably.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34687"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3052.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="engeeaitch&#039;s picture" title="engeeaitch&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Success with monitoring a gas meter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3052.html" title="View user profile.">engeeaitch</a> on Sun, 04/10/2015 - 13:48.</div>
+    <div class="content">
+     <p>Because I am sending the meter reading (rather than the pulses), I am not using an accumulator in emoncms.&nbsp; So if the emoncms misses something, it&#39;s not a problem, because the next input will correct the emoncms.</p>
+<p>(That&#39;s not true for the one pulse per day that I am using for the standing charge - in that case, I am sending repeatedly until I get an &#39;ok&#39; reply.&nbsp; However,&nbsp;I&#39;ve just realised that I could do something similar to the meter reading, and send the number of days since the epoch as an input, and then do away with the accumulator in emoncms).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34692"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Success with monitoring a gas meter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 04/10/2015 - 15:59.</div>
+    <div class="content">
+     <p><i>"because the next input will correct the emoncms."</i></p>
+<p>Yes, but only if it hasn't gone backwards! Which it will if you've sent the up-to-the-minute readings but not stored them prior to sending, and it's that situation that you need to address. It's exactly the same with the "kWh" emonTx sketches that accumulate the energy locally and then send the total. That total is reset if the emonTx restarts, emonCMS can handle that (which is what I meant above but didn't explain properly, so you misinterpreted - I meant the inputs from the accumulators).  </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11330"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-dz8ut5BppY_TuwvHr9d0DUsuz1fSpQK3AbhdNbx4ljY" value="form-dz8ut5BppY_TuwvHr9d0DUsuz1fSpQK3AbhdNbx4ljY"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11330 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:14:31 GMT -->
+</html>

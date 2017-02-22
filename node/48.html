@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/48 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:52:31 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>How to look at your energy consumption on the web | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><div style="background-color:#eee; margin:10px; padding: 10px;"><strong>This page is archived</strong>, for an up-to-date tutorial on connection your monitoring hardware to the web see <a href="../emoncms.html">emoncms</a>.</div>
+<h2>How to look at your energy consumption on the web</h2>
+<p>This tutorial details how to first connect your energy monitor to the web with an ethernet shield and then how to set up a database on a web-server for the ethernet shield to connect to and then to finish how to read the data from the database and produce a nice zoom-able graph using <a href="http://code.google.com/p/flot/">flot</a>.</p>
+<p>I&#39;d like to thank John from <a href="http://jarv.org/projects.shtml">jarv.org</a> for <a href="http://jarv.org/pwrmon.shtml">his tutorial</a> and help on logging using the ethernet board although he is using open flash charts and sql lite instead of mysql and flot much of the implementation is very similar.</p>
+<h3>Part One - The Ethernet shield</h3>
+<p>The first step is to get an Ethernet shield for the Arduino. There are two Ethernet shields available to my knowledge:</p>
+<ul>
+<li><a href="http://www.coolcomponents.co.uk/catalog/product_info.php?cPath=50&amp;products_id=232">The official ethernet shield </a>from Arduino themselves. Costs <strong>&pound;29.00</strong> from cool components.</li>
+<li><a href="http://www.nuelectronics.com/estore/index.php?main_page=product_info&amp;cPath=1&amp;products_id=4">Nuelectronics ethernet shield</a> which is a bit cheaper. Costs <strong>&pound;12.50</strong> from nuelectronics.</li>
+</ul>
+<p>The arduino sketch below works with the official ethernet board library. There is a guide to do the same thing but with the nuelectronics board here: <a href="http://www.nuelectronics.com/estore/?p=14">Nuelectronics web client example</a></p>
+<p>Once you have your ethernet shield the next step is to connect it up to an Arduino and upload the sketch.</p>
+<p><img alt="" height="300" src="../sites/default/files/ethernet.jpg" width="400" /></p>
+<p><strong>Arduino Sketch</strong></p>
+<p><strong>Note: </strong> This sketch is just sends set values out to the server, its just to show the basics needed. Have a look at the whole house energy monitor documentation page for an example of how this can be connected up to the rest of a setup.</p>
+<p>Download: <a href="../sites/default/files/SAethernet.tar.gz">SAethernet.tar.gz</a></p>
+<p>There are a couple of changes that need to be made to the arduino sketch now so that we are ready for the next section.</p>
+<ul>
+<li>Make sure the MAC address and ip of the ethernet board are unique on your local area network</li>
+<li>Enter the ip of your webserver. If you have a shared hosting you can find the shared ip using a trace-route program, you can trace-route from network tools in ubuntu.</li>
+<li>If you have a shared hosting you will also need to change the <em>&quot;GET /cgi-bin/post.pl?L=&quot;</em> to include your server url:<em> &quot;GET yoururl.org/cgi-bin/post.pl?L=&quot;</em></li>
+</ul>
+<p>The next step is to upload the sketch to the Arduino and then to set up the database.</p>
+<h3>Part Two - Setting up a database on a web-server and then connecting to it.</h3>
+<p>The first thing you are going to need is a web host. If you don&#39;t already have a web host you can:</p>
+<ul>
+<li>Get web hosting, Im with <a href="http://www.webhost.uk.net/shared_hosting.html">WebHost.Uk </a></li>
+<li>Setup a LAMP server on a spare computer running Ubuntu. Here&#39;s a<a href="http://www.google.co.uk/url?sa=t&amp;source=web&amp;ct=res&amp;cd=1&amp;ved=0CAcQFjAA&amp;url=http%3A%2F%2Fwww.howtoforge.com%2Finstalling-apache2-with-php5-and-mysql-support-on-ubuntu-9.10-lamp&amp;ei=BxdfS6C9MIu7jAfdy823DA&amp;usg=AFQjCNGtX2m65NGoLOm0YibrtzOEULZ0ww&amp;sig2=lKEpIen675sRFLhnX3xcZw"> tutorial</a></li>
+<li>Use <a href="http://www.pachube.com/">Pachube</a> and skip this tutorial. (check out <a href="http://community.pachube.com/arduino">this one</a> out in stead)&nbsp; This is the simplest, as the service has been designed with this kind of application in mind. However, at the moment from what I can tell, you cant zoom and view the graphs in any detail, but maybe this will change.</li>
+</ul>
+<p>Once you have your server, whether its on your local network, or somewhere outside your local network, the next step is to set up a database to store the data we want to graph.</p>
+<p><strong>Create a database with Cpanel</strong> (skip to phpmyadmin step if you don&#39;t have cpanel)</p>
+<ol>
+<li>Go to MySQL Databases</li>
+<li>Enter a name for your database, for example &quot;power&quot;. Click on create database.</li>
+<li>Add a user to your database, create a user with minimal privileges SELECT and INSERT.</li>
+<li>Note down your database name, username and password, you&#39;ll need them again soon.</li>
+</ol>
+<p><strong>Setup database with phpMyAdmin</strong></p>
+<ol>
+<li>Open phpmyadmin.</li>
+<li>Select your database from the list on the left (or create one if you didn&#39;t have cpanel to do the steps above.)</li>
+<li>Create a new table called DATA to with 2 fields A and B.</li>
+<li>On the next page, lets make field A hold the Power data and field B hold the time. Make the power field an int(11) and the time field a bigint(20). Set Null to no and Default to None. Click Save and then Go.</li>
+<li>That&#39;s it, the database is ready. The next step is to set up a perl script to access and insert values into the database.</li>
+</ol>
+<p><strong>Setting up a perl script</strong></p>
+<p>The perl script can be downloaded here: <a href="../sites/default/files/post.tar.gz">post.tar.gz</a></p>
+<ol>
+<li>Enter your database name and username in the post.pl file.</li>
+<li>If you&#39;re using cpanel: Open file manager and locate your domain document root. If you have a server on a local computer, the folder is /var/www.</li>
+<li>Create a folder named &quot;cgi-bin&quot; if it doesnt exist.</li>
+<li>Upload the perl script to the cgi-bin folder, and set its permission to 755.</li>
+<li>We&#39;re ready to test.</li>
+<li>Enter this in your address bar: <em>&quot;http://yoursite.com/cgi-bin/post.pl?L=100&amp;C=200&quot;</em></li>
+<li>Check your database in phpMyAdmin, click on Browse, hopefully you should see the values 100 and 200.</li>
+</ol>
+<p><strong>Start up the Arduino</strong></p>
+<p>If all is well, when you connect your Arduino, you should start seeing values being entered into your database.</p>
+<p><strong>Adding some basic security</strong></p>
+<p>At the moment, anyone can enter the above address in their browser and add values to your database. You can make it possible for only you (your ip address) to have access to the post.pl file by creating a .htaccess file in the cgi-bin directory with the following content:</p>
+<p><em>--------------------------------------------------------<br />
+AuthGroupFile /dev/null<br />
+AuthName &quot;cgi access&quot;<br />
+AuthType Basic</p>
+<p>&lt;limit GET&gt;<br />
+order deny,allow<br />
+deny from all<br />
+allow from --your ip address--<br />
+&lt;/limit&gt;</em></p>
+<p><em>--------------------------------------------------------</em></p>
+<p>If you don&#39;t know your ip address, click this link: <a href="http://www.whatismyip.com/">http://www.whatismyip.com/</a></p>
+<h3>Part Three - Reading from the database and graphing with Flot</h3>
+<p><img alt="" height="339" src="../sites/default/files/graph_1-2.png" width="400" /></p>
+<p><em>Screenshot of flot based graph showing the immersion heater switching on</em></p>
+<ol>
+<li>Download Flot <a href="http://code.google.com/p/flot/">here</a>.</li>
+<li>Upload Flot to the document root of your domain, and unzip the flot archive.</li>
+<li>Download the flot configuration file/page <a href="../sites/default/files/Graph.tar.gz">Graph.tar.gz</a> This is the web page that accesses the database and creates a flot graph from it.</li>
+<li>Upload the config file to your domain document root, and unzip both index.php and layout.css to the document root.</li>
+<li>Enter your database name, username and password in index.php.</li>
+<li>Set permissions to 0644 on both files.</li>
+</ol>
+<p>That&#39;s it! Have a look at your domain, the graph should appear! and look something <a href="http://power.openenergymonitor.org/">like this</a>.&nbsp;</p>
+</div>
+    
+    
+      </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/48 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:52:54 GMT -->
+</html>

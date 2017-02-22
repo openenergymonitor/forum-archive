@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12124 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:48:46 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Guide: How to enable Samba server on the Pi&#039;s read only file system | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Guide: How to enable Samba server on the Pi&#039;s read only file system</h3>
+        <span class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Tue, 02/02/2016 - 23:03</span>
+        <div class="content"><p>Enabling Samba on the Raspberry Pi enables its files to be read easily in Windows, its very useful if like me your day to day work is from a Windows machine. To allow it to work with the read only file system requires a few extra steps which I&#39;ll detail below. This guide applies to Jessie, it should work on Wheezy if the servicectl&nbsp;commands are&nbsp;changed to the correct syntax for Wheezy.<br />
+First of all if its not already been done, put the Pi into read write mode by entering RPI-RW&nbsp;then open the ports on the firewall by entering</p>
+<p>sudo ufw allow proto udp to any port 137 from 192.168.1.0/24<br />
+sudo ufw allow proto udp to any port 138 from 192.168.1.0/24<br />
+sudo ufw allow proto tcp to any port 139 from 192.168.1.0/24<br />
+sudo ufw allow proto tcp to any port 445 from 192.168.1.0/24</p>
+<p>you will need to change the 192.168.1.0/24 so it reflects your network settings. Once this is done Samba needs installing,&nbsp;I followed the guide at<br />
+<a href="http://www.homeautomationforgeeks.com/samba.shtml">http://www.homeautomationforgeeks.com/samba.shtml</a></p>
+<p>Edit the configuration file to stop it spamming the logs with printer support messages</p>
+<p>sudo nano /etc/samba/smb.conf</p>
+<p>add to the [global] section</p>
+<p>printing = bsd<br />
+printcap name = /dev/null</p>
+<p>On my Pi,&nbsp;I also added entries for&nbsp;the /tmp and /var/log folders at the bottom of the file. Save the file and move on.</p>
+<p>IT WILL NOT WORK AT THIS STAGE AFTER THE REBOOT, so if you want to test if it works so far&nbsp;enter&nbsp;</p>
+<p>rpi-rw<br />
+sudo systemctl restart smbd<br />
+sudo&nbsp;systemctl&nbsp;restart nmbd</p>
+<p>Once Samba is installed and configured, put the system into read write mode (rpi-rw)&nbsp;and&nbsp;create a file in /home/pi called fixsamba.sh containing the following</p>
+<p>#!/bin/bash<br />
+# This script fixes samba which doesn&#39;t start properly if the Pi is in read only mode, its runs at start from crontab -e<br />
+mkdir /tmp/samba<br />
+mkdir /tmp/cache<br />
+mkdir /tmp/cache/samba<br />
+​sudo mkdir /var/log/samba<br />
+sudo systemctl restart smbd<br />
+​sudo systemctl restart nmbd</p>
+<p>save and exit. Then&nbsp;make the script executable by typing</p>
+<p>​sudo chmod 777 /home/pi/fixsamba.sh</p>
+<p>make the script execute at startup by typing</p>
+<p>​crontab -e</p>
+<p>and adding</p>
+<p>@reboot sudo /home/pi/fixsamba.sh</p>
+<p>to the file. Save the crontab and edit the file that puts the pi into read only mode<br />
+If you are running the EMONPI Image type</p>
+<p>​sudo nano /home/pi/emonpi/rpi-ro</p>
+<p>if you are on the full image you will need</p>
+<p>​sudo nano /usr/bin/rpi-ro</p>
+<p>If you end up with an empty file at this stage its likely you need the emonpi command.</p>
+<p>change the file so it reads</p>
+<p>#!/bin/sh<br />
+​sudo systemctl stop smbd<br />
+​sudo systemctl stop nmbd<br />
+​sudo mount -o remount,ro /dev/mmcblk0p2 &nbsp;/<br />
+​sudo systemctl start smbd<br />
+echo &quot;Filesystem is locked - Read Only access&quot;<br />
+echo &quot;type &#39; rpi-rw &#39; to unlock&quot;</p>
+<p>save and exit, now we need to move where samba stores&nbsp;its parameter&nbsp;files.&nbsp;Enter&nbsp;</p>
+<p>​sudo systemctl stop smbd<br />
+sudo systemctl stop nmbd<br />
+mv /var/lib/samba to /home/pi/samba<br />
+sudo ln -s /home/pi/data/samba /var/lib/samba<br />
+sudo chown -R root /home/pi/samba<br />
+sudo rm -r /var/cache/samba<br />
+mkdir /tmp/cache<br />
+mkdir /tmp/cache/samba<br />
+sudo ln -s /tmp/cache/samba /var/cache/samba</p>
+<p>Reboot the Pi and check that the file system is in read only mode by typing</p>
+<p>mount</p>
+<p>if it is you will see something like</p>
+<p>/dev/mmcblk0p2 on / type ext4 (ro,noatime,nodiratime,errors=remount-ro,data=ordered)</p>
+<p>on the first line, the important thing is that it says &quot;ro&quot; after the first bracket.</p>
+<p>All should now be working and you should be able to find your Pi file shares&nbsp;in windows by entering \\emonpi into explorer</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12091.html" class="topic-previous" title="Go to previous forum topic">‹ emonhub emon-pi variant MQTT support &amp; Emoncms MQTT input service  </a>
+              <a href="6400.html" class="topic-next" title="Go to next forum topic">emonhub error: &quot;ERROR Unable to create &#039;RFM2Pi&#039; interfacer: Attempting to use a port that is not open&quot; ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-39052"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3426.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3426.jpg" alt="Bill Thomson&#039;s picture" title="Bill Thomson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Guide: How to enable Samba server on the Pi's read only file system</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3426.html" title="View user profile.">Bill Thomson</a> on Wed, 03/02/2016 - 03:48.</div>
+    <div class="content">
+     <p>Hi Sheppy,</p>
+<p>Have you looked into accessing your Pi from Windows?</p>
+<p>Here&#39;s an article about 3 methods. One of them is does the job without the hassles of installation, i.e. you simply run the app. Here&#39;s the link: <a href="http://www.howtogeek.com/112888/3-ways-to-access-your-linux-partitions-from-windows/">www.howtogeek.com/112888/3-ways-to-access-your-linux-partitions-from-windows/</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39053"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Guide: How to enable Samba server on the Pi's read only file system</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Wed, 03/02/2016 - 04:09.</div>
+    <div class="content">
+     <p>Hi Bill,</p>
+<p>I use Samba as it allows me to use the Openhab designer to access my Pi via the network from Windows to work on&nbsp;my live system for&nbsp;editing the rules etc. It runs so many things these days that I try and avoid taking it offline if possible.</p>
+<p>Thanks for the informative article - I&#39;ve used ext2fs before and it worked well&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/12124"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-NN5X8dbk7RhwW6bbcGfMkRoJXqFJv24ELW7kLhJFGu4" value="form-NN5X8dbk7RhwW6bbcGfMkRoJXqFJv24ELW7kLhJFGu4"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12124 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:48:46 GMT -->
+</html>

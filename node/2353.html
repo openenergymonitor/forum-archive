@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2353 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:43 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>SOLVED - getting the time working on emonGLCD with Pi and RFM12Pi Step by Step | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">SOLVED - getting the time working on emonGLCD with Pi and RFM12Pi Step by Step</h3>
+        <span class="submitted">Submitted by <a href="../user/3481.html" title="View user profile.">mattnj</a> on Wed, 08/05/2013 - 19:36</span>
+        <div class="content"><p>It took me a while of searching about and working this out, I am a newbie to Pi and PHP, hope this helps someone, but I have managed to get the EmonGLCD&nbsp;showing the time from the&nbsp;RFM12Pi</p>
+<p>firstly change the code on the emonGLCD....find the void loop () section and change it to this:-</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><em>void loop()<br />
+	{<br />
+	&nbsp;<br />
+	&nbsp; if (rf12_recvDone())<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; if (rf12_crc == 0 &amp;&amp; (rf12_hdr &amp; RF12_HDR_CTL) == 0)&nbsp; // and no rf errors<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int node_id = (rf12_hdr &amp; 0x1F);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (node_id == 11) {emontx = *(PayloadTX*) rf12_data; last_emontx = millis();}<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (node_id == 15)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	digitalWrite(greenLED, HIGH);&nbsp; // flash the LED to indicate the time is updated<br />
+	while( rf12_data[0] &gt; 23) // fixes the hour when returned from emoncms,<br />
+	{&nbsp; // which returns GMT which results in a negative<br />
+	rf12_data[0] += 24;&nbsp; // number from 1800 to midnight in US CTZ<br />
+	}&nbsp; // which the rtc can&rsquo;t understand.</em></p>
+<p><em>RTC.adjust(DateTime(2013, 2, 25, rf12_data[0], rf12_data[2], rf12_data[3]));<br />
+	last_emonbase = millis();<br />
+	delay(25);<br />
+	digitalWrite(greenLED, LOW);<br />
+	}</em></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Then you need to alter the raspberrypi_run.php file.....you need to stop it running first (it runs all the time)</p>
+<p>on the pi</p>
+<p>sudo nano /etc/crontab</p>
+<p>find the line with the raspberrypi_run.php file and add a # at the front so</p>
+<p>&nbsp;</p>
+<p>* * * * * root cd /var/www/emoncms/Modules/raspberrypi &amp;&amp; php raspberrypi_run.php &nbsp;</p>
+<p>becomes</p>
+<p>#* * * * * root cd /var/www/emoncms/Modules/raspberrypi &amp;&amp; php raspberrypi_run.php</p>
+<p>then Do the CTRL-X,Y,[ENTER] thing to save the file.....</p>
+<p>&nbsp;</p>
+<p>easiest to reboot then unless you are ok finding and killing the php process....</p>
+<p>so...</p>
+<p>sudo reboot</p>
+<p>&nbsp;</p>
+<p>when it has rebooted it will not be running the raspberrypi_run.php file......</p>
+<p>next you need to edit the file:-</p>
+<p>&nbsp;</p>
+<p>cd /var/www/emoncms/Modules/raspberrypi</p>
+<p>sudo nano raspberrypi_run.php</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>look for the line that says:-</p>
+<p>&nbsp;</p>
+<p><strong>if (time()-$remotetimer&gt;30 &amp;&amp; $sent_to_remote == true)</strong></p>
+<p>and just above it add the following text:-</p>
+<p>&nbsp;</p>
+<p><em>if (time()-$todtimer&gt;300)<br />
+	{<br />
+	$todtimer = time();</em></p>
+<p><em>$glcdhour = date(&#39;H&#39;);<br />
+	$glcdmin = date(&#39;i&#39;);</em></p>
+<p><em>$glcdtime = $glcdhour . &quot;,00,&quot; . $glcdmin . &quot;,00,s&quot;;<br />
+	fprintf($f, $glcdtime);<br />
+	sleep(1);</em></p>
+<p><em>}</em></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>This will send the time every 300secs and flash the lights on the emonGLCD.....</p>
+<p>save this file, then run:-</p>
+<p>sudo nano /etc/crontab</p>
+<p>and remove the # you added earlier, then reboot again.</p>
+<p>sudo reboot</p>
+<p>job done hopefully</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2376.html" class="topic-previous" title="Go to previous forum topic">‹ Limit database entries</a>
+              <a href="2372.html" class="topic-next" title="Go to next forum topic">How to calibrate emonTX Shield? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-11964"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3481.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mattnj&#039;s picture" title="mattnj&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: SOLVED - getting the time working on emonGLCD with Pi and RFM12Pi Step by Step</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3481.html" title="View user profile.">mattnj</a> on Wed, 08/05/2013 - 19:42.</div>
+    <div class="content">
+     <p>you also need to change the line on the emonGLCD under the template file:-</p>
+<p>&nbsp;</p>
+<p>if ((millis()-last_emonbase)&gt;120000)</p>
+<p>to</p>
+<p>if ((millis()-last_emonbase)&gt;360000)</p>
+<p>&nbsp;</p>
+<p>to get rid of the basefail error after 2mins</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11998"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: SOLVED - getting the time working on emonGLCD with Pi and RFM12Pi Step by Step</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Fri, 10/05/2013 - 12:26.</div>
+    <div class="content">
+     <p>Hi.</p>
+<p>I&#39;m not sure I understand your modifications to raspberry_run.php.</p>
+<p>Latest version has that feature included already:</p>
+<pre>
+</pre><div class="line" id="LC318">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1">// Sends the time to any listening nodes, including EmonGLCD&#39;s</span></div>
+<div class="line" id="LC319">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> <span class="p">(</span><span class="nv">$settings</span><span class="o">-&gt;</span><span class="na">sendtimeinterval</span><span class="o">!=</span><span class="mi">0</span> <span class="o">&amp;&amp;</span></div>
+<div class="line" id="LC320">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nb">time</span><span class="p">()</span><span class="o">-</span><span class="nv">$glcdtime</span> <span class="o">&gt;</span> <span class="nv">$settings</span><span class="o">-&gt;</span><span class="na">sendtimeinterval</span><span class="p">)</span></div>
+<div class="line" id="LC321">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">{</span></div>
+<div class="line" id="LC322">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">$glcdtime</span> <span class="o">=</span> <span class="nb">time</span><span class="p">();</span></div>
+<div class="line" id="LC323">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">$hour</span> <span class="o">=</span> <span class="nb">date</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">);</span></div>
+<div class="line" id="LC324">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">$min</span> <span class="o">=</span> <span class="nb">date</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">);</span></div>
+<div class="line" id="LC325">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nb">fprintf</span><span class="p">(</span><span class="nv">$f</span><span class="p">,</span><span class="s2">&quot;00,</span><span class="si">$hour</span><span class="s2">,</span><span class="si">$min</span><span class="s2">,00,s&quot;</span><span class="p">);</span></div>
+<div class="line" id="LC326">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">echo</span> <span class="s2">&quot;00,</span><span class="si">$hour</span><span class="s2">,</span><span class="si">$min</span><span class="s2">,00s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span></div>
+<div class="line" id="LC327">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nb">usleep</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span></div>
+<p>And the python script has that as well.</p>
+<p>The time interval is a parameter set in the emoncms GUI.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12092"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3481.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mattnj&#039;s picture" title="mattnj&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: SOLVED - getting the time working on emonGLCD with Pi and RFM12Pi Step by Step</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3481.html" title="View user profile.">mattnj</a> on Mon, 13/05/2013 - 10:46.</div>
+    <div class="content">
+     <p>mmmm, not sure, I only installed my Pi about 2 weeks ago (all downloaded at that time) and the time never worked to the GLCD....</p>
+<p>I guess that depends on when the code was updated....but that code you have pasted wasnt in my version... sounds like it has been fixed in the new version already, so you can all ignore what i posted :-)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2353"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-w32eMDxOTpPAhWHcc30rG21WOaSaXFFkNOYf00YUtXA" value="form-w32eMDxOTpPAhWHcc30rG21WOaSaXFFkNOYf00YUtXA"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2353 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:43 GMT -->
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Voltage Sensing | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h2>
+	Voltage Sensing</h2>
+<p>The Voltage of the mains supply is measured by placing two resistors that form a voltage divider between the live and neutral wires in order to scale down the voltage from uk grid voltage rms 240V or 340V peak to a more manageable 0.17V peak. The voltage needs to be scaled down due to the need by the isolator chips for an input voltage within the range of -0.256 to 0.256 Volts.</p>
+<p>The voltage divider in my circuit consists of the two resistors circled in red. The upmost one is resistor RB with the top end connected to the neutral terminal, the bottom end is connected to resistor RA and the Vout wire. RA is in turn connected to the live terminal.</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/vdiv.JPG" /></p>
+<p>Three values determine what value resistors we will need for our voltage divider. The first is mains supply peak voltage, the second is the isolator chip max input voltage range and the third is how much current we want to have flowing through those resistors.</p>
+<p>In Britain the mains supply rms voltage is 240V, the peak voltage is 240 multiplied by the square root of two or 340V. The isolator chips require an input voltage range of -0.256 to +0.256 Volts.</p>
+<p>We dont however want to scale our peak 340V to be 0.256 Volts, it is best to allow some leway. The Cornel PowerBox guys went for 0.170V and so I will stick with that. We use the voltage divider equation that can be derived from ohms law to calculate what resistors we will need:</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/1.gif" /></p>
+<p>But first we need to decide how much current we want flowing through our resistors, the resistors have a max power rating we need to make sure we stay well clear of a current and voltage that would exede this value and since we are measuring voltage we dont want any significant current flow and hence we dont need high power resistors. The current flowing through both resistors will be most at peak voltage 340V. We can find the current by Ohms Law:</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/2.gif" /></p>
+<p>and therefore power by:</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/3.gif" /></p>
+<p>There are resistors that go up to the gigaohm range but most of the standard large resistance resistors that I have come across are in the megaohm range. Lets take a 1.0MOhm resistor as an example. If we say that RA + RB = 1MOhm (10^6 Ohms) The power dissipated would be :</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/4.gif" /></p>
+<p>So it would be fine to use 0.25W resistors for this application since the power rating is higher than the power that will be dissipated in them, that is as long as the total of RA+RB is in the 1MOhm range. So if RA + RB = 1MOhm then to scale 340V to 0.17V the voltage divider equation above gives us an RB value of 500Ohms. So we could make our voltage divider from with RB = 500Ohms and RA= 999500Ohms. RA of this side doesnt exist so we go for a 1MOhm resistor this changes our Vout which will still be pretty much 0.17V.</p>
+<p>I have actually gone for an RA 2.2MOhm carbon film resistor with a max power rating of 0.25W and a tolerance of 5% and a RB 1kOhm carbon film resistor with a max power rating of 0.25W and a tolerance of 5% which reduced the voltage from 340 to 0.15V and dissapates only 0.052W and so is a bit safer.</p>
+</div>
+    
+    
+      </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

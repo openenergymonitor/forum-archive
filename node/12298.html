@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12298 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:47:54 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Set up of emoncms on Synology DSM | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Set up of emoncms on Synology DSM</h3>
+        <span class="submitted">Submitted by <a href="../user/9598.html" title="View user profile.">AndyS</a> on Fri, 04/03/2016 - 13:16</span>
+        <div class="content"><p>I&rsquo;m not really familiar with modern Linux OS, but have some out of date background in Solaris, plus some general IT troubleshooting experience.&nbsp; It took two days for me to solve all the issues with getting emoncms to run on the current DSM (Disk Station Manager) release (5.2 5644 Update 5, March 2016), with the help of many web searches and a lot of hints on this forum. I thought it would be worth posting a step-by-step guide of what needs doing to get this set up working,&nbsp;(or at least, what worked for me!).</p>
+<p><strong>Set up the Synology webserver and MySQL database for emoncms</strong></p>
+<ol>
+<li>Enable Web station in Web Services and accept firewall port changes if required</li>
+<li>Use Package Center to download and install MariaDB (MySQL equivalent)</li>
+<li>Use Package Center to download and install phpMyAdmin</li>
+<li>Launch phpMyAdmin via <a href="http://<ip/" title="http://&lt;IP">http://&lt;IP</a> address of NAS&gt;/phpMyAdmin and logon with username &ldquo;root&rdquo;, leaving password blank</li>
+<li>Select Databases tab and create database &ldquo;emoncms&rdquo; with Collation unselected (will default to utf8_general_ci)</li>
+<li>Select Users tab in phpMyAdmin and click Add user. Create user &ldquo;emoncms&rdquo; and set Host to &ldquo;localhost&rdquo; (both without inverted commas). Generate a password and copy this carefully. Do not grant any global privileges. Create user by selecting &ldquo;Go&rdquo;.</li>
+<li>Select the &ldquo;Edit Privileges&rdquo; for the new&nbsp;&quot;emoncms&quot; user and click the Database button on the resulting page. Highlight the emoncms database item in the list and click &ldquo;Go&rdquo;. Select &ldquo;Check All&rdquo; on the database privilege page and click &ldquo;Go&rdquo;.</li>
+<li>Optional, but important for security, set a password for all the root user entries in the phpMyAdmin user page (makes sense to set them all to the same password). You might also delete the default anonymous user.</li>
+</ol>
+<p><strong>Create the emoncms website</strong></p>
+<ol>
+<li>Download the latest emoncms zip file from the <a href="https://github.com/emoncms/emoncms" title="https://github.com/emoncms/emoncms">https://github.com/emoncms/emoncms</a> webpage. Use the Download ZIP button on the page (I missed this originally!)</li>
+<li>Windows: Open the \\&lt;NAS name&gt;\web share using the Synology admin password.Presumably NFS/AFP equivalents work, but I&rsquo;ve not tried them. If all else fails, enable FTP in the Synology File Services Control Panel and use ftp to connect to the Synology IP address using the admin password.</li>
+<li>Create an emoncms folder under the web folder and extract all the files from the downloaded zip to this folder.</li>
+<li>Open default.settings.php and edit the lines $username = &quot;_DB_USER_&quot;; and $password = &quot;_DB_PASSWORD_&quot;; to the user and password of the emoncms database user you created above.</li>
+<li>Scroll down to $log_filename = &#39;/var/log/emoncms.log&#39;; and change to $log_filename = &#39;/var/services/tmp/emoncms.log&#39;; (This path is already in the php open_basedir path.You could try adding /var/log to this path as an alternative but I have not tested this: see below).</li>
+<li>Save file as settings.php to the emoncms web folder (i.e. where the original default.settings.php came from!)</li>
+<li>In DSM Control Panel/Web services/PHP settings tab select the &ldquo;Customize PHP open_basedir&rdquo; and add /var/lib/phpfina to the path (make sure to separate this with a colon from the existing path)</li>
+<li>Browse to <a href="http://<ip/" title="http://&lt;IP">http://&lt;IP</a> address of NAS&gt;/emoncms and you should see the expected log in page.You can create a user now as per usual &ldquo;first use&rdquo; and get the read and write API keys.</li>
+<li>If you check back inphpMyAdmin the tree view on the left of the page should now have a (+) next to the emoncms database which, when clicked, expands to show all the tables created by the first access of the site</li>
+<li>Edit settings.php to set line $dbtest = true;to $dbtest = false;.</li>
+</ol>
+<p><strong>Create feed directories on Synology.</strong></p>
+<ol>
+<li>Enable SSH service in DSM Control Panel/Terminal and SNMP/Terminal and accept firewall port changes if prompted</li>
+<li>Download PuTTY or equivalent SSH client and connect to the Synology IP address with username &ldquo;root&rdquo; and the admin password.Using &ldquo;admin&rdquo; as the username will NOT work</li>
+<li>To create the new directories for emoncms to write feeds, in the terminal shell CAREFULLY type the following<br />
+	cd \var\lib<br />
+	mkdir phpfiwa<br />
+	mkdir phpfina<br />
+	mkdir phptimeseries<br />
+	chmod 777 phpfiwa<br />
+	chmod 777 phpfina<br />
+	chmod 777 phptimeseries</li>
+<li>Check the feed directories are present and correct by typing<br />
+	ls &ndash;l<br />
+	In the list returned you should see each of the new feed directories as below:<br />
+	drwxrwxrwx&nbsp;&nbsp;&nbsp;2 root&nbsp;&nbsp;&nbsp;&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4096 Mar4 10:15 phpfina<br />
+	drwxrwxrwx&nbsp;&nbsp;&nbsp;2 root&nbsp;&nbsp;&nbsp;&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4096 Mar&nbsp; 4 10:15 phpfiwa<br />
+	drwxrwxrwx&nbsp;&nbsp;&nbsp; 2 root&nbsp;&nbsp;&nbsp;&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4096 Mar&nbsp; 4 10:15 phptimeseries</li>
+<li>Quit the terminal session (close PuTTY window or type exit)</li>
+</ol>
+<p>At this point, you can add your Write API to the local EmonHub config editor and save.&nbsp; The inputs will then appear in the DSM emoncms webserver and you can create Feeds as normal.</p>
+<p>As I said above, this setup worked for me although I have only gone as far as basic feed creation and display on the DSM hosted server so other issues with DSM may arise down the line.&nbsp; I hope this will help others get up and running but, obviously, anyone following the above must do so at their own risk.</p>
+<p>Cheers</p>
+<p>Andy</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12304.html" class="topic-previous" title="Go to previous forum topic">‹ (SOLVED) Inputs page loading....</a>
+              <a href="12295.html" class="topic-next" title="Go to next forum topic">Multigraph Timestamps Wrong ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-40121"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8920.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Fwerryb4&#039;s picture" title="Fwerryb4&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Set up of emoncms on Synology DSM</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8920.html" title="View user profile.">Fwerryb4</a> on Sat, 05/03/2016 - 13:55.</div>
+    <div class="content">
+     <p>hi Andys</p>
+<p>Good job.<br />
+I&#39;m also quite a while to get this up and running.<br />
+I have a problem with the dashboards.</p>
+<p>I get the following message;</p>
+<p>&nbsp;</p>
+<p>Warning: is_dir(): open_basedir restriction in effect. File(Modules/AppConfig_model.php/widget) is not within the allowed path(s): (/etc.defaults:/etc:/usr/syno/synoman:/tmp:/var/services/tmp:/var/services/web:/var/services/homes:/var/lib/phpfina:/var/services/web/emoncms/Modules) in /volume1/web/emoncms/Modules/dashboard/Views/loadwidgets.php on line 22 Warning: is_dir(): open_basedir restriction in effect. File(Modules/Readme.md/widget) is not within the allowed path(s): (/etc.defaults:/etc:/usr/syno/synoman:/tmp:/var/services/tmp:/var/services/web:/var/services/homes:/var/lib/phpfina:/var/services/web/emoncms/Modules) in /volume1/web/emoncms/Modules/dashboard/Views/loadwidgets.php on line 22 Warning: is_dir(): open_basedir restriction in effect. File(Modules/app.js/widget) is not within the allowed path(s): (/etc.defaults:/etc:/usr/syno/synoman:/tmp:/var/services/tmp:/var/services/web:/var/services/homes:/var/lib/phpfina:/var/services/web/emoncms/Modules) in /volume1/web/emoncms/Modules/dashboard/Views/loadwidgets.php on line 22 Warning: is_dir(): open_basedir restriction in effect. File(Modules/app_controller.php/widget) is not within the allowed path(s): (/etc.defaults:/etc:/usr/syno/synoman:/tmp:/var/services/tmp:/var/services/web:/var/services/homes:/var/lib/phpfina:/var/services/web/emoncms/Modules) in /volume1/web/emoncms/Modules/dashboard/Views/loadwidgets.php on line 22 Warning: is_dir(): open_basedir restriction in effect. File(Modules/app_menu.php/widget) is not within the allowed path(s): (/etc.defaults:/etc:/usr/syno/synoman:/tmp:/var/services/tmp:/var/services/web:/var/services/homes:/var/lib/phpfina:/var/services/web/emoncms/Modules) in /volume1/web/emoncms/Modules/dashboard/Views/loadwidgets.php on line 22 Warning: is_dir(): open_basedir restriction in effect. File(Modules/app_schema.php/widget) is not within the allowed path(s): (/etc.defaults:/etc:/usr/syno/synoman:/tmp:/var/services/tmp:/var/services/web:/var/services/homes:/var/lib/phpfina:/var/services/web/emoncms/Modules) in /volume1/web/emoncms/Modules/dashboard/Views/loadwidgets.php on line 22 Warning: is_dir(): open_basedir restriction in effect. File(Modules/client.php/widget) is not within the allowed path(s): (/etc.defaults:/etc:/usr/syno/synoman:/tmp:/var/services/tmp:/var/services/web:/var/services/homes:/var/lib/phpfina:/var/services/web/emoncms/Modules) in /volume1/web/emoncms/Modules/dashboard/Views/loadwidgets.php on line 22&nbsp;Warning: is_dir(): open_basedir restriction in effect. File(Modules/image.png/widget) is not within the allowed path(s): (/etc.defaults:/etc:/usr/syno/synoman:/tmp:/var/services/tmp:/var/services/web:/var/services/homes:/var/lib/phpfina:/var/services/web/emoncms/Modules) in /volume1/web/emoncms/Modules/dashboard/Views/loadwidgets.php on line 22 Warning: is_dir(): open_basedir restriction in effect. File(Modules/roundedrect.js/widget) is not within the allowed path(s): (/etc.defaults:/etc:/usr/syno/synoman:/tmp:/var/services/tmp:/var/services/web:/var/services/homes:/var/lib/phpfina:/var/services/web/emoncms/Modules) in /volume1/web/emoncms/Modules/dashboard/Views/loadwidgets.php on line 22 Warning: is_dir(): open_basedir restriction in effect. File(Modules/style.css/widget) is not within the allowed path(s): (/etc.defaults:/etc:/usr/syno/synoman:/tmp:/var/services/tmp:/var/services/web:/var/services/homes:/var/lib/phpfina:/var/services/web/emoncms/Modules) in /volume1/web/emoncms/Modules/dashboard/Views/loadwidgets.php on line 22&nbsp;Warning: is_dir(): open_basedir restriction in effect. File(Modules/vis.helper.js/widget) is not within the allowed path(s): (/etc.defaults:/etc:/usr/syno/synoman:/tmp:/var/services/tmp:/var/services/web:/var/services/homes:/var/lib/phpfina:/var/services/web/emoncms/Modules) in /volume1/web/emoncms/Modules/dashboard/Views/loadwidgets.php on line 22</p>
+<p>Do you have any idea?</p>
+<p>&nbsp;</p>
+<p>Ferry</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40139"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9598.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="AndyS&#039;s picture" title="AndyS&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Set up of emoncms on Synology DSM</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9598.html" title="View user profile.">AndyS</a> on Sun, 06/03/2016 - 15:02.</div>
+    <div class="content">
+     <p>Hi Ferry,</p>
+<p>Not played with the modules as yet as it took long enough just to get the logging going and there are issues with the hardware I need to sort.&nbsp; Modules are job for the near future.&nbsp; It looks like an issue with the open_basedir path, so I guess some research will need doing on what this actually does and then working out what is going wrong.&nbsp; I&#39;ll post again if I find anything more. Have you tried adding /volume1/web/emoncms to the open_basedir?&nbsp;</p>
+<p>Andy</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/12298"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-l7km3CgHSEOu_GlmODL69wTgFhe_wzSpQnv0OtJyxCY" value="form-l7km3CgHSEOu_GlmODL69wTgFhe_wzSpQnv0OtJyxCY"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12298 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:47:54 GMT -->
+</html>

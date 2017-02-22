@@ -1,0 +1,623 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/5">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Thu, 15/10/2015 - 17:08</span>
+        <div class="content"><p>Glyn and I are working here on the EmonCMS 9.0 SD Card Image and the upgrade path from the last image running the lowwrite v8.5 branch on emoncms.</p>
+<p>We&#39;ve put a mindmeister map together with the main steps we are thinking about, and would welcome input on what we are proposing. Are we missing anything that should be on the list? You should be able to view the &#39;live&#39; version and make edits / comments using link below:</p>
+<p><a href="https://www.mindmeister.com/597294490?t=NuPHMRTsLs" title="https://www.mindmeister.com/597294490?t=NuPHMRTsLs">https://www.mindmeister.com/597294490?t=NuPHMRTsLs</a></p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/emoncms V9 update roadmap October 15.png" style="width: 700px; height: 321px;" /></p>
+<p><strong>New emonHub/emonPi SD card image with V9 (in no particular order)</strong></p>
+<ul>
+<li>install node-red:</li>
+<li>update mosquitto to use ppa (we currently use old version from raspbian sources)</li>
+<li>boot partition label: date of image</li>
+<li>my electric bug fixes</li>
+<li>emoncms nodes service does not always startup after creating the image</li>
+<li>re-size data partition (800Mb - 400Mb?), running low on OS partition space</li>
+<li>open up MQTT and nodeRED ports, make persistent</li>
+<li>Investigate MQTT losing packets, update might help (see above)</li>
+<li>Wifi Hotspot setup to help setup process (wifi auth etc.) <a href="http://openenergymonitor.org/emon/node/11339">http://openenergymonitor.org/emon/node/11339</a></li>
+<li>OpenHAB?</li>
+</ul>
+<p><strong>emonPi /emonHub update to V9 using update script</strong></p>
+<ul>
+<li>bash update script for lowwrite 8.5 &gt; v9, include in emonPi repository</li>
+<li>change emoncmsupdate script to point to v9.0 branches</li>
+<li>update mosquitto to use ppa</li>
+</ul>
+<p><strong>Security</strong></p>
+<ul>
+<li>Add authentication on by default to MQTT server (username + pass)?</li>
+</ul>
+<p><strong>Other</strong></p>
+<ul>
+<li>Update Emoncms Nodes module to receive RSSI</li>
+<li>emonHub post RSSI to MQTT topic: emonhub/rx/nodeid/rssi</li>
+<li>Update emonhub.conf to include emonTH pulse datacode for new emonTH pulse counting firmware - <strong>we&#39;re not sure how best to handle these packet structure changes. Nodes running older firmware with a different packet structure would stop updating if the update script automatically pulled in the new structure definition to emonhub.conf. One solution could be to use new nodeid&#39;s but this would quickly fill up the available node id space. </strong></li>
+<li>Reintroduce &#39;noisy&#39; non-quiet mode on emonPi firmware for debugging packetloss.</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>Upgrade steps from lowwrite v8.5 image to v9.0:</strong></p>
+<p>The intention is to package these steps up in an upgrade script that will run from the emonpi updater so that this is an easier process to undertake:</p>
+<pre>
+rpi-rw
+
+sudo service emonhub stop
+sudo service emoncms-nodes-service stop
+sudo service feedwriter stop
+
+cd /var/www/emoncms &amp;&amp; git pull &amp;&amp; git checkout master
+
+rm settings.php
+cp default.emonpi.settings.php settings.php
+
+cd /var/www/emoncms/Modules/app &amp;&amp; git pull &amp;&amp; git checkout 9.0
+cd /var/www/emoncms/Modules/nodes &amp;&amp; git pull &amp;&amp; git checkout 9.0
+cd /var/www/emoncms/Modules/config &amp;&amp; git pull &amp;&amp; git checkout 9.0
+cd /var/www/emoncms/Modules/wifi &amp;&amp; git pull &amp;&amp; git checkout 9.0
+
+<strong>Navigate to admin section of emoncms and run the database updater</strong>
+
+sudo rm /etc/init.d/feedwriter
+cd /etc/init.d &amp;&amp; sudo ln -s /var/www/emoncms/scripts/feedwriter
+sudo chown root:root /var/www/emoncms/scripts/feedwriter
+sudo chmod 755 /var/www/emoncms/scripts/feedwriter
+sudo update-rc.d feedwriter defaults
+
+mysql -u root -p emoncms;
+UPDATE feeds SET datatype=1;
+exit;
+
+redis-cli &ldquo;flushall&rdquo;
+
+<strong>Check that your feeds appear at this point in the feeds list and that you can view 
+them ok.</strong> <strong>They dont always seem to appear first time so try refreshing the page and 
+running redis-cli &ldquo;flushall&rdquo; if they fail to show.</strong>
+
+sudo service emonhub start
+sudo service emoncms-nodes-service start
+sudo service feedwriter start</pre><p>&nbsp;</p>
+<p><strong>kWh data bug fix: </strong>While testing the upgrade procedure below I realised that the issue that was causing the kwh data to get corrupted was not caused at the switch over point but was more a bug in the PHPFina engine which I have now fixed.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/3791" class="topic-previous" title="Go to previous forum topic">‹ Measuring frequency from the EmonLib</a>
+              <a href="/emon/node/10362" class="topic-next" title="Go to next forum topic">Emoncms mqtt as input ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-34956"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Thu, 15/10/2015 - 17:15.</div>
+    <div class="content">
+     <p>The preliminary image I posted up here now needs upgrading with the kWh data bug fix and the feedwriter symlink rather than manual edit:</p>
+<p><a href="http://openenergymonitor.org/emon/node/11009#comment-34766" title="http://openenergymonitor.org/emon/node/11009#comment-34766">http://openenergymonitor.org/emon/node/11009#comment-34766</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35198"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/8881" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-8881.png" alt="rosterloh&#039;s picture" title="rosterloh&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/8881" title="View user profile.">rosterloh</a> on Wed, 21/10/2015 - 09:16.</div>
+    <div class="content">
+     <p>Not quite sure how to follow this thread without posting so thanks. Love your work.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35220"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/8298" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/8298" title="View user profile.">Jon</a> on Thu, 22/10/2015 - 01:40.</div>
+    <div class="content">
+     <p>Trystan - In the list above I saw a reference to &quot;my electric bug fixes&quot;. &nbsp;I am curious if the &quot;00:00 UTC to 00:00 local time&quot; issue was fixed for the SD Card Image?&nbsp; This is when the My Electric app doesn&#39;t work properly starting at 00:00 UTC and then starts working properly&nbsp;after 00:00 local time (for me that is 00:00&nbsp;CDT&nbsp;or 05:00 UTC).&nbsp;</p>
+<p>In the current version of emoncms.org (v9) it has the same issue. &nbsp;The My Electric page shows an odd bar graph and USE TODAY states the ALL TIME kWh usage.&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Before 00:00 UTC</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/Screen Shot 2015-10-21 at 6.46.18 PM_thumb.jpg" /></p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;After 00:00 UTC (lasts until 00:00 local time)</p>
+<p><img alt="After 00:00 UTC" src="http://openenergymonitor.org/emon/sites/default/files/Screen Shot 2015-10-21 at 8.18.57 PM_thumb.jpg" /></p>
+<p>&nbsp;</p>
+<p><em>EDIT - removed old image and added current images from today.</em></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35230"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Thu, 22/10/2015 - 09:44.</div>
+    <div class="content">
+     <p>Thanks Jon, I still need to look at the myelectric bugs, I keep thinking I find a fix and then something else pops up, not sure yet about the latest ones. I will update on progress.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35663"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/8963" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="mnmn&#039;s picture" title="mnmn&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/8963" title="View user profile.">mnmn</a> on Thu, 05/11/2015 - 11:37.</div>
+    <div class="content">
+     <p>Great news, thank you in advance :)</p>
+<p>openHAB and node-red together with emonCMS in a single image, that would be really a great pleasure :)</p>
+<p>please report about the progress, and the availabilty&nbsp;of the image.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35664"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/450" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/450" title="View user profile.">stuart</a> on Thu, 05/11/2015 - 12:24.</div>
+    <div class="content">
+     <p>My only comments would be that the base image is getting quite large now, do you actually need NodeRed + openHAB for everything to work correctly now?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35674"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Thu, 05/11/2015 - 18:26.</div>
+    <div class="content">
+     <p>@Jon, I think I have fixed the issue between midnight UTC and midnight local time. I&#39;ve pushed up the fix to both the master and v9.0 branch of the apps module. Can anyone running this on a different timezone confirm that I havent broken anything in the process?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36063"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/8948" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="smitt1979&#039;s picture" title="smitt1979&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/8948" title="View user profile.">smitt1979</a> on Wed, 18/11/2015 - 21:32.</div>
+    <div class="content">
+     <p>Hi&nbsp;</p>
+<p>When i try to update my emonpi&nbsp;i get this error</p>
+<p>pi@emonpi /var/www/emoncms $ cd /var/www/emoncms &amp;&amp; git pull &amp;&amp; git checkout 9.0Already up-to-date.<br />
+error: Your local changes to the following files would be overwritten by checkout:<br />
+&nbsp; &nbsp; &nbsp; &nbsp; Modules/dashboard/Views/js/widgets/dial/dial_render.js<br />
+Please, commit your changes or stash them before you can switch branches.<br />
+Aborting</p>
+<p>anyone no how to fix?</p>
+<p>Thanks Steve</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36065"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/8948" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="smitt1979&#039;s picture" title="smitt1979&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/8948" title="View user profile.">smitt1979</a> on Wed, 18/11/2015 - 21:54.</div>
+    <div class="content">
+     <p>fix with&nbsp;</p>
+<p>git reset --hard</p>
+<p>all upgrade&nbsp;and working now</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36530"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/10" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/10" title="View user profile.">glyn.hudson</a> on Tue, 01/12/2015 - 15:23.</div>
+    <div class="content">
+     <p>We are currently working on building and testing a SD card image with the following features:&nbsp;</p>
+<ul>
+<li>Based on <a href="https://minibianpi.wordpress.com/2015/11/12/minibian-jessie-2015-11-12-is-out/">minibian lightweight Jessie (12-11-15)</a>&nbsp;</li>
+<li>4GB min card size download&nbsp;(shipping on 8GB expanded SD card)</li>
+<li>Emoncms V9</li>
+<li>Read-only&nbsp;root FS (see <a href="http://openenergymonitor.org/emon/node/11695#comment-36528">discussion thread</a>)&nbsp;with <a href="https://github.com/openenergymonitor/emonpi/blob/master/install#L100">MOTD&nbsp;to display a login notifying users how to switch to RW</a></li>
+<li><a href="http://openenergymonitor.blogspot.co.uk/2015/10/emonpi-nodered-and-mqtt.html">NodeRED</a>, <a href="http://openenergymonitor.blogspot.com/2015/11/remote-control-of-lightwave-rf-plugs.html">LightWave RF MQTT OOK control</a> and <a href="https://github.com/glynhudson/oem_openHab">openHAB installed with skeleton OEM&nbsp;config</a>&nbsp;</li>
+</ul>
+<p>I would be interested tp hear if anyone has some thoughts or comments on the proposed feature set.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36534"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/937" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/937" title="View user profile.">Bramco</a> on Tue, 01/12/2015 - 16:19.</div>
+    <div class="content">
+     <p>Glyn,</p>
+<p>For my three hapence worth I&#39;d have things like OOK control and openhab as options on the install.</p>
+<p>I think the SD card image should contain the basics of a functioning system with those additional non specific features like MQTT &nbsp;and NodeRed. Lightwave OOK is very specific as is openhab.</p>
+<p>Not sure how this could be acheived, maybe through something like the raspbian 1st time setup.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36536"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/8948" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="smitt1979&#039;s picture" title="smitt1979&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/8948" title="View user profile.">smitt1979</a> on Tue, 01/12/2015 - 16:27.</div>
+    <div class="content">
+     <p>Hi Glyn</p>
+<p>Not sure if this is a bit off topic but is there any way to include a function the resize the SD card &nbsp;with in emoncms as I think me a most other people with have to upgrade their card at some point in the future as the OS/MySQL patches and emoncms grows</p>
+<p>Steve</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36537"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1039" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="mattwire&#039;s picture" title="mattwire&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1039" title="View user profile.">mattwire</a> on Tue, 01/12/2015 - 16:31.</div>
+    <div class="content">
+     <p>If it is of any help I have a guide here that explains how I setup my Pi images to be readonly:&nbsp;http://blog.mjwconsult.co.uk/embedded-read-only-root-on-raspberry-pi-and-odroid/</p>
+<p>If I need a writeable disk I run the script /opt/bin/mount-rw in /etc/local before exit 0:</p>
+<pre>
+/opt/bin/mount-rwdata &amp;</pre><p>making sure that I have a definition in /etc/fstab for /mnt/rwdata. &nbsp;Eg:</p>
+<pre>
+/dev/sda1 /mnt/rwdata ext4 noatime 0 0</pre><p>There are also a number of init scripts etc. to make apps readonly (usually putting PID etc in /tmp) under:&nbsp;https://github.com/mattwire/embedded_debian/tree/master/apps</p>
+<p>I also use monit to supervise running processes and there are scripts for those processes there too.</p>
+<p>&nbsp;</p>
+<p>Hope that is of use.</p>
+<p>Matthew</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36538"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/8948" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="smitt1979&#039;s picture" title="smitt1979&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/8948" title="View user profile.">smitt1979</a> on Tue, 01/12/2015 - 16:34.</div>
+    <div class="content">
+     <p>Thanks&nbsp;Matthew&nbsp;</p>
+<p>I have a read of that&nbsp;</p>
+<p>Steve</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36547"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3426" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3426.jpg" alt="Bill Thomson&#039;s picture" title="Bill Thomson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3426" title="View user profile.">Bill Thomson</a> on Tue, 01/12/2015 - 18:40.</div>
+    <div class="content">
+     <p><em>Based on minibian lightweight Jessie (12-11-15)&nbsp;</em></p>
+<p>The raspberrypi.org folks now have a &quot;lite&quot; version of Jessie.</p>
+<p><a href="https://www.raspberrypi.org/downloads/raspbian/">www.raspberrypi.org/downloads/raspbian</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36557"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/10" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/10" title="View user profile.">glyn.hudson</a> on Tue, 01/12/2015 - 23:41.</div>
+    <div class="content">
+     <p>The lite&nbsp;version of Jessie = minibian&nbsp;I believe&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36562"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3426" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3426.jpg" alt="Bill Thomson&#039;s picture" title="Bill Thomson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3426" title="View user profile.">Bill Thomson</a> on Wed, 02/12/2015 - 03:32.</div>
+    <div class="content">
+     <p><em>The lite&nbsp;version of Jessie = minibian&nbsp;I believe&nbsp;</em></p>
+<p>Doesn&#39;t look like it.</p>
+<p>Unzipped, the Raspbian Jessie Lite .img file is 1,424,384 kB on disk and Minibian unzips to a .img of 813,056 kB on disk. Looks like Minibian is a better deal when it comes to saving disk space.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36568"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1039" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="mattwire&#039;s picture" title="mattwire&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1039" title="View user profile.">mattwire</a> on Wed, 02/12/2015 - 09:53.</div>
+    <div class="content">
+     <p>If you install the raspbian netinstall version from here&nbsp;https://github.com/debian-pi/raspbian-ua-netinst you start with a 64MB image which installs to around 200MB and is about as minimal as you can get.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36570"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/8948" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="smitt1979&#039;s picture" title="smitt1979&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/8948" title="View user profile.">smitt1979</a> on Wed, 02/12/2015 - 10:13.</div>
+    <div class="content">
+     <p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/jessie.JPG" style="width: 600px; height: 176px;" /></p>
+<p>Hi Glyn</p>
+<p>I think Bill is right about the images&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36575"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/10" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/10" title="View user profile.">glyn.hudson</a> on Wed, 02/12/2015 - 11:15.</div>
+    <div class="content">
+     <p>Sorry, you&#39;re right Bill.&nbsp;Minibian&nbsp;is more minimal than Raspbian&nbsp;minimal. However I believe&nbsp;both start from a similar code base (Jessie). Raspbian minimal must have some extra&nbsp;modules. We are keen to stick as close to Raspbian as possible. Minibian&nbsp;is pretty minimal to start with but still on the main Raspbian Jessie Kernel and code base.&nbsp;</p>
+<p>I have recently been testing an image built from scratch on Minibian&nbsp;with a read file system implemented in the same way as on the previous image. As before a few tweaks are needed to make things work with a read-only file system.&nbsp;</p>
+<p>As per the <a href="https://github.com/openenergymonitor/emonpi/blob/master/imagebuild.md">image build guide</a> and <a href="https://github.com/openenergymonitor/emonpi/blob/master/install">install script</a>&nbsp;as in the previous image&nbsp;the following directories are mounted as tmpfs:</p>
+<p>pi@emonpi:~$ df -h<br />
+Filesystem &nbsp; &nbsp; &nbsp;Size &nbsp;Used Avail Use% Mounted on<br />
+/dev/root &nbsp; &nbsp; &nbsp; 3.1G &nbsp;1.2G &nbsp;1.8G &nbsp;39% /<br />
+devtmpfs &nbsp; &nbsp; &nbsp; &nbsp;483M &nbsp; &nbsp; 0 &nbsp;483M &nbsp; 0% &nbsp;&nbsp;/dev<br />
+tmpfs &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 487M &nbsp; &nbsp; 0 &nbsp;487M &nbsp; 0% &nbsp; &nbsp;/dev/shm<br />
+tmpfs &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 487M &nbsp;6.5M &nbsp;481M &nbsp; 2% &nbsp;/run<br />
+tmpfs &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 5.0M &nbsp; &nbsp; 0 &nbsp;5.0M &nbsp; 0% &nbsp; &nbsp;&nbsp; /run/lock<br />
+tmpfs &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 487M &nbsp; &nbsp; 0 &nbsp;487M &nbsp; 0%&nbsp; &nbsp; &nbsp;/sys/fs/cgroup<br />
+tmpfs &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 1.0M &nbsp;8.0K 1016K &nbsp; 1% &nbsp;&nbsp;/var/lib/dhcp<br />
+tmpfs &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;30M &nbsp;880K &nbsp; 30M &nbsp; 3% &nbsp;&nbsp;/var/log<br />
+tmpfs &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;30M &nbsp;4.0K &nbsp; 30M &nbsp; 1%&nbsp; &nbsp;&nbsp;/tmp<br />
+/dev/mmcblk0p1 &nbsp; 61M &nbsp; 20M &nbsp; 42M &nbsp;32% /boot<br />
+/dev/mmcblk0p3 &nbsp;484M &nbsp; 32M &nbsp;427M &nbsp; 7% /home/pi/data</p>
+<p>&nbsp;</p>
+<p><a href="https://github.com/emonhub/ntp-backup">Paul&#39;s R/O NTP time fix is implemented </a>and /etc/resolv.conf.dhclient-new and /etc/resolv.conf are symlinked to writable version in /home/pi/data and a <a href="https://github.com/openenergymonitor/emonpi/blob/master/dhclient-script_minibian">modified version</a> of&nbsp;/sbin/dhclient-script&nbsp;is used.</p>
+<p>All is working well:&nbsp;DHCP leases and DNS resolving. However taking a look in the daemon.log there are a few errors relating to a read-only FS. <strong>The question is are these errors important?</strong> If so should the entire /var folder be mounted as tmpfs? We already mount /var/log and /var/lib/dhcp as RO. I have head of an issue a customer reported after running update &amp; upgrade&nbsp;where /var/lib/dhcp5&nbsp;was&nbsp;created and needed to be also mounted as tmpfs before a reliable dhcp lease could be negotiated.&nbsp;</p>
+<p>pi@emonpi:~$ sudo cat /var/log/daemon.log | grep only<br />
+Dec &nbsp;1 22:17:17 emonpi systemd-tmpfiles[166]: chmod(/var) failed: Read-only file system<br />
+Dec &nbsp;1 22:17:17 emonpi systemd-tmpfiles[166]: chmod(/var/cache) failed: Read-only file system<br />
+Dec &nbsp;1 22:17:17 emonpi systemd-tmpfiles[166]: chmod(/var/cache/man) failed: Read-only file system<br />
+Dec &nbsp;1 22:17:17 emonpi systemd-tmpfiles[166]: chmod(/var/lib) failed: Read-only file system<br />
+Dec &nbsp;1 22:17:17 emonpi systemd-tmpfiles[166]: chmod(/var/lib/systemd) failed: Read-only file system<br />
+Dec &nbsp;1 22:17:17 emonpi systemd-tmpfiles[166]: chmod(/var/lib/systemd/coredump) failed: Read-only file system<br />
+Dec &nbsp;1 22:17:17 emonpi systemd-tmpfiles[166]: chmod(/var/lib/container) failed: Read-only file system<br />
+Dec &nbsp;1 22:17:17 emonpi systemd-tmpfiles[166]: chmod(/var/spool) failed: Read-only file system<br />
+Dec &nbsp;1 22:17:17 emonpi networking[171]: rm: cannot remove &#39;/etc/resolv.conf.dhclient-new&#39;: Read-only file system<br />
+Dec &nbsp;1 22:17:17 emonpi networking[171]: rm: cannot remove &#39;/etc/resolv.conf.dhclient-new&#39;: Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: unlink(/var/cache/man/es/index.db): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: utimensat(/var/cache/man/es): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: unlink(/var/cache/man/de/index.db): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: utimensat(/var/cache/man/de): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: unlink(/var/cache/man/fr/index.db): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: utimensat(/var/cache/man/fr): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: unlink(/var/cache/man/pt/index.db): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: utimensat(/var/cache/man/pt): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: rmdir(/var/cache/man/fr.ISO8859-1/cat8): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: unlink(/var/cache/man/fr.ISO8859-1/index.db): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: rmdir(/var/cache/man/fr.ISO8859-1/cat7): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: unlink(/var/cache/man/fr.ISO8859-1/CACHEDIR.TAG): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: utimensat(/var/cache/man/fr.ISO8859-1): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: rmdir(/var/cache/man/vi/cat1): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: unlink(/var/cache/man/vi/index.db): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: rmdir(/var/cache/man/vi/cat7): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: unlink(/var/cache/man/vi/CACHEDIR.TAG): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: utimensat(/var/cache/man/vi): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: rmdir(/var/cache/man/fr.UTF-8/cat8): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: unlink(/var/cache/man/fr.UTF-8/index.db): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: rmdir(/var/cache/man/fr.UTF-8/cat7): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: unlink(/var/cache/man/fr.UTF-8/CACHEDIR.TAG): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: utimensat(/var/cache/man/fr.UTF-8): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: unlink(/var/cache/man/cs/index.db): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: utimensat(/var/cache/man/cs): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: unlink(/var/cache/man/ru/index.db): Read-only file system<br />
+Dec &nbsp;2 10:10:43 emonpi systemd-tmpfiles[4037]: utimensat(/var/cache/man/ru): Read-only file system<br />
+Dec &nbsp;2 10:17:01 emonpi systemd[1]: Stopping LSB: Save the current clock &amp; ntp drift on read-only filesystem...<br />
+Dec &nbsp;2 10:17:01 emonpi systemd[1]: Starting LSB: Save the current clock &amp; ntp drift on read-only filesystem...<br />
+Dec &nbsp;2 10:17:01 emonpi systemd[1]: Started LSB: Save the current clock &amp; ntp drift on read-only filesystem.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36586"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3426" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3426.jpg" alt="Bill Thomson&#039;s picture" title="Bill Thomson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3426" title="View user profile.">Bill Thomson</a> on Wed, 02/12/2015 - 14:52.</div>
+    <div class="content">
+     <p>Hi Glyn,</p>
+<p>Have you thought about creating the SD card R/O image with the same tools used to create a Live CD?</p>
+<p>Since an SD card R/O filesystem, and a Live CD filesystem both operate in read-only mode, perhaps some insight could be gained on how to build an SD image that operates sans the R/O errors listed above.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38318"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7605" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="craigfryer&#039;s picture" title="craigfryer&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7605" title="View user profile.">craigfryer</a> on Sat, 16/01/2016 - 01:23.</div>
+    <div class="content">
+     <p>Thanks for all your hard work on this part of the project.</p>
+<p>I think it will be useful for many people like myself. I would like to see the inclusion of the suggested addons such as&nbsp;MQTT,&nbsp;NodeRed,&nbsp;Lightwave OOK and openhab. I have found in the past that these are difficult to build onto the base EMONCMS system and to have working correctly. I think the majority of people would like to be using these sort of extra modules to control the power in their homes as just knowing the consumption is very useful, but seems like the first step.</p>
+<p>I can understand from a CPU&nbsp;and RAM point of view that people may not want these additional modules, but if they aren&#39;t configured I can&#39;t see that they would be putting much if any load on the system. From a storage point of view, the extra space is really nothing considering the cost of microSD cards today.</p>
+<p>How is the development going?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38319"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7376" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-7376.jpg" alt="allmac&#039;s picture" title="allmac&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Steps towards an EmonCMS 9.0 SD Card Image + Upgrade path</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7376" title="View user profile.">allmac</a> on Sat, 16/01/2016 - 06:18.</div>
+    <div class="content">
+     <p>Today I use Emoncms&nbsp;NOT ONLY for &quot;power control&quot;. I send to it any kind of &quot;numeric data&quot; that Emoncms&nbsp;can log and give me a feedbak or stattistics.</p>
+<p>I have two RaspPi, and Emoncms is logging data from them, like: CPU temperature, memory and CPU use, wifi&nbsp;signal, disc space.&nbsp;Emoncms give me the opportunity to predict a possible problem, or just analyse&nbsp;when something happened.</p>
+<p>I don&#39;t beleive&nbsp;that Emoncms should have any special Openhab&nbsp;addon. I can see Emoncms data into my Openhab using Openhab addos (this is Openhab function). I can see data via MQTT and Dashboards via HTTP.</p>
+<p>Maybe, only to ADD in Emoncms a way to see specific graphics and Apps without all the html content, to add them into any other tool or website. These graphics could add a Emoncms logo into it (wathermark). I believe that this is not so hard to do.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/11407"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-XXow92vklaJ9Rwl09kKaCKKznIdgpjvzxR1FPltEL3s" value="form-XXow92vklaJ9Rwl09kKaCKKznIdgpjvzxR1FPltEL3s"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

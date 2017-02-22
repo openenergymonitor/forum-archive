@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>minicom utility problems with understanding | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/5">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">minicom utility problems with understanding</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/7585" title="View user profile.">alexlember</a> on Tue, 16/06/2015 - 13:10</span>
+        <div class="content"><p>I tried to use minicom utility, I have this configs:</p>
+<p>74 i10 g210 @ 433 MHz &nbsp;Lock: 1</p>
+<p>And I have that output:</p>
+<p>&nbsp;10 38 37 37 37 39 37 200 6 0 0 0 0</p>
+<p>&nbsp;</p>
+<p>Could you please explain me each digit meaning? If some of them are physical sense could you also tell me about the unit of measure of each data?&nbsp;</p>
+<p>&nbsp;</p>
+<p>Thank you!</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/10859" class="topic-previous" title="Go to previous forum topic">‹ EMONCMS error feed could not be created undefined</a>
+              <a href="/emon/node/10854" class="topic-next" title="Go to next forum topic">8.5 Extended ver - html code in dashboard ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-31359"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: minicom utility problems with understanding</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Tue, 16/06/2015 - 13:34.</div>
+    <div class="content">
+     <p>"10" is the node number, the remaining data is the "payload" from your emonTx. It is 6 integer values represented as byte values in decimal.</p>
+<p>You need to look at the (default?) emonTx sketch to see what the payload is, then look at where the values are copied into it to see if there is a multiplier.</p>
+<p>The payload is defined:<br />
+&nbsp; &nbsp; typedef struct { int power1, power2, power3, power4, Vrms, temp; } PayloadTX;<br />
+&nbsp; &nbsp; PayloadTX emontx;</p>
+<p>Then looking down to see how we get power1 (for example), we see:<br />
+&nbsp; &nbsp; emontx.power1=ct1.realPower;<br />
+That power is in watts. But doing the same for Voltage, you see the voltage is multiplied by 100:<br />
+&nbsp; &nbsp; emontx.Vrms=ct1.Vrms*100;<br />
+and temperature by 10:<br />
+&nbsp; &nbsp; emontx.temp=(temp*10);</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31362"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7585" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="alexlember&#039;s picture" title="alexlember&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: minicom utility problems with understanding</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7585" title="View user profile.">alexlember</a> on Tue, 16/06/2015 - 14:10.</div>
+    <div class="content">
+     <p>Yes, I looked at default emonTx sketch and I saw this structure:</p>
+<p>typedef struct { int power1, power2, power3, power4, Vrms, temp; } PayloadTX;<br />
+PayloadTX emontx;</p>
+<p>I have this output in minicom:&nbsp;10 38 37 37 37 39 37 200 6 0 0 0 0</p>
+<p>Isn&#39;t it too&nbsp;many values for this structure?</p>
+<p>10 - node number</p>
+<p>&nbsp;</p>
+<p>power1,&nbsp;power2,&nbsp;power3,&nbsp;power4,&nbsp;Vrms, temp - 6 integer values, but I have 12 values, exclude node number.</p>
+<p>How to link them with each other?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31365"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7585" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="alexlember&#039;s picture" title="alexlember&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: minicom utility problems with understanding</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7585" title="View user profile.">alexlember</a> on Tue, 16/06/2015 - 14:29.</div>
+    <div class="content">
+     <p>I&#39;ve attached an image. Is it correct?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31367"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: minicom utility problems with understanding</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Tue, 16/06/2015 - 14:52.</div>
+    <div class="content">
+     <p>No, sorry, this is what you have: </p>
+<pre> 
+10 38 37 37 37 39 37 200 6 0 0 0 0
+-- ----- ----- ----- ----- --- ---
+ |   |     |     |     |    |   |
+ |   |     |     |     |    |   Temperature
+ |   |     |     |     |    Vrms
+ |   |     |     |     Power 4
+ |   |     |     Power 3          
+ |   |     Power 2
+ |   Power 1
+ Node ID
+
+</pre><p>
+Two bytes for each integer! Power 1 = 38 + (256 &times; 37) = 9510 W. </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31368"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7585" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="alexlember&#039;s picture" title="alexlember&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: minicom utility problems with understanding</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7585" title="View user profile.">alexlember</a> on Tue, 16/06/2015 - 15:29.</div>
+    <div class="content">
+     <p>Now it&#39;s clear for me! Thanks a lot!</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/10858"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-RrTgKmwHBDjJKXRX3RmHLFdLPEMgt01IgW7QCwk0BWs" value="form-RrTgKmwHBDjJKXRX3RmHLFdLPEMgt01IgW7QCwk0BWs"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

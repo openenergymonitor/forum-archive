@@ -1,0 +1,425 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>New emoncms get data request method and data viewer | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/5">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">New emoncms get data request method and data viewer</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Wed, 11/03/2015 - 09:24</span>
+        <div class="content"><p>While developing the new application specific dashboards recently, I found that I needed to be able to request data from the server for multiple feeds with the exact same timestamps so that you could directly run calculations such as the energy balance or &#39;virtual store&#39; calculation using multiple feeds.</p>
+<p><a href="http://openenergymonitor.org/emon/sites/default/files/electric_car_charge.png"><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/electric_car_charge.png" style="width: 350px; height: 264px;" /></a></p>
+<p>When a request was made to the emoncms data request api which looks like this:</p>
+<p><strong>http://emoncms.org/feed/data.json?id=71667&amp;start=1426031940000&amp;end=1426064520000&amp;interval=30</strong></p>
+<p>The datapoints returned where not guaranteed to be aligned to the request start time and interval making this cross feed comparison difficult.</p>
+<p>Yesterday&#39;s update makes it much easier to do this kind of request, if you call</p>
+<p><strong>http://emoncms.org/feed/data.json?id=71667&amp;start=1426031940000&amp;end=1426064520000&amp;interval=30&amp;skipmissing=0&amp;limitinterval=0</strong></p>
+<p>for multiple feeds you will be guaranteed to get a json output with the same number of datapoints and the same timestamps.</p>
+<p>I&#39;ve added a new default data viewing graph that loads when you click on the eye on the feeds page which makes it easier to explore this new data request API. Its possible</p>
+<p><a href="http://openenergymonitor.org/emon/sites/default/files/dataviewer.png"><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/dataviewer.png" style="width: 650px; height: 588px;" /></a></p>
+<p>The new paramaters are skipmissing and limitinterval.</p>
+<p>skipmissing = 0 will return null if there is no value at the requested timestamp, skipmissing = 1 will skip the datapoint entirely returning an output similar to the older data request api.</p>
+<p>limitinterval =1 will limit the minimum request interval to the interval of the feed being used so that if you have a 10s phpfina feed it wont return data at less than 10s.</p>
+<p><strong>CSV Output</strong>, theres also a new CSV output box in the data viewer graph which makes export to a spreadsheet easier to do.</p>
+<p>There are still a few teething issues with the new request method that need ironing out, but hopefully the result will be a more useful data request method that makes multiple feed post processing easier.</p>
+<p><strong>kWh zoomer bug fix</strong> - as part of this update I have also fixed the kwh zoomer visualisation which wasnt displaying the years correctly.</p>
+<p><strong>Testing</strong>, if you wish to test this on your own emoncms install you can find these features in the newgetdatamethod branch here to be merged into master once all related bugs are sorted <a href="https://github.com/emoncms/emoncms/tree/newgetdatamethod" title="https://github.com/emoncms/emoncms/tree/newgetdatamethod">https://github.com/emoncms/emoncms/tree/newgetdatamethod</a> you will also need this to run the latest application specific dashboards module <a href="https://github.com/emoncms/development/tree/master/Modules/app" title="https://github.com/emoncms/development/tree/master/Modules/app">https://github.com/emoncms/development/tree/master/Modules/app</a></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/10831" class="topic-previous" title="Go to previous forum topic">‹ why value 1024 in code [offsetI = (offsetI + (sampleI-offsetI)/1024);]</a>
+              <a href="/emon/node/10822" class="topic-next" title="Go to next forum topic">Pebble app ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-28579"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7698" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-7698.jpg" alt="jmessenger&#039;s picture" title="jmessenger&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7698" title="View user profile.">jmessenger</a> on Wed, 11/03/2015 - 12:15.</div>
+    <div class="content">
+     <p>I&#39;d like to try this out. Would you mind posting a pointer to some data backup/restore instructions please?</p>
+<p>Thanks, &nbsp;John.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28583"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Wed, 11/03/2015 - 13:53.</div>
+    <div class="content">
+     <p>Have you checked the user guide? -&nbsp;https://github.com/emoncms/emoncms/blob/master/docs/Backup.md Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28585"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7764" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="hercules71035&#039;s picture" title="hercules71035&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7764" title="View user profile.">hercules71035</a> on Wed, 11/03/2015 - 14:39.</div>
+    <div class="content">
+     <p>Hi there,</p>
+<p>I downloaded newgetdatamethod with git clone (using --branch on master git), then I downloaded development branch and then I copied Module directory from development into emoncms_new directory. (I followed this tutorial <a href="https://github.com/emoncms/emoncms/blob/Extended/docs/Upgrading.md" title="https://github.com/emoncms/emoncms/blob/Extended/docs/Upgrading.md">https://github.com/emoncms/emoncms/blob/Extended/docs/Upgrading.md</a> with some adjustments), but it doesn&#39;t work. The Apps menu is appeared, but if I click on Solar PV there is a blank screen.</p>
+<p>Why?</p>
+<p>Thanks.</p>
+<p><i>[Please notice the message that tells you when your post is held for moderation, and do not post repeatedly. You only waste everyone's time. - Moderator (RW)]</i></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28651"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Fri, 13/03/2015 - 21:54.</div>
+    <div class="content">
+     <p>Last time I tried switching Git branches, I made a complete mess of it!</p>
+<p>Could you give the Git commands please to switch to the&nbsp;&#39;newgetdatamethod&#39; branch&nbsp;and also the reverse - to switch back to origin/master.</p>
+<p>If I run <strong>$ git branch -a</strong> I can&#39;t even see the &#39;newgetdatamethod&#39; branch...</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/git.jpg" style="width: 387px; height: 275px;" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28653"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Fri, 13/03/2015 - 22:05.</div>
+    <div class="content">
+     <p>Hi Paul</p>
+<p>You will need to pull in the changes before switching</p>
+<blockquote><p>cd /var/www/emoncms</p>
+<p>git pull</p>
+<p>git checkout&nbsp;newgetdatamethod</p>
+<p>cd&nbsp;-</p>
+</blockquote>
+<p>and to switch back it should just be</p>
+<blockquote><p>cd /var/www/emoncms</p>
+<p>git checkout&nbsp;master</p>
+<p>cd&nbsp;-</p>
+</blockquote>
+<p>although since git can be .....well, a bit of a git sometimes I would do a back-up first, just in case !</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28654"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7698" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-7698.jpg" alt="jmessenger&#039;s picture" title="jmessenger&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7698" title="View user profile.">jmessenger</a> on Fri, 13/03/2015 - 22:09.</div>
+    <div class="content">
+     <p>Thank you!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28656"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Fri, 13/03/2015 - 22:36.</div>
+    <div class="content">
+     <p>Thanks Paul, the problem was that the &#39;newgetdatamethod&#39; branch was not visible from $ git branch -a</p>
+<p>A bit of reading suggested <strong>$ git</strong> <strong>fetch</strong> <strong>origin</strong> which updated my local git database, and now I can see &#39;newgetdatamethod&#39; and have checkout to it.</p>
+<p>Unfortunately, the changes made between v1 &amp; v2 of &#39;My Solar&#39; have introduced an bug stopping it being displayed over https as it requests an insecure XMLHttpRequest endpoint&nbsp;and therefore the page is blocked as a security weakness.<br />
+v1 worked OK.</p>
+<p>I&#39;ve logged it as an issue&nbsp;<a href="https://github.com/emoncms/emoncms/issues/302">on git</a>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Paul</p>
+<p>EDIT 14/3 - Also get an error message when viewing&nbsp;default graphs, but only on mobile device!<br />
+<strong>Notice: Undefined offset: 2 in /var/www/emoncms/Modules/vis/vis_controller.php on line 74</strong><br />
+Strangely, I don&#39;t get an error message&nbsp;via laptop</p>
+<p>PS - I have cleared the browser cache and cookies.</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/Screenshot.png" style="width: 720px; height: 405px;" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28828"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Thu, 19/03/2015 - 20:08.</div>
+    <div class="content">
+     <p>Here is a screenshot from Chrome&#39;s &#39;developer tools&#39; showing the error message which appears to point back to the use of jquery-1.9.0.min.js although the first version of &#39;My Solar&#39; still used that library, and yet worked fine.</p>
+<p><img alt="" src="https://cloud.githubusercontent.com/assets/973580/6648356/b09bcd42-c9d0-11e4-85ff-8bb05f9a7c3c.jpg" style="width: 750px; height: 183px;" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28996"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/5027" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/5027" title="View user profile.">Eric_AMANN</a> on Wed, 25/03/2015 - 12:06.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Great improvement !&nbsp;</p>
+<p>This should allow people to download many feeds into&nbsp;the same CSV file in one click with all&nbsp;timestamps aligned and no missing point. Today, I&#39;m wasting my time to do that in open office ...&nbsp;</p>
+<p>According to me, such a multidownload tool is a must-have feature !</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28999"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Wed, 25/03/2015 - 19:57.</div>
+    <div class="content">
+     <p>The Modules/app files within development branch were updated today by Trystan, which has resolved the&nbsp;2 issues that I raised above.</p>
+<p>Works great now using https.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29248"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/6498" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/6498" title="View user profile.">sumnerboy</a> on Wed, 01/04/2015 - 03:42.</div>
+    <div class="content">
+     <p>FYI - in the My Heatpump app the notes down the bottom state the room temp should be a feed named &#39;room_temp&#39;, which was how it originally worked. But the latest version is expecting &#39;heatpump_room_temp&#39;.</p>
+<p>Spent a while wondering why that one feed on the dashboard wasn&#39;t working after I upgraded!!</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><span class="rangySelectionBoundary" id="selectionBoundary_1427858348419_4922250509262085" style="line-height: 0; display: none;">﻿</span></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31039"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/8238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="sub3marathonman&#039;s picture" title="sub3marathonman&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/8238" title="View user profile.">sub3marathonman</a> on Mon, 08/06/2015 - 03:58.</div>
+    <div class="content">
+     <p>OK, I admit I&#39;m a bit behind the times, but I&#39;m hoping somebody can expand a bit further, as I&#39;m trying to setup v8.5 and having this exact issue mentioned by Paul Reed, but on a regular laptop computer:</p>
+<p><em>Paul</em></p>
+<p><em>EDIT 14/3 - Also get an error message when viewing&nbsp;default graphs, but only on mobile device!<br />
+Notice: Undefined offset: 2 in /var/www/emoncms/Modules/vis/vis_controller.php on line 74<br />
+Strangely, I don&#39;t get an error message&nbsp;via laptop</em></p>
+<p><em>PS - I have cleared the browser cache and cookies.</em></p>
+<p>The setup I have is probably as basic as possible, as I&#39;ve just followed the instructions ( <a href="https://github.com/emoncms/emoncms/blob/master/docs/WindowsInstall.md">https://github.com/emoncms/emoncms/blob/master/docs/WindowsInstall.md</a>) to set up the &quot;Test&quot; database and used the method in Step 10: <a href="http://localhost/emoncms/input/post.json?node=1&amp;csv=100,200,300">http://localhost/emoncms/input/post.json?node=1&amp;csv=100,200,300</a></p>
+<p>And then I get that same error message when I try to look at the graph using the eye choice.&nbsp; But the graph itself seems to be correct.</p>
+<p>Any help is greatly appreciated.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31056"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Mon, 08/06/2015 - 11:59.</div>
+    <div class="content">
+     <p>If you switch to the 8.5.1 Extended branch, the error is not present.<br />
+I don't know what has changed between 8.5 &amp; 8.5.1 Extended - maybe Chaveiro fixed it.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31140"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/8238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="sub3marathonman&#039;s picture" title="sub3marathonman&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/8238" title="View user profile.">sub3marathonman</a> on Wed, 10/06/2015 - 03:10.</div>
+    <div class="content">
+     <p>Thank you very much Paul!</p>
+<p>I did the one that was suggested, as opposed to the cutting edge one.&nbsp; And you&#39;ll understand why when I ask the ridiculously basic question, is the emoncms-8.5.zip file from <a href="https://github.com/emoncms/emoncms">https://github.com/emoncms/emoncms</a> the right one?&nbsp; It says 8.5, not 8.5.1 and actually the apparently emoncms version 8.5.0 is listed as emoncms-master.zip, so rather than just possibly wreck what I&#39;ve already done I thought I&#39;d ask.</p>
+<p>Also, while asking ridiculously basic questions, what are the &quot;branches&quot; and &quot;commits&quot; although I guess they are things that have been approved for the main program it&#39;d be nice to know definitely.</p>
+<p>Thanks again for all the newbie help!</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31148"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Wed, 10/06/2015 - 09:31.</div>
+    <div class="content">
+     <p>See<a href="http://readwrite.com/2013/09/30/understanding-github-a-journey-for-beginners-part-1"> this link</a> for branches &amp; commits.</p>
+<p>As far as I&#39;m aware, the current master version is 8.4, the 8.5 version is, well 8.5.0, and the Extended version is 8.5.1 XT.</p>
+<p>In all honesty, I&#39;ve found the Extended version much less buggy that the 8.5 version (mainly due to the efforts of Chaveiro), and it appears very stable and well supported in the forum.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31222"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/8238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="sub3marathonman&#039;s picture" title="sub3marathonman&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/8238" title="View user profile.">sub3marathonman</a> on Fri, 12/06/2015 - 02:46.</div>
+    <div class="content">
+     <p>Thanks again Paul.</p>
+<p>However, I guess I&#39;m never going to be on the cutting edge, as after I figured out about the branches and downloaded the Extended Version 8.5.1 XT, there were two errors with the basic graph, the original error and a new one.</p>
+<p>So I just switched back to the regular 8.5.0.</p>
+<p>I don&#39;t think it is anything I&#39;ve done wrong,&nbsp;and it seem I have a basic setup with Window 8.0, but I don&#39;t know if anybody wants to investigate further.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31228"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms get data request method and data viewer</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Fri, 12/06/2015 - 08:18.</div>
+    <div class="content">
+     <p>When you updated to the extended version, did you clear your browser cache?<br />
+I'm running the extended branch out of the box, and don't see any errors.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/10297"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-2u-Qgr446pnYLJAYrBWCSjCoxgJFqiCKOTfDyFGzYVE" value="form-2u-Qgr446pnYLJAYrBWCSjCoxgJFqiCKOTfDyFGzYVE"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

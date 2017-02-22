@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1074 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:47:02 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Can I post both signed integers and unsigned longs via the http post? - solved | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Can I post both signed integers and unsigned longs via the http post? - solved</h3>
+        <span class="submitted">Submitted by <a href="../user/1662.html" title="View user profile.">mountaindude</a> on Sat, 22/09/2012 - 14:14</span>
+        <div class="content"><p>In addition to being pretty new to emoncms&nbsp;I had too few hours of sleep last night, so maybe I am missing something obvious here...&nbsp;</p>
+<p>&nbsp;</p>
+<p>My setup is that I both want to send signed (i.e. data that is possibly negative) things like temperatures to emocms, but also large numbers, such as unsigned longs (such as sequence numbers coming out of the fairly advanced RS485 equipped energy meter that is measuring the energy consumption here).&nbsp;</p>
+<p>In the first case the system works out of the box, with the emonBase code building a signed, 2 byte integer out of the data received via RF from a remote Jeenode.</p>
+<p>The code line in question in the NanodeRF_multinode sketch is line 178 (in my particular version of the code - should be about the same as the code in&nbsp;Git.)</p>
+<p class="rteindent1"><em>int num = ((unsigned char)rf12_data[i+1] &lt;&lt; 8 | (unsigned char)rf12_data[i]);</em></p>
+<p>The above however causes problems (as far as I can tell) when I send in a 4 byte <u>unsigned</u> long value. If either of the two 2-byte parts of the 4-byte long value is above 32767, the number sent to the db&nbsp;(via the HTTP post) will be a negative number (due to how signed values are stored using 2-complements).</p>
+<p>Right. I can compensate for that when processing the input, just before sending the data to the feed. It&#39;s pretty easy, just add 65536 to the input value. If the value stored is -10000, adding 65536 to this will give me the unsigned value I am looking for. Nice.<br />
+	The problem is however if the value in the input stream is for example 5000. Adding 65536 to this will obviously give me an incorrect result (outside of the 16 bit range of an unsigned int). In other words: Adding 65536 only works if the value in the input stream is &lt; 0, representing an <em><u>unsigned</u></em>&nbsp;value of &gt; 32767. I could handle this by customizing the code, but that&#39;s what I want to get rid of by moving my home monitoring to a platform like emoncms.</p>
+<p>Plan B then.&nbsp;</p>
+<p>I changed the above code line to read&nbsp;</p>
+<p class="rteindent1"><em>unisgned int num = ((unsigned char)rf12_data[i+1] &lt;&lt; 8 | (unsigned char)rf12_data[i]);</em></p>
+<p>Now I don&#39;t have to worry about adding 65536 when processing the input/creating the feed. Everything will be unsigned.<br />
+	I however loose the ability to represent negative numbers, and given that I live in Sweden I am pretty sure the winter will bring temps way below zero..</p>
+<p>&nbsp;</p>
+<p>To sum up:&nbsp;</p>
+<p>How do I properly handle both unsigned longs, and signed ints, without loosing precision in either case?</p>
+<p>&nbsp;</p>
+<p>Thanks,</p>
+<p>G&ouml;ran</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1085.html" class="topic-previous" title="Go to previous forum topic">‹ How to set min/max for gauge meter in dashboard?</a>
+              <a href="1068.html" class="topic-next" title="Go to next forum topic">Tidying Database ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-6299"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1662.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1662.jpg" alt="mountaindude&#039;s picture" title="mountaindude&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Can I post both signed integers and unsigned longs via the http post? - solved</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1662.html" title="View user profile.">mountaindude</a> on Sat, 22/09/2012 - 19:50.</div>
+    <div class="content">
+     <p>Responding to my own question:</p>
+<p>A new input processing action would fix the above, I believe.&nbsp;Something along the lines of &quot;Signed to Unsigned&quot;, which would add a certain value (configurable?) to the input data, if the input data&lt;0. Otherwise leave do nothing.</p>
+<p>Hmm... Unless someone is already working on this I guess I&#39;ll have to brush up my php skills..</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6300"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Can I post both signed integers and unsigned longs via the http post? - solved</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 22/09/2012 - 22:24.</div>
+    <div class="content">
+     <p>This is really Trystan Lea&#39;s area. I don&#39;t know the emonCMS system at all, however my feeling is that it doesn&#39;t actually matter now the data is passed around (as an array of char, signed integer or unsigned), it&#39;s how it is interpreted <em>at the destination</em> that matters. So I think you&#39;re right in thinking the problem is in the PHP.</p>
+<p>As a work-around, can you add a number at source (i.e. base your temperature scale at -50&deg;C, say) then subtract it again in the processing?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6319"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1662.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1662.jpg" alt="mountaindude&#039;s picture" title="mountaindude&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Can I post both signed integers and unsigned longs via the http post? - solved</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1662.html" title="View user profile.">mountaindude</a> on Mon, 24/09/2012 - 16:32.</div>
+    <div class="content">
+     <p>So this actually turned to be pretty easy. Adding a new input processor to the already existing ones is next to trivial (if I&#39;ve understood things correctly).</p>
+<p>Making the following changes to the Models/process_model.php fully solved my problem:</p>
+<p>After the existing process definitions:</p>
+<p class="rteindent1"><em>$list[20] = array(<br />
+	&nbsp;&nbsp;&nbsp; _(&quot;Combine to long&quot;),<br />
+	&nbsp;&nbsp;&nbsp; 1,<br />
+	&nbsp;&nbsp;&nbsp; &quot;combine_to_long&quot;,<br />
+	&nbsp;&nbsp;&nbsp; 0,<br />
+	&nbsp;&nbsp;&nbsp; 0<br />
+	&nbsp; );</em></p>
+<p>&nbsp;</p>
+<p>The define the function combine_to_long at the end of the same file:</p>
+<p class="rteindent1"><em>function combine_to_long($id, $time, $value)<br />
+	{<br />
+	&nbsp; // Note: This process should ONLY be applied to the most significant word in a long<br />
+	&nbsp; if ($value &lt; 0) {<br />
+	&nbsp;&nbsp;&nbsp; $value_msword = ($value + 65536) * 0.10 * 65536;<br />
+	&nbsp; }<br />
+	&nbsp; else {<br />
+	&nbsp;&nbsp;&nbsp; $value_msword = $value * 0.10 * 65536;<br />
+	&nbsp; }<br />
+	&nbsp; // Most significant word now ready. Add least significant word</em></p>
+<p>&nbsp;</p>
+<p class="rteindent1"><em>&nbsp; $result = db_query(&quot;SELECT value FROM input WHERE id = &#39;$id&#39;&quot;);<br />
+	&nbsp; $row = db_fetch_array($result);<br />
+	&nbsp; $value_lsword = $row[&#39;value&#39;];</em></p>
+<p class="rteindent1"><em>&nbsp; if ($value_lsword &lt; 0) {<br />
+	&nbsp;&nbsp;&nbsp; $value = ($value_lsword + 65536) * 0.10 + $value_msword;<br />
+	&nbsp; }<br />
+	&nbsp; else {<br />
+	&nbsp;&nbsp;&nbsp; $value = $value_lsword * 0.10 + $value_msword;<br />
+	&nbsp; }</em></p>
+<p>&nbsp;</p>
+<p class="rteindent1"><em>&nbsp; return $value;</em></p>
+<p class="rteindent1"><em>}</em></p>
+<p>&nbsp;</p>
+<p>A couple of notes:</p>
+<p>a) I needed to scale down the values by a factor of 10. I took a shortcut and placed that scaling directly in the function. With a bit of retrospect I should instead have used the scaling process - it would make the above code more usable.&nbsp;</p>
+<p>b) The above input processor should be applied to the most significant word. For example, if a long value is sent from the tx node as node1_4 (least significant word = 2 bytes) and node1_5 (most significant word = 2 bytes), the above should processor should be applied to the node1_5 input, and node1_4 should be given as parameter to the processor.&nbsp;</p>
+<p>Works like a charm!</p>
+<p>&nbsp;</p>
+<p>Trystan: feel free to include this in the standard code base if you find it useful. Or is the preferred way a git pull request?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6398"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Can I post both signed integers and unsigned longs via the http post? - solved</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 27/09/2012 - 10:33.</div>
+    <div class="content">
+     <p>Hello Goran, that&#39;s an interesting idea to move the data type conversion to emoncms as input processes, I wonder if there would be a better initial format for the nanoderf to send rather than 2byte integers?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6401"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Can I post both signed integers and unsigned longs via the http post? - solved</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 27/09/2012 - 13:14.</div>
+    <div class="content">
+     <p>You need a struct or a union in PHP!&nbsp; <a href="http://stackoverflow.com/questions/3861353/structs-data-type-in-php">SO</a> has some suggestions.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6411"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1662.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1662.jpg" alt="mountaindude&#039;s picture" title="mountaindude&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Can I post both signed integers and unsigned longs via the http post? - solved</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1662.html" title="View user profile.">mountaindude</a> on Thu, 27/09/2012 - 18:08.</div>
+    <div class="content">
+     <p>Well... I guess you just have to decide on a way to encode the data, and then stick to it.&nbsp;And then create whatever type casting functions that are needed.&nbsp;</p>
+<p>In my case I get 4 byte long integers via RS-485 from an energy meter. I get them as two two-byte words from the meter, LSW first. So at the tx node I just create a regular C long out of those two words, assign that long to a variable in an array and send it off over RX with the jeelib. Exactly the same way your tx node does, in other words. It&#39;s easy, clean and it works. I like..</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/1074"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-N2C8wlFDpkMqKdYCTCtMoiLGnKLZtBPX7uvirel24uU" value="form-N2C8wlFDpkMqKdYCTCtMoiLGnKLZtBPX7uvirel24uU"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1074 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:47:02 GMT -->
+</html>

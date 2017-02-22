@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5431 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:38 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Switching from &quot;apt&quot; to &quot;git&quot; emonCMS | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Switching from &quot;apt&quot; to &quot;git&quot; emonCMS</h3>
+        <span class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 20/07/2014 - 08:20</span>
+        <div class="content"><p>Should you find yourself wanting to install emoncms from git having previously installed via the apt-get method, it is possible to &nbsp;&quot;add&quot; a git installed version and use existing settings and data.(normal precautions apply about backing up data etc) To start &nbsp;just clone emoncms as in the install guide</p>
+<p class="rteindent1"><strong>cd /var/<br />
+	sudo chown pi /www<br />
+	cd /www<br />
+	git clone https://github.com/emoncms/emoncms.git</strong></p>
+<p>and copy across your existing settings file</p>
+<p class="rteindent1"><strong>cp /usr/share/emoncms/www/settings.php emoncms/settings.php</strong></p>
+<p>then to redirect from the &quot;apt&quot; version to the &quot;git&quot; rename apache2&#39;s existing &quot;sites-available&quot; entry</p>
+<p class="rteindent1"><strong>sudo mv /etc/apache2/sites-available/emoncms /etc/apache2/sites-available/emoncmsAPT</strong></p>
+<p>and create a new one</p>
+<p class="rteindent1"><strong>sudo nano /etc/apache2/sites-available/emoncms</strong></p>
+<p>containing</p>
+<p class="rteindent1"><strong>Alias /emoncms /var/www/emoncms<br />
+	&lt;Directory /var/www/emoncms&gt;<br />
+	&nbsp; Options FollowSymLinks<br />
+	&nbsp; AllowOverride All<br />
+	&nbsp; DirectoryIndex index.php<br />
+	&nbsp; Order allow,deny<br />
+	&nbsp; Allow from all<br />
+	&lt;/Directory&gt;</strong></p>
+<p>Any additional emoncms modules will also need to be re-cloned from git or copied from the APT version folders, then restart apache with</p>
+<p class="rteindent1"><strong>sudo /etc/init.d/apache2 restart</strong></p>
+<p>You should be up and running using the same login &amp; data etc on the latest git version of emoncms</p>
+<p>The apt version is still intact so you should be able to revert back to it by simply renaming &quot;sites-available&quot; entries</p>
+<p class="rteindent1"><strong>sudo mv /etc/apache2/sites-available/emoncms /etc/apache2/sites-available/emoncmsGIT<br />
+	sudo mv /etc/apache2/sites-available/emoncmsAPT /etc/apache2/sites-available/emoncms<br />
+	sudo /etc/init.d/apache2 restart</strong></p>
+<p>This is intended as a development tool and not an upgrade path, please beware of running multiple versions as some features and data may not be backwards-compatable. Since this is not a recommended path for upgrading it should only really be used if waiting for the apt version update isn&#39;t an option or you need a git version to contribute to development..&nbsp;</p>
+<p>I have only just tried this myself and therefore not tested in great depth, if any issues arise I will post here, please feel free to do the same or add anything I&#39;ve missed.</p>
+<p>Paul&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5432.html" class="topic-previous" title="Go to previous forum topic">‹ RPi Emoncms-Emonhub not storing any data</a>
+              <a href="5386.html" class="topic-next" title="Go to next forum topic">Help with Export to CSV function in Emoncms V8 ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5431 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:38 GMT -->
+</html>

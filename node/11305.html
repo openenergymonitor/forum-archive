@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11305 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:54:40 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>EmonCMS feed API? | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">EmonCMS feed API?</h3>
+        <span class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Fri, 25/09/2015 - 16:46</span>
+        <div class="content"><p>Hi.</p>
+<p>We&#39;ve been trying to use the feed API and we&#39;re having issues.</p>
+<p>Apparently, the <a href="http://emoncms.org/feed/api">documentation</a> is not complete, and we didn&#39;t know, when creating a feed, how to pass the parameters (engine, datatype, etc.), so we&#39;ve been proceeding by trial/error.</p>
+<p>Is there any other source of documentation regarding this?</p>
+<p>We&#39;ve been looking in the code as well.</p>
+<p>We first tried to pass strings such as &quot;PHPFIWA&quot; but it seems parameters should be passed as integers and we found a file in the code where the corresponding enums are declared.</p>
+<p>While playing with the feed create function, we must have introduced broken data that the code should have refused, because now we can&#39;t even list the feeds.</p>
+<p>Here&#39;s a few of the URL we used along with the answers:</p>
+<pre>
+<a href="http://emoncms.org/feed/create.json?name=test7&amp;tag=1&amp;datatype=2&amp;engine=1" title="http://emoncms.org/feed/create.json?name=test7&amp;tag=1&amp;datatype=2&amp;engine=1">http://emoncms.org/feed/create.json?name=test7&amp;tag=1&amp;datatype=2&amp;engine=1</a>
+
+Notice: Undefined offset: 1 in /var/www/emoncms/Modules/feed/feed_model.php
+on line 113 Fatal error: Call to a member function create() on a non-object in 
+/var/www/emoncms/Modules/feed/feed_model.php on line 113
+
+<a href="http://emoncms.org/feed/list.json" title="http://emoncms.org/feed/list.json">http://emoncms.org/feed/list.json</a>
+
+Notice: Undefined index: 1 in /var/www/emoncms/Modules/feed/feed_model.php
+on line 297 Fatal error: Call to a member function lastvalue() on a non-object 
+in /var/www/emoncms/Modules/feed/feed_model.php on line 297
+
+<a href="http://emoncms.org/feed/delete.json?id=91352" title="http://emoncms.org/feed/delete.json?id=91352">http://emoncms.org/feed/delete.json?id=91352</a>
+
+Notice: Undefined index: 1 in /var/www/emoncms/Modules/feed/feed_model.php on 
+line 465 Fatal error: Call to a member function delete() on a non-object in 
+/var/www/emoncms/Modules/feed/feed_model.php on line 465</pre><p>I think both feeds 91352 and 91353 are concerned.</p>
+<p>It looks like we managed to create a feed with an invalid field and when EmonCMS tries to get to the last value to display on the listing page, it calls lastvalue() on an object which is not an engine as expected. More or less the same with the delete() function.</p>
+<p>I guess at least wrong entries should be detected and creation process exited with an explicit error.</p>
+<p>If this is a bug, and you want to investigate, you may look in the database, as this is on the emoncms.org instance. You may also find all error messages in your webserver logs.</p>
+<p>The instance advertise itself as 8.3.5 but surprisingly, the error messages point to lines in the code of <a href="https://github.com/emoncms/emoncms/tree/v8.3.5/Modules/feed">that version</a> that don&#39;t seem to be related to the message. Any reason for this? For instance, there is no lastvalue() call on line 297.</p>
+<p>Should I open an issue on GitHub about this?</p>
+<p>Is the feed API used and supported or is this a corner case (most people use input API) that may have other issues?</p>
+<p>Is it supposed to cover all functionalities accessible through the GUI? Or is it WIP?</p>
+<p>We want to display values about a building (temperatures, power consumption, etc.) that we get through csv files. We generate requests from the csv files. We will process all old csv files then catch up with the building and feed csv files as they come. Since there is no need for processing, it seems logical to use the feed API rather than using inputs and &quot;log to feed&quot;. And since there may be a lot of feeds, using the API to create the fields would be a life-saver.</p>
+<p>I&#39;ve been away from OpenEnergyMonitor for a while, so please excuse me if I&#39;m missing the obvious. I&#39;d be happy if we could use EmonCMS in our project. And even more if it was improved in the process.</p>
+<p>&nbsp;</p>
+<p><em>Edit - wrapped long lines - BT</em></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11311.html" class="topic-previous" title="Go to previous forum topic">‹ Simple I/O device driver for RaspberryPi</a>
+              <a href="11297.html" class="topic-next" title="Go to next forum topic">Auto scaling Vref ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-34546"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS feed API?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 27/09/2015 - 20:20.</div>
+    <div class="content">
+     <p>Hello Jerome, thanks for finding and investigating this.</p>
+<p>The feed creation method really needs improving as its currently allowing the registering of a feed for an engine that is not actually installed anymore on emoncms.org (engine 1 = timestore) That is then creating the other error&#39;s down the line.</p>
+<p>The quick fix which I have now added to stop this from happening on emoncms.org is:</p>
+<pre>
+$engine = (int) $engine;
+        
+if ($engine==1) return array(&#39;success&#39;=&gt;false, &#39;message&#39;=&gt;&#39;timestore feed engine is not available&#39;);
+if ($engine==3) return array(&#39;success&#39;=&gt;false, &#39;message&#39;=&gt;&#39;graphite feed engine is not available&#39;);
+if ($engine==4) return array(&#39;success&#39;=&gt;false, &#39;message&#39;=&gt;&#39;phptimestore feed engine is not available&#39;);</pre><p>but it really needs a better long term solution. The emoncms.org code base is now quite a bit behind version 9.0 which Id recommend looking at if your installing your own server, see Chaveiro&#39;s great work here <a href="11009.html" title="http://openenergymonitor.org/emon/node/11009">http://openenergymonitor.org/emon/node/11009</a>.</p>
+<p>Yes the line numbers on the errors on emoncms.org may not match the github code as I removed all the checks to provide a non redis mysql fall back mode on emoncms.org, the code has become a bit of a mix between the low-write branch of emoncms and v8.5, I need to review it again and work out to what degree it can be moved to the new v9 release too.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34557"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS feed API?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Mon, 28/09/2015 - 08:48.</div>
+    <div class="content">
+     <p>Hi Trystan.</p>
+<p>Thank your for your answer.</p>
+<p>We might install EmonCMS on our server. In this case, I suppose we&#39;ll go for a recent code version so that we can benefit from all latest features and perhaps contribute if possible.</p>
+<p>My colleague started with the emoncms.org instance as a test to check EmonCMS was a correct fit for the project&#39;s needs. He is currently stuck because the feed list does not load due to feeds 91352 and 91353 being broken. I&#39;m afraid there&#39;s nothing we can&#39;t do about it without DB access. Would it be possible for your to delete them manually from the DB? Or should he create a new account?</p>
+<p>Is the feed API any safer in v9.0? Would you recommend its use (I mean the use of the API, not of v9.0)? Maybe if we validate the use of EmonCMS for the project we can justify spending a bit of time securing and documenting the feed API.</p>
+<p>I guess the doc should include a comprehensive list of parameters (tag, engine, datatype, etc.) and the possible values or enum description for each of them. Or better, the API could accept strings instead of integers (like &#39;PHPFIWA&#39; instead of whatever the number is).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11305"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-9UAw4j7OEjJNkErc60BViExFQu38RREfBk0Ey_LWa40" value="form-9UAw4j7OEjJNkErc60BViExFQu38RREfBk0Ey_LWa40"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11305 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:54:40 GMT -->
+</html>

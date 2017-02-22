@@ -1,0 +1,442 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12037 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:55:58 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Receiving emonTX transmissions with rtl_433 | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Receiving emonTX transmissions with rtl_433</h3>
+        <span class="submitted">Submitted by <a href="../user/9043.html" title="View user profile.">dwmw2</a> on Tue, 19/01/2016 - 14:33</span>
+        <div class="content"><p>I&#39;m trying to use a RTL-SDR device for receiving emonTx transmissions, since I already have it running to receive <a href="10107.html">data from the oil tank monitor</a>. I&#39;m having a few minor difficulties interpreting the packets reliably...</p>
+<p>Here&#39;s the FM-decoded waveform I see:<img alt="" src="../sites/default/files/gfile002.png" style="width: 700px; height: 53px;" /></p>
+<p>I&#39;m working from the available documentation on the Jeelibs <a href="http://jeelabs.org/2011/06/09/rf12-packet-format-and-design/">packet format</a> and <a href="http://jeelabs.org/2011/06/10/rf12-broadcasts-and-acks/index.html">header contents</a>, the <a href="https://github.com/openenergymonitor/emonTxFirmware/blob/master/emonTxV3/RFM/emonTxV3.4/emonTxV3_4_DiscreteSampling/emonTxV3_4_DiscreteSampling.ino">emonTx v3 firmware</a> and <a href="https://github.com/jcw/jeelib/blob/master/RF12.cpp">Jeelibs RF12</a> library on github, and the actual data I got from the unit over its UART, when this packet was transmitted:</p>
+<pre>
+CT1 CT2 CT3 CT4 VRMS/BATT PULSE
+1156 1 1077 61 24014 1085
+<em>(0x484 0x1 0x435 0x5dce 0c43d)</em>
+</pre><p>The packet should start with the preamble 0xAA 0xAA 0xAA <em>(10101010 10101010 10101010)</em>.<br />
+Then comes the SYN 0x2d 0xd2 <em>(00101101 11010010)</em>,<br />
+followed by&nbsp; the HDR 0x08 0x1a <em>(00001000 00011010)</em>, and then the data followed by a CRC.</p>
+<p>However, there seems to be a zero bit <em>missing</em> &mdash; either the last bit of the preamble or the first bit of the SYN. If you look at the pretty picture above, it goes:<br />
+10101010 10101010 1010101<strong>0</strong>0101101 11010010 00001000 00011010&hellip;<br />
+<img alt="" src="../sites/default/files/gfile002-0-0.png" /></p>
+<p>After that there&#39;s a bunch of data which look fairly sane, assuming we send 3000 (0xbb8) for all non-existent temperature sensors:</p>
+<pre>
+(CT1) (CT2) (CT3) (CT4) (VRMS) (T1) (T2)  (T3)  (T4)  (T5)  (T6)  (PULSE)
+48 04 01 00 35 04 3d 00 ce 5d b8 0b b8 0b b8 0b b8 0b b8 0b b8 0b 3d 04 00 00</pre><p>This is followed by a CRC16, and a postamble 0xAA byte:</p>
+<pre>
+(CRC) (postamble)
+12 a6 aa
+</pre><p>As far as I can tell, the CRC is supposed to be a simple CRC16 of the bytes from the 0xD2 of the SYN <em>(or perhaps the 0x08 of&nbsp; the HDR)</em>, to the final zero of the pulse reading. I can&#39;t find any way to calculate it to be 0xa612 though. I&#39;ve been using the C version of _crc16_update() from <a href="http://www.nongnu.org/avr-libc/user-manual/group__util__crc.html">here</a>, and the version from the Linux kernel <em>(which are the same polynomial)</em>.</p>
+<p>I even tried modifying the length byte to 0x18 because my reading of the code suggests that&#39;s what it should be; only the RF12_COMPAT version should add the HDR field to the payload length. But I still can&#39;t make the CRC work.</p>
+<p>So... for me to get this working properly and <a href="https://github.com/merbanan/rtl_433">rtl_433</a> decoding the emonTx packets, I would very much appreciate some help in resolving the following questions:</p>
+<ul>
+<li>What happened to the &quot;missing&quot; bit between the preamble and the SYN?</li>
+<li>Is that 0x1a for the length expected, rather than 0x18?</li>
+<li>How do I validate the CRC?</li>
+</ul>
+<p>Thanks!</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12063.html" class="topic-previous" title="Go to previous forum topic">‹ Would i have a bad sct013 100amp at 50mA</a>
+              <a href="12027.html" class="topic-next" title="Go to next forum topic">Where &quot;Feed&quot; saving its values ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-38493"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 19/01/2016 - 15:31.</div>
+    <div class="content">
+     <p>You could look at the 3-phase sketch, which doesn&#39;t use JeeLib&nbsp;<em>per se,&nbsp;</em>though it does drive the RFM in exactly the same way.&nbsp;</p>
+<p>My notes say the CRC is calculated over the Group, Header (includes the NodeID), Length and the payload. I see you have the Group (210, = 0x2d) as part of Syn. That&#39;s wrong, Group is user-selectable.&nbsp;The Length byte is the length of the payload. I didn&#39;t have any trouble with _crc16_update( ) and&nbsp;the CRC.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38496"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Tue, 19/01/2016 - 16:42.</div>
+    <div class="content">
+     <p>The 0x1a (26d) is the length field (payload from immediately after this byte to the end of the packet, excluding the 2 byte CRC).&nbsp; You are both right about the Group - SYN is set to two bytes, the first is fixed and the second is variable as the &quot;Group&quot;, defaulted to 210d &nbsp; This is a neat trick to get the RF module to filter out packets in the same channel, but addressed to a different &quot;Group&quot;&nbsp;</p>
+<p>SYN doesn&#39;t make it into the Rx buffer, so do your CRC processing from HDR onwards with the same initial value jammed in as per the library code.</p>
+<p>Today&#39;s trivia:&nbsp; Why is 210 the default?&nbsp; On the predecessor chip (RFM12), the second SYN byte was fixed at this value.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38497"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9043.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9043.jpg" alt="dwmw2&#039;s picture" title="dwmw2&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9043.html" title="View user profile.">dwmw2</a> on Tue, 19/01/2016 - 16:47.</div>
+    <div class="content">
+     <p>According to <a href="http://jeelabs.org/2011/06/09/rf12-packet-format-and-design/">this blog post</a>, the Group is indeed part of the SYN, although it&#39;s also user-selectable: <img alt="" src="../../../jeelabs.org/wp-content/uploads/2011/06/RF12-packets.png" /></p>
+<p>The length of the payload is indeed 0x1A; not sure where I got 0x18 from.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38498"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9043.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9043.jpg" alt="dwmw2&#039;s picture" title="dwmw2&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9043.html" title="View user profile.">dwmw2</a> on Tue, 19/01/2016 - 17:01.</div>
+    <div class="content">
+     <p>Aha, the CRC issue is solved; you can even see it above. What did I say the value for CT1 was? And what bytes did I show when I showed the decoded data? That&#39;s supposed to be 0x84 0x04 <em>(0x484 == 1156d) </em>and now my CRC16 actually does check out OK<em>.</em></p>
+<p>So my CRC and length questions can be ignored and attributed to my own stupidity. Sorry for the noise.</p>
+<p>That leaves the &quot;missing&quot; zero bit between the preamble and the SYN &mdash; there really are only two periods of the low frequency there, not three as we&#39;d have hoped:<img alt="" src="../sites/default/files/missing_bit_zoom.png" /></p>
+<p>This is &hellip;10 101<strong>00</strong>10 1101 1101 0&hellip; where we want to see<br />
+&hellip;10 101<strong>0 00</strong>10 1101 1101 0&hellip; (.A2DD2.)</p>
+<p>I take it there weren&#39;t units shipped last week which use 0x55 as the preamble bytes...?<br />
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38499"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 19/01/2016 - 17:11.</div>
+    <div class="content">
+     <p>I have to admit I did look at that and wonder... I can&#39;t believe JeeLib has changed. You could try pulling the RF part out of the 3-phase sketch and writing a dummy sketch around it to send a fixed message. If&nbsp;<strong><em>that&#39;s</em></strong>&nbsp;got a missing zero, or its preamble byte is&nbsp;not 0xAA, I&#39;m totally confused.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38506"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Tue, 19/01/2016 - 18:01.</div>
+    <div class="content">
+     <p>The emonTX has which radio module installed?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38507"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9043.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9043.jpg" alt="dwmw2&#039;s picture" title="dwmw2&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9043.html" title="View user profile.">dwmw2</a> on Tue, 19/01/2016 - 18:05.</div>
+    <div class="content">
+     <p>Seems to be RFM69. I haven&#39;t done anything to it except move the jumper for AC power, since I bought it last week.</p>
+<pre>
+emonTx V3.4 Discrete Sampling V2.30 RFM69CW
+OpenEnergyMonitor.org
+POST.....wait 10s
+CT 1 Cal 90.90
+CT 2 Cal 90.90
+CT 3 Cal 90.90
+CT 4 Cal 16.67
+RMS Voltage on AC-AC is: ~241V
+AC-AC detected - Real Power measure enabled
+assuming pwr from AC-AC (jumper closed)
+Vcal: 268.97
+Phase Shift: 1.70
+CT 1 detected
+CT 2 detected
+No temperature sensor
+RFM69CW
+Node: 8 Freq: 433Mhz Network: 210
+CT1 CT2 CT3 CT4 VRMS/BATT PULSE
+</pre><p>I&#39;m inclined not to worry too much about the missing bit. I can look for the 0x2D which marks the start of&nbsp; the packet, and the CRC protects me from false interpretations fairly well.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38523"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Tue, 19/01/2016 - 22:27.</div>
+    <div class="content">
+     <p>The RFM69 chip has no documented way to transmit 0x55 as preamble - 0xAA is hardwired.</p>
+<p>Turns out the &#39;missing bit&#39; is harmless since once enough preamble bits are received to synch up the data strobing, the data stream is essentially scanned bitwise looking for the start of the SYN byte(s) 0x2D.... Picking up the LSB of the last preamble byte works fine as the MSB for the pattern match since they are both zero.</p>
+<p>I think the &#39;bug bounty&#39; has long since expired for this chip, so no reward for eagle eyes&nbsp;&nbsp; ;-)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38527"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 19/01/2016 - 22:42.</div>
+    <div class="content">
+     <p>MJ,&nbsp;<span style="line-height: 20.8px;">&nbsp;Tha</span><span style="line-height: 20.8px;">t&#39;s well worth knowing, thanks.&nbsp;</span><span style="line-height: 1.6;">I hope I&#39;ll remember it all&nbsp;next time!</span></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38544"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9043.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9043.jpg" alt="dwmw2&#039;s picture" title="dwmw2&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9043.html" title="View user profile.">dwmw2</a> on Wed, 20/01/2016 - 12:33.</div>
+    <div class="content">
+     <p>Thanks for the helpful responses!</p>
+<p>I&#39;ve now got rtl_433 receiving and decoding the emonTx transmissions, in my tree at <a href="https://github.com/dwmw2/rtl_433" title="https://github.com/dwmw2/rtl_433">https://github.com/dwmw2/rtl_433</a> which should get merged fairly soon.</p>
+<p>You need to explicitly increase the sample rate from its default <em>(250,000)</em> to 2,500,000, since the emonTx packets are too fast to be detected otherwise (only 5 samples per bit is not enough for FM decoding).</p>
+<pre>
+[dwoodhou@shinybook rtl_433]$ src/rtl_433 -s 2500000  -q  -F json
+Found Rafael Micro R820T tuner
+Exact sample rate is: 2500000.107620 Hz
+Sample rate set to 2500000.
+Bit detection level set to 8000.
+Tuner gain set to Auto.
+Tuned to 433920000 Hz.
+{&quot;time&quot; : &quot;2016-01-20 12:22:53&quot;, &quot;model&quot; : &quot;emonTx&quot;, &quot;node&quot; : 8, &quot;ct1&quot; : 1249, 
+&quot;ct2&quot; : 1, &quot;ct3&quot; : 1171, &quot;ct4&quot; : 57, &quot;Vrms/batt&quot; : 236.420000, &quot;pulse&quot; : 46430}
+{&quot;time&quot; : &quot;2016-01-20 12:23:03&quot;, &quot;model&quot; : &quot;emonTx&quot;, &quot;node&quot; : 8, &quot;ct1&quot; : 1245, 
+&quot;ct2&quot; : 0, &quot;ct3&quot; : 1167, &quot;ct4&quot; : 56, &quot;Vrms/batt&quot; : 236.650000, &quot;pulse&quot; : 46433}
+{&quot;time&quot; : &quot;2016-01-20 12:23:13&quot;, &quot;model&quot; : &quot;emonTx&quot;, &quot;node&quot; : 8, &quot;ct1&quot; : 1249, 
+&quot;ct2&quot; : 0, &quot;ct3&quot; : 1158, &quot;ct4&quot; : 60, &quot;Vrms/batt&quot; : 237.370000, &quot;pulse&quot; : 46437}
+</pre><p>I haven&#39;t decoded the temperature values yet; I need to plug a sensor in to my unit and confirm how it works; what multiplier is used to turn the temperature in &deg;C into an integer, and confirm that a value of 0xbb8 really is a reliable way to indicate that there&#39;s no value. I would have expected 85&deg;C to be used for that, since isn&#39;t that what the 1wire sensors themselves use for &quot;no reading&quot;?</p>
+<p>Since this is basically a decoder for the generic packet format rather than specific to emonTx, I should also make sure I&#39;m not accepting packets I shouldn&#39;t. Obviously it&#39;s non-trivial since people can screw with the sketch on their boards all they want, but I&#39;d like to do a reasonable job of decoding the <em>standard</em> packets as the board is shipped. So for now I require that the group be 0xD2, the packet be precisely 0x1a bytes, and the CRC validates. For rtl_433 that&#39;ll probably suffice &mdash; it has other sensor decoders with a much higher false positive rate already.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38572"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9043.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9043.jpg" alt="dwmw2&#039;s picture" title="dwmw2&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9043.html" title="View user profile.">dwmw2</a> on Thu, 21/01/2016 - 09:21.</div>
+    <div class="content">
+     <p>While this is now basically working, further testing has brought up another question: What is the tolerance on the bit rate? In <a href="http://jeelabs.org/2011/06/09/rf12-packet-format-and-design/">this blog post</a>, it&#39;s described as <em>&quot;about 50kbits/sec&quot;</em> but what is the range we&#39;re likely to see in practice?</p>
+<p>This matters because we don&#39;t have Manchester encoding or any start/stop bits per byte. So if you do a run with no current sensors hooked up, you can get a <strong>long</strong> run of zeroes, as shown for example in <a href="https://github.com/merbanan/rtl_433_tests/blob/master/tests/emontx/01/gfile001.data">this capture</a> in the rtl_433_tests test packet corpus.</p>
+<p>In this case, assuming a frequency of 50kb/s doesn&#39;t result in a correct decode. The bit period is more like 20.3&micro;s, not 20&micro;s. So that low-frequency run of 1157.6&micro;s needs to be interpreted as 57 zero bits, not 58 zero bits.</p>
+<p>At the moment, rtl_433 doesn&#39;t do any automatic rate adaptation based on the edges it sees &mdash; it relies on the sensor decoder giving a correct value for the bit period. For anything with Manchester encoding or start/stop bits, that works out fine. But not this.</p>
+<p>So I&#39;m trying to work out what variation we&#39;ll see between units, to decide whether we really do need to add the dynamic rate adaption immediately, or whether we can just configure the emontx decoder for bit period of 20.3&micro;s and that&#39;ll work well enough for the short term?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38581"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Thu, 21/01/2016 - 15:11.</div>
+    <div class="content">
+     <p>The transmit bit strobe is derived from the RF module on-board xtal.&nbsp; Significant sources of error are from the (systematic) inexact match to the target ~49.261Kb from the limited length divisor + the usual xtal uncertainty from initial calibration offset, temperature, ageing etc.&nbsp; (initially count on +/- 10 ppm growing to 15-20 ppm if temperature range is not extreme)</p>
+<p>There are a couple of threads here discussing the same issue of avoiding long strings of null bytes in the payload since the RFM69 clock recovery locks in fast with a short preamble, but is prone to drift off without bit transitions to drag it back into synch.&nbsp; Manchester is inappropriate since it would double the packet transmission time - data whitening is available, but not turned on for backwards compatibility with the installed base of RFM12B modules.</p>
+<p>From the RFM69 driver init code:</p>
+<p>0x03, 0x02, // BitRateMsb, data rate = 49,230/49,261 kb &nbsp;&nbsp;<br />
+0x04, 0x8A, // BitRateLsb, divider = 32 MHz / 650</p>
+<p>49,230kb listening to RFM69,&nbsp; 49,261kb listening to a legacy RFM12B</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38583"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9043.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9043.jpg" alt="dwmw2&#039;s picture" title="dwmw2&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9043.html" title="View user profile.">dwmw2</a> on Fri, 22/01/2016 - 08:05.</div>
+    <div class="content">
+     <p>Great, thanks. It&#39;s that systematic vs. non-systematic error that I was looking for.</p>
+<p>So instead of <strong>50kHz &plusmn; &delta;</strong> where &delta; is large, I have <strong>49261Hz &plusmn; &delta;</strong> where &delta; is fairly much negligible.</p>
+<p>That means I can set the bit period to 20.3&micro;s and sleep soundly at night, although being adaptive <em>would</em> be nicer in the long run. Thanks!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38584"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 21/01/2016 - 14:42.</div>
+    <div class="content">
+     <p>The temperature sensor circuits&nbsp;positive fault indication value of 300 was intended to be as obviously out of scope as necessary to indicate an unused or disconnected sensor. Since the upper limit of the sensor is 125C or 257F, 300 seemed logical.</p>
+<p>As far as I&#39;m aware, there have been no reported cases of an RFM12/69 type receiver&nbsp;suffering from the bitslip issue due to&nbsp;4 zero power readings, the reported cases seem to be caused instead by the 6 zero&nbsp;temperature values that have now been replaced by the 300s, that may be because there are less&nbsp;likely to be devices out there with no CTs attached or possibly because the average &quot;slip&quot; is not enough to cause an issue unless a run of over 64 bits without change is encountered.</p>
+<p>It may be a better idea to split up the power values since there is no ideal &quot;positive indicator value&quot; as the whole range can be&nbsp;used. Currently the powers and temperatures could be alternated, although it would help aleviate the issue, it&#39;s not the prettiest solution, or if Wh totals for energy are introduced&nbsp;(I think it&#39;s in the cards) and are placed after each&nbsp;power reading, a&nbsp;&quot;starting&quot;&nbsp;value of 1Wh could breakup the potential zero bit run without impacting readings too much.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38586"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9043.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9043.jpg" alt="dwmw2&#039;s picture" title="dwmw2&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9043.html" title="View user profile.">dwmw2</a> on Thu, 21/01/2016 - 14:55.</div>
+    <div class="content">
+     <p>From that response I infer that the temperature values are / 10&deg;C&nbsp; &mdash; I could have worked that one out empirically but then I&#39;d have to reset the unit and resynchronise it with the meter&#39;s LCD output when I reconnect the pulse counter ☺</p>
+<p>I&#39;ll add the temperature support to rtl_433 accordingly; thanks.</p>
+<p>As for splitting the power values up... maybe if you&#39;re going to change the packet format then it would make more sense just to apply the whitening? As well as adding a way to detect the difference, of course. Which is nice for an open-source system although it would make reverse-engineering transmissions from a closed system quite horrible!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38592"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 21/01/2016 - 16:05.</div>
+    <div class="content">
+     <p>Sorry, yes. the scaling is x10 to make it an integer in the OEM&nbsp;&quot;emon&quot; sketches&nbsp;the resolution for reading&nbsp;the sensor&nbsp;is set in the sketch and I believe most if not all use a&nbsp;x10 scale (<a href="http://github.com/openenergymonitor/emonTxFirmware/blob/master/emonTxV3/RFM/emonTxV3.4/emonTxV3_4_DiscreteSampling/emonTxV3_4_DiscreteSampling.ino#L456">example</a>), although I do have an emonTx&nbsp;here that is x100&nbsp;(2 decimal places) but that is running a &quot;MartinR&nbsp;PLL&quot; sketch not an&nbsp;OEM one.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38627"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9043.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9043.jpg" alt="dwmw2&#039;s picture" title="dwmw2&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Receiving emonTX transmissions with rtl_433</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9043.html" title="View user profile.">dwmw2</a> on Fri, 22/01/2016 - 14:56.</div>
+    <div class="content">
+     <p>This support is now <a href="https://github.com/merbanan/rtl_433/commit/a6f342f3b2c14c217cf2ae8a6a6b8e44b92c8443">merged</a> into rtl_433 upstream. Thanks for all your help.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/12037"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-WkoGmUtD_p14iKJjVc__HuwByDk0SjdNA9qhkyIHUgM" value="form-WkoGmUtD_p14iKJjVc__HuwByDk0SjdNA9qhkyIHUgM"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12037 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:56:05 GMT -->
+</html>

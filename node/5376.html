@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5376 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:31:19 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Monitoring a Raspberry Pi on EmonCMS | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Monitoring a Raspberry Pi on EmonCMS</h3>
+        <span class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Thu, 03/07/2014 - 16:21</span>
+        <div class="content"><p>Hi,</p>
+<p>Attached is a short php script to monitor my Raspberry Pi that is running Emonhub+EmonCMS (with a hdd).</p>
+<p>It posts the following data on EmonCMS: memory used,&nbsp; memory shared, memory buffers, memory cached, GPU temp, CPU temp, CPU usage. Just modify the node id that will receive data and put you APIKEY.</p>
+<p>- Copy this script into the home pi directory&nbsp; (/home/pi)</p>
+<p>- Rename it (php file can&#39;t be attached in that forum):</p>
+<p><strong>mv /home/pi/SCRIPT_Post_info_RPI.txt /home/pi/SCRIPT_Post_info_RPI.php</strong></p>
+<p>- Modify the nodeid, the APIKEY and the target</p>
+<p><strong>nano /home/pi/SCRIPT_Post_info_RPI.php (</strong><em>modify it, save and exit with Ctrl-X / Y / Enter)</em></p>
+<p>- To post data on EmonCMS, run&nbsp; :</p>
+<p><strong>php <strong>/home/pi/</strong>SCRIPT_Post_info_RPI.php</strong></p>
+<p>To run this script every minute, add a cron task :</p>
+<p><strong>sudo crontab -e </strong>and add the following line at the end of the file<strong>&nbsp; :&nbsp;</strong><em><strong>&nbsp; </strong><em><em>* * * * * php /home/pi/SCRIPT_Post_info_RPI.php. Save and exit with Ctrl-X / Y / Enter</em></em></em></p>
+<p>Then restart cron service : <strong>sudo service cron restart</strong></p>
+<p>&nbsp;</p>
+<p><u>First observation</u></p>
+<p>I noticed that the used RAM was always increasing on my RPI. So, I was worrying about a memory leak. In fact, it seems to be normal as it&#39;s only disk caching, a normal behavior on linux machine (See <a href="http://www.linuxatemyram.com/">http://www.linuxatemyram.com/</a>). When clearing the memory cache by running &quot;<strong>sudo /sbin/sysctl vm.drop_caches=3</strong>&quot;, the RAM used magically comes back (see attached). Now, I will pay attention to the &quot;real free memory&quot; : mem free + mem buffer + mem cached.</p>
+<p><u>Second observation</u></p>
+<p>I put my RPI + a hub USB + a USB HDD in plastic junction box to make it cleaner. I&#39;m using the pre-drilled holes for ventilation (see attached). When the box is in horizontal position, the RPI&#39;s CPU gets hot (65&deg;C). When the box is in vertical position, the RPI&#39;s CPU gets colder (55&deg;C). The natural chimney effect with aeration is better in that position. Do you think it can be a problem for the hdd (which is also in vertical position )</p>
+<p>Eric</p>
+<p>&nbsp;</p>
+<p>
+	<a href="../sites/default/files/RAM%20and%20Temp.png"><img alt="" src="../sites/default/files/RAM%20and%20Temp.png" style="width: 500px; height: 225px;" /></a></p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="4300.html" class="topic-previous" title="Go to previous forum topic">‹ Sending Arduino Sensor data to Emoncms </a>
+              <a href="5377.html" class="topic-next" title="Go to next forum topic">My electric : how to share it without giving my Read-Write API key ? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-22309"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Monitoring a Raspberry Pi on EmonCMS</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 04/07/2014 - 08:36.</div>
+    <div class="content">
+     <p>Does the hdd have an accessible temp sensor maybe?</p>
+<p>Does having the pi vertical within the horizontal&nbsp;box run any cooler if you can&#39;t have the box mounted vertically?</p>
+<p>I don&#39;t think the either the pi or&nbsp;hdd will mind being mounted vertically, especially if it keeps the temp lower.</p>
+<p>I think this is a pretty cool function that could be very useful thanks for sharing.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22311"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Monitoring a Raspberry Pi on EmonCMS</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Fri, 04/07/2014 - 09:01.</div>
+    <div class="content">
+     <p>Does the hdd have an accessible temp sensor maybe?</p>
+<p><em>&gt;&gt;&gt; &nbsp; I don&#39;t know</em></p>
+<p>Does having the pi vertical within the horizontal box run any cooler if you can&#39;t have the box mounted vertically?</p>
+<p><em>&gt;&gt;&gt;&nbsp;&nbsp; I can&#39;t have the pi vertical within the horizontal box (too small). So I didn&#39;t test that. According to me, the most important thing is to have holes both at the bottom and the the top of the box to create a natural chimney effect.</em></p>
+<p>I think this is a pretty cool function that could be very useful thanks for sharing.</p>
+<p>&gt;&gt;&gt; more data could be collected : disk usage, network usage, ...</p>
+<p>&nbsp;</p>
+<p>Eric</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5376"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-OUYBuPdv4e9kQ0oX4yM6AOd7lvU1PTIVeX95qb5PFzw" value="form-OUYBuPdv4e9kQ0oX4yM6AOd7lvU1PTIVeX95qb5PFzw"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5376 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:31:19 GMT -->
+</html>

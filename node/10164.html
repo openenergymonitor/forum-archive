@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Asymmetric encryption implementation in nodes, emonHub and emonCMS | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/5">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Asymmetric encryption implementation in nodes, emonHub and emonCMS</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/11" title="View user profile.">cagabi</a> on Fri, 13/02/2015 - 11:55</span>
+        <div class="content"><p>There have been several discussions in different forum topics about the implementation of some kind of encryption. I open this trhead now with the aim of using it as areource for development and discussion about this issue.</p>
+<p><strong>Why do we need encryption?</strong></p>
+<p>For sensors sending meassurements we want to keep privacy on one hand but also for security. You could easily find out when a house is empty during the day or when everybody has gone to sleep just looking at their electricity consumption.</p>
+<p>For base stations sending control signals to the nodes. this is a very important one, if there is not encryption anybody could send control signals to our nodes. To make it even more secure we should have authentication over and encrypted connection, emonhub would only send control packets when an authenticated user asks for it..... but for now we will happy if we get to the encryption.</p>
+<p><strong>What kind of encryption</strong><br />
+We have two types:</p>
+<ul>
+<li>Symmetric: the same key is used to encrypt and decrypt the messages. Both the sender and receiver know this key.
+<ul>
+<li>Pros: require little processing and memmory</li>
+<li>Cons: in our case wthere is one jey per base station. When we upload the firmware to the node we need to include the key. Another option would be that the node requests the key and the base station sends it ijn a non encrypted message. In this case if somebody catches the key, they will have access to all the communications that this base station is involved.</li>
+</ul>
+</li>
+<li>Asymmetric: there are two keys. &nbsp;you use the public key &nbsp;to encrypt and the private key to decrypt, if you try to decrypt with the public key what has been encrypted with the public key it doesn&#39;t work. That is why it is secure.
+<ul>
+<li>Pros: each element has its own keys. If a node wants to communicate in a safe way with the base station, it just have to ask for the public key and send the encrypted data, the same in the other direction. Security is not compromised at any time.</li>
+<li>Cons: generating the encrypted message requires a lot of processing and memmory. As far as i have researched it can take up to 2 seconds to encrypt a messahe (depending on the algorythm you use and how long are the keys)</li>
+</ul>
+</li>
+</ul>
+<p><strong>Where to implement the encryption</strong><br />
+Basically everywhere where the communication starts or ends: nodes, emonhub and emoncms. I guess when emonhub and emoncms are in the same pi, it shoud be ok not to encrypt but this need to be explored. I have thought about how to implement this on each element but i will not go through all of them as i am not completely sure we will be able to implement it in the nodes, so until we found this out i wll frget about emonhub and emoncms.</p>
+<p><strong>Asymmetric encryption in Arduino</strong><br />
+As said before, asymmetric encryption requires lots of processing and memmory. After a good google research i haven&#39;t found anybody who has implemented it for Arduino :-(</p>
+<p>This is the only thing i found specifically about arduino:<a href="http://http://forum.arduino.cc/index.php?topic=191411.5">&nbsp;http://forum.arduino.cc/index.php?topic=191411.5</a><br />
+and finally the guy uses AES (symmetric encryption)</p>
+<p>Then i have found&nbsp;</p>
+<p><a href="https://code.google.com/p/opencryptotoken">https://code.google.com/p/opencryptotoken &nbsp;&nbsp;</a></p>
+<p><a href="http://www.cmmsigma.eu/products/crypto/crs_avr010x.en.html">http://www.cmmsigma.eu/products/crypto/crs_avr010x.en.html</a></p>
+<p>But i am not completely sure about how to use them or in fact if they are of any use. I have contacted them asking for some info so hopefully i will have some positive things to feedback.</p>
+<p>&nbsp;i&#39;ll carry on working on this and update through this forum thread.</p>
+<p>Cheers,</p>
+<p>&nbsp; &nbsp; Carlos</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/10275" class="topic-previous" title="Go to previous forum topic">‹ Incorrect API key gives confusing error message</a>
+              <a href="/emon/node/10254" class="topic-next" title="Go to next forum topic">Problem compiling EmonGLCD scripts (e.g. SolarPV.ino) with Arduino 1.60 ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-28382"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/11" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-11.jpg" alt="cagabi&#039;s picture" title="cagabi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Asymmetric encryption implementation in nodes, emonHub and emonCMS</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/11" title="View user profile.">cagabi</a> on Wed, 04/03/2015 - 13:37.</div>
+    <div class="content">
+     <p>Hi again,</p>
+<p>So things move slowly but they move. As i am not an expert at all, i am learning as i walk. After lots of confusion, studying the Ellyptic Curves over finite fields theory, research on implementations of ECC for Arduino (and other things that now seem a waste of time but have been deeply enjoyable ;-) I got to the conclusion: what we need is an implementation of the &quot;elliptic curve diffie-hellman key exchange&quot; (ECDH), which means that using public-key cryptography we can generate an AES shared key that will only be known by the parties involved (node and base station). So the AES shared key does not need to be handcoded in the node&#39;s firmware (main reason for all this mess :-).</p>
+<p>AES is already implemented in the radio chip and as far as i have read, if we want to implement it in the Arduino sketch it will not be critical in terms of hardware resources (and there are also several libraries to do it). Once the key exchange is working, the next step will be to use AES.</p>
+<p><strong>About opencryptotoken and sigma....</strong></p>
+<p>In the previous post i said i was going to look onto this two things. Now i can see there are of no use.</p>
+<p>- Sigma library: you have to pay :-(<br />
+- Opencryptotoken: i couldn&#39;&#39;t really understand the code and that&#39;s why i decided to study some theory of ECC, finally I think what they do is to sign and encrypt but doesn&#39;t do ECDH, we cannot use it as a library. Also when i tried to get in contact somebody kindly replied &quot;there are implementations of ECC for AVR out there, find them&quot;</p>
+<p><strong>MIRACL&nbsp;-&nbsp;bignum&nbsp;library</strong></p>
+<p>My research has brought me to a bignum library: MIRACL&nbsp;</p>
+<p>From&nbsp;t<a href="https://www.certivox.com/miracl">heir website</a>: <em>MIRACL (Multiprecision Integer and Rational Arithmetic C Library &ndash; the MIRACL Crypto SDK) is a C software library that is widely regarded by developers as the gold standard open source SDK for elliptic curve cryptography (ECC).&nbsp;</em></p>
+<p><em>MIRACL doesn&rsquo;t need separate codes for different architecture. MIRACL uses a special purpose technique for automatic generation of optimal assembly language that is grounded on a bespoke macro-based system. These macros are already available for the majority of common architectures.</em></p>
+<p>Also they have plenty of examples.</p>
+<p><a href="https://github.com/CertiVox/MIRACL">Download Miracl</a> github</p>
+<p>Tomorrow, i will give it a go and try to use MIRACL to generate the shared key between an emonTx and Nanode.</p>
+<p><strong>Other things to start thinking about</strong></p>
+<ul>
+<li>Pseudo-random number generators (PRNGs): there will not be a problem to use them in a PC or Pi to generate keys, and what in Arduino?? We need them if we don&#39;t want to hand code the keys in the firmaware</li>
+<li>Which domain parameters shall we use: have a look at the different standards and recommendations: NIST, NSA Suite B, SEC</li>
+<li>Security issues: how to avoid &quot;man-in-the-middle&quot; attack without a Certificate Authority.</li>
+<li>Stress tests for Arduino using the library: i cannot think on any for the key exchange, but maybe once we are using AES we could check the longest message that Arduino can encrypt decrypt before running out of memmory.</li>
+</ul>
+<p><strong>Good links to learn</strong><br />
+In general wikipedia is the source of knowledge, but if you want to know what they are talking about I recommend the tutorial (doable in two evenings while drinking wine ;-)</p>
+<ul>
+<li>Elliptic Curve Groups tutorial: <a href="https://www.certicom.com/ecc-tutorial" title="https://www.certicom.com/ecc-tutorial">https://www.certicom.com/ecc-tutorial</a></li>
+<li>Overall understanding of Public Key Cryptographhy: <a href="https://en.wikipedia.org/wiki/Public-key_cryptograph" title="https://en.wikipedia.org/wiki/Public-key_cryptograph">https://en.wikipedia.org/wiki/Public-key_cryptograph</a></li>
+<li>Elliptic Curve Crytography (combine this with the tutorial and you will be the champion): <a href="https://en.wikipedia.org/wiki/Elliptic_curve_cryptog" title="https://en.wikipedia.org/wiki/Elliptic_curve_cryptog">https://en.wikipedia.org/wiki/Elliptic_curve_cryptog</a></li>
+<li>Elliptic curve Diffie&ndash;Hellman: <a href="https://en.wikipedia.org/wiki/Elliptic_curve_Diffie%E2%80%93Hellman" title="https://en.wikipedia.org/wiki/Elliptic_curve_Diffie%E2%80%93Hellman">https://en.wikipedia.org/wiki/Elliptic_curve_Diffie%E2%80%93Hellman</a></li>
+</ul>
+<p>Cheers</p>
+<p>&nbsp; &nbsp;Carlos</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28396"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Asymmetric encryption implementation in nodes, emonHub and emonCMS</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Wed, 04/03/2015 - 21:36.</div>
+    <div class="content">
+     <p>Hello Carlos, this is very interesting and thankyou for sharing all your research on this. Im looking forward to hearing how you get on with your next step with the emontx and the nanode!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28417"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/7698" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-7698.jpg" alt="jmessenger&#039;s picture" title="jmessenger&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Asymmetric encryption implementation in nodes, emonHub and emonCMS</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/7698" title="View user profile.">jmessenger</a> on Thu, 05/03/2015 - 23:47.</div>
+    <div class="content">
+     <p>I&#39;m just guessing here based on the trouble I&#39;ve had generating stable sketches for EmonGLCD and to some extent EmonTx: this may be hard to achieve on the hardware we have.&nbsp; These devices have very limited global variable space and code space. Also exchanging large messages over the packetised radio channel is difficult due to the lack of a network layer.&nbsp; I&#39;m not saying it can&#39;t be done, but it&#39;s worth sizing the necessary data exchange early on to help determine feasibility.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28419"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/11" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-11.jpg" alt="cagabi&#039;s picture" title="cagabi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Asymmetric encryption implementation in nodes, emonHub and emonCMS</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/11" title="View user profile.">cagabi</a> on Fri, 06/03/2015 - 10:07.</div>
+    <div class="content">
+     <p>Hi jmessenger,&nbsp;thanks for your comment but&nbsp;I hope you are not right ;-)</p>
+<p>It seems the asymmetric encryption will push the Arduino board to its limits but it is worth a go. I wonder how long will be be&nbsp;128 bits key ECC encrypted plus some other ascii characters that will be the message emonTx will get. I&#39;ll have a&nbsp;look at that.</p>
+<p>By the way if anybody is wondering I got stack building the Miracl library for AVR. Not very exciting news :-(</p>
+<p>&nbsp; &nbsp; Carlos</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28428"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/11" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-11.jpg" alt="cagabi&#039;s picture" title="cagabi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Asymmetric encryption implementation in nodes, emonHub and emonCMS</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/11" title="View user profile.">cagabi</a> on Fri, 06/03/2015 - 20:05.</div>
+    <div class="content">
+     <p>Right i think we have it!!!</p>
+<p>but first a bit of update. I have been able to build Miracl for AVR but it was itself to big for the flash memory, we can cut it down and remove things we wouldn&#39;t use. This library has all the encryption functions so it would be great to have it for Arduino but&nbsp;the developer thinks that it requires a minimum of 4k RAM, so make it work would be a great pain.</p>
+<p>But the very good news (hopefully) is that i changed the terms of my searches and looked&nbsp;for just&nbsp;ECDH for Arduino instead of ECC (which implies encryption and decryption) I found this library that implements ECDH&nbsp;and&nbsp;comes with Arduino sketches. This must be the one!!!&nbsp;<a href="https://github.com/kmackay/micro-ecc">https://github.com/kmackay/micro-ecc</a></p>
+<p>I&#39;ll try to give it a go during the weekend.</p>
+<p>Cheers everybody,</p>
+<p>&nbsp; &nbsp;Carlos</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/10164"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-QOjvckBKJkz20zKj8xF2t6q0UI1cRGlzGObXCd92wLE" value="form-QOjvckBKJkz20zKj8xF2t6q0UI1cRGlzGObXCd92wLE"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

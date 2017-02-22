@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3369 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:12:19 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>RFM12B OOK | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">RFM12B OOK</h3>
+        <span class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Thu, 19/12/2013 - 16:37</span>
+        <div class="content"><p>Has anyone had luck using the RFM12B as on OOK transmitter?</p>
+<p>I&#39;ve been trying to replicate the following OOK pattern as captured from my OOK plug transmitter. I captured this output using an OOK receiver hooked up to the scope.&nbsp;</p>
+<p><a href="../sites/default/files/DS2_QuickPrint2.png"><img alt="" src="../sites/default/files/DS2_QuickPrint2.png" style="width: 500px; height: 300px;" /></a></p>
+<p>I&#39;ve been using the&nbsp;RF12_onoff(1) and RF12_onoff(0) to turn the RFM12B on and off but I cant seem to get the received output OOK signal to match what I&#39;m telling it to do.&nbsp;</p>
+<p>I think the issue is something to do with SPI&nbsp;delays etc. Has anyone else had any luck? It looks like JCW from JeeLavs has managed to control FS20 and&nbsp;kaku plugs. My plug is a unbranded <a href="http://www.posatech.net/Product_view.asp?ID=2165&amp;CateID=149&amp;SmallCateID=110">http://www.posatech.net/Product_view.asp?ID=2165&amp;CateID=149&amp;SmallCateID=110&nbsp;</a></p>
+<p>&nbsp;</p>
+<p>Here is my code based on JeeLib&nbsp;example</p>
+<p>&nbsp;</p>
+<p>/// @dir kaku_demo<br />
+	/// This example sends commands to the KlikAanKlikUit units via OOK at 433 Mhz.<br />
+	// 2009-02-21 &lt;jc@wippler.nl&gt; <a href="http://opensource.org/licenses/mit-license.php" title="http://opensource.org/licenses/mit-license.php">http://opensource.org/licenses/mit-license.php</a></p>
+<p>// Note that 868 MHz RFM12B&#39;s can send 433 MHz just fine, even though the RF<br />
+	// circuitry is presumably not optimized for that band. Maybe the range will<br />
+	// be limited, or maybe it&#39;s just because 868 is nearly a multiple of 433 ?</p>
+<p>#include &lt;JeeLib.h&gt;<br />
+	#include &lt;util/parity.h&gt;</p>
+<p>// Turn transmitter on or off, but also apply asymmetric correction and account<br />
+	// for 25 us SPI overhead to end up with the proper on-the-air pulse widths.<br />
+	// With thanks to JGJ Veken for his help in getting these values right.<br />
+	static void ookPulse(int on, int off) {<br />
+	&nbsp; rf12_onOff(1);<br />
+	&nbsp; delayMicroseconds(on + 150);<br />
+	&nbsp; rf12_onOff(0);<br />
+	&nbsp; delayMicroseconds(off - 200);<br />
+	}</p>
+<p>//http://www.posatech.net/Product_view.asp?ID=2165&amp;CateID=149&amp;SmallCateID=110<br />
+	static void POSA_Plug(byte plugNo) {<br />
+	&nbsp; if (plugNo==1)<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; ookPulse(200,400);<br />
+	&nbsp;&nbsp;&nbsp; okkPulse(200,400);<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; okkPulse(400,200);<br />
+	&nbsp;&nbsp;&nbsp; okkPulse(400,200);<br />
+	&nbsp;&nbsp;&nbsp; okkPulse(400,200);<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; okkPulse(200,400);<br />
+	&nbsp;&nbsp;&nbsp; okkPulse(200,400);<br />
+	&nbsp;&nbsp;&nbsp; okkPulse(200,400);<br />
+	&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; delay(11); // approximate<br />
+	&nbsp; }</p>
+<p>
+	void setup() {<br />
+	&nbsp; Serial.begin(57600);<br />
+	&nbsp; Serial.println(&quot;\n[POSA Plug Demo]&quot;);</p>
+<p>&nbsp; rf12_initialize(0, RF12_433MHZ);<br />
+	}</p>
+<p>void loop() {&nbsp;<br />
+	&nbsp; Serial.println(&quot;on&quot;);<br />
+	&nbsp; POSA_Plug(1);<br />
+	&nbsp; delay(2000);</p>
+<p>
+	}</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11924.html" class="topic-previous" title="Go to previous forum topic">‹ Re-complile emonpi-dedicated sketch breaks LCD on emonPi</a>
+              <a href="10021.html" class="topic-next" title="Go to next forum topic">emonTH - subsituting DHT22 for DHT44  ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-16893"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM12B OOK</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Thu, 19/12/2013 - 17:19.</div>
+    <div class="content">
+     <p>I suppose the obvious question is what does the output of the OOK receiver look like when you run the above code and how does it differ from what you expected?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16894"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM12B OOK</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Thu, 19/12/2013 - 18:30.</div>
+    <div class="content">
+     <p>Are all the calls to okkPulse typos that should be ookPulse?</p>
+<p>If so then one problem is that you are calling the function with off=200 but then you subtract 200 in the function so there is no off time and you immediately turn the transmitter back on.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16903"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM12B OOK</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Thu, 19/12/2013 - 23:52.</div>
+    <div class="content">
+     <p>Ah yes! Well spotted, I copied and pasted my old code before I compiled and uploaded it on another laptop.&nbsp;</p>
+<p>The output did not look anything like what I was asking for. Well, sometimes I got a pulse of the correct width mixed in amongst lots of extra switching.&nbsp;</p>
+<p>Just wondering if I was missing something&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16915"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM12B OOK</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Sat, 21/12/2013 - 10:02.</div>
+    <div class="content">
+     <p>I decided to have a look at this myself as I&#39;ve been considering doing the same thing for some time.</p>
+<p>	The main problem with Glyn&#39;s code, as I said above is the&nbsp; &quot;delayMicroseconds(off - 200);&quot; line which obviously prevents off pulses of 200&micro;s or less. I looked into why this was and found that the transmitter takes about 230&micro;s to turn on using JeeLib.</p>
+<p>	This is in line with the spec if the synthesizer is turned off but it can be reduced to about 100&micro;s if you leave the synthesizer turned on. This can be done by changing...</p>
+<p>void rf12_onOff (uint8_t value) {<br />
+	&nbsp;&nbsp;&nbsp; rf12_xfer(value ? RF_XMITTER_ON : RF_IDLE_MODE);<br />
+	}</p>
+<p>to..</p>
+<p>void rf12_onOff (uint8_t value) {<br />
+	&nbsp;&nbsp;&nbsp; rf12_xfer(value ? RF_XMITTER_ON : 0x821d);<br />
+	}</p>
+<p>in RF12.cpp</p>
+<p>	Alternatively this code does the same thing without using JeeLib at all.</p>
+<p>	#include &lt;SPI.h&gt;</p>
+<p>	#define RFMSELPIN 10</p>
+<p>	void setup()<br />
+	{<br />
+	&nbsp; Serial.begin(57600);<br />
+	&nbsp; Serial.println(&quot;\n[POSA Plug Demo]&quot;);</p>
+<p>	&nbsp; pinMode (RFMSELPIN, OUTPUT);<br />
+	&nbsp; digitalWrite(RFMSELPIN,HIGH);</p>
+<p>	&nbsp; // start the SPI library:<br />
+	&nbsp; SPI.begin();<br />
+	&nbsp; SPI.setBitOrder(MSBFIRST);<br />
+	&nbsp; SPI.setDataMode(0);<br />
+	&nbsp; SPI.setClockDivider(SPI_CLOCK_DIV2);<br />
+	&nbsp; // initialise RFM12<br />
+	&nbsp; delay(200); // wait for RFM12 POR<br />
+	&nbsp; rfm_write(0x0000); // clear SPI<br />
+	&nbsp; rfm_write(0xCA83); // non-sensitive reset<br />
+	&nbsp; rfm_write(0x80D7); // 433MHz band<br />
+	&nbsp; rfm_write(0xA640); // set frequency to 434.0000MHz (adjust to suit device)<br />
+	&nbsp; rfm_write(0x9850); // max power<br />
+	&nbsp; rfm_write(0x821d); // Turn on crystal and synthesizer<br />
+	}</p>
+<p>	void loop()<br />
+	{<br />
+	&nbsp;&nbsp; Serial.println(&quot;on&quot;);<br />
+	&nbsp;&nbsp; POSA_Plug(1);<br />
+	&nbsp;&nbsp; delay(2000);<br />
+	}</p>
+<p>	void ookPulse(int on, int off)<br />
+	{<br />
+	&nbsp; rfm_write(0x823d);<br />
+	&nbsp; delayMicroseconds(on+3);<br />
+	&nbsp; rfm_write(0x821d);<br />
+	&nbsp; delayMicroseconds(off-43);<br />
+	}</p>
+<p>	void POSA_Plug(byte plugNo)<br />
+	{<br />
+	&nbsp; if (plugNo==1)<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; ookPulse(200,400);<br />
+	&nbsp;&nbsp;&nbsp; ookPulse(200,400);</p>
+<p>	&nbsp;&nbsp;&nbsp; ookPulse(400,200);<br />
+	&nbsp;&nbsp;&nbsp; ookPulse(400,200);<br />
+	&nbsp;&nbsp;&nbsp; ookPulse(400,200);<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; ookPulse(200,400);<br />
+	&nbsp;&nbsp;&nbsp; ookPulse(200,400);<br />
+	&nbsp;&nbsp;&nbsp; ookPulse(200,400);<br />
+	&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp; delay(11); // approximate<br />
+	}</p>
+<p>	// write a command to the RFM12<br />
+	word rfm_write(word cmd)<br />
+	{<br />
+	&nbsp; word result;<br />
+	&nbsp;<br />
+	&nbsp; digitalWrite(RFMSELPIN,LOW);<br />
+	&nbsp; result=(SPI.transfer(cmd&gt;&gt;8)&lt;&lt;8) | SPI.transfer(cmd &amp; 0xff);<br />
+	&nbsp; digitalWrite(RFMSELPIN,HIGH);<br />
+	&nbsp; return result;<br />
+	}<br />
+	&nbsp;&nbsp;<br />
+	And here&#39;s the output of an OOK receiver with the above code running on an emonTx...<br />
+	&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16927"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM12B OOK</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sat, 21/12/2013 - 01:54.</div>
+    <div class="content">
+     <p>Awesome, good work this looks promising. Will give it a go next time I&#39;m in the lab next week&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16931"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM12B OOK</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Sat, 21/12/2013 - 10:03.</div>
+    <div class="content">
+     <p>code edited - missed off &nbsp; pinMode (RFMSELPIN, OUTPUT); - duh!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36549"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3149.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3149.jpg" alt="boelle&#039;s picture" title="boelle&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM12B OOK</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3149.html" title="View user profile.">boelle</a> on Tue, 01/12/2015 - 20:47.</div>
+    <div class="content">
+     <p>could this maybe mean that control of conrad&nbsp;valves would be possible from within emoncms? just started a new thread and found this</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36555"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM12B OOK</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 01/12/2015 - 23:31.</div>
+    <div class="content">
+     <p>I believe OOK transmission is not possible with RFM69CW. I've recently been playing about with controlling LightWaveRF OOK plugs and relays using ook transmitter on emonpi (or raspberrypi). Recently posted a blog with info and video. </p>
+<p>Would be possible to control other ook devices with correct protocol. </p>
+<p><a href="http://openenergymonitor.blogspot.co.uk/2015/11/remote-control-of-lightwave-rf-plugs.html" title="http://openenergymonitor.blogspot.co.uk/2015/11/remote-control-of-lightwave-rf-plugs.html">http://openenergymonitor.blogspot.co.uk/2015/11/remote-control-of-lightw...</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36866"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3149.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3149.jpg" alt="boelle&#039;s picture" title="boelle&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM12B OOK</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3149.html" title="View user profile.">boelle</a> on Wed, 09/12/2015 - 12:37.</div>
+    <div class="content">
+     <p>what about the RFM23 and RFM12&nbsp;series? loads of those still arround, and you can still order them if you buy enough</p>
+<p>will try and google info and post links, first one is here:</p>
+<p><a href="http://www.mike-stirling.com/2013/02/implementing-the-elv-fht-protocol-with-an-rfm23/" title="http://www.mike-stirling.com/2013/02/implementing-the-elv-fht-protocol-with-an-rfm23/">http://www.mike-stirling.com/2013/02/implementing-the-elv-fht-protocol-w...</a></p>
+<p><a href="http://jeelabs.org/2009/12/14/better-fs20-transmissions/" title="http://jeelabs.org/2009/12/14/better-fs20-transmissions/">http://jeelabs.org/2009/12/14/better-fs20-transmissions/</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37770"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3149.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3149.jpg" alt="boelle&#039;s picture" title="boelle&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM12B OOK</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3149.html" title="View user profile.">boelle</a> on Sat, 02/01/2016 - 20:46.</div>
+    <div class="content">
+     <p>did the links shine any new light on the matter?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3369"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-z93u4tdHU5isp0LVitX6zgpveHd5EVbI_i2TjSD6fAk" value="form-z93u4tdHU5isp0LVitX6zgpveHd5EVbI_i2TjSD6fAk"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3369 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:12:20 GMT -->
+</html>

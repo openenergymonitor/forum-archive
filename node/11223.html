@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11223 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:31:34 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>OW-Server (EDS) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">OW-Server (EDS)</h3>
+        <span class="submitted">Submitted by <a href="../user/8666.html" title="View user profile.">Cyberslow</a> on Tue, 08/09/2015 - 11:04</span>
+        <div class="content"><p>Hi</p>
+<p>Newbie here so pleas be gentle</p>
+<p>I though I&nbsp;would share my experience to date of emoncms, emonPi and an OW-Server&nbsp;I&nbsp;bought from Homechip (<a href="http://www.homechip.com/index.php/1-wire-controllers/masters/ow-server.html" title="http://www.homechip.com/index.php/1-wire-controllers/masters/ow-server.html">http://www.homechip.com/index.php/1-wire-controllers/masters/ow-server.html</a>)</p>
+<p>My objective was/is to monitor my electricity consumption, generation (PV), gas consumption and iSmart&nbsp;power diverter, the later by monitoring water temperatures in my storage tank. &nbsp;I may look at trying to tease data out of the iSmart directly at some point.</p>
+<p>I have 5 DS18B20&nbsp;temperature sensors connected to the OW-Server, but will be adding more so I&nbsp;can monitor the central heating circuit as well as the hot water.</p>
+<p>Setup of the emonPi was a doddle&nbsp;but unfortunately wifi signal from the Edimax&nbsp;USB wifi dongle just wasn&#39;t up&nbsp;to muster, so I&nbsp;ended up using a powerline Ethernet adapter temporarily, I&#39;ll&nbsp;run a cable at some point.</p>
+<p>Not being a coder (but more of a hack and hope guy) the challenge was to get the data from the OW-Server, Nigel at Homechip was very helpful and provided a Python Script which did broadly what I&nbsp;needed but for another product that Homechip stock (their own RPI interface board &nbsp;http://www.homechip.com/index.php/raspberry-pi.html)</p>
+<p>Being stubborn&nbsp;I set about it my own way and came up with this ugly but functional code. &nbsp;</p>
+<p>The code is admittedly ugly, but functional and quite efficient, its called from crontab every 2 minutes, there is no error error checking as it can&rsquo;t do any harm if it fails and it gets recalled often by crontab, rather than running all the time in the background.</p>
+<p>I did have some issues working out urllib vs urllib2 in Python, especially developing on a windows PC with the host ultimately being the PI</p>
+<ul>
+<li>I grab the details.xml file from the OW-Server</li>
+<li>Discard the detail-reposnses</li>
+<li>Scape the file for EUI/ROMIds and make a list of them</li>
+<li>Query the PrimaryValue for the first EUI/ROMIds I found</li>
+<li>Strip the &lsquo; Deg C&rsquo; from the end</li>
+<li>Build a JSON url</li>
+<li>Push the JSON url to emoncms</li>
+<li>Wait 1 second</li>
+<li>Move to the next EUI/ROMIds in the list unless the next EUI/ROMIds is NULL</li>
+<li>If the last return was NULL exit</li>
+</ul>
+<p>I could not get my head around using OWFS on a remote server, so binned that plan (and Nigel&#39;s code) and manipulated the XML file</p>
+<p>I could not get the bulk.json commands to work so used separate post.json commands</p>
+<p>I&rsquo;ll have a play with OWFS when I have time/am less fractious &nbsp;having had my daughter at home all day for the school holidays</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11185.html" class="topic-previous" title="Go to previous forum topic">‹ DC Monitoring Working</a>
+              <a href="11217.html" class="topic-next" title="Go to next forum topic">the current state of HVAC in Open Energy Monitor? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11223 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:31:34 GMT -->
+</html>

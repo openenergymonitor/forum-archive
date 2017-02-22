@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10514 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:23:52 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Updating ProcessLIst upon deleting a feed | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Updating ProcessLIst upon deleting a feed</h3>
+        <span class="submitted">Submitted by <a href="../user/7049.html" title="View user profile.">christophe_meyers</a> on Fri, 24/04/2015 - 09:34</span>
+        <div class="content"><p>Hi,</p>
+<p>I&#39;m trying to fix the issue that when deleting a feed, the &#39;Process list&#39; column is not updated.<br />
+Under the delete function of feed_model.php, I am trying to add:</p>
+<p>&quot;//$userid from Redis else from session<br />
+if (!$this-&gt;redis) {<br />
+&nbsp;&nbsp;&nbsp;$userid = $session[&#39;userid&#39;];<br />
+}<br />
+$input_array = $this-&gt;input-&gt;get_inputs($userid);<br />
+foreach ($input_array as $input_key=&gt;$input_value) {<br />
+&nbsp;&nbsp;&nbsp;$inputid&nbsp;= $input_value-&gt;id;<br />
+&nbsp;&nbsp;&nbsp;$process_list = $this-&gt;input-&gt;get_processlist($inputid); //get list using function in input_model.php<br />
+&nbsp;&nbsp;&nbsp;$process_list_array[] = explode(&quot;,&quot;,$process_list);&nbsp;<br />
+&nbsp;&nbsp;&nbsp;foreach($process_list_array as $process_key=&gt;$process_value) {<br />
+&nbsp;&nbsp; &nbsp; &nbsp;$element[] = explode(&quot;:&quot;,$process_value);<br />
+&nbsp;&nbsp; &nbsp; &nbsp;if ($element(1)==&quot;$feedid&quot;) {<br />
+&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;unset($process_list_array[$process_key]);&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;$this-&gt;input-&gt;set_processlist($inputid,implode(&quot;,&quot;, $process_list_array));<br />
+&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;return true;<br />
+&nbsp;&nbsp; &nbsp; &nbsp;}&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp; &nbsp;unset($element);&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp;&nbsp;}<br />
+&nbsp;&nbsp;&nbsp;unset($process_list_array);<br />
+}&quot;</p>
+<p>Idea is to use the already existing &#39;get_processlist&#39; and &#39;set_processlist&#39; of input_model.php to accomplish this task.</p>
+<p>However when including the input_model.php file in feed_model.php, I ran into an error as feed_model.php is already included in input_controller.php. How to make the relevant link to input_model.php from feed_model.php ?</p>
+<p>Thanks</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10537.html" class="topic-previous" title="Go to previous forum topic">‹ Problem with creating feeds in locally hosted emoncms</a>
+              <a href="10555.html" class="topic-next" title="Go to next forum topic">Add 2 or more feeds together on EmonCMS and display the result ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-30010"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Updating ProcessLIst upon deleting a feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Thu, 30/04/2015 - 23:49.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>On the new XT8.5 version you have conditional processors that allow to write a simple program that affect the flow and execution order of the processlist items. Kind of assembly programming (if condition-&gt;skip next and goto).</p>
+<p>If using the skip next process on a processlist, and the next processs is a log to feed that you delete later, you get a wrong behaviour on your processlist programmed logic.</p>
+<p>My recommendation is that if you delete a feed then you must manualy review your process lists that used it as part of the task because conditions have changed.</p>
+<p>How often you delete feeds anyway?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30077"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7049.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="christophe_meyers&#039;s picture" title="christophe_meyers&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Updating ProcessLIst upon deleting a feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7049.html" title="View user profile.">christophe_meyers</a> on Mon, 04/05/2015 - 08:16.</div>
+    <div class="content">
+     <p>Was just an aim to make the user experience smooth, as it seems like a silly bug to an outsider.<br />
+But am familiar with having to manually control the process lists.<br />
+Thanks for the tip nonetheless.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30088"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Updating ProcessLIst upon deleting a feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 04/05/2015 - 10:39.</div>
+    <div class="content">
+     <p>I think you both make good points, It isn&#39;t clear to the average user what the implications&nbsp;of deleting an active feed are and the ease at which the feed can be deleted doesn&#39;t fit the potential results.</p>
+<p>I have to agree with&nbsp;chaveiro, you cannot be automatically removing all the feed&#39;s references from the processlists.&nbsp;Deleting a feed in that way is definitely going to cause problems.&nbsp;</p>
+<p>The warning message that pops up when deleting a feed should really be expanded to at the very least, inform the user the processlists could be corrupted if the feed is deleted. Better still it shouldn&#39;t be possible to delete feeds that are still utilized, so&nbsp;maybe&nbsp;the delete action should&nbsp;actively list&nbsp;the inputs that still have the feed in it&#39;s processlist&nbsp;instead of deleting&nbsp;and ask for further &quot;overriding&quot; confirmation before it can be deleted.</p>
+<p>Currently a&nbsp;much better method to use when &quot;deleting&quot; a feed is to just rename it eg &quot;TO BE DELETED&quot; with that feed now parked you are free to reuse the name etc, Only when you are sure the &quot;TO BE DELETED&quot; is no longer referenced or active should you permanently delete it (or not). I have recommended this practice many times as I once deleted the wrong feed by accident, totally my fault and the accidentally&nbsp;deleted feed&nbsp;was quite trivial, but as&nbsp;it appeared quite early in most of my processlists&nbsp;the result was I collected no data on 80% of my feeds for a week before I realized and deduced what had gone wrong.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10514"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-wlaczslj8TJnQlMaRNhhDpjLRvXVGNJDOWbr8ySz6YE" value="form-wlaczslj8TJnQlMaRNhhDpjLRvXVGNJDOWbr8ySz6YE"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10514 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:23:52 GMT -->
+</html>

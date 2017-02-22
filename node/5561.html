@@ -1,0 +1,604 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5561 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:49:48 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>datacode woes between Arduino &amp; Pi | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">datacode woes between Arduino &amp; Pi</h3>
+        <span class="submitted">Submitted by <a href="../user/6745.html" title="View user profile.">normosb</a> on Fri, 15/08/2014 - 05:48</span>
+        <div class="content"><p>I seem to have a datacode issue between the serial out of my Arduino and my Pi. Any assistance much appreciated, I&#39;m very new at this!</p>
+<p>I&#39;m thinking Arduino serial output not structured correctly or Pi&#39;s&nbsp;/boot/emonhub.conf not configured correctly?</p>
+<p>Setup is as follows:</p>
+<p>EmonTXv3&nbsp;(node 10 -&nbsp;emonTxV3_continuous_kwhtotals_noeeprom&nbsp;) and EmonTH&nbsp;(node 19 - unmodified) --&gt; Arduino with RFM12b&nbsp;&lt;-- USB --&gt; Raspberry Pi (emonSD-13-08-14.img on Model B+)</p>
+<p>Arduino serial output</p>
+<p>10 82884 3105 8 0 353 12887 25992 0 13242&nbsp;<br />
+	10 82886 1075 6 0 355 12891 25992 0 13242&nbsp;<br />
+	19 229 446 30&nbsp;<br />
+	10 82894 1071 7 0 355 12895 25992 0 13244&nbsp;<br />
+	10 82899 1091 6 0 354 12898 25992 0 13245&nbsp;<br />
+	10 82904 3119 7 0 351 12905 25992 0 13246&nbsp;<br />
+	10 82909 3099 7 0 352 12913 25992 0 13247&nbsp;<br />
+	10 82914 3140 8 0 351 12922 25992 0 13248&nbsp;<br />
+	10 82919 1225 6 0 352 12926 25992 0 13249&nbsp;<br />
+	10 82921 1195 6 0 352 12928 25992 0 13249</p>
+<p>&nbsp;</p>
+<p>$ sudo nano /boot/emonhub.conf</p>
+<p>[nodes]</p>
+<p># List of nodes by node ID<br />
+	# &#39;datacode&#39; is default for node and &#39;datacodes&#39; are per value data codes.<br />
+	# if both are present &#39;datacode&#39; is ignored in favour of &#39;datacodes&#39;<br />
+	#[[99]]<br />
+	#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacode = h<br />
+	#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacodes = l, h, h, h,</p>
+<p>[[10]]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacodes = L, h, h, h, h, l, l, l, l</p>
+<p>[[19]]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacodes = h, h, h</p>
+<p>&nbsp;</p>
+<p>$ tail -f /var/log/emonhub/emonhub.log</p>
+<p>2014-08-15 17:37:25,206 WARNING 24 RX data length: 9 is not valid for datacodes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&#39;L&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;l&#39;, &#39;l&#39;, &#39;l&#39;, &#39;l&#39;]<br />
+	2014-08-15 17:37:35,403 WARNING 25 RX data length: 9 is not valid for datacodes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&#39;L&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;l&#39;, &#39;l&#39;, &#39;l&#39;, &#39;l&#39;]<br />
+	2014-08-15 17:37:45,396 WARNING 26 RX data length: 9 is not valid for datacodes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&#39;L&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;l&#39;, &#39;l&#39;, &#39;l&#39;, &#39;l&#39;]<br />
+	2014-08-15 17:37:49,878 WARNING 27 RX data length: 3 is not valid for datacodes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&#39;h&#39;, &#39;h&#39;, &#39;h&#39;]<br />
+	2014-08-15 17:37:55,398 WARNING 28 RX data length: 9 is not valid for datacodes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&#39;L&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;l&#39;, &#39;l&#39;, &#39;l&#39;, &#39;l&#39;]</p>
+<p>&nbsp;</p>
+<p>Thanks heaps!</p>
+<p>Norm</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5322.html" class="topic-previous" title="Go to previous forum topic">‹ multiuser - 3 tier emoncms application</a>
+              <a href="10285.html" class="topic-next" title="Go to next forum topic">emoncms-Feed data isn&#039;t being stored ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-23080"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 15/08/2014 - 07:17.</div>
+    <div class="content">
+     <p>Hi Norm</p>
+<p>It looks like the issue is because the arduino is reconstructing the byte values received via the rfm12b before tx over serial. emonhub is expecting a string of byte values eg node 10 L, h, h, h, h, l, l, l, l should be 29 numbers between 0 and 255 (inc node id), which is why it is saying the received data length of 9 values is not valid. Likewise node 19 should be 7 byte values not 3.</p>
+<p>Effectively you have 2 decoding stages one prior to the serial link and one after, one needs to be disabled. The quick fix would be to just remove or comment out the nodes/datacodes lines in emonhub.conf as I&#39;m guessing the arduino is already configured for the emonTx v3 sketch (9 values shown in serial print). The more flexible and scalable approach would be to edit the arduino sketch once to just pass the raw byte values (like a RFM2Pi board does) and then any changes or additions to your sensor network could be configured in emonhub.conf rather than rewriting sketches each time.</p>
+<p>If you want to see more of what is happening in emonhub set the loglevel to debug in emonhub.conf.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23081"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6745.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="normosb&#039;s picture" title="normosb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6745.html" title="View user profile.">normosb</a> on Fri, 15/08/2014 - 07:48.</div>
+    <div class="content">
+     <p>Hi Paul, thank for your reply,</p>
+<p>I edited emonhub.conf as follows.</p>
+<p>#######################################################################<br />
+	#######################&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Nodes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #######################<br />
+	#######################################################################<br />
+	#[nodes]</p>
+<p># List of nodes by node ID<br />
+	# &#39;datacode&#39; is default for node and &#39;datacodes&#39; are per value data codes.<br />
+	# if both are present &#39;datacode&#39; is ignored in favour of &#39;datacodes&#39;<br />
+	#[[99]]<br />
+	#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacode = h<br />
+	#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacodes = l, h, h, h,</p>
+<p>#[[10]]<br />
+	#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacodes = L, h, h, h, h, l, l, l, l</p>
+<p>#[[19]]<br />
+	#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacodes = h, h, h</p>
+<p>This is what I get now with DEBUG on.</p>
+<p>2014-08-15 19:38:38,746 DEBUG 18 NEW FRAME : 1408088318.75 10 86271 910 10 0 346 15697 26010 0 14133<br />
+	2014-08-15 19:38:38,750 WARNING 18 RX data length: 9 is not valid for datacode h<br />
+	2014-08-15 19:38:43,636 DEBUG 19 NEW FRAME : 1408088323.64 10 86273 908 9 0 347 15698 26010 0 14133<br />
+	2014-08-15 19:38:43,640 WARNING 19 RX data length: 9 is not valid for datacode h<br />
+	2014-08-15 19:38:53,400 DEBUG 20 NEW FRAME : 1408088333.4 19 215 483 30<br />
+	2014-08-15 19:38:53,404 WARNING 20 RX data length: 3 is not valid for datacode h<br />
+	2014-08-15 19:38:58,693 DEBUG 21 NEW FRAME : 1408088338.69 10 86281 903 9 0 346 15702 26010 0 14135<br />
+	2014-08-15 19:38:58,697 WARNING 21 RX data length: 9 is not valid for datacode h</p>
+<p>I guess I&#39;ll have a go at a different Arduino sketch. Do you think I can run the&nbsp;RF12_Demo_atmega328.ino sketch on a Arduino UNO &nbsp;with RFM12B without too much trouble?</p>
+<p>Norm</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23082"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6745.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="normosb&#039;s picture" title="normosb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6745.html" title="View user profile.">normosb</a> on Fri, 15/08/2014 - 07:52.</div>
+    <div class="content">
+     <p>Just had another thought, maybe the interface I&#39;m using in&nbsp;emonhub.conf is incorrect for the Arduino/RFM12B/USB?</p>
+<p>Is there an alternative?</p>
+<p>&nbsp;</p>
+<p>[interfacers]</p>
+<p># This interfacer manages the RFM2Pi module<br />
+	[[RFM2Pi]]<br />
+	&nbsp;&nbsp;&nbsp; Type = EmonHubJeeInterfacer<br />
+	&nbsp;&nbsp;&nbsp; [[[init_settings]]]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; com_port = /dev/ttyACM0<br />
+	&nbsp;&nbsp;&nbsp; [[[runtimesettings]]]</p>
+<p>Any ideas?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23084"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 15/08/2014 - 08:27.</div>
+    <div class="content">
+     <p>That interface was designed to be primarily used with the RFM2Pi&nbsp;but intended to be compatible&nbsp; with all standard &quot;rfm&quot; devices, the old standard was to send data over an &quot;rfm&quot; network in byte pair integers only so there is a default datacode of &#39;h&#39; inbuilt to provide backwards compatibility to all the standard &quot;byte pair integer only&quot; sketches by default.</p>
+<p>Your application presents a previously&nbsp;unencountered&nbsp;scenario&nbsp;which I think emonhub should be able to cope with.</p>
+<p>Try over riding the default value by adding &quot;datacode = False&quot; to the interfacer settings in emonhub.conf</p>
+<p class="rteindent1"># This interfacer manages the RFM2Pi module<br />
+	[[RFM2Pi]]<br />
+	&nbsp;&nbsp;&nbsp; Type = EmonHubJeeInterfacer<br />
+	&nbsp;&nbsp;&nbsp; [[[init_settings]]]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; com_port = /dev/ttyACM0<br />
+	&nbsp;&nbsp;&nbsp; [[[runtimesettings]]]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>datacode = False</strong></p>
+<p>&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23085"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6745.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="normosb&#039;s picture" title="normosb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6745.html" title="View user profile.">normosb</a> on Fri, 15/08/2014 - 08:48.</div>
+    <div class="content">
+     <p>Hi again Paul, nice to have someone helping me out! Much appreciated.</p>
+<p>I have added&nbsp;datacode = False now this is all I get:</p>
+<p>pi@raspberrypi ~ $ tail -f /var/log/emonhub/emonhub.log<br />
+	1970-01-01 12:00:23,645 INFO EmonHub Pre-Release Development Version (rc1.0)<br />
+	1970-01-01 12:00:23,648 INFO Opening hub...<br />
+	1970-01-01 12:00:23,651 INFO Logging level set to DEBUG<br />
+	1970-01-01 12:00:23,654 INFO Creating EmonHubEmoncmsReporter &#39;emonCMS&#39;<br />
+	1970-01-01 12:00:23,659 INFO Set up reporter &#39;emonCMS&#39; (buffer: memory | size: 1000)<br />
+	1970-01-01 12:00:23,663 INFO Creating EmonHubJeeInterfacer &#39;RFM2Pi&#39;<br />
+	1970-01-01 12:00:23,666 DEBUG Opening serial port: /dev/ttyACM0<br />
+	1970-01-01 12:00:23,672 INFO Opened serial port: /dev/ttyACM0 9600 bits/s<br />
+	1970-01-01 12:00:23,675 DEBUG Setting RFM2Pi datacode: False<br />
+	1970-01-01 12:00:23,696 DEBUG 1 NEW FRAME : 23.7 10 8019 0 14476</p>
+<p>No data shows up on emoncms.org</p>
+<p>I&#39;ll post the whole emonhub.conf just incase I missed something obvious.</p>
+<p># SPECIMEN emonHub configuration file<br />
+	# Note that when installed from apt, a new config file is written<br />
+	# by the debian/postinst script, so changing this file will do<br />
+	# nothing in and of itself.</p>
+<p># Each Interfacer and each Reporter has<br />
+	# - a [[name]]: a unique string<br />
+	# - a type: the name of the class it instantiates<br />
+	# - a set of init_settings (depends on the type)<br />
+	# - a set of runtimesettings (depends on the type)<br />
+	# Both init_settings and runtimesettings sections must be defined,<br />
+	# even if empty. Init settings are used at initialization,<br />
+	# and runtime settings are refreshed on a regular basis.</p>
+<p># All lines beginning with a &#39;#&#39; are comments and can be safely removed.</p>
+<p>#######################################################################<br />
+	#######################&nbsp;&nbsp;&nbsp; emonHub&nbsp; settings&nbsp;&nbsp;&nbsp; #######################<br />
+	#######################################################################<br />
+	[hub]</p>
+<p># loglevel must be one of DEBUG, INFO, WARNING, ERROR, and CRITICAL<br />
+	# see here : <a href="http://docs.python.org/2/library/logging.html" title="http://docs.python.org/2/library/logging.html">http://docs.python.org/2/library/logging.html</a><br />
+	loglevel = DEBUG</p>
+<p>
+	#######################################################################<br />
+	#######################&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reporters&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #######################<br />
+	#######################################################################<br />
+	[reporters]</p>
+<p># This reporter sends data to emonCMS<br />
+	[[emonCMS]]<br />
+	&nbsp;&nbsp;&nbsp; Type = EmonHubEmoncmsReporter<br />
+	&nbsp;&nbsp;&nbsp; [[[init_settings]]]<br />
+	&nbsp;&nbsp;&nbsp; [[[runtimesettings]]]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; url = <a href="http://emoncms.org/" title="http://emoncms.org">http://emoncms.org</a><br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; apikey = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&nbsp;yes I added it :)</p>
+<p>
+	#######################################################################<br />
+	#######################&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Interfacers&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #######################<br />
+	#######################################################################<br />
+	[interfacers]</p>
+<p># This interfacer manages the RFM2Pi module</p>
+<p>[[RFM2Pi]]<br />
+	&nbsp;&nbsp;&nbsp; Type = EmonHubJeeInterfacer<br />
+	&nbsp;&nbsp;&nbsp; [[[init_settings]]]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; com_port = /dev/ttyACM0<br />
+	&nbsp;&nbsp;&nbsp; [[[runtimesettings]]]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacode = False</p>
+<p>
+	#######################################################################<br />
+	#######################&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Nodes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #######################<br />
+	#######################################################################<br />
+	#[nodes]</p>
+<p># List of nodes by node ID<br />
+	# &#39;datacode&#39; is default for node and &#39;datacodes&#39; are per value data codes.<br />
+	# if both are present &#39;datacode&#39; is ignored in favour of &#39;datacodes&#39;<br />
+	#[[99]]<br />
+	#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacode = h<br />
+	#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacodes = l, h, h, h,</p>
+<p>#[[10]]<br />
+	#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacodes = L, h, h, h, h, l, l, l, l</p>
+<p>#[[19]]</p>
+<p>#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacodes = h, h, h</p>
+<p>Thanks heaps!</p>
+<p>Norm</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23090"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 15/08/2014 - 13:58.</div>
+    <div class="content">
+     <p>The log entries are all dated 1970 which they weren&#39;t &nbsp;beforehand, have you changed anything else ? if not just try restarting emonhub using</p>
+<p class="rteindent1">sudo service emonhub restart</p>
+<p>if that doesn&#39;t sort the dates out, comment out the &quot;datacode&nbsp;= False&quot; line and restart emonhub as above, to see if it returns to reporting the correct time and date, adding the line as suggested should not have effected the time &amp; date or logging settings, so we should sort that before we move on.</p>
+<p>Where there any further log entries? the log posted shows nothing abnormal beyond the wrong dates and the &quot;rfm&quot; settings are missing which you will have removed from the conf file due to your set-up. The last entry looks incomplete the &quot;NEW FRAME&quot; &nbsp;received&nbsp;indicates 3 values (8019 0 14476) from node 10 with a time stamp of 23.7 which although not the right time it corresponds to the 23.696 seconds after midday on 1/1/1970 in all the log entries.</p>
+<p>I will try and set something up to replicate what you have, can you attach a copy of your arduino sketch?</p>
+<p>Since you are just using serial to transfer data not control an rfm device it maybe better to create a simple&nbsp;EmonHubSerialInterfacer&nbsp; rather than using the EmonHubJeeInterfacer but we can look at that once we know a bit about why it&#39;s misbehaving.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23091"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 15/08/2014 - 14:23.</div>
+    <div class="content">
+     <p>Also now I have had another look back at the code I think the datacode should of been set to 0 (zero) not False. (appologies) False indicates a default&nbsp;datacode is not specified (ie&nbsp;use per value decoding) rather than a specifying a default&nbsp;datacode of none (ie&nbsp;all values not to be decoded).</p>
+<p>Try &quot;datacode = 0&quot; once the log dates are back.</p>
+<p>Or I see no obvious reason (so not conclusive) why changing the type from EmonHubJeeInterfacer to EmonHubSerialInterfacer shouldn&#39;t work if you fancy trying it, the default type for the serial interfacer&nbsp;is 0 so the &quot;datacode&nbsp;=&quot; entry wouldn&#39;t be needed</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23098"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6745.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="normosb&#039;s picture" title="normosb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6745.html" title="View user profile.">normosb</a> on Fri, 15/08/2014 - 21:25.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>I was rebooting the Pi after config changes, thanks for the restart emonhub tip! &nbsp;(sudo service emonhub restart)</p>
+<p>datacode = False seemed to cause the date problem above.</p>
+<p>datacode&nbsp;= 0 results in the following errors.</p>
+<p>pi@raspberrypi ~ $ sudo service emonhub restart<br />
+	[ ok ] Restarting OpenEnergyMonitor emonHub: emonhub has been restarted ok.<br />
+	pi@raspberrypi ~ $ Traceback (most recent call last):<br />
+	&nbsp; File &quot;/usr/share/emonhub/emonhub.py&quot;, line 336, in &lt;module&gt;<br />
+	&nbsp;&nbsp;&nbsp; hub.run()<br />
+	&nbsp; File &quot;/usr/share/emonhub/emonhub.py&quot;, line 90, in run<br />
+	&nbsp;&nbsp;&nbsp; values = I.read()<br />
+	&nbsp; File &quot;/home/pi/emonhub/src/emonhub_interfacer.py&quot;, line 368, in read<br />
+	&nbsp;&nbsp;&nbsp; return self._process_frame(f, t)<br />
+	&nbsp; File &quot;/home/pi/emonhub/src/emonhub_interfacer.py&quot;, line 106, in _process_frame<br />
+	&nbsp;&nbsp;&nbsp; frame = self._decode_frame(ref, validated)<br />
+	&nbsp; File &quot;/home/pi/emonhub/src/emonhub_interfacer.py&quot;, line 201, in _decode_frame<br />
+	&nbsp;&nbsp;&nbsp; elif len(data) % ehc.check_datacode(datacode) != 0:<br />
+	ZeroDivisionError: integer division or modulo by zero<br />
+	^C</p>
+<p>
+	pi@raspberrypi ~ $ tail -f /var/log/emonhub/emonhub.log<br />
+	2014-08-16 09:04:25,576 INFO Opening hub...<br />
+	2014-08-16 09:04:25,579 INFO Logging level set to DEBUG<br />
+	2014-08-16 09:04:25,581 INFO Creating EmonHubEmoncmsReporter &#39;emonCMS&#39;<br />
+	2014-08-16 09:04:25,587 INFO Set up reporter &#39;emonCMS&#39; (buffer: memory | size: 1000)<br />
+	2014-08-16 09:04:25,591 INFO Creating EmonHubJeeInterfacer &#39;RFM2Pi&#39;<br />
+	2014-08-16 09:04:25,594 DEBUG Opening serial port: /dev/ttyACM0<br />
+	2014-08-16 09:04:25,599 INFO Opened serial port: /dev/ttyACM0 9600 bits/s<br />
+	2014-08-16 09:04:25,602 DEBUG Setting RFM2Pi datacode: 0<br />
+	2014-08-16 09:04:25,831 DEBUG 1 NEW FRAME : 1408136665.83<br />
+	10 110446 346 1182 0 349 23836 27028 0 18536</p>
+<p>Tried&nbsp;EmonHubSerialInterfacer instead of&nbsp;EmonHubJeeInterfacer doesn&#39;t seem to make any difference.</p>
+<p>pi@raspberrypi ~ $ tail -f /var/log/emonhub/emonhub.log<br />
+	2014-08-16 09:18:30,489 DEBUG 104 NEW FRAME : 1408137510.49 10 110869 158 1302 0 350 23878 27318 0 18618<br />
+	2014-08-16 09:18:30,493 WARNING 104 RX data length: 9 is not valid for datacode h<br />
+	2014-08-16 09:18:35,370 DEBUG 105 NEW FRAME : 1408137515.37 10 110871 96 1304 0 350 23878 27320 0 18619<br />
+	2014-08-16 09:18:35,374 WARNING 105 RX data length: 9 is not valid for datacode h<br />
+	2014-08-16 09:18:40,462 DEBUG 106 NEW FRAME : 1408137520.46 10 110874 16 1305 0 350 23878 27321 0 18619<br />
+	2014-08-16 09:18:40,466 WARNING 106 RX data length: 9 is not valid for datacode h<br />
+	2014-08-16 09:18:45,354 DEBUG 107 NEW FRAME : 1408137525.35 10 110876 152 1307 0 349 23879 27324 0 18619<br />
+	2014-08-16 09:18:45,358 WARNING 107 RX data length: 9 is not valid for datacode h<br />
+	2014-08-16 09:18:50,444 DEBUG 108 NEW FRAME : 1408137530.44 10 110879 148 1306 0 353 23879 27325 0 18620<br />
+	2014-08-16 09:18:50,448 WARNING 108 RX data length: 9 is not valid for datacode h<br />
+	2014-08-16 09:18:55,338 DEBUG 109 NEW FRAME : 1408137535.34 10 110881 188 1308 0 352 23879 27327 0 18620<br />
+	2014-08-16 09:18:55,342 WARNING 109 RX data length: 9 is not valid for datacode h</p>
+<p>I&#39;m thinking emonhub can&#39;t handle the decoded RFM12B string. I&#39;ve attached my Arduino sketch. Maybe we can modify so it prints the undecoded&nbsp;string?&nbsp;</p>
+<p>Thanks heaps</p>
+<p>Norm</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23100"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6745.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="normosb&#039;s picture" title="normosb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6745.html" title="View user profile.">normosb</a> on Fri, 15/08/2014 - 21:34.</div>
+    <div class="content">
+     <p>Oops made a mistake. I changed EmonHubEmoncmsReporter instead of EmonHubJeeInterfacer!</p>
+<p><strong>As you suggested I changed to EmonHubSerialInterfacer and it works!!!!!!!!!!</strong></p>
+<p>[interfacers]</p>
+<p># This interfacer manages the RFM2Pi module<br />
+	[[RFM2Pi]]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; Type = EmonHubSerialInterfacer<br />
+	&nbsp;&nbsp;&nbsp; [[[init_settings]]]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; com_port = /dev/ttyACM0<br />
+	&nbsp;&nbsp;&nbsp; [[[runtimesettings]]]<br />
+	#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacode = 0</p>
+<p>pi@raspberrypi ~ $ tail -f /var/log/emonhub/emonhub.log<br />
+	2014-08-16 09:31:50,817 DEBUG 49 Append to &#39;emonCMS&#39; buffer =&gt; time: 1408138310.72, data: [10, 111269, 2542, 1422, 0, 354, 24308, 27621, 0, 18696], ref: 49<br />
+	2014-08-16 09:31:50,921 INFO Sending: http://emoncms.org/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&amp;data=[[1408138310.72,10,111269,2542,1422,0,354,24308,27621,0,18696]]&amp;sentat=1408138310<br />
+	2014-08-16 09:31:52,206 DEBUG Receipt acknowledged with &#39;ok&#39; from <a href="http://emoncms.org/" title="http://emoncms.org">http://emoncms.org</a><br />
+	2014-08-16 09:31:55,822 DEBUG 50 NEW FRAME : 1408138315.82 10 111271 2353 1422 0 350 24310 27623 0 18697<br />
+	2014-08-16 09:31:55,826 DEBUG 50 Timestamp : 1408138315.82<br />
+	2014-08-16 09:31:55,828 DEBUG 50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Node : 10<br />
+	2014-08-16 09:31:55,831 DEBUG 50&nbsp;&nbsp;&nbsp; Values : [111271, 2353, 1422, 0, 350, 24310, 27623, 0, 18697]<br />
+	2014-08-16 09:31:55,925 DEBUG 50 Append to &#39;emonCMS&#39; buffer =&gt; time: 1408138315.82, data: [10, 111271, 2353, 1422, 0, 350, 24310, 27623, 0, 18697], ref: 50<br />
+	2014-08-16 09:31:56,029 INFO Sending: http://emoncms.org/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&amp;data=[[1408138315.82,10,111271,2353,1422,0,350,24310,27623,0,18697]]&amp;sentat=1408138316<br />
+	2014-08-16 09:31:57,411 DEBUG Receipt acknowledged with &#39;ok&#39; from <a href="http://emoncms.org/" title="http://emoncms.org">http://emoncms.org</a><br />
+	2014-08-16 09:32:00,719 DEBUG 51 NEW FRAME : 1408138320.72 10 111274 2443 1422 0 351 24314 27624 0 18697<br />
+	2014-08-16 09:32:00,723 DEBUG 51 Timestamp : 1408138320.72<br />
+	2014-08-16 09:32:00,728 DEBUG 51&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Node : 10<br />
+	2014-08-16 09:32:00,731 DEBUG 51&nbsp;&nbsp;&nbsp; Values : [111274, 2443, 1422, 0, 351, 24314, 27624, 0, 18697]<br />
+	2014-08-16 09:32:00,829 DEBUG 51 Append to &#39;emonCMS&#39; buffer =&gt; time: 1408138320.72, data: [10, 111274, 2443, 1422, 0, 351, 24314, 27624, 0, 18697], ref: 51<br />
+	2014-08-16 09:32:00,934 INFO Sending: http://emoncms.org/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&amp;data=[[1408138320.72,10,111274,2443,1422,0,351,24314,27624,0,18697]]&amp;sentat=1408138320<br />
+	2014-08-16 09:32:01,870 DEBUG Receipt acknowledged with &#39;ok&#39; from <a href="http://emoncms.org/" title="http://emoncms.org">http://emoncms.org</a></p>
+<p>Paul you&#39;ve been an awesome help! Many thanks.</p>
+<p>Norm</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23106"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 16/08/2014 - 09:05.</div>
+    <div class="content">
+     <p>I have not been able to replicate the date issue so I&#39;m not entirely sure what is happened there. nor am I sure why when trying the &quot;EmonHubSerialInterfacer&quot; it appears to be using a datacode of &quot;h&quot; the default is &quot;0&quot; so unless specified in the emonhub.conf should remain as zero.</p>
+<p>The first of the results sets you posted, for the &quot;datacode&nbsp;= 0&quot; appears to be a variable type casting issue, the zero is being processed as a string&quot;0&quot; rather than a integer, therefore <a href="https://github.com/emonhub/emonhub/blob/development/src/emonhub_interfacer.py#L193">it goes wrong at this point</a>&nbsp;as string zero is True where as int zero is False. Therefore it misses the if statement intended to filter off and return frames that require no decoding and continues till <a href="https://github.com/emonhub/emonhub/blob/development/src/emonhub_interfacer.py#L201">it trips up here with the divide by zero error</a></p>
+<p>The logic worked ok in testing because if a &quot;datacode&quot;&nbsp;was specified by a user it was assumed it would be adding a &quot;datacode&quot; and not possibly removing one. Therefore the casting of a default int zero to a string &quot;h&quot; or &quot;L&quot; etc didn&#39;t create an issue and curiously nor does removing a datacode which causes the default zero to be reloaded, probably due to configObj.</p>
+<p>Anyway, I believe <a href="https://github.com/emonhub/emonhub/blob/development/src/emonhub_interfacer.py#L193">changing this line to also test for a &quot;0&quot; string</a>&nbsp;will remedy your issue so in ~/emonhub/src/emonhub_interfacer.py try changing line 193 to &quot;&nbsp;if not datacode or datacode == &#39;0&#39;: &quot; (not a permanent solution but should do what you want until emonHub is updated</p>
+<p>What is obvious from this experimenting there needs to be some filtering/casting of datacode values the user can enter as there is a vulnerability, The intention is&nbsp;emonHub&nbsp;will raise exceptions and continue rather than crash on error, a bulk of the code is filtering and error handling.&nbsp;</p>
+<p>Although not an average application, I&#39;m sure it will pop up again so I am keen to resolve this and I do appreciate your help highlighting and (hopefully) resolving this, However, as mentioned in my first post, in the long term I think altering your sketch to pass undecoded values is the way to go (I haven&#39;t looked at it yet). But if you prefer to decode in your sketch we can also retry the Serial Interfacer, your choice :-)</p>
+<p>See how we get on with this fix first I guess</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23113"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 16/08/2014 - 12:38.</div>
+    <div class="content">
+     <p>So maybe I should check PM&#39;s more frequently,&nbsp;</p>
+<p class="rteindent1">
+	normosb 15/08/2014 - 22:37<br />
+	Hi Paul,</p>
+<p class="rteindent1">It works! thanks very much for your help! Change to Serial did the trick;</p>
+<p class="rteindent1">My latest thrend post went to the moderator :)</p>
+<p class="rteindent1"># This interfacer manages the RFM2Pi module<br />
+	[[RFM2Pi]]<br />
+	#&nbsp;&nbsp;&nbsp; Type = EmonHubJeeInterfacer<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; Type = EmonHubSerialInterfacer<br />
+	&nbsp;&nbsp;&nbsp; [[[init_settings]]]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; com_port = /dev/ttyACM0<br />
+	&nbsp;&nbsp;&nbsp; [[[runtimesettings]]]<br />
+	#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datacode = 0</p>
+<p class="rteindent1">Much appreciated!</p>
+<p class="rteindent1">Regards</p>
+<p class="rteindent1">Norm</p>
+<p>Thank you for letting me know, that clears the uncertainty as to why the serialinterfacer&nbsp;didn&#39;t work and I&#39;m now confident the latter fix would of worked also. great.</p>
+<p>Thanks again for putting emonhub&nbsp;to the test. I have started adding additional &quot;datacode&quot; qualifying.</p>
+<p>Paul</p>
+<p class="rteindent1">&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28865"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7814.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hneel&#039;s picture" title="hneel&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7814.html" title="View user profile.">hneel</a> on Fri, 20/03/2015 - 22:03.</div>
+    <div class="content">
+     <p>Hello,</p>
+<p>I just set up my Raspberry Pi, but I&#39;m getting similar errors.</p>
+<p>2015-03-20 21:43:29,243 DEBUG 17 NEW FRAME : 1426887809.24 OK 10 42 2 0 0 0 0 0 0 (-51)<br />
+2015-03-20 21:43:29,248 WARNING 17 RX data length: 8 is not valid for datacodes [&#39;L&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;l&#39;, &#39;l&#39;, &#39;l&#39;, &#39;l&#39;]<br />
+2015-03-20 21:43:31,611 DEBUG 18 NEW FRAME : 1426887811.61 OK 10 40 2 0 0 0 0 0 0 (-52)<br />
+2015-03-20 21:43:31,616 WARNING 18 RX data length: 8 is not valid for datacodes [&#39;L&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;l&#39;, &#39;l&#39;, &#39;l&#39;, &#39;l&#39;]</p>
+<p>My arduino uses the new RF96 board.</p>
+<p>I&#39;ll include the sketch:</p>
+<p><a href="http://pastebin.com/ZWNe8Y4y">http://pastebin.com/ZWNe8Y4y</a></p>
+<p>And my emonhub.conf</p>
+<p><a href="http://pastebin.com/eKW94TnD">http://pastebin.com/eKW94TnD</a></p>
+<p>I used the &#39;Write API Key&#39; from my account. Correct?</p>
+<p>Regards,</p>
+<p>Hans</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28868"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 21/03/2015 - 01:11.</div>
+    <div class="content">
+     <p>That sketch sends the node number followed by a payload of 4 integers (8 bytes). That is specified in </p>
+<p> &nbsp;&nbsp;typedef struct { int power1, power2, power3, power4;} PayloadTX;</p>
+<p>therefore you should not need to specify datacodes. The default should be fine.<br />
+The datacode you specified is expecting: </p>
+<p> &nbsp;&nbsp;unsigned long, int, int, int, int, long, long, long, long.</p>
+<p>And that is not what the sketch is sending, hence the error.</p>
+<p>The "read &amp; write" APIkey is correct.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28890"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7814.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hneel&#039;s picture" title="hneel&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: datacode woes between Arduino & Pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7814.html" title="View user profile.">hneel</a> on Sat, 21/03/2015 - 21:16.</div>
+    <div class="content">
+     <p>Thanks.</p>
+<p>Commenting out these lines did the trick. Everything is up and running now.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5561"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-sqcDbT8lulYht4AMm1XWJ38XlMhlQxeEqB6ktGgC9R8" value="form-sqcDbT8lulYht4AMm1XWJ38XlMhlQxeEqB6ktGgC9R8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5561 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:49:48 GMT -->
+</html>

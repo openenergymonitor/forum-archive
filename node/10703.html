@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10703 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:27:13 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Emoncms v7 to v8.5 on Pi (converting timestore to phpfina) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Emoncms v7 to v8.5 on Pi (converting timestore to phpfina)</h3>
+        <span class="submitted">Submitted by Guest on Thu, 14/05/2015 - 08:57</span>
+        <div class="content"><p>Hi all</p>
+<p>&nbsp;</p>
+<p>I have been successfully using my setup for the past year based off [2014-02-23-emoncms_raspberrypi_hdd_stack.zip], I thought it was about time to upgrade.</p>
+<p>I followed the procedure to update emoncms and it was working well (data points coming in, data available in the dashboards) until I installed the Redis packages. Then nothing.</p>
+<p>Looking through the notes here, v8 needs to use the emonhub - so followed the instructions to upgrade / install this.</p>
+<p>&nbsp;</p>
+<p>Emonhub appears to be working (can recieve data points and tries to post them) If it posts data to the v7 emoncms distribution - it appears to work. When I point emonhub to the v8.5.0 distribution the post returns errors in the log - which can be replicated by trying the posts manually.</p>
+<p>V7</p>
+<p>http://[[address]]/emoncms_7/input/bulk.json?apikey=[[magickey]]&amp;data=[[1431584290.18,10,28,2733,380,286,23701,178]]&amp;sentat=1431584290</p>
+<p>Returns</p>
+<p>ok</p>
+<p>&nbsp;</p>
+<p>V8.5.0</p>
+<p>http://[[address]]/emoncms/input/bulk.json?apikey=[[magickey]]&amp;data=[[1431584290.18,10,28,2733,380,286,23701,178]]&amp;sentat=1431584290</p>
+<p>&nbsp;</p>
+<p>Returns</p>
+<p>
+Notice: Undefined offset: 1 in /var/www/emoncms/Modules/feed/feed_model.php on line 395</p>
+<p>Fatal error: Call to a member function post() on a non-object in /var/www/emoncms/Modules/feed/feed_model.php on line 395</p>
+<p>&nbsp;</p>
+<p>Using v8.5.0, if I investigate some of the feeds - and open some in the Data viewer, the following error appears:</p>
+<p>Request error<br />
+Notice: Undefined offset: 1 in /var/www/emoncms/Modules/feed/feed_model.php on line 467</p>
+<p>Fatal error: Call to a member function get_data() on a non-object in /var/www/emoncms/Modules/feed/feed_model.php on line 467</p>
+<p>&nbsp;</p>
+<p>Can anyone point me in the direction of what I may have missed ? At this point all the pre-req software required for a full linux install is present on my pi (went through this just incase something was missing from the upgrade notes).</p>
+<p>&nbsp;</p>
+<p>I really would like to keep the current setup plus historical data.</p>
+<p>&nbsp;</p>
+<p>Upgrade Links used:</p>
+<p>emoncms:</p>
+<p><a href="https://github.com/emoncms/emoncms/blob/master/docs/Upgrading.md" title="https://github.com/emoncms/emoncms/blob/master/docs/Upgrading.md">https://github.com/emoncms/emoncms/blob/master/docs/Upgrading.md</a></p>
+<p>Emonhub:</p>
+<p><a href="5986.html" title="http://openenergymonitor.org/emon/node/5986">http://openenergymonitor.org/emon/node/5986</a></p>
+<p>Cheers</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10429.html" class="topic-previous" title="Go to previous forum topic">‹ emoncms.org rawdata graphs stopped.</a>
+              <a href="10697.html" class="topic-next" title="Go to next forum topic">ipv6 for PI2 Image ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-30332"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v7 to v8.5 on Pi (converting timestore to phpfina)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 14/05/2015 - 09:37.</div>
+    <div class="content">
+     <p>This maybe due to&nbsp;timezone offsets</p>
+<p><a href="10508.html">http://openenergymonitor.org/emon/node/10508</a></p>
+<p><a href="https://github.com/emoncms/emoncms/issues/314">https://github.com/emoncms/emoncms/issues/314</a></p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30374"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="gonzocrazy&#039;s picture" title="gonzocrazy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v7 to v8.5 on Pi (converting timestore to phpfina)</h3>
+
+    <div class="submitted">Submitted by gonzocrazy (not verified) on Thu, 14/05/2015 - 22:51.</div>
+    <div class="content">
+     <p>Thanks for the pointer Paul, not exactly the same issue.</p>
+<p>I have installed 8.4 as well now and have emonHub submitting data to it - this combination works - I can now see updates to the Input and Feed data. Current and historic data can be seen in 8.4 via the Feeds but nothing is visible in the dashboards (in 7, 8,4 or 8.5) - all appears as empty graphs (with timescale navigation) -which confuses me as at least v7 should still be able to read this data?</p>
+<p>&nbsp;</p>
+<p>Cheers</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30375"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="gonzocrazy&#039;s picture" title="gonzocrazy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v7 to v8.5 on Pi (converting timestore to phpfina)</h3>
+
+    <div class="submitted">Submitted by gonzocrazy (not verified) on Thu, 14/05/2015 - 22:57.</div>
+    <div class="content">
+     <p>And the solution to that problem is , somewhere the datasource for the graphs has been hardcoded to be http://[host]/emoncms - so emoncms can not &#39;run&#39; from any other directory IE <a href="http://host/emoncms_v7" title="http://host/emoncms_v7">http://host/emoncms_v7</a>.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30459"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v7 to v8.5 on Pi (converting timestore to phpfina)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 17/05/2015 - 18:28.</div>
+    <div class="content">
+     <p>Hello @gonzocrazy, the error Notice: Undefined offset: 1 in /var/www/emoncms/Modules/feed/feed_model.php on line 467 and line 395 relates to emoncms trying to use engine&nbsp; 1 which is timestore. Emoncms v8.5 removed timestore support, a little while back I made a start on documenting how to migrate timestore to phpfina here <a href="103800357.html?page=19.%c2%a0" title="http://openenergymonitor.org/emon/node/10380?page=19. ">http://openenergymonitor.org/emon/node/10380?page=19. </a> If you have a go following that, that should then sort the errors, happy to help if you have any questions about the migration procedure.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10703"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-OSn9bIKhL9wcOCN0BdCvtfvpoiCIQT_Fu-SK5XIPPW0" value="form-OSn9bIKhL9wcOCN0BdCvtfvpoiCIQT_Fu-SK5XIPPW0"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10703 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:27:14 GMT -->
+</html>

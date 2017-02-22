@@ -1,0 +1,424 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3812 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:21:07 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Sending BMP085 data to emonCMS using Adafruit library - solved | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Sending BMP085 data to emonCMS using Adafruit library - solved</h3>
+        <span class="submitted">Submitted by <a href="../user/3862.html" title="View user profile.">GJPickard</a> on Sun, 09/02/2014 - 09:43</span>
+        <div class="content"><p>I seem to have hit a dead end trying to send some BMP085 pressure data to emonCMS</p>
+<p>The Adafruit&nbsp;unified driver outputs temp and pressure data with 2 decimal points so I am likely to get at least 6 digits of info for pressure unless I clip these.</p>
+<p>Using the emonTH sketch as a start I can:</p>
+<p>1. &nbsp;Send the factory test sequence of info for both variables. &nbsp;Even if I use <em>int32_t</em> or <em>long </em>for pressure though I seem to run out of range and the numbers wrap around (yes, not a coder by training!)</p>
+<p>2. &nbsp;Get the readings updating every 30 secs</p>
+<p>3. &nbsp;Confirm the correct payload variables make it into the transmit function with a simple serial.print</p>
+<p>But then nothing - I can see quite a few examples using the Jeelib&nbsp;BMP library but did not want to jump ship from Adafruit as I suspect the ongoing support is going to be better simply because of the extra number of bodies they have. &nbsp;I am also struggling a bit on the Jeelib&nbsp;BMP code as a lots of examples seem to remap the SDL/SCL pins.</p>
+<p>I have also tried a couple of versions of the RF12 transmit code - no difference on either version.</p>
+<p>Any thoughts on where I am going&nbsp;wrong would be gratefully accepted - some code extracts below and full version attached.</p>
+<p>Many&nbsp;thanks</p>
+<p>Gary</p>
+<p>&nbsp;</p>
+<p>#define freq RF12_433MHZ</p>
+<p>const int nodeID = 5;<br />
+	const int networkGroup = 210;</p>
+<p>#include &lt;JeeLib.h&gt;<br />
+	#include &lt;Wire.h&gt;<br />
+	#include &lt;Adafruit_Sensor.h&gt;<br />
+	#include &lt;Adafruit_BMP085_U.h&gt;</p>
+<p>Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);</p>
+<p>// RFM12B RF payload datastructure</p>
+<p>typedef struct<br />
+	{&nbsp;<br />
+	&nbsp; int16_t temp_int;<br />
+	&nbsp; int32_t pressure;<br />
+	} Payload;<br />
+	Payload weather;</p>
+<p>&nbsp;</p>
+<p>void setup()<br />
+	{<br />
+	&nbsp;<br />
+	&nbsp;&nbsp;<br />
+	&nbsp;<br />
+	&nbsp; rf12_initialize(nodeID, freq, networkGroup);&nbsp; // Initialize RFM12B in transmit mode<br />
+	&nbsp; //rf12_sleep(RF12_SLEEP);<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp; Serial.begin(9600);<br />
+	&nbsp; Serial.println(&quot;Weather node test for RFM12B listen then transmit&quot;);<br />
+	&nbsp;<br />
+	&nbsp; Serial.print(&quot;Node: &quot;); Serial.print(nodeID);<br />
+	&nbsp; Serial.print(&quot; Network: &quot;); Serial.println(networkGroup);<br />
+	&nbsp;<br />
+	&nbsp; rfTestData();<br />
+	&nbsp;<br />
+	&nbsp; pinMode(BMP_PWR,OUTPUT);&nbsp; // Set up the BMP power pin<br />
+	&nbsp; digitalWrite(BMP_PWR,LOW);<br />
+	&nbsp;<br />
+	&nbsp; bmpSensorTest();&nbsp; // Will not proceed until BMP suceeds</p>
+<p>&nbsp; delay(1000);<br />
+	&nbsp;<br />
+	} // end of setup</p>
+<p>
+	void loop()<br />
+	{<br />
+	&nbsp;<br />
+	&nbsp; //&nbsp; Get our BMP085 data and store into transmit structure variables<br />
+	&nbsp; sensors_event_t event;<br />
+	&nbsp; bmp.getEvent(&amp;event);</p>
+<p>	&nbsp; Serial.println(&quot;-----data start-----&quot;);</p>
+<p>&nbsp; float temperature;<br />
+	&nbsp; bmp.getTemperature(&amp;temperature);<br />
+	&nbsp; Serial.print(&quot;Temperature: &quot;); Serial.print(temperature); Serial.println(&quot; C&quot;);<br />
+	&nbsp;<br />
+	&nbsp; weather.temp_int = (temperature*100);&nbsp; // multiply by 100 to send to emonCMS</p>
+<p>
+	&nbsp; Serial.print(&quot;Pressure:&nbsp;&nbsp;&nbsp; &quot;); Serial.print(event.pressure); Serial.println(&quot; hPa&quot;);</p>
+<p>	&nbsp; weather.pressure = (event.pressure*10);&nbsp; // multiply by 10 to send to emonCMS&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp; Serial.println(&quot;------data end------&quot;);<br />
+	&nbsp; Serial.println();<br />
+	&nbsp;<br />
+	&nbsp; //tinytxrfwrite(); //&nbsp; Transmit our data<br />
+	&nbsp; emonthrfwrite(); //&nbsp; Transmit our data<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp; delay(30000);&nbsp; // 30 second delay<br />
+	}&nbsp; // End of main loop</p>
+<p>//&nbsp; Functions below //</p>
+<p>//&nbsp; Test the BMP is working and display some info - remember to power up<br />
+	void bmpSensorTest()<br />
+	{<br />
+	&nbsp; Serial.println();<br />
+	&nbsp; Serial.println(&quot;Pressure Sensor Test&quot;); Serial.println(&quot;&quot;);<br />
+	&nbsp; digitalWrite(BMP_PWR,HIGH);<br />
+	&nbsp; delay(100);<br />
+	&nbsp; if(!bmp.begin())&nbsp; // Test BMP detected<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; Serial.print(&quot;Ooops, no BMP085 detected ... Check your wiring or I2C ADDR!&quot;);<br />
+	&nbsp;&nbsp;&nbsp; while(1);<br />
+	&nbsp; }<br />
+	&nbsp; displaySensorDetails();&nbsp; // Display some basic information on this sensor<br />
+	&nbsp; digitalWrite(BMP_PWR,LOW);&nbsp; // Back to sleep<br />
+	}</p>
+<p>//&nbsp; Display of BMP085 info<br />
+	void displaySensorDetails(void)<br />
+	{<br />
+	&nbsp; sensor_t sensor;<br />
+	&nbsp; bmp.getSensor(&amp;sensor);<br />
+	&nbsp; Serial.println(&quot;------------------------------------&quot;);<br />
+	&nbsp; Serial.print&nbsp; (&quot;Sensor:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;); Serial.println(sensor.name);<br />
+	&nbsp; Serial.print&nbsp; (&quot;Driver Ver:&nbsp;&nbsp; &quot;); Serial.println(sensor.version);<br />
+	&nbsp; Serial.print&nbsp; (&quot;Unique ID:&nbsp;&nbsp;&nbsp; &quot;); Serial.println(sensor.sensor_id);<br />
+	&nbsp; Serial.print&nbsp; (&quot;Max Value:&nbsp;&nbsp;&nbsp; &quot;); Serial.print(sensor.max_value); Serial.println(&quot; hPa&quot;);<br />
+	&nbsp; Serial.print&nbsp; (&quot;Min Value:&nbsp;&nbsp;&nbsp; &quot;); Serial.print(sensor.min_value); Serial.println(&quot; hPa&quot;);<br />
+	&nbsp; Serial.print&nbsp; (&quot;Resolution:&nbsp;&nbsp; &quot;); Serial.print(sensor.resolution); Serial.println(&quot; hPa&quot;);&nbsp;<br />
+	&nbsp; Serial.println(&quot;------------------------------------&quot;);<br />
+	&nbsp; Serial.println(&quot;&quot;);<br />
+	&nbsp; delay(500);<br />
+	}</p>
+<p>//&nbsp; The transmit code</p>
+<p>void tinytxrfwrite()<br />
+	{<br />
+	&nbsp; //rf12_initialize(nodeID, freq, networkGroup);<br />
+	&nbsp;<br />
+	&nbsp; Serial.println(&quot;About to send RF data:&nbsp; &quot;);<br />
+	&nbsp; Serial.print&nbsp; (&quot;Temp_int:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;); Serial.println(weather.temp_int);<br />
+	&nbsp; Serial.print&nbsp; (&quot;Pressure:&nbsp;&nbsp; &quot;); Serial.println(weather.pressure);<br />
+	&nbsp;<br />
+	&nbsp; rf12_sleep(-1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Wake up RF module<br />
+	&nbsp; while (!rf12_canSend())<br />
+	&nbsp; rf12_recvDone();<br />
+	&nbsp; rf12_sendStart(0, &amp;weather, sizeof weather);<br />
+	&nbsp; rf12_sendWait(2);&nbsp; // Wait for RF to finish sending while in standby mode<br />
+	&nbsp; rf12_sleep(0);&nbsp; // Put RF module to sleep<br />
+	&nbsp; digitalWrite(LED,HIGH);<br />
+	&nbsp; delay(50);<br />
+	&nbsp; digitalWrite(LED,LOW);<br />
+	&nbsp; return;<br />
+	}</p>
+<p>void emonthrfwrite()<br />
+	{<br />
+	&nbsp; //rf12_initialize(nodeID, freq, networkGroup);<br />
+	&nbsp;<br />
+	&nbsp; Serial.println(&quot;About to send RF data:&nbsp; &quot;);<br />
+	&nbsp; Serial.print&nbsp; (&quot;Temp_int:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;); Serial.println(weather.temp_int);<br />
+	&nbsp; Serial.print&nbsp; (&quot;Pressure:&nbsp;&nbsp; &quot;); Serial.println(weather.pressure);<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp; rf12_sleep(RF12_WAKEUP);<br />
+	&nbsp; rf12_sendNow(0, &amp;weather, sizeof weather);<br />
+	&nbsp; // set the sync mode to 2 if the fuses are still the Arduino default<br />
+	&nbsp; // mode 3 (full powerdown) can only be used with 258 CK startup fuses<br />
+	&nbsp; rf12_sendWait(2);<br />
+	&nbsp; rf12_sleep(RF12_SLEEP);<br />
+	&nbsp; digitalWrite(LED,HIGH);<br />
+	&nbsp; delay(100);<br />
+	&nbsp; digitalWrite(LED,LOW);<br />
+	}</p>
+<p>// Send some test data as part of setup<br />
+	void rfTestData()<br />
+	{<br />
+	&nbsp; Serial.println(&quot;About to send test RF data&quot;);<br />
+	&nbsp; for (int i=0; i&lt;10; i++)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; weather.temp_int=i;<br />
+	&nbsp;&nbsp;&nbsp; weather.pressure=(i*1000);&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; Serial.print&nbsp; (&quot;Test Temp_int:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;); Serial.println(weather.temp_int);<br />
+	&nbsp;&nbsp;&nbsp; Serial.print&nbsp; (&quot;Test Pressure:&nbsp;&nbsp; &quot;); Serial.println(weather.pressure);<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; rf12_sendNow(0, &amp;weather, sizeof weather);<br />
+	&nbsp;&nbsp;&nbsp; delay(5000);<br />
+	&nbsp; }<br />
+	&nbsp; rf12_sendWait(2);<br />
+	&nbsp; rf12_sleep(RF12_SLEEP);&nbsp;<br />
+	&nbsp; Serial.println(&quot;End of RF data&quot;);<br />
+	&nbsp; weather.temp_int=0;<br />
+	&nbsp; weather.pressure=0;<br />
+	&nbsp;<br />
+	}</p>
+<p>EDIT - the Adafruit&nbsp;unified driver is up and running. &nbsp;I have attached my updated sketch if anyone is interested. &nbsp;In case you are wondering what some of debris is I am slowly working at converting a sketch which grabs WH1080 Fine Offset / Maplin N96GY data and send it to the serial port to retransmit this into emonCMS. &nbsp; &nbsp;Many thanks to Mark&nbsp;and Andrew at HAH for doing the hard work. &nbsp;http://www.homeautomationhub.com/content/wh1080-weather-station-integration?page=1</p>
+<p>Next steps: &nbsp;testing&nbsp;swapping the RFM12B&nbsp;from OOK to normal to transmit and then shoehorning in the WH1080&nbsp;code.</p>
+<p>Many thanks</p>
+<p>Gary</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="3858.html" class="topic-previous" title="Go to previous forum topic">‹ emonGLCD change MEGA328 to 5v?</a>
+              <a href="3851.html" class="topic-next" title="Go to next forum topic">New user&#039;s questions  ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-18296"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1741.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1741.jpg" alt="ukmoose&#039;s picture" title="ukmoose&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sending BMP085 data to emonCMS using Adafruit library - solved</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1741.html" title="View user profile.">ukmoose</a> on Sun, 09/02/2014 - 10:09.</div>
+    <div class="content">
+     <p>Second rule of house sensors....</p>
+<p>If you are thinking about doing it Nathan Chantrell has probably already done it and posted the code :-)</p>
+<p><a href="http://nathan.chantrell.net/tinytx-wireless-sensor/" title="http://nathan.chantrell.net/tinytx-wireless-sensor/">http://nathan.chantrell.net/tinytx-wireless-sensor/</a></p>
+<p>&nbsp;</p>
+<p>It does use the jeelib library but as it works it might be easier to see where the differences in approach are.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18297"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3862.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="GJPickard&#039;s picture" title="GJPickard&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sending BMP085 data to emonCMS using Adafruit library - solved</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3862.html" title="View user profile.">GJPickard</a> on Sun, 09/02/2014 - 14:40.</div>
+    <div class="content">
+     <p>Thanks for the quick reply, I had a look there last night and grabbed Nathan&#39;s transmit code as a check</p>
+<p>Unfortunately Nathan is using the Jeelib&nbsp;BMP library and its Ports trickery - the Jeelib wiki is a little&nbsp;vague on the Ports I2C calls. &nbsp;If the Jeelib&nbsp;PortsBMP code defaults to A4 SDA and A5 SCL or has this as an option I should be OK but I just could not see any documenting of this at Jeelabs</p>
+<p><a href="https://github.com/nathanchantrell/TinyTX/blob/master/TinyTX_BMP085/TinyTX_BMP085.ino" title="https://github.com/nathanchantrell/TinyTX/blob/master/TinyTX_BMP085/TinyTX_BMP085.ino">https://github.com/nathanchantrell/TinyTX/blob/master/TinyTX_BMP085/Tiny...</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18304"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3862.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="GJPickard&#039;s picture" title="GJPickard&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sending BMP085 data to emonCMS using Adafruit library - solved</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3862.html" title="View user profile.">GJPickard</a> on Sun, 09/02/2014 - 20:40.</div>
+    <div class="content">
+     <p>I might be making some progress thanks to a speedy reply to a query from JCW at Jeelabs.</p>
+<p>It looks like there is an undocumented &quot;0&quot; option for the&nbsp;Jeelibs PortsBMP library, so using JCW&#39;s&nbsp;example</p>
+<p><a href="https://github.com/jcw/jeelib/tree/master/examples/Ports/bmp085demo" title="https://github.com/jcw/jeelib/tree/master/examples/Ports/bmp085demo">https://github.com/jcw/jeelib/tree/master/examples/Ports/bmp085demo</a></p>
+<p>this would be:</p>
+<p>#include &lt;PortsBMP085.h&gt;<br />
+	PortI2C two (0); // Uses standard Uno A4 and A5<br />
+	BMP085 psensor (two, 3); // ultra high resolution</p>
+<p>There is though some different syntax floating around which I have asked JCW for some help on (this is from one of Nathan Chantrell&#39;s sketches)</p>
+<p>#include &lt;PortsBMP085.h&gt; // Part of JeeLib<br />
+	PortI2C i2c (2); // BMP085 SDA to D8 and SCL to D7<br />
+	BMP085 psensor (i2c, 3); // ultra high resolution</p>
+<p>Gary</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18458"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3862.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="GJPickard&#039;s picture" title="GJPickard&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sending BMP085 data to emonCMS using Adafruit library - solved</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3862.html" title="View user profile.">GJPickard</a> on Sat, 15/02/2014 - 13:40.</div>
+    <div class="content">
+     <p>I now seem to be able to get the Adafruit library working but I am experiencing some very odd behaviour. &nbsp;Doing a serial print of the &quot;struct&nbsp;&quot; fields I get exactly what I expect to be see - each value in the correct order. &nbsp;When it gets to emonCMS though it is going haywire:</p>
+<p>* &nbsp;I seem to get 6 inputs</p>
+<p>* &nbsp;Struct fields 1 and 2 are ok but: 3 is zero this seesm to be sent to input 4; struct number 4 is sent to input 6; and input 5 is zero. &nbsp;</p>
+<p>I am currently running emonCMS&nbsp;v6 off a SD&nbsp;card and had been planning to try and move over to v7, however, it looks like the image might need some tweaking. &nbsp;I had a go at updating from v6 to v7 but that was a fail.</p>
+<p>These are the key bits of my code - any ideas if it is an Arduino or emonCMS issue?</p>
+<p>typedef struct {<br />
+	&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;int vcc;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int32_t temp_internal;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int32_t pressure;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int test_3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	} Payload;<br />
+	Payload rfdata;</p>
+<p>from loop</p>
+<p>&nbsp;</p>
+<p>#if defined BMPFITTED<br />
+	&nbsp;&nbsp;&nbsp; if (bmpTest == 1)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sensors_event_t event;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bmp.getEvent(&amp;event);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println();<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot;----BMP readings---&quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float temperature;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bmp.getTemperature(&amp;temperature);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rfdata.pressure=(event.pressure*10); // Remember to divide by 10 later<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rfdata.temp_internal=(temperature*100);&nbsp; // Remember to divide by 100 later<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; #endif</p>
+<p>	&nbsp; rfdata.vcc=readVccRef();<br />
+	&nbsp; rfdata.test_3=(readVccRef()*2);</p>
+<p>	&nbsp; #if defined DEBUGMAX<br />
+	&nbsp;&nbsp;&nbsp; delay(10);<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(&quot;Sending the data ...&quot;);<br />
+	&nbsp; #endif</p>
+<p>	&nbsp; rf12_sleep(RF12_WAKEUP);<br />
+	&nbsp; delay(10);<br />
+	&nbsp; rf12_sendNow(0, &amp;rfdata, sizeof rfdata);<br />
+	&nbsp; rf12_sendWait(2);<br />
+	&nbsp; rf12_sleep(RF12_SLEEP);</p>
+<p>Many thanks</p>
+<p>Gary</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18462"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sending BMP085 data to emonCMS using Adafruit library - solved</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 15/02/2014 - 17:15.</div>
+    <div class="content">
+     <p>EmonCMS expects 16-bit signed integers. Those 32 bit integers are your problem, they span two 16-bit integers. You could try combining inputs 2&amp;3 to recover temp_internal, and 4&amp;5 to recover pressure, but by far the best way would be to scale them at source and send a 16-bit signed value.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18465"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3862.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="GJPickard&#039;s picture" title="GJPickard&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sending BMP085 data to emonCMS using Adafruit library - solved</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3862.html" title="View user profile.">GJPickard</a> on Sat, 15/02/2014 - 18:09.</div>
+    <div class="content">
+     <p>Thank you - it is now up and running - the 32 bit integers were leftovers from trying to use the Jeelabs BMP library which goes to 2 decimal places for pressure</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3812"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-_4XeJYcMd3-ZCcj3Ar3bbvuEx6HEFcnKxEOEjaSQrWU" value="form-_4XeJYcMd3-ZCcj3Ar3bbvuEx6HEFcnKxEOEjaSQrWU"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3812 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:21:07 GMT -->
+</html>

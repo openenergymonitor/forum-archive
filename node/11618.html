@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11618 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:50:02 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Not able to upload data to emoncms, please help  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Not able to upload data to emoncms, please help </h3>
+        <span class="submitted">Submitted by <a href="../user/8347.html" title="View user profile.">sanjyou</a> on Tue, 17/11/2015 - 16:15</span>
+        <div class="content"><p>I have very little knowledge of programming ,thank god at last i am able to upload arduino sketch at arduino&nbsp;and able to see value at serial monitor but i am not able to upload sensor data neither at&nbsp;&nbsp;emoncms.org nor&nbsp;at my local&nbsp;emoncms server so it my very humble request you all please please guide me why i am not able to upload data at emoncms&nbsp;.My eyes are really gona tired to watch my sensor value at emoncms.here is my test &nbsp;&nbsp;sketch.please&nbsp;help me !!!!</p>
+<p>&nbsp;*/</p>
+<p>#include &lt;SPI.h&gt;<br />
+#include &lt;Ethernet.h&gt;</p>
+<p>// These constants won&#39;t change<br />
+const int lightSensorPin = A0;<br />
+const int threshold = 850;</p>
+<p>// humidity and temperature<br />
+float temperature = 0, humidity = 0;</p>
+<p>// the follow variables are long because the time, measured in miliseconds,<br />
+// will quickly become a bigger number than can be stored in an int.<br />
+long pulseCount = 0; &nbsp;&nbsp;</p>
+<p>// used to measure power.<br />
+unsigned long pulseTime,lastTime;</p>
+<p>// power and energy<br />
+double power = 0;<br />
+double elapsedkWh;</p>
+<p>// number of readings we made since the last packet sent :<br />
+byte readings = 0; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>// assign a MAC address for the ethernet controller.<br />
+// fill in your address here:<br />
+byte mac[] = {&nbsp;<br />
+&nbsp; 0x90, 0xA2, 0xDA, 0x01, 0x66, 0xD6};<br />
+&nbsp;&nbsp;<br />
+// fill in an available IP address on your network here,<br />
+// for auto configuration:<br />
+IPAddress ip(192, 168, 0, 64);<br />
+IPAddress subnet(255, 255, 255, 0);<br />
+IPAddress gw (192,168,0,1);</p>
+<p>// initialize the library instance:<br />
+EthernetClient client;</p>
+<p>char server[] = &quot;emoncms.org&quot;; //emoncms URL</p>
+<p>unsigned long lastConnectionTime = 0; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// last time you connected to the server, in milliseconds<br />
+boolean lastConnected = false; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // state of the connection last time through the main loop<br />
+const unsigned long postingInterval = 4*1000; &nbsp;// delay between updates, in milliseconds</p>
+<p>void setup() {<br />
+&nbsp; // start serial port:<br />
+&nbsp; Serial.begin(9600);<br />
+&nbsp; // give the ethernet module and DHT22 sensor time to boot up:<br />
+&nbsp; delay(1000);<br />
+&nbsp; // Display a welcome message<br />
+&nbsp; Serial.println(&quot;emoncms client starting...&quot;);<br />
+&nbsp;&nbsp;<br />
+&nbsp; // attempt a DHCP connection:<br />
+&nbsp; Serial.println(&quot;Attempting to get an IP address using DHCP:&quot;);<br />
+&nbsp; if (!Ethernet.begin(mac)) {<br />
+&nbsp; &nbsp; // if DHCP fails, start with a hard-coded address:<br />
+&nbsp; &nbsp; Serial.println(&quot;failed to get an IP address using DHCP, trying manually&quot;);<br />
+&nbsp; &nbsp; Ethernet.begin(mac, ip);<br />
+&nbsp; }<br />
+&nbsp; // print the Ethernet board/shield&#39;s IP address:<br />
+&nbsp; Serial.print(&quot;My IP address: &quot;);<br />
+&nbsp; Serial.println(Ethernet.localIP());<br />
+}</p>
+<p>void loop() {<br />
+&nbsp; // if the meter flash, increment the counter<br />
+&nbsp; if (analogRead(lightSensorPin) &gt; threshold) {<br />
+&nbsp; &nbsp; while (analogRead(lightSensorPin) &gt; threshold) {}<br />
+&nbsp; &nbsp; //used to measure time between pulses.<br />
+&nbsp; &nbsp; lastTime = pulseTime;<br />
+&nbsp; &nbsp; pulseTime = micros();<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; //pulseCounter<br />
+&nbsp; &nbsp; pulseCount++;<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; // we don&#39;t want to miss a flash during sending<br />
+&nbsp; &nbsp; readings++;<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; // calculate power<br />
+&nbsp; &nbsp; power = 3600000000.0 / (pulseTime - lastTime);<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; // find kwh elapsed<br />
+&nbsp; &nbsp; elapsedkWh = (1.0 * pulseCount)/1000; //multiply by 1000 to pulses per wh to kwh convert wh to kwh<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; //Print the values<br />
+&nbsp; &nbsp; Serial.print(&quot;Power : &quot;);<br />
+&nbsp; &nbsp; Serial.print(power,2);<br />
+&nbsp; &nbsp; Serial.print(&quot;W, &quot;);<br />
+&nbsp; &nbsp; Serial.print(elapsedkWh,3);<br />
+&nbsp; &nbsp; Serial.println(&quot;kWh&quot;);<br />
+&nbsp; }<br />
+&nbsp;&nbsp;<br />
+&nbsp; // if there&#39;s incoming data from the net connection.<br />
+&nbsp; // send it out the serial port. &nbsp;This is for debugging<br />
+&nbsp; // purposes only:<br />
+&nbsp; if (client.available()) {<br />
+&nbsp; &nbsp; char c = client.read();<br />
+&nbsp; &nbsp; Serial.print(c);<br />
+&nbsp; }</p>
+<p>&nbsp; // if there&#39;s no net connection, but there was one last time<br />
+&nbsp; // through the loop, then stop the client:<br />
+&nbsp; if (!client.connected() &amp;&amp; lastConnected) {<br />
+&nbsp; &nbsp; Serial.println();<br />
+&nbsp; &nbsp; Serial.println(&quot;Disconnecting...&quot;);<br />
+&nbsp; &nbsp; client.stop();<br />
+&nbsp; }</p>
+<p>&nbsp; // if you&#39;re not connected, and at least two seconds have<br />
+&nbsp; // passed sinceyour last connection, then connect again and<br />
+&nbsp; // send data:<br />
+&nbsp; if(!client.connected() &amp;&amp; (millis() - lastConnectionTime &gt; postingInterval) &amp;&amp; power &gt;= 0 &amp;&amp; readings &gt;= 2) {<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; sendData(power);<br />
+&nbsp; &nbsp; readings = 0;<br />
+&nbsp; }<br />
+&nbsp; // store the state of the connection for next time through<br />
+&nbsp; // the loop:<br />
+&nbsp; lastConnected = client.connected();<br />
+}</p>
+<p>// this method makes a HTTP connection to the server:<br />
+void sendData(float power) {<br />
+&nbsp; // if there&#39;s a successful connection:<br />
+&nbsp; if (client.connect(server, 80)) {<br />
+&nbsp; &nbsp; Serial.println(&quot;Connecting...&quot;);<br />
+&nbsp; &nbsp; // send the HTTP PUT request:<br />
+&nbsp; &nbsp; client.print(&quot;GET /api/post?apikey=&lt;6834396c9feb5********7d973b2d74f&gt;&amp;json={power}&quot;);<br />
+&nbsp; &nbsp; client.print(&quot;:&quot;);<br />
+&nbsp; &nbsp; client.print(power); &nbsp; &nbsp;<br />
+&nbsp; &nbsp; client.println(&quot;} HTTP/1.1&quot;);<br />
+&nbsp; &nbsp; client.println(&quot;Host: emoncms.org&quot;);<br />
+&nbsp; &nbsp; client.println(&quot;User-Agent: Arduino-ethernet&quot;);<br />
+&nbsp; &nbsp; client.println(&quot;Connection: close&quot;);<br />
+&nbsp; &nbsp; client.println();</p>
+<p>&nbsp; &nbsp; // note the time that the connection was made:<br />
+&nbsp; &nbsp; lastConnectionTime = millis();<br />
+&nbsp; }&nbsp;<br />
+&nbsp; else {<br />
+&nbsp; &nbsp; // if you couldn&#39;t make a connection:<br />
+&nbsp; &nbsp; Serial.println(&quot;Connection failed&quot;);<br />
+&nbsp; &nbsp; Serial.println(&quot;Disconnecting...&quot;);<br />
+&nbsp; &nbsp; client.stop();<br />
+&nbsp; }<br />
+}</p>
+<p><i>[APIKey obscured - Moderator (RW)]</i></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11623.html" class="topic-previous" title="Go to previous forum topic">‹ Remote emoncms logging sampling rate</a>
+              <a href="6349.html" class="topic-next" title="Go to next forum topic">3 Phase system ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-36005"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8347.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sanjyou&#039;s picture" title="sanjyou&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Not able to upload data to emoncms, please help </h3>
+
+    <div class="submitted">Submitted by <a href="../user/8347.html" title="View user profile.">sanjyou</a> on Tue, 17/11/2015 - 16:16.</div>
+    <div class="content">
+     <p>I am waiting for somebody reply please ..</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36008"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Not able to upload data to emoncms, please help </h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 17/11/2015 - 17:59.</div>
+    <div class="content">
+     <p>I can immediately see two things that are wrong.</p>
+<p>1. You have <......> around your APIkey (and I have obscured it, because with it ANYONE can send data to your account.</p>
+<p>2. The json format is wrong - a '}' in the wrong place. Look at Input API Help in emoncms, the correct format is:<br />
+json={power:200}</p>
+<p>What you are sending is: ...?apikey=<b>&lt;</b>6834396c9feb5********7d973b2d74f<b>&gt;</b>&amp;json={power<b>}</b>:200}</p>
+<p>What you should be sending is<br />
+... ?apikey=6834396c9feb5********7d973b2d74f&amp;json={power:200}</p>
+<p>There might be other problems too that I have not seen.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36010"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8347.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sanjyou&#039;s picture" title="sanjyou&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Not able to upload data to emoncms, please help </h3>
+
+    <div class="submitted">Submitted by <a href="../user/8347.html" title="View user profile.">sanjyou</a> on Tue, 17/11/2015 - 18:40.</div>
+    <div class="content">
+     <p>Dear Robert thankyou for your&nbsp;reply i have checked and correct it ..still not working .my arduino is getting DHCP ip from Router very well, can you suggest me what other problem might be.</p>
+<p>&nbsp;</p>
+<p>client.print(&quot;GET/http://emoncms.org/input/post.json?json={power:200}&amp;apikey=xxxxxx6c9feb5718e21637d973bxxxxx&quot;);</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>thankyou&nbsp;</p>
+<p>sanju</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36011"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8347.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sanjyou&#039;s picture" title="sanjyou&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Not able to upload data to emoncms, please help </h3>
+
+    <div class="submitted">Submitted by <a href="../user/8347.html" title="View user profile.">sanjyou</a> on Tue, 17/11/2015 - 18:44.</div>
+    <div class="content">
+     <p>&nbsp;</p>
+<p>It is ok now ...can you please suggest my what other problem might be here..</p>
+<p>client.print(&quot;GET/http://emoncms.org/input/post.json?json={power:200}&amp;apikey=xxxxxxx6c9feb5718e21637d973bxxxxxx&quot;);</p>
+<p>&nbsp;</p>
+<p>Thanks in advace</p>
+<p>sanju&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36012"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8347.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sanjyou&#039;s picture" title="sanjyou&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Not able to upload data to emoncms, please help </h3>
+
+    <div class="submitted">Submitted by <a href="../user/8347.html" title="View user profile.">sanjyou</a> on Tue, 17/11/2015 - 18:52.</div>
+    <div class="content">
+     <p>Dear &nbsp;Robert thankyou for your reply it is ok now ..</p>
+<p>client.print(&quot;GET/http://emoncms.org/input/post.json?json={power:200}&amp;apikey=**************************&quot;);</p>
+<p>&nbsp;</p>
+<p>my arduino is getting DHCP very well from router what other problem might be...please can you suggest me..</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Regards</p>
+<p>sanju</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36013"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Not able to upload data to emoncms, please help </h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 17/11/2015 - 19:14.</div>
+    <div class="content">
+     <p>Please have some patience. You are not the only person on this website, and we cannot answer your questions immediately. And please READ the notice at the top right of your screen that says "Read this before posting".</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36028"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Not able to upload data to emoncms, please help </h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 17/11/2015 - 23:50.</div>
+    <div class="content">
+     <p>Have you searched the forums for a similar problem, or for someone who is successfully using a sketch derived from the same place as yours?</p>
+<p>You could compare yours with this one: <a href="11499.html" title="http://openenergymonitor.org/emon/node/11499">http://openenergymonitor.org/emon/node/11499</a> The problem there was a simple copy-and-paste error that affected the content that was sent. <i>How</i> the data was being sent was correct, so it is a good one to look at.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36032"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8347.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sanjyou&#039;s picture" title="sanjyou&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Not able to upload data to emoncms, please help </h3>
+
+    <div class="submitted">Submitted by <a href="../user/8347.html" title="View user profile.">sanjyou</a> on Wed, 18/11/2015 - 03:26.</div>
+    <div class="content">
+     <p>HI Robert</p>
+<p>Good morning.</p>
+<p>actually i haven&#39;t seen my post at forum .that&#39;s why i try again and again that&#39;s why post get double .hope you understand.</p>
+<p>thankyou for the web link i will compare mine sketch with this ,let&#39;s hope this time i get sucuess.</p>
+<p>&nbsp;</p>
+<p>thankyou</p>
+<p>sanju .</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11618"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-9mRKoZ7NkiZi4KzhKXevVm9y5mHUn9Otweq970NtqG4" value="form-9mRKoZ7NkiZi4KzhKXevVm9y5mHUn9Otweq970NtqG4"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11618 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:50:02 GMT -->
+</html>

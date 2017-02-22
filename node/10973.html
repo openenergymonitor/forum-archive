@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10973 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:58:55 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>SOLVED Problem with new Jeelink not receiving data from emonTX v3.4 | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">SOLVED Problem with new Jeelink not receiving data from emonTX v3.4</h3>
+        <span class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Sat, 11/07/2015 - 13:59</span>
+        <div class="content"><p>I just bought a Jeelink&nbsp;v3c&nbsp;to try and help me diagnose a problem with RF issues (see&nbsp;<a href="10900.html">http://openenergymonitor.org/emon/node/10900</a>&nbsp;) but I am having a few problems. As usual, it could be me missing something obvious, and if so, once fixed, then maybe this posting will help others avoid similar issues.</p>
+<p>Basically, my new Jeelink&nbsp;is not receiving the data that the emonTX is sending. I have an RPi with RFM69Pi&nbsp;and it is able to receive the data, so I can&#39;t understand why the Jeelink&nbsp;is showing nothing. The Jeelink also&nbsp;has the RFM69CW&nbsp;configured with same network settings as emonTX and RPi</p>
+<p>The Jeelink is connected into a USB port on my windows 7 laptop.&nbsp;When I first connected the&nbsp;Jeelink&nbsp;Windows offered to find a driver, which I&nbsp;cancelled&nbsp;assuming it&nbsp;wasn&#39;t&nbsp;required, but then when&nbsp;Arduino&nbsp;IDE did not see a new comport, I went into Device Manager and told it to find a driver, and it found and installed an entry under USB Controllers&nbsp;called USB Serial Convertor using&nbsp;FTDI&nbsp;v2.10.0.0 and also a port called USB Serial Port (Com6) with&nbsp;FTDI&nbsp;v2.12.0.0. The details for the port includes a tab called Port Settings which is set to&nbsp;9600bps&nbsp;8/n/1 and no flow control.&nbsp;After allowing windows to install these two devices,&nbsp;Arduino&nbsp;then found com port 6, and serial monitor connected, although I had to set to 57600 baud, and then the menu from&nbsp;RF12demo&nbsp;appeared.&nbsp;</p>
+<p>The Jeelink&nbsp;came pre-installed with RF12demo.13 on group 212 and nodeID 1, so I changed the group to 210 and left the node at 1. There were no lights on the Jeelink (I wasn&#39;t sure if there should be), but the rf12demo sketch appeared to be working, so I played around, expecting it to show the packets being sent every 10 seconds by my emonTX which is also on group 210, 433Mhz, and I know it&#39;s sending data, as the RPi is receiving it.&nbsp;</p>
+<p>However, if I tell the Jeelink to send a packet to the emonTX (node 10) or the RPi (node 15) and request an ACK,it works - the Jeelink reports success, and the log on the RPi shows the packet received. Here is an example sending&nbsp;the full 66 byte test packet using the t command. I issued it twice, although I get slightly different response in serial monitor</p>
+<p>Serial Monitor on Jeelink:</p>
+<p>&gt; 1i<br />
+&nbsp;A i1 g210 @ 433 MHz</p>
+<p>&gt; 0t<br />
+test 0 -&gt; 66 b<br />
+&gt; 0t<br />
+test 1 -&gt; 66 b<br />
+OK &nbsp;193 afc=0 fei=0 (-31.5dB)</p>
+<p>From the emonhub.log:</p>
+<h5>2015-07-11 09:04:56,340 DEBUG 872095 NEW FRAME : 1436605496.34 OK 1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 (-33)<br />
+2015-07-11 09:04:56,353 DEBUG 872095 Timestamp : 1436605496.34<br />
+2015-07-11 09:04:56,355 DEBUG 872095 &nbsp; &nbsp; &nbsp;Node : 1<br />
+2015-07-11 09:04:56,357 DEBUG 872095 &nbsp; &nbsp;Values : [256, 770, 1284, 1798, 2312, 2826, 3340, 3854, 4368, 4882, 5396, 5910, 6424, 6938, 7452, 7966, 8480, 8994, 9508, 10022, 10536, 11050, 11564, 12078, 12592, 13106, 13620, 14134, 14648, 15162, 15676, 16190, 16704]<br />
+2015-07-11 09:04:56,360 DEBUG 872095 &nbsp; &nbsp; &nbsp;RSSI : -33<br />
+2015-07-11 09:04:56,435 DEBUG 872095 Append to &#39;emonCMS&#39; buffer =&gt; time: 1436605496.34, data: [1, 256, 770, 1284, 1798, 2312, 2826, 3340, 3854, 4368, 4882, 5396, 5910, 6424, 6938, 7452, 7966, 8480, 8994, 9508, 10022, 10536, 11050, 11564, 12078, 12592, 13106, 13620, 14134, 14648, 15162, 15676, 16190, 16704, -33], ref: 872095<br />
+2015-07-11 09:04:56,539 INFO emonCMS sending: http://emoncms.org/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&amp;data=[[1436605496.34,1,256,770,1284,1798,2312,2826,3340,3854,4368,4882,5396,5910,<br />
+6424,6938,7452,7966,8480,8994,9508,10022,10536,11050,11564,12078,12592,13106,13620,<br />
+14134,14648,15162,15676,16190,16704,-33]]&amp;sentat=1436605496<br />
+2015-07-11 09:04:56,577 DEBUG RFM2Pi confirmed sent packet size: &nbsp;-&gt; ack<br />
+2015-07-11 09:04:56,708 DEBUG emonCMS acknowledged receipt with &#39;ok&#39; from http://emoncms.org</h5>
+<p>When the packet was sent from Jeelink to RPi, the green and red LED&#39;s on Jeelink blinked briefly, and this was the only time I see them light up.&nbsp;</p>
+<p>I then used minicom on the RPi to send a test packet from the Rpi, and this appeared in the Jeelink:</p>
+<h5>A i1* g210 @ 433 MHz c1<br />
+OK &nbsp;47 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 afc=0 fei=0 (-30dB)</h5>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>So this suggests all 3 nodes are in the same group, and I have 2 way comms, but still the Jeelink doesn&#39;t show the traffic coming from the emonTX&nbsp;(ironically this is almost the opposite of my original problem where my RPi recieves&nbsp;more traffic than it should !)</p>
+<p>I am assuming that the emonTX is sending packets as broadcast (no destination ID), but in case it does set the destination ID I tried setting the Jeelink to node ID 15, which is the ID of the RPi, but still no data arrived.&nbsp;</p>
+<p>I am going to try loading RFdemo.12 onto the Jeelink, and see if that makes any difference...</p>
+<p>&nbsp;</p>
+<p><em>Edit - wrapped long lines - BT</em></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5309.html" class="topic-previous" title="Go to previous forum topic">‹ Combine Wh readings onboard emontxv3</a>
+              <a href="10942.html" class="topic-next" title="Go to next forum topic">Weird emonTx shield readings ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-32123"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: SOLVED Problem with new Jeelink not receiving data from emonTX v3.4</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Sat, 11/07/2015 - 16:44.</div>
+    <div class="content">
+     <p>OK, so an update - after a fair bit of faffing, I managed to get RFdemo.12 loaded into the Jeelib, and then serial monitor greeted me with &quot;[RF12demo.12] &quot; and nothing else - no menu of commands, no packet output, no response to any commands that I entered into the console - even the &#39;v&#39; command to display version was ignored.</p>
+<p>However, I knew that the RF12demo.12 that I had loaded had &quot;#define RF69_COMPAT&nbsp;0&quot; and after I changed it to 1, and compiled and uploaded, then everything worked ! Serial console shows the full menu, and, low and behold, it also shows the packets from my emonTX ! At Last !!</p>
+<p>So, it looks like something in the new .13 version of RF12demo&nbsp;was preventing the Jeelink from displaying packets from my Emon&nbsp;TX.</p>
+<p>&nbsp;</p>
+<p>For info, in case it helps anyone else, I was struggling to compile (or even verify) the older version of RF12demo because of a problem in my Arduino&nbsp;IDE: Whenever I tried to verify RF12demo it would hang half way through, doing nothing. The last line in the detailed output referred to core.a, and no matter how long I left it, the verify got no further. I eventually noticed that the compile output mentioned a copy of the RF69.cpp file that I had created, and once I deleted the copy of the .cpp, the verify (and compile) completed as expected. So, whilst this ws my fault (I am definitely a newbie when it comes to the IDE, and modifying .cpp files), the IDE was not very helpful in providing any clue as to what was going on, making it much harder to find and fix. Before finding this I had un-installed the IDE and re-installed as well - all to no avail. Ah well, I learnt something.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32147"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: SOLVED Problem with new Jeelink not receiving data from emonTX v3.4</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 12/07/2015 - 09:46.</div>
+    <div class="content">
+     <p>Hi Ian,</p>
+<p>I think you did the right thing to load RFdemo.12. I&#39;m not entirely sure what &quot;actual&quot; firmware was pre-installed on the JeeLink. RFdemo.13 was on it&#39;s own branch of the Jeelib repo sometime ago, I have copy as I submitted a pull req to it, but that branch was swallowed into the RFxConsole&nbsp;and the RFdemo.13 changes were not retained.</p>
+<p>I did&nbsp;a search on the repo and there is no &quot;RFdemo.13&quot; found, and that is sort of confirmed by the <a href="http://jeelabs.net/boards/6/topics/6472"><em>&quot;Where is RFdemo.13?&quot;</em></a> thread&nbsp;on the forum.&nbsp;</p>
+<p>It&#39;s always better to have the source sketch for your device,&nbsp;for reference and as a base for edits etc.</p>
+<p>The test packet you received on the Jeelink starts &quot;OK &nbsp;47 0 1 2 3....&quot; that appears to display an old (.12) issue, where the node id wasn&#39;t being masked correctly, the node id is the lower 5 bits&nbsp;of a byte and should be 31 max, unmasked and with the &quot;ack requested&quot; flag set (bit 6 of the same byte) you get node id + 32, ie 47 as the Pi&#39;s base id is 15. Since the node id was outside the 0-32 windows emonHub ignored it, without the ack request it may of got through, however the &quot;afc=0 fei=0&quot; in the packet would of then caused a &quot;non-numerical content error&quot; and got discarded anyway.</p>
+<p>So you are&nbsp;definitely better off with RFdemo.12 for now.</p>
+<p>The Arduino IDE is a bit quirky with libs, you can unexpected results if you have more than 1 copy of any lib, it&#39;s something to be very careful&nbsp;of, delete, rename, compress or significantly move all but the 1 copy you want found or it will catch you out, and the IDE won&#39;t make life any easier by giving any useful direction as to what the issue is.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32150"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: SOLVED Problem with new Jeelink not receiving data from emonTX v3.4</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 12/07/2015 - 12:21.</div>
+    <div class="content">
+     <p><i>"if you have more than 1 copy of any lib..."</i></p>
+<p>I can't stress that enough. Renaming the folder/directory is not sufficient, as the IDE appears to ignore directories' names. Also, it's not clear what its search paths are. My advice is to compress and then delete the original - always.</p>
+<p>(This concept is totally alien to me - I don't know any other IDE that behaves in that way and hides and doesn't clearly document important issues like that.)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32153"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: SOLVED Problem with new Jeelink not receiving data from emonTX v3.4</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Sun, 12/07/2015 - 13:37.</div>
+    <div class="content">
+     <p>Paul, Robert, Thanks for your help and replies.</p>
+<p>I found *a* copy of RF12demo.13 <a href="https://github.com/jcw/jeelib/blob/2b31fb9c1619973fbb622b9023677514e13ce88b/examples/RF12/RF12demo/RF12demo.ino">here</a>&nbsp;although I can&#39;t be sure it&#39;s exactly&nbsp;the code that was running on my Jeelink.</p>
+<p>Thanks for the pointers about libraries - I will probably now leave this thread and go back to updating the my <a href="10900.html">previous post</a> which deals with the original problem</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10973"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-KBVY0W2ENvYOrH6PVcBdBkShLgnPJ-rZPG78kClD_Go" value="form-KBVY0W2ENvYOrH6PVcBdBkShLgnPJ-rZPG78kClD_Go"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10973 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:58:55 GMT -->
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12412 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:04:49 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>MIDI baud rate on uart0/ttyAMA0 Raspberry Pi3. | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">MIDI baud rate on uart0/ttyAMA0 Raspberry Pi3.</h3>
+        <span class="submitted">Submitted by <a href="../user/9706.html" title="View user profile.">tronix</a> on Sun, 27/03/2016 - 23:05</span>
+        <div class="content"><p><u><strong>Midi baudrate on the uart0/ttyAMA0&nbsp;Raspberry Pi3.</strong></u></p>
+<p>In my projects with the Pi2 i use a lot of midi-controller signals, and as you know this is a non-common baud rate of 31250 baud. You might consider a usb midi-converter but i really like to work with the uart.(short lines/solid connection).</p>
+<p>With ttyAMA0 on the gpio header of the Pi2 i could reprogram this uart to generate the midi baud rate and work smoothly with the midi applications. This was done by adding init_uart_clock=2441406 and init_uart_baud=38400 in the /boot/config.txt file. At the end of the line &nbsp;In /boot/cmdline.txt bcm2708.uart_clock=3000000 must be added. After rebooting, the Pi2 generated the physical midi-baud rate on it&rsquo;s ttyAMA0 under the 38400 commonly used baud rate. No sweat!</p>
+<p>So let us go to the new Pi3:</p>
+<p>I found out, like a lot of other people, that the ttyAMA0 uart was no longer on the gpio header, but in use by the Bluetooth device. In stead of the ttyAMA0, the software uart ttyS0 has been brought to the gpio header BCM gpio14/15 and is by default the console for logging in by serial connection.</p>
+<p>There would not be a problem with this swapping if the uarts were of the same quality, but apparently this is not the case: as i mentioned the ttyS0 is a software uart and it&rsquo;s clock is directly dependent on the arm_freq, which is far from constant. Furthermore you can&rsquo;t adjust the divider to get different baud rates than the common ones. That is why you can see a lot of garbage spitting out of this console on your screen if you connect your pi3 by a serial connection and check it with Putty on&nbsp;115200 baud.</p>
+<p>The RaspberryPi team made an effort to help us out in this. By means of an dtoverlay we can switch back the ttyAMA0 to the header BCM gpio14/15. I read there is also a possibility to maintain the Bluetooth device which is working after the overlay with the unstable ttyS0, but i am not interested in that&hellip;.i got rid of the Bluetooth device and have my ttyAMA0 back on the header and set it to the midi baud rate. This is what i did:</p>
+<p>First:</p>
+<p>Get the Jessie version of 18 March 2016 or later&nbsp;from the Raspberry site.(&nbsp;https://www.raspberrypi.org/downloads/raspbian/)</p>
+<p><em><strong>Expand Filesystem</strong></em> on your card in Preferences and <em><strong>disable serial</strong></em>. Reboot.<br />
+<em><strong>sudo apt-get update<br />
+sudo apt-get upgrade<br />
+sudo apt-get dist-upgrade&nbsp;!!!<br />
+sudo rpi-update !!!</strong></em></p>
+<p>Disable bluetooth and put ttyAMA0 back on BCM gpio&rsquo;s 14&amp;15:</p>
+<p><em><strong>sudo nano /boot/config.txt</strong></em></p>
+<p>Add the following:</p>
+<p><em><strong>dtoverlay=pi3-miniuart-bt</strong></em><br />
+exit en save file</p>
+<p>Stop the Bluetooth device from attempting to connect with the uart:</p>
+<p><em><strong>sudo systemctl disable hciuart</strong></em><br />
+<em><strong>sudo nano /lib/systemd/system/hciuart.service</strong></em><br />
+<em><strong>change</strong></em> the first <em><strong>ttyAMA0 in ttyS0</strong></em></p>
+<p>If not already, remove&nbsp; console=serial0,115200&nbsp; in/boot/cmdline.txt</p>
+<p><em><strong>sudo nano /boot/cmdline.txt</strong></em><br />
+delete: <em><strong>console=serial0,115200</strong></em></p>
+<p>So now everything is set for swapping the ttyAMA0 back on the gpio header the next reboot of the&nbsp;the Pi, but before doing so you can add the following in&nbsp; /boot/config.txt file:</p>
+<p><strong><em>sudo nano /boot/config</em></strong></p>
+<p><em><strong>init_uart_clock=39062500</strong></em> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(or the same as with pi2: <em><strong>2441406</strong></em>)</p>
+<p><em><strong>init_uart_baud=38400</strong></em></p>
+<p><em><strong>dtparam=uart0_clkrate=48000000</strong></em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (or the same as with pi2:<strong><em>3000000</em></strong>)</p>
+<p>The uart_clock of the Pi2 is default at 3000000 Hz.</p>
+<p>The uart_clock of the Pi3 is default: 48000000Hz</p>
+<p>I use the uart_clkrate of 48000000 because that gives a more accurate baud rate, but it works also with the Pi2 setting of 2441406 / 3000000.</p>
+<p>Save and exit and reboot.</p>
+<p>After rebooting you can check your uart_clock by typing: <strong><em>vcgencmd measure_clock uart</em></strong>. It will prompt: frequency(22)=39063000 (with uart_clkrate=48000000) or 2442000 (uart_clkrate=3000000)</p>
+<p>So now you can write sofware (eg Python) to work with midi keyboards/controllers by adding at the top of your program: <em><strong>import serial, ser=serial.Serial(&lsquo;/dev/ttyAMA0&rsquo;, 38400.</strong></em></p>
+<p>When you connect your midi-device to&nbsp;the gpio Rx and Tx, please bear in mind to you use an opto-coupler (standard midi-in) for not to exceed&nbsp;the maximum of 3,3V for a high-level signal on Rx!</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12434.html" class="topic-previous" title="Go to previous forum topic">‹ Dropbox backup</a>
+              <a href="12377.html" class="topic-next" title="Go to next forum topic">GSM 3G emonBase / emonPi connectivity platform offering - feedback wanted   ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12412 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:04:49 GMT -->
+</html>

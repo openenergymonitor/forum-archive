@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2391 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:32:15 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Adding an LCD to emonlib | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Adding an LCD to emonlib</h3>
+        <span class="submitted">Submitted by <a href="../user/3756.html" title="View user profile.">platypus</a> on Mon, 20/05/2013 - 11:33</span>
+        <div class="content"><p>i want to add an lcd to my emon&nbsp;project but get this error on compile</p>
+<p>&#39;class Energy Monitor&#39; has no member named &#39;lcdprint&#39;</p>
+<p>Using programmers notepad i modified the cpp and h files.</p>
+<p><strong><em>emonlib.h was modified to&nbsp;</em></strong></p>
+<p>class EnergyMonitor<br />
+	{<br />
+	&nbsp; public:</p>
+<p>&nbsp;&nbsp;&nbsp; void voltage(int _inPinV, double _VCAL, double _PHASECAL);<br />
+	&nbsp;&nbsp;&nbsp; void current(int _inPinI, double _ICAL);</p>
+<p>&nbsp;&nbsp;&nbsp; void voltageTX(double _VCAL, double _PHASECAL);<br />
+	&nbsp;&nbsp;&nbsp; void currentTX(int _channel, double _ICAL);</p>
+<p>&nbsp;&nbsp;&nbsp; void calcVI(int wavelengths, int timeout);<br />
+	&nbsp;&nbsp;&nbsp; double calcIrms(int NUMBER_OF_SAMPLES);<br />
+	&nbsp;&nbsp;&nbsp; void serialprint();</p>
+<p>	<strong>void calcVI(int wavelengths, int timeout);// added code segment<br />
+	&nbsp;&nbsp;&nbsp; double calcIrms(int NUMBER_OF_SAMPLES);<br />
+	void lcdprint();</strong></p>
+<p>&nbsp;&nbsp;&nbsp; long readVcc();<br />
+	&nbsp;&nbsp;&nbsp; //Useful value variables<br />
+	&nbsp;&nbsp;&nbsp; double realPower,<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; apparentPower,<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; powerFactor,<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Vrms,<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Irms;</p>
+<p>&nbsp;</p>
+<p><em><u><strong>emonlib.cpp was modified with these additions;</strong></u></em></p>
+<p>In the header...#include &lt;LiquidCrystal.h&gt;</p>
+<p>and in the body...i converted watts to KW as below and confined the number of decimal places as shown eg as either one(realpower/1000,1) or none (Irms,0) or two (powerFactor,2)</p>
+<p>void EnergyMonitor::lcdprint()<br />
+	{</p>
+<p>	//LCD Output<br />
+	lcd.setCursor(0,0);<br />
+	lcd.print(&quot;KW&quot;);<br />
+	lcd.print(realpower/1000,1);<br />
+	lcd.print(&quot; KVA&quot;);<br />
+	lcd.print(apparentPower/1000,1);</p>
+<p>	lcd.setCursor(0,1);<br />
+	lcd.print(&quot;V&quot;);<br />
+	lcd.print(Vrms,0);<br />
+	lcd.print(&quot; I&quot;);<br />
+	lcd.print(Irms,0);<br />
+	lcd.print(&quot; PF&quot;);<br />
+	lcd.println(powerFactor,2);<br />
+	&nbsp;&nbsp;&nbsp; delay(100);<br />
+	}</p>
+<p>&nbsp;</p>
+<p>The sketch was modified with the addition - in the loop;</p>
+<p>emon1.calcVI(20,2000); //print to LCD<br />
+	emon1.lcdprint();</p>
+<p>&nbsp;</p>
+<p>Still getting the error on compile - can anyone offer a&nbsp;</p>
+<p>fix to add an lcd</p>
+<p>Many thanks.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10359.html" class="topic-previous" title="Go to previous forum topic">‹ Swapped from rfm12pi to rfm69pi but rf not working.</a>
+              <a href="10383.html" class="topic-next" title="Go to next forum topic">why is the DC offset circuit working with the current sensor (YHDC SCT-013-000) but not with the function generator! ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-12269"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Adding an LCD to emonlib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 20/05/2013 - 16:48.</div>
+    <div class="content">
+     <p>I don&#39;t understand your problem. The emonlib library is only intended for the emonTx. Are you trying to add an LCD to the emonTx? I think you might struggle to add a display as there won&#39;t be enough processor power to do anything.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12273"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3756.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="platypus&#039;s picture" title="platypus&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Adding an LCD to emonlib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3756.html" title="View user profile.">platypus</a> on Tue, 21/05/2013 - 01:50.</div>
+    <div class="content">
+     <p>Not sure what happened there - my reply cant be seen so here goes again.</p>
+<p>Yes I want to use an LCD to display data as this makes this device portable with the benefit of real time data updates.</p>
+<p>I would like to access the calculated data variables for further processing.</p>
+<p>I feel that the 328 should manage the processing - the added lcd code segment is just not recognized.</p>
+<p>Just my limited understanding of the program which is causing this compiler&nbsp;error.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12274"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2161.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="09540&#039;s picture" title="09540&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Adding an LCD to emonlib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2161.html" title="View user profile.">09540</a> on Tue, 21/05/2013 - 03:18.</div>
+    <div class="content">
+     <p>You have to initialize the LCD library by putting this somewhere before void setup();</p>
+<p><b><i>LiquidCrystal lcd(6, 7, 0, 1, 2, 4);  // RS, Enable, D0, D1, D2, D3</i></b></p>
+<p>...replacing the numbers in parenthesis with the pins on your processor that connect to the corresponding data lines in the comment. (This is for 4 bit mode, for 8 bit mode, include all 10 pin numbers.)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12304"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3756.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="platypus&#039;s picture" title="platypus&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Adding an LCD to emonlib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3756.html" title="View user profile.">platypus</a> on Wed, 22/05/2013 - 13:08.</div>
+    <div class="content">
+     <p>Thanks Fronius but all sorted out.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28991"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7721.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Aoun_46271&#039;s picture" title="Aoun_46271&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Adding an LCD to emonlib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7721.html" title="View user profile.">Aoun_46271</a> on Wed, 25/03/2015 - 09:50.</div>
+    <div class="content">
+     <p>&#39;((EnergyMonitor*)this)-&gt;EnergyMonitor::lcd&#39; does not have class type</p>
+<p>I was trying to display the calculated values on LCD but came across the above problem. Do you have any idea how to remove this sort of error or kindly explain the method for displaying the values of EmonLib&nbsp;on LCD. I have made the changes in emonilb.h and cpp files as mentioned you. Kindly help me out it would be so nice of you.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29064"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7706.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="coldpenguin&#039;s picture" title="coldpenguin&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Adding an LCD to emonlib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7706.html" title="View user profile.">coldpenguin</a> on Fri, 27/03/2015 - 06:35.</div>
+    <div class="content">
+     <p>I don't think you need to be casting like the code above.<br />
+The problem would appear (unless you have modified the .h since it was posted), that you haven't defined the member lcd, unless you are using it as a global variable as 09540 suggests. In addition, your error at the beginning would suggest you are referencing your new function as a member instead of a function (which I would have expected an undefined reference error, if it was a linker problem).<br />
+I think that you have made other changes above the ones that you have posted, and it would be impossible to debug further without complete details. </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2391"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-8oXMmNEZuV6c0hSrkfqFkWkAwtxJdC40eKqHYxdT7Nc" value="form-8oXMmNEZuV6c0hSrkfqFkWkAwtxJdC40eKqHYxdT7Nc"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2391 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:32:15 GMT -->
+</html>

@@ -1,0 +1,830 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2352 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:29:40 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Development of Interrupt based EmonLib | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Development of Interrupt based EmonLib</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 08/05/2013 - 10:53</span>
+        <div class="content"><p>I was recently asked by Robin Emley&nbsp;why EmonLib&nbsp;has not been using the interrupt based sampling approach that has been adopted for Solar PV Diversion, I explained that it was more a lack of time than there being a technical reason and that I&#39;d been focusing my attention on other areas of the project, anyway after a few email&#39;s between myself Robin and Robert and with the knowledge that Il soon have a MK2&nbsp;PV router built by Robin and that the current snapshot based EmonLib approach will mean my existing monitoring here will miss the short current draws produced by the router, I thought I&#39;d try and bring EmonLib&nbsp;into the interrupt age ;) the code is getting there but Im&nbsp;having trouble getting a few things to work.</p>
+<p>I started by studying Martin Roberts, Robin Emley, Pcunha and Jorg Becker&#39;s implementations which was really useful:</p>
+<p>MartinR: <a href="1535.html">http://openenergymonitor.org/emon/node/1535</a><br />
+	Robin Emley: <a href="../sites/default/files/Mk2i_PV_Router_rev5a.ino_.zip">http://openenergymonitor.org/emon/sites/default/files/Mk2i_PV_Router_rev5a.ino_.zip</a><br />
+	Pcunha: <a href="https://github.com/pcunha-lab/emonTxFirmware/tree/master/emonTx_Interrupts">https://github.com/pcunha-lab/emonTxFirmware/tree/master/emonTx_Interrupts</a><br />
+	Jorg Becker: (a modification of Pcunha&#39;s code) <a href="../sites/default/files/EmonTx_Interrupt_JB.zip">http://openenergymonitor.org/emon/sites/default/files/EmonTx_Interrupt_JB.zip</a></p>
+<p>I&#39;ve put the development version of EmonLib&nbsp;up on github here (Its not yet a library - so open as normal arduino sketch) <a href="https://github.com/openenergymonitor/FirmwareDev/blob/master/EmonLib/EmonLib.ino">https://github.com/openenergymonitor/FirmwareDev/blob/master/EmonLib/EmonLib.ino</a></p>
+<p>In the comments at the top of the code I have described all the development questions I have and the things I&#39;d like to implement.</p>
+<p>The main question I have at the moment regards the high pass filter implemented using integer math:</p>
+<p><strong>Integer math filter problem</strong><br />
+	&nbsp;<br />
+	I&#39;ve been trying to implement the integer math based high pass filter as used by Pcunha,&nbsp;Jorg Becker and AVR465 example&nbsp;but having trouble getting it to work its currently reporting the rms voltage at about 14000 rather than 244V but Im sure my implementation is the same (pretty much copied and pasted) so not sure where Im going wrong.</p>
+<p>Can anyone help me figure out where I&#39;m going wrong?</p>
+<p>Trystan</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2794.html" class="topic-previous" title="Go to previous forum topic">‹ YHDC SCT027H Current Sensor/Transformer</a>
+              <a href="2793.html" class="topic-next" title="Go to next forum topic">Enomtx shield ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-11941"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 08/05/2013 - 11:35.</div>
+    <div class="content">
+     <p>[Edited]</p>
+<p>There&#39;s something queer going on <strike>there</strike> at your end!</p>
+<p>With the sketch unmodified, a standard emonTx and Ideal adapter, I get 296 - 297 reported for 243 - 244 V measured. Change the voltage calibration to 227.5 (standard emonTx) and I&#39;m within 2 V.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11942"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Wed, 08/05/2013 - 11:44.</div>
+    <div class="content">
+     <p>Hi Trystan,</p>
+<p>I am atm using the sketch attached. All the math is included (somewhere :-)).</p>
+<p>Still using floats for the &#39;final&#39; values after averaging is done, but at that point this does not lead to performance problems.</p>
+<p>I have done this some months ago and not touched since then. And it was not written in a way to be published. But please ask if you are unsure about anything.</p>
+<p>BR, J&ouml;rg.</p>
+<p>PS: this code is working since some weeks in my home. Three phase CT current sensing combined with one 400V AC trafo for voltage sensing. Data sent to a RasPi, where Emoncms shows the data. Impressive results, I have reached ~+-1% accuracy compared to my ferraris counter (but I am using a 12 bit adc MCP3208). Hmmm, yes, the code is for the MCP3208, but you can easily replace the MCP_Read() by reading the internal ADC.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11944"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 08/05/2013 - 11:58.</div>
+    <div class="content">
+     <p>Hello Robert, a yes the voltage calibration is for an emontx here with a 120k 10k voltage divider combination.</p>
+<p>Thanks Jorg for sharing your latest version will take a look.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11946"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 08/05/2013 - 12:10.</div>
+    <div class="content">
+     <p>Just copied and pasted your latest filter Jorg and it works great:</p>
+<pre>
+TempL = (long)(sampleV-lastSampleV)&lt;&lt;8;
+TempL += filteredV;
+filteredV = TempL - (TempL&gt;&gt;8);
+TempV = (filteredV+128)&gt;&gt;8;
+sumV += (TempV*TempV);</pre><p>Thanks!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11948"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Wed, 08/05/2013 - 12:30.</div>
+    <div class="content">
+     <p>Before I forget to mention it:</p>
+<p>At least part of the integer code optimization was done and/or inspired by Robin Emley!&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11949"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 08/05/2013 - 12:43.</div>
+    <div class="content">
+     <p>High pass filter in integer maths? Is your question how or why?</p>
+<p>It depends on recognising that 0.996 isn&#39;t a magic number, all that is required is a number reasonably close to unity in order to provide an adequately long time constant so that there is little phase and amplitude distortion at the 50 Hz fundamental frequency being measured.</p>
+<p>It so happens that 255/256 is a number that fits the bill, and this is easy to do with very efficient low level operations - bit shifts and subtractions - because&nbsp; n &times; 256 = n &lt;&lt; 8&nbsp; and n &times; 255 = n &times; 256 - n, and then if you take n &times; 256 - n and right-shift it by 8 bits, you divide by 256.</p>
+<p>I suspect if you wanted a longer time constant, you could go for 0.998 ( = 511/512 - a 9-bit shift ). The actual time constant, equivalent to RC, is&nbsp; (sample period) &times; &alpha; / (1 - &alpha;)&nbsp;&nbsp; [&alpha; of course being the coefficient], so it would go from 250 &times; sample period to 499 &times; sample period, with a correspondingly longer settling time to reach a stable value.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11951"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 08/05/2013 - 13:28.</div>
+    <div class="content">
+     <p>Thanks Robert that makes a lot of sense, yes it was &#39;how&#39;.</p>
+<p>I think I may have been getting caught out with the type conversion</p>
+<p>long testA = (long)300*256;<br />
+	long testB = ((long)300)&lt;&lt;8;&nbsp;<br />
+	&nbsp;<br />
+	Serial.print(testA);<br />
+	Serial.print(&quot; &quot;);<br />
+	Serial.println(testB);</p>
+<p>The importance of putting (long) before 300*256 to get the expected result&nbsp;76800 instead of&nbsp;11264. I have often added .0 so 300.0/256.0 which takes it into floating point math but as we&#39;re trying to avoid floating point math here was getting caught out.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11952"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 08/05/2013 - 13:36.</div>
+    <div class="content">
+     <p>Ok this is making much more sense now</p>
+<pre>
+  int n = 300;
+ 
+  double testA = 0.996 * n;
+  long testB = ((((long)n)&lt;&lt;8)-n)&gt;&gt;8; 
+ 
+  Serial.print(testA);
+  Serial.print(&quot; &quot;);
+  Serial.println(testB);</pre><p>gives:&nbsp;</p>
+<p>298.80 298</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11954"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Wed, 08/05/2013 - 14:05.</div>
+    <div class="content">
+     <p>It&#39;s great that you are looking at this Trystan. an &quot;offical&quot; sketch that can support continuous monitoring will be very beneficial.</p>
+<p>You might also want to look at my PLL library <a href="2054.html">here</a> as that is what I am using now in my system. It doesn&#39;t use filters to determine the DC offsets but instead takes advantage of the PLL knowing where the zero crossings are and implements a second loop to adjust the zero crossings to 0 volts.</p>
+<p>In my 3-phase system I have also implemented the WHr metering with backup to EEPROM when the power fails and I also have self-calibration with the calibration parameters stored in EEPROM. I created a single-phase version a couple of months ago but never got around to fully testing it.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11955"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Wed, 08/05/2013 - 14:28.</div>
+    <div class="content">
+     <p>With a small change:</p>
+<pre>
+  long testB = ((((long)n)&lt;&lt;8)-n+128)&gt;&gt;8;</pre><p>it would match the float result even better :-))</p>
+<p>&nbsp;</p>
+<p>But I understand that you just wanted to get an idea if the results are comparable.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11956"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 08/05/2013 - 15:24.</div>
+    <div class="content">
+     <p>And of course you recognise 128 as being&nbsp; &frac12; &lt;&lt; 8&nbsp; (The old trick to round to the nearest integer.)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11958"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Wed, 08/05/2013 - 16:06.</div>
+    <div class="content">
+     <p>Trystan,</p>
+<p>looking into your code I see one possible problem (which you also mention):</p>
+<p>Runtime of your calc() function has to be (quite a bit) shorter than the time between two ADC interrupts. This could be hard to achieve even with integer calculations. On the other hand you do not &#39;use&#39; the time between most of the ADC conversions.</p>
+<p>One possible solution would be to set a flag &#39;conversion_ready&#39; in the IRQ routine after sampling all channels and do the calculations in the main loop. But then you have to guarantee that this calculation gets done before the next setting of the flag.</p>
+<p>BR, J&ouml;rg.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11959"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 08/05/2013 - 16:06.</div>
+    <div class="content">
+     <p>Thanks Martin, Jorg, Robert</p>
+<p>So for voltage&nbsp;</p>
+<p>n = lastFilteredV + sampleV - lastSampleV;<br />
+	filteredV = ((n&lt;&lt;8)-n+128)&gt;&gt;8;</p>
+<p>appears to work well, the 128 made all the difference bringing the voltage down form ~270V to ~240V</p>
+<p>When I apply the above to the current channels the values dont come out right at all, am I right in thinking this is because a small current signal is getting rounded at to few decimal places as is where?</p>
+<p>So Im trying to relate:</p>
+<p>n = lastFilteredV + sampleV - lastSampleV;<br />
+	filteredV = ((n&lt;&lt;8)-n+128)&gt;&gt;8;</p>
+<p>to your code Jorg:</p>
+<p>TempL = (long)(sampleV-lastSampleV)&lt;&lt;8;<br />
+	TempL += filteredV;<br />
+	filteredV = TempL - (TempL&gt;&gt;8);<br />
+	TempV = (filteredV+128)&gt;&gt;8;<br />
+	sumV += (TempV*TempV);</p>
+<p>I wonder if you could explain why filteredV&nbsp;is different to TempV, or why bring out filteredV at the earlier point, Im guessing its to do with getting better accuracy but I&#39;m struggling to decode it with tests here.&nbsp;</p>
+<p>Thanks a lot</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11960"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Wed, 08/05/2013 - 17:03.</div>
+    <div class="content">
+     <p>I agree with J&ouml;rg, it&#39;s not a good idea to try to do all your calculations&nbsp;during one interrupt. It would be better to update each filter after it&#39;s associated ADC has completed. There will be time to do this with integer maths.</p>
+<p>Also, you can&#39;t use the same phaseShiftedV value for all the CTs as the sample times will be different.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11963"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Wed, 08/05/2013 - 18:56.</div>
+    <div class="content">
+     <p>In <a href="https://github.com/openenergymonitor/FirmwareDev/blob/master/EmonLib/EmonLib.ino">EmonLib.ino</a> TrystanLea wrote:</p>
+<p><em>&quot;- Dev Question: MartinR uses a phase locked loop approach to always sample over an integer number of wavelengths and sample in the same place each time. But would a method that deviates slightly each time be better given issues around ADC step size relative to signal, sampling at slightly different places each time could average out errors caused&nbsp;by sampled value being one step up or down from actual value..&quot;</em></p>
+<p>This has been suggested before but I&#39;m not sure I understand the reasoning behind it. The sampling is a fixed place yes, but the voltage and current are varying continuously so there&#39;s still a large element of randomness to the&nbsp;sample value relative to the step values.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11966"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Wed, 08/05/2013 - 20:58.</div>
+    <div class="content">
+     <p><em>This has been suggested before but I&#39;m not sure I understand the reasoning behind it.</em></p>
+<p>Martin, I think you are absolutely right there. Varying the sampling point between fullwaves is effectively a sampling with a frequency different from a multiple of 50Hz (or 60Hz). This will almost certainly lead to a &#39;beat&#39; frequency in the measuring result. So, not a good idea (I think).</p>
+<p>(PS: Martins PLL is a really good solution (as far as I can recall it). In most of my professional projects I use a zero crossing signal to measure the mains frequency (or better period) and then try to divide the next&nbsp; fullwave into the same number of sampling intervals, effectively varying the interval length. This tends to give perfect results without any beat effects. Another useful solution is to average over a &#39;sufficient&#39; number of fullwaves, the only question is what sufficient really means.)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11967"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 08/05/2013 - 21:20.</div>
+    <div class="content">
+     <p>Just to say in relation to my earlier question&nbsp;on why filteredV is different to TempV, or why bring out filteredV at the earlier point, I think I&#39;ve got it so no need to go to the effort to explain.&nbsp;<br />
+	Il write up my understanding of it.</p>
+<p>Will get on to thinking about&nbsp;PLL next, thanks a lot</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11969"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 08/05/2013 - 22:09.</div>
+    <div class="content">
+     <p>All the theory I was ever taught had samples at precisely defined points on the wave, so I&#39;m naturally inclined to think this is right, and intuitively it seems right. Because the PLL maintains that relationship (to at least a very good approximation) over each and every cycle, then by locking to mains and with a guaranteed integral number of samples per cycle you immediately dispose of all &#39;end effects&#39; and the inaccuracy that those bring with them.&nbsp; There&#39;s one possible snag: I haven&#39;t thought it through but there might be implications for an anti-alias filter - or the absence thereof. I&#39;ve not even contemplated testing it with a deliberately distorted wave with loads of 25th harmonic and above, as there shouldn&#39;t be much of that on the voltage wave in any case.</p>
+<p>Which begs a question for Martin: presumably it would not require much change for your PLL to lock to 60 Hz?&nbsp; I tried to check the actual lock range but I couldn&#39;t generate enough voltage from my sig.gen for it to lock at all, and I didn&#39;t want to tack too many wires onto my emonTx.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11971"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Wed, 08/05/2013 - 23:50.</div>
+    <div class="content">
+     <p><em>I wonder if you could explain why filteredV&nbsp;is different to TempV, or why bring out filteredV at the earlier point, Im guessing its to do with getting better accuracy but I&#39;m struggling to decode it with tests here.&nbsp;</em></p>
+<p>Ups, sorry Trystan , I oversaw your original question.</p>
+<p><em>Just to say in relation to my earlier question&nbsp;on why filteredV is different to TempV, or why bring out filteredV at the earlier point, I think I&#39;ve got it so no need to go to the effort to explain.</em></p>
+<p>No real effort :-))</p>
+<p>As you already said yourself, filteredV is scaled by a factor of 256 in order to maintain a higher accuracy during calculations. FilteredV has to have this high accuracy (or long &#39;memory&#39; about hundreds of samples taken before) for the high pass filter to work as expected, whereas the accuracy of TempV has to be just &#39;good enough&#39; for calculation of the momentary voltage squared sample.</p>
+<p><em>&nbsp; </em></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11972"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 09/05/2013 - 06:25.</div>
+    <div class="content">
+     <p><em>The importance of putting (long) before 300*256 to get the expected result</em></p>
+<p>If you want to avoid hazards like that, enable compiler warnings in your build environment. &nbsp; gcc&nbsp;will then warn you with:</p>
+<p>warning: integer overflow in expression</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11973"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Thu, 09/05/2013 - 08:15.</div>
+    <div class="content">
+     <p><em>Which begs a question for Martin: presumably it would not require much change for your PLL to lock to 60 Hz?</em></p>
+<p>Shouldn&#39;t be a problem. Currently I limit the lock range to about +/-0.5Hz but by changing the allowed timer count range it would be possible to lock to 60Hz.</p>
+<p>More of an issue might be how many samples per cycle you could get at 60Hz with 3 CTs. If you&#39;re sampling 4 analogue signals (3 current &amp; 1 voltage) at the standard 104&micro;s then the absolute maximum is 40 samples per cycle. Even at 50Hz you could only manage a maximum&nbsp;48 samples per cycle.</p>
+<p>You would probably have to run the ADC at 250KHz, as I do in all my sketches (Arduino default is 125kHz). This drops ADC cycle time down to 52&micro;s.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11978"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 09/05/2013 - 11:53.</div>
+    <div class="content">
+     <p>I&#39;ve written up a building block page on digital filters, trying to cover everything I learnt yesterday so that it will help others asking similar questions, any comments, improvements are very welcome:&nbsp;<a href="https://learn.openenergymonitor.org/?redirect=digital-filters-for-offset-removal">http://openenergymonitor.org/emon/buildingblocks/digital-filters-for-offset-removal</a></p>
+<p>&nbsp;</p>
+<p>So to clarify the concern with not using PLL is that it&nbsp;could lead to a beat frequency in the measuring result. &nbsp;</p>
+<p>If we dont use PLL but still check for zero crosses and count say 20 zero crosses per full measurement, starting and ending as close as the last sample is to the zero cross the concern is that this may not be close enough to the zero cross to avoid beat effects even if its within a single sample width of the zero-cross.</p>
+<p>Another approach to add to the mix is the AVR465 code which if I read correctly samples 401 samples which they worked out to be an integer number of both 50Hz and 60Hz. Here&#39;s their comments in defines.c:</p>
+<pre>
+// Number of samples that will be accumulated for measurements. Since measure-
+// ments are based on a fixed time window, the accumulation cycle should be
+// such that it fits an integer number of mains cycles. Otherwise, measurement
+// results will fluctuate and create short-term variations. Even so, the
+// effects can be completely removed by means of averaging the measurement
+// results. No harm done in the long run, but may look strange and gives a
+// false impression of poor accuracy.
+//
+// For compliancy with both 50Hz and 60Hz environments, the cycle length
+// should be chosen such, that it can fit an integer number of both 50Hz and
+// 60Hz signals. For example, cycle lengths of 200ms multiples are fine.
+// Some suitable cycle lengths are as follows:
+//
+//    XTAL |   ADC | ADCCLK |  Sampling | S.R./Ch |  Cycle |    50Hz |    60Hz
+//   [MHz] | Presc |   [Hz] | Rate [Hz] |    [Hz] | Length |  Cycles |  Cycles
+//   ------+-------+--------+-----------+---------+--------+---------+--------
+//   3.580 |   128 |  27965 | 2151.169  |  717.06 |   N*72 | N*5.021 | N*6.025
+//   3.689 |   128 |  28800 | 2215.385  |  738.46 |   N*74 | N*5.010 | N*6.012
+//   4.000 |   128 |  31250 | 2403.846  |  801.28 |   N*80 | N*4.999 | N*5.999
+//    -&quot;-  |   -&quot;- |   -&quot;-  |    -&quot;-    |    -&quot;-  |     80 |  4.9920 |  5.9904
+//    -&quot;-  |   -&quot;- |   -&quot;-  |    -&quot;-    |    -&quot;-  |    401 | 25.0225 | 30.0270
+//   4.096 |   128 |  32000 | 2461.538  |  820.51 |   N*82 | N*5.000 | N*6.000
+//   4.608 |   128 |  36000 | 2769.231  |  923.08 |   N*92 | N*4.983 | N*5.980
+
+#define NMAX 401
+#define NORM    1.0/NMAX</pre><p>Trystan</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11991"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Fri, 10/05/2013 - 07:07.</div>
+    <div class="content">
+     <p><em>If we dont use PLL but still check for zero crosses and count say 20 zero crosses per full measurement, starting and ending as close as the last sample is to the zero cross the concern is that this may not be close enough to the zero cross to avoid beat effects even if its within a single sample width of the zero-cross.</em></p>
+<p>I think that summing over 10 or 20 fullwaves of the mains frequency will effectively cancel out most of the discussed &#39;beat&#39; problem (to a level where it does not really matter any more). But at the same time the sample frequency should be high enough! Doing this at 10 samples per fullwave (extreme example) will have the similar effect as summing over a smaller number of fullwaves.</p>
+<p>Adn, summing over a higher number of samples (before doing the divide and square root of that sum), you have to make sure that the sum does not overflow (this is the main reason why the above mentioned TempV is not used with higher resolution).</p>
+<p>&nbsp;</p>
+<p>PS: I read your write up about digital filter. Very nicely done! I especially like the way you did it, showing the improvements which come up after thinking about it in more and more detail. &nbsp; &nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12196"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Fri, 17/05/2013 - 18:04.</div>
+    <div class="content">
+     <p>A bit of progress:</p>
+<p>I&#39;ve implemented integer mains cycle sampling using the zero-cross detection method. Not ruling out&nbsp;PLL&nbsp;at this stage, just went with what I was nearer to implementing.</p>
+<p>I&#39;ve then used your approach Martin of having total accumulators that are updated with cycle accumulations at the end of each cycle making it possible&nbsp;to do the final calculations outside of the interrupt function in an asynchronous manner so as not&nbsp;to slow the interrupt function down. It also has a nice benefit of being able to control the measurement window in the main loop.</p>
+<p>I&#39;ve also gone for the approach that seems to be generally adopted of not measuring the supply voltage using internal bandgap, interesting to hear that using the&nbsp;bandgap measurement are less accurate, I havent&nbsp;done the calculations. It certainly simplifies code a bit to do it manually and also less of an issue with the continuous sampling approach as its not for running off a battery.</p>
+<p>It did turn out that my approach of doing all the analog input calculations (filters etc) at once after sampling all 4 analog inputs took longer than the interrupt period of 104us. So I split the calc() function up so that analog input specific calculations are done as the ADC value becomes available as seems to be the general approach. The calculations then take between 28us to&nbsp;56us out of 104us.</p>
+<p>I&#39;ve added grid frequency measurement, its amazing (but I guess one would worry if it didnt) how close it matches the value recorded on the&nbsp;<a href="http://www.dynamicdemand.co.uk/">www.dynamicdemand.co.uk</a> website. Quite fun to watch.</p>
+<p>The code is in the main emontxfirmware repository here:&nbsp;</p>
+<p><a href="https://github.com/openenergymonitor/emonTxFirmware/blob/master/emonTx_CT123_Voltage_Interrupt/emonTx_CT123_Voltage_Interrupt.ino">https://github.com/openenergymonitor/emonTxFirmware/blob/master/emonTx_CT123_Voltage_Interrupt/emonTx_CT123_Voltage_Interrupt.ino</a></p>
+<p>Next to add the RF part and test temperature sensing..&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12198"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Fri, 17/05/2013 - 19:21.</div>
+    <div class="content">
+     <p>Good work Trystan.</p>
+<p>Just a couple of points...</p>
+<p>I don&rsquo;t think it&rsquo;s a good idea to base your outer calculation loop purely on millis() since the interrupt that updates the total_xx variables may occur while you are using these values. You need to set a flag in the interrupt routine when all the total_xx values have been updated and then check and clear it&nbsp;&nbsp;in the outer loop. This way you have a safe 20ms to do your calculations.</p>
+<p>Presumably you plan to add phase adjustment later?</p>
+<p>Any particular reason why you use a bunch of &ldquo;if (sample_in_register == inPinx)&rdquo; statements instead of a case statement?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12199"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Fri, 17/05/2013 - 19:41.</div>
+    <div class="content">
+     <p>Also wanted to say that you need to be very careful temperature sensing as the DallasTemperature library can lock out interrupts for long periods, that&#39;s why I didn&#39;t use it. I avoided&nbsp;using JeeLib for RF for the same reason but in this case I didn&#39;t actually try it so I don&#39;t know for sure&nbsp;that it interferes with the interrupt timing.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12234"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3240.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="john.b&#039;s picture" title="john.b&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3240.html" title="View user profile.">john.b</a> on Sat, 18/05/2013 - 10:53.</div>
+    <div class="content">
+     <p>I wonder if you are considering the implications of a variable gain CT input as demonstrated in <a href="http://www.atmel.com/Images/doc2566.pdf">AVR465</a>.when developing this library.&nbsp; To my mind this approach has some benefits, but also some potential pitfalls.&nbsp;</p>
+<p>Looking at the AVR465 code it seems that the HPF is applied to the raw sample.&nbsp; I&#39;ve not studied the code in detail or tried it , but is seems to me that this will introduce a DC offset each time the gain is changed and a period to settle back as the HPF ultimately removes the offset.</p>
+<p>I&#39;m considering implementing a variable gain and read elsewhere that it is part of the future emontx strategy, so I would be interested in how much of a problem this is and is the AVR465 code the right approach?</p>
+<p>Will variable gain be implemented in the EmonLib?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12245"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 18/05/2013 - 20:46.</div>
+    <div class="content">
+     <p>Thanks Martin, yes phase adjustment to come.&nbsp;</p>
+<p>John, I&#39;m not planning to add variable gain at this point and haven&#39;t really thought about the code implementation in detail yet. Would be great to have it though!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12246"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borland&#039;s picture" title="borland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by borland (not verified) on Sat, 18/05/2013 - 20:58.</div>
+    <div class="content">
+     <p>Trystan,</p>
+<p>&nbsp;</p>
+<p>Nice that you&#39;re able to get the grid frequency accurately without resorting to PLL.&nbsp; Have you figured out how many samples per grid cycle? I see your resetting your counters every 5 seconds&nbsp;(5000ms).&nbsp;&nbsp; Since you&#39;re not using Martin&#39;s timer interrupt approach to starting the ADC, I was thinking you might be over sampling?</p>
+<p>To measure frequency, you&#39;re using the voltage zero crossing (filteredV&gt;0).&nbsp;&nbsp;I&nbsp;am considering your&nbsp;approach&nbsp;for a&nbsp;&quot;current only&quot; sensor.&nbsp; This would be&nbsp;a design of&nbsp;a current&nbsp;sensor and data logger (with I2C data delivery) using&nbsp;the&nbsp;ATtiny85 for electric vehicle charging station.</p>
+<p>The&nbsp;ATtiny85&#39;s built-in clock is not very accurate (+-10%), so I was looking using the grid frequency to&nbsp;accurately time&nbsp;intervals instead of using millis().&nbsp; I realize the grid frequency varies, but it&#39;s&nbsp;more accurate than the internal clock I&#39;m working with. The ATtiny85&#39;s internal clock also varies with temperature, so grid frequency seems the best approach for my application.&nbsp; Only 8 MHz, but I&#39;m just looking at capturing data from one sensor to measure current draw and to estimate power consumption in kWh on&nbsp;one type of load (vehicle charging).</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12250"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Sun, 19/05/2013 - 07:05.</div>
+    <div class="content">
+     <p>The sampling rate when all 3 CTs are enabled will be once every 416&micro;s, or about 48 per mains cycle. This means that the per-cycle frequency measurement will have 416&micro;s of jitter, but when&nbsp;sampled over enough cycles this will be averaged out. The PLL method has the advantage that the frequency measurement is accurate every cycle, but I doubt this gives any advantage for just displaying frequency.</p>
+<p>The frequency of the&nbsp;internal clock on the ATiny is user programmable so a really neat solution would be to design a software PLL that adjusts the oscillator frequency to lock it to the mains frequency. I used this technique with a PIC chip for an MSF clock decoder and it worked really well.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12258"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borland&#039;s picture" title="borland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by borland (not verified) on Sun, 19/05/2013 - 18:22.</div>
+    <div class="content">
+     <p>Thanks Martin,</p>
+<p>I&nbsp;missed that...&nbsp;Trystan&#39;s stated 104us &quot;interrupt period&quot;&nbsp; is the&nbsp;interval between interrupts.&nbsp; So for&nbsp;3 CTs enabled, at 50Hz, it works out to 48.08 samples per grid cycle, and at 60Hz, it works out to 40.06 samples&nbsp;per grid cycle.</p>
+<p>Good&nbsp;suggestion about using the user programmable feature of the ATtiny&#39;s&nbsp;oscillator calibration register!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12278"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 21/05/2013 - 08:56.</div>
+    <div class="content">
+     <p>Just tried adding the jeelib rfm12&nbsp;code, it seems to work ok, will have to check sample timings in detail to be sure, but nothing is locking up.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12322"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Thu, 23/05/2013 - 21:30.</div>
+    <div class="content">
+     <p>Trystan, recently wrote on a Building Blocks page:</p>
+<p><em><strong>Why a low pass filter?</strong> The low pass filter was introduced with the Mk2 Energy Router which uses a common bias supply (buffered by an operational amplifier) to supply the offset voltage for both voltage and current channels. The filter only has to be calculated once, and the resulting offset is naturally the same for both channels and therefore can be subtracted from both readings. This saves a significant amount of processing time.</em></p>
+<p>The LPF in the Mk2 PV Router is subtly different than the normal Wiki-style one.&nbsp; Rather than updating the filter after every sample, which invariably results in ripple, it is only updated once per mains cycle.&nbsp; Once the filter has settled, there is no ripple at all, hence there is no attenuation of the AC signal.&nbsp; Because the output value is only required once per mains cycle, this technique works really well.&nbsp; It&#39;s been there right from Day 1:</p>
+<p class="MsoNormal">RAE 15/7/12:&nbsp; <em><span lang="EN-US" style="font-size: 10pt; font-family: Arial;">&quot;In the standard EmonLib code, there is a separate high-pass filter (HPF) on each of the voltage and current streams.<span style="">&nbsp; </span>I&rsquo;ve taken a different approach (thanks Robert for the suggestion), and have instead implemented a single LP filter which allows the DC bias to be accurately determined.<span style="">&nbsp; </span>By updating the LPF only once per mains cycle (my idea!), its performance is nigh-on perfect, with no attenuation or phase shift.</span></em></p>
+<p class="MsoNormal"><em><span lang="EN-US" style="font-size: 10pt; font-family: Arial;">Too good to believe?<span style="">&nbsp; </span>Well, the LPF is not acting alone.<span style="">&nbsp; </span>There is also a standard HP filter which acts just on the voltage stream.<span style="">&nbsp; </span>The purpose of this secondary filter is to group the voltage samples into cycles so that the LPF can be accurately updated.<span style="">&nbsp;&nbsp; </span>Unlike the LPF, the HPF can always be relied upon to start up correctly.<span style="">&nbsp; </span>Together, they form a great combination.&quot;</span></em></p>
+<p class="MsoNormal"><span lang="EN-US" style="font-size: 10pt; font-family: Arial;">Later versions </span>of the Mk2 code avoid the need for the HPF by simple preventing the LPF output value from straying far from the mid-point value.&nbsp; Providing that an AC signal source is present, the single LPF filter always starts up correctly.&nbsp; Simple and effective.</p>
+<p class="MsoNormal">For &quot;real power&quot;, there is no need to remove DC offset from one of the sample streams.&nbsp; Any DC component is removed automatically within the standard maths calculation.&nbsp; There&#39;s more about this in Section 6 of my <a href="https://learn.openenergymonitor.org?redirect=mk2/vimeasurement">Surplus Power Diversion article</a>.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12331"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Fri, 24/05/2013 - 09:54.</div>
+    <div class="content">
+     <p>The point that I made yesterday about how the LPF in my Mk2 PV Router operates is already covered near the end of the Building Blocks article.&nbsp;</p>
+<p>Thanks Robert for pointing this out, and sorry for any confusion.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12340"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Sat, 25/05/2013 - 04:05.</div>
+    <div class="content">
+     <p>See my post about EmonLibPro <a href="2406.html" title="http://openenergymonitor.org/emon/node/2406">http://openenergymonitor.org/emon/node/2406</a></p>
+<p>It does what you want.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15010"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development of Interrupt based EmonLib</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 10/09/2013 - 09:10.</div>
+    <div class="content">
+     <p>I thought Id pick up from where I left off last time with interrupt based emonlib development (or EmonTX_CT123_Voltage firmware dev - as EmonLib in its current form is still useful for battery operation and easy, simple coding because of the library and discrete in time nature of it).</p>
+<p>I have still been in need of an interrupt based direct replacement for EmonTx_CT123_Voltage as I have Robin&#39;s Solar PV diverter which because of its short pulsed power draws is not compatible with the current EmonLib, To be a direct replacement to my current setup I need ideally both RF support and DS18B20 support (I currently run a solar hot water controller + solarpv/whole house energy monitor on one emontx)</p>
+<p>As I mentioned above it appeared on initial testing that adding in the RF sending code worked. I have uploaded an example with RF sending to github. I have also created an example for temperature sensing with a DS18B20.</p>
+<p><strong>RF example:</strong></p>
+<p><a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/InterruptBased/emonTx_CT123_Voltage_Interrupt_RF">https://github.com/openenergymonitor/emonTxFirmware/tree/master/InterruptBased/emonTx_CT123_Voltage_Interrupt_RF</a></p>
+<p><strong>RF + DS18B20 example</strong></p>
+<p><a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/InterruptBased/emonTx_CT123_Voltage_Interrupt_RF_temperature">https://github.com/openenergymonitor/emonTxFirmware/tree/master/InterruptBased/emonTx_CT123_Voltage_Interrupt_RF_temperature</a></p>
+<p>There are a couple of things as MartinR pointed above that need adding or addressing in these examples:</p>
+<p>- The first is the use of millis() in the outer calculation loop instead of a flag based system as the variables used may be changed by an interrupt mid calculation, this could mess up the calculation.</p>
+<p>- Phase adjustment needs to be added</p>
+<p><strong>Testing</strong></p>
+<p>But I thought before going on to both of these things I would do some spot testing of how the current implementation compares to EmonLib, how it compares at different power factors and with RF and reading from a DS18B20 temperature sensor.</p>
+<p>The testing consisted of:</p>
+<ul>
+<li>
+		comparing 5 different load combinations made up of loads that give a range of power magnitudes and power factors.</li>
+<li>
+		on two identical emontx builds running:</p>
+<ul>
+<li>
+				Current EmonLib</li>
+<li>
+				Interrupt based EmonTx_CT123_Voltage</li>
+<li>
+				Current EmonLib phaseshift set to 1</li>
+<li>
+				Interrupt based EmonTx_CT123_Voltage + RF</li>
+<li>
+				Interrupt based EmonTx_CT123_Voltage + RF + DS18B20</li>
+</ul>
+</li>
+</ul>
+<p>Results are in this spreadsheet:</p>
+<p><a href="../sites/default/files/Interrupt_based_EmonTx_CT123_Voltage_testing.html">http://openenergymonitor.org/emon/sites/default/files/Interrupt_based_EmonTx_CT123_Voltage_testing.ods</a></p>
+<p>From these few tests the results seem good for powerfactors above 0.5 and most of the CT&#39;s even with RF sending and reading from a DS18B20 however there appears to be two issues that I cant immediately explain:</p>
+<ul>
+<li>
+		The powerfactor recorded by the interrupt method is significantly below both the reference meter and non-interrupt emonlib result at powerfactors less than 0.5.</li>
+</ul>
+<ul>
+<li>
+		The current EmonLib did not show a great change in powerfactor accuracy when phaseshift was set to 1 which was unexpected as I remember this having a marked effect when I first added the phaseshift calibration to the code as recommended and implemented in the AVR465 example.</li>
+</ul>
+<ul>
+<li>
+		When running the EmonTx_CT123_Voltage + RF + DS18B20 code, the CT channel sampled immediately following a Voltage sensor sample has a spurious result every 5-10-20 readings where the rms current and apparent power values spike significantly, the other CT channels appear to be ok.</li>
+</ul>
+<p>I wouldn&#39;t think that adding a flag based system or phase correction will fix the last issue so it must be something else, the only difference between the voltage input and current input is the magnitude of the waveform being sampled, that would suggest some sort of interference caused by the fast running switching of the ADC channels.</p>
+<p>Edit: but then again the effect does only become apparent when the DS18B20 temperature sensing is added, which would suggest some timing influence. Could it be that the ADC sampling is being &#39;squashed together&#39; because the atmega is busy processing all the additional RF and DS18B20 stuff. If this is the case maybe the ADC does not have enough time to settle between readings.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2352"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Rrz_MyV6A07zXd8j0xp8mUsy5_DToRoPvdU4LSoveNs" value="form-Rrz_MyV6A07zXd8j0xp8mUsy5_DToRoPvdU4LSoveNs"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2352 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:29:41 GMT -->
+</html>

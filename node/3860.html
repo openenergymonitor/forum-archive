@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3860 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:23:41 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Questions about CT on Arduino  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Questions about CT on Arduino </h3>
+        <span class="submitted">Submitted by Guest on Sat, 15/02/2014 - 20:30</span>
+        <div class="content"><p>Dear all,<br />
+	I&#39;ve always wanted to create my own &quot;home&quot; monitoring system and just discovered Arduino and your community, which is really great !!<br />
+	After I&#39;ve successfully worked on temperature sensors, which is not very difficult... I&#39;m working now on monitoring current energy consumption.</p>
+<p>
+	So my hardware consist in an Arduino Uno and a CT sensor YHDC SCT-013-030 (30 Amps).</p>
+<p>
+	According to what I understood, this CT sensor has a built in resistance and then delivers tension from 0 to 1V for 0 to 30A on AC side (primary). This is different from the 100A model which does not have this burden resistance.<br />
+	Anyway I&#39;m really fighting to get an accurate 0 to 1V tension reading on the ADC of the Arduino (I choosed A0) . Here is what I understood and what I&#39;ve been through these last days :</p>
+<ul>
+<li>
+<p>CT is providing an alternative (0...1V) current whereas Arduino Analog input is a 0 to 5V direct current.</p>
+</li>
+<li>
+<p>What you suggested on the following page is to use two 10kOhms resistance to set the &quot;0V&quot; level at half the maximum input of the Arduino, which then is 2.5V.</p>
+</li>
+<li>
+<p>Then my understanding is that the alternative 0..1V current will now move above and below the 2.5V input of the Arduino, from 1.5V to 3.5V at most.</p>
+</li>
+<li>
+<p>Now I&#39;ve worked on different algorithms to &quot;read&quot; this alternative current and find the appropriate voltage of the CT and i&#39;ve several problems / questions :</p>
+</li>
+</ul>
+<p>First I&#39;m using a min/max and average method to calculate the &quot;gap&quot; between the highest and lowest value over a sufficient period of time. <strong>Does it sound good (code is below) </strong>?</p>
+<p>
+	Second, I&#39;ve put my Fluke multimeter at the output of the CT to get a clear voltage reading before it goes to the Arduino, and I also have an external fluke clamp to measure AC current of the AC cable directly. So I can compare :<br />
+	- Current from my external AC clamp to to my Fluke multimeter voltage of the CT : this is really accurate (I just need to multiply the voltage of the CT by 30) as both are reading exactly the same number of Amps. One good news.<br />
+	- Voltage from my fluke at the CT output and the voltage read from my algorithm using Serial.print by the Arduino. It is not so bad (meaning the difference is quite acceptable) if I&#39;ve got only a few device plugged but as soon as Amps are going high the difference is way too high. <strong>What&#39;s wrong?</strong><br />
+	&nbsp;</p>
+<p>code :</p>
+<p>const int sensorPin = A0;<br />
+	const int number_of_samples = 50;</p>
+<p>int vmin;<br />
+	int vmax;<br />
+	int sampleI;<br />
+	int summax;<br />
+	int summin;<br />
+	int jmoy;<br />
+	double moymax;<br />
+	double moymin;<br />
+	double Vrate;<br />
+	double tension;<br />
+	int topdepart;</p>
+<p>void setup()<br />
+	{<br />
+	&nbsp; Serial.begin(9600);<br />
+	&nbsp; Serial.println(&quot;temps;vmin;vmax;tension&quot;);<br />
+	&nbsp; summax = 0;<br />
+	&nbsp; summin = 0;<br />
+	&nbsp; jmoy= 0;</p>
+<p>&nbsp; topdepart = millis();<br />
+	}</p>
+<p>void loop(){</p>
+<p>&nbsp; vmin = analogRead(sensorPin);<br />
+	&nbsp; vmax = vmin;</p>
+<p>&nbsp; for(int i = 0; i &lt;number_of_samples;i++){<br />
+	&nbsp;&nbsp;&nbsp; sampleI = analogRead(sensorPin);</p>
+<p>&nbsp;&nbsp;&nbsp; if (sampleI &lt; vmin)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vmin = sampleI ;</p>
+<p>&nbsp;&nbsp;&nbsp; if&nbsp; (sampleI &gt; vmax)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vmax = sampleI ;</p>
+<p>&nbsp; }</p>
+<p>&nbsp; summax += vmax;<br />
+	&nbsp; summin += vmin;<br />
+	&nbsp; jmoy++;</p>
+<p>&nbsp; if(millis() &gt;= (topdepart+1000)){</p>
+<p>&nbsp;&nbsp;&nbsp; moymax = summax / jmoy;<br />
+	&nbsp;&nbsp;&nbsp; moymin = summin / jmoy;</p>
+<p>
+	&nbsp;&nbsp;&nbsp; Vrate = (moymax - moymin) / 2.0;<br />
+	&nbsp;&nbsp;&nbsp; tension = Vrate * 5000.0 / 1024.0;</p>
+<p>&nbsp;&nbsp;&nbsp; Serial.print(millis());<br />
+	&nbsp;&nbsp;&nbsp; Serial.print(&quot;;&quot;);<br />
+	&nbsp;&nbsp;&nbsp; Serial.print(moymax);<br />
+	&nbsp;&nbsp;&nbsp; Serial.print(&quot;;&quot;);<br />
+	&nbsp;&nbsp;&nbsp; Serial.print(moymin);<br />
+	&nbsp;&nbsp;&nbsp; Serial.print(&quot;;&quot;);<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(tension);</p>
+<p>&nbsp;&nbsp;&nbsp; topdepart = millis();<br />
+	&nbsp;&nbsp;&nbsp; jmoy = 0;<br />
+	&nbsp;&nbsp;&nbsp; summax = 0;<br />
+	&nbsp;&nbsp;&nbsp; summin = 0;</p>
+<p>&nbsp; }</p>
+<p>
+	}</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="3854.html" class="topic-previous" title="Go to previous forum topic">‹ Help on Open Energy Monitor</a>
+              <a href="3855.html" class="topic-next" title="Go to next forum topic">EGOcar ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-18470"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Questions about CT on Arduino </h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 15/02/2014 - 22:18.</div>
+    <div class="content">
+     <p>Why don&#39;t you use one of our sketches on <a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxShield">Github</a> that use the <a href="https://github.com/openenergymonitor/EmonLib">emonLib library</a>. Those can give you the genuine rms current. &quot;rms&quot;&nbsp; (<strong>r</strong>oot <strong>m</strong>ean <strong>s</strong>quare) is the value everybody uses for power measurements. Your Fluke, if it is an expensive one, will be reading rms; otherwise, it will be reading the rectified average but scaled to indicate the rms value for a pure sine wave.</p>
+<p>I&#39;m sorry, but the answer to &quot;<em>Does it sound good (code is below)&quot; </em>is no. The rms value of an alternating wave is the value that gives the same heating effect in a resistor (example: a water heater) as a direct current of the same value. For example, a motor car light bulb supplied with 12 V rms ac will be the same brightness as when it is supplied with 12 V dc. The shape of the alternating current wave is not necessarily a perfect sine wave, and measuring the distance between peaks of opposite polarity will not give you an accurate measure of the heating effect of the current.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18475"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="littlepanda&#039;s picture" title="littlepanda&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Questions about CT on Arduino </h3>
+
+    <div class="submitted">Submitted by littlepanda (not verified) on Sun, 16/02/2014 - 07:56.</div>
+    <div class="content">
+     <p>Hi Robert,</p>
+<p>Thanks a lot for your answer. I&#39;ve worked on your Emonlib library and in fact didn&#39;t really understand why you used RMS, now I do thanks to your explanation. And you&#39;re right my fluke is quite an expense one and is providing I think RMS value by default, since I have an option to display also min/max and average values.</p>
+<p>One thing though, can you confirm it is not necessary to use diode to convert alternative current from the CT to direct ? You&#39;re not doing this thanks to your RMS algorithm or is there any other reason?</p>
+<p>many thanks</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18483"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Questions about CT on Arduino </h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 16/02/2014 - 13:40.</div>
+    <div class="content">
+     <p>You must not have any rectification outside the software, it is all done internally. And in any case, you would take away the ability to know the direction of power flow - which you can have if you also have a voltage reference signal.</p>
+<p>I can see why you are asking this, I think you need to study the sketch and the library (and the mathematics!) to see how we process the signal.&nbsp; Here&#39;s a very quick overview that should be enough to get you going:</p>
+<p>We sample the current, about 110 times per cycle (@ 50 Hz, less at 60 Hz). As it comes in, the wave is centred on 511 or so. We use the present value and the one before to run a high pass filter on the numbers - this restores the wave so that it&#39;s centred about zero. Then we square the values and add them (this is where it gets rectified), and after the preset (and large) number of samples, that hopefully spans a complete number of cycles so we don&#39;t get any &#39;end effects&#39;, we divide by the number to get the mean, then take the square root.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18518"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="littlepanda&#039;s picture" title="littlepanda&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Questions about CT on Arduino </h3>
+
+    <div class="submitted">Submitted by littlepanda (not verified) on Tue, 18/02/2014 - 13:36.</div>
+    <div class="content">
+     <p>Hi Robert,</p>
+<p>Thanks a lot for all your answers. I did understand the square average thing, but I did not know the high pass filter methodology which is really great indeed.</p>
+<p>Now thanks to you and your library it works fine !</p>
+<p>have a good day</p>
+<p>Victor</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3860"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-TdfRDYZv8_MiuNXfRT3SmKTJJBQ4opOaNartZWKU4ik" value="form-TdfRDYZv8_MiuNXfRT3SmKTJJBQ4opOaNartZWKU4ik"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3860 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:23:41 GMT -->
+</html>

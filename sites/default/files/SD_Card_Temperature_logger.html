@@ -1,0 +1,245 @@
+//----------------------------------------------------------------------
+// Temperature Logger
+
+// Description: Logs temperature readings from three temperature senosors to an SD card as .csv values
+// Uses Nuelectronics real-time data logging shield for RTC and SD card functionality 
+       
+// Last revision 26 Oct 2010
+// Licence: GNU GPL
+// By Glyn Hudson 
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------------------------------------------------------------------
+// Librarys 
+//----------------------------------------------------------------------------------------------------------------------------------
+
+#include <OneWire.h>              //one wire sensor protocol library (V2.0) from http://www.pjrc.com/teensy/td_libs_OneWire.html 
+#include <DallasTemperature.h>    //dallas one wire temperature library (V3.6.0) from http://milesburton.com/index.php/Dallas_Temperature_Control_Library 
+#include <SdFat.h>                //SD card file system library GNU GPL V3 (Version 20100818) http://code.google.com/p/sdfatlib/
+#include <DS1302.h>               //Real Time clock (RTC) lib (C) Henning Karlsen http://www.henningkarlsen.com/electronics/a_l_ds1302.php
+
+
+//----------------------------------------------------------------------------------------------------------------------------------
+// Connections
+//----------------------------------------------------------------------------------------------------------------------------------
+
+//IMPORTANT: for SD card code to work with Nuelectroncis datalogging shield a jumper is needed between digital 10 and 5
+//since NUelectroncis uses a difffernet chip select line. 
+
+// Temperature sensor Data wire is plugged into digital pin 15/ analogue pin 1 / socket P5 on Nu electronics sensor shield
+int temperature_sensor_bus=15; //DS18B20 bus. Pins 1 and 3 grounded. Pin 2 to sensor bus and pulled up by 4K7 resistor 
+
+
+int greenLEDpin=2;        //LED file system / SD card syncing activity 
+
+//RTC uses digital pin 3 (SCLK), pin 4 (I/O), pin 5 (CE)
+// Init the DS1302 passing conection pin numbers 
+DS1302 rtc(6, 4, 3);
+//-----------------------------------------------------------------------------------------------------------------------------------
+
+
+// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
+OneWire oneWire(temperature_sensor_bus);
+
+// Pass our oneWire reference to Dallas Temperature. 
+DallasTemperature sensors(&oneWire);
+
+//define variables for SD card logging 
+int LOG_INTERVAL=1000; // mills between entries
+int ECHO_TO_SERIAL=1; // echo data to serial port
+int SYNC_INTERVAL=5000; // Sensor reading saved to SD card every second
+long syncTime = 0;     // time of last sync()
+
+// The objects to talk to the SD card
+Sd2Card card;
+SdVolume volume;
+SdFile root;
+SdFile file;
+
+//--------------------------------------------------------------------------
+//Function Decleration 
+//--------------------------------------------------------------------------
+
+
+float get_temperature(int);                     //pass sensor number (0-2) to get temp from
+void sd_card(float,float,float);        //sd card logging code
+
+
+//--------------------------------------------------------------------------
+//SETUP
+//--------------------------------------------------------------------------
+
+void setup(void)
+{
+  // start serial port
+  Serial.begin(9600);
+  
+  // initialize the SD card
+  if (!card.init()) error("card.init");
+  
+  // initialize a FAT volume
+  if (!volume.init(card)) error("volume.init");
+  
+  // open root directory
+  if (!root.openRoot(volume)) error("openRoot");
+  
+  // create a new file
+  char name[] = "LOGGER00.CSV";
+  for (uint8_t i = 0; i < 100; i++) {
+    name[6] = i/10 + '0';
+    name[7] = i%10 + '0';
+    if (file.open(root, name, O_CREAT | O_EXCL | O_WRITE)) break;
+  }
+  if (!file.isOpen()) error ("file.create");
+
+
+  
+  file.writeError = 0;
+
+  // write header
+  file.println("Date, Time,Temp 1,Temp 2, Temp 3");    
+if (ECHO_TO_SERIAL) Serial.println("Date, Time,Temp 1,Temp 2, Temp 3");
+  
+  pinMode(greenLEDpin, OUTPUT); //set SD card activity LED pin to output mode
+  digitalWrite(greenLEDpin,HIGH);
+
+
+  // attempt to write out the header to the file
+  if (file.writeError || !file.sync()) {
+    error("write header");
+  }
+
+   
+   
+  // Start up the DallasTemperature senosr library
+  sensors.begin();
+  
+  // Set the clock to run-mode, and disable the write protection
+  rtc.halt(false);
+  rtc.writeProtect(false);
+  
+  // Set RTC date and time (if needed!) 
+  //rtc.setDOW(FRIDAY);        // Set Day-of-Week to FRIDAY
+  //rtc.setTime(12, 0, 0);     // Set the time to 12:00:00 (24hr format)
+  //rtc.setDate(6, 8, 2010);   // Set the date to August 6th, 2010
+  
+  
+  int number_of_devices=sensors.getDeviceCount();                            //get number of temp sensors
+  
+
+    Serial.print("Detected "); Serial.print(number_of_devices); 
+    Serial.println(" temperature sensors");
+    Serial.print("Logging to: "); Serial.println(name);
+
+   
+   digitalWrite(greenLEDpin,LOW);
+
+} //end setup
+
+//--------------------------------------------------------------------------
+//Loop
+//--------------------------------------------------------------------------
+
+void loop(void)
+{ 
+  
+  
+  // clear print error
+  file.writeError = 0;
+  
+  // delay for the amount of time we want between readings
+  //delay((LOG_INTERVAL -1) - (millis() % LOG_INTERVAL));
+  
+  //get individual sensor temperatures 
+  float temp1=get_temperature(0);
+  float temp2=get_temperature(1);
+  float temp3=get_temperature(2);
+
+  //log data to SD card
+  
+  if ((millis()-syncTime) > SYNC_INTERVAL){
+    sd_card(temp1,temp2,temp3);
+    syncTime=millis();
+  }
+  
+
+}  //end loop
+
+
+
+//SD card error function 
+void error(char *str)
+{
+  boolean flag=false;
+  Serial.print("error: "); Serial.println(str);
+ 
+  while(1){
+    digitalWrite(greenLEDpin, HIGH);
+    delay(100);
+    digitalWrite(greenLEDpin, LOW);
+  }
+    
+    ;
+}
+
+
+
+
+
+
+//Using DS180BR one wire senosrs. Parasite or normal power mode is supported. In parasite power multiple sensors can share same bus
+//4.7K resistor between signal bus and +5v VCC (pin 2) 
+// ground pin 1 and 3
+
+float get_temperature(int sensor_number)
+{
+  // call sensors.requestTemperatures() to issue a global temperature request to all devices on the bus 
+  sensors.requestTemperatures();
+  
+  //get temp value from each sensor
+  float temperature=sensors.getTempCByIndex(sensor_number);
+  
+  return temperature;
+}
+
+
+
+
+
+
+void sd_card(float temp1,float temp2,float temp3)
+{
+  
+    // log milliseconds since starting
+  //long m = millis();
+  //file.print(m); file.print(", ");              // milliseconds since start
+  
+  //save current date and time
+  file.print(rtc.getDateStr()); file.print(", "); 
+  file.print(rtc.getTimeStr()); ;file.print(", "); 
+  
+  file.print(temp1);file.print(", "); 
+  file.print(temp2);file.print(", "); 
+  file.print(temp3);file.print(", "); 
+
+
+  if (ECHO_TO_SERIAL){
+   // Serial.print(m); Serial.print(", ");         // milliseconds since start
+
+    Serial.print(rtc.getDateStr()); Serial.print(", "); 
+    Serial.print(rtc.getTimeStr()); Serial.print(", "); 
+    Serial.print(temp1);Serial.print(", "); 
+    Serial.print(temp2);Serial.print(", "); 
+    Serial.println(temp3);
+
+
+  // blink LED to show we are syncing data to the card & updating FAT!
+  digitalWrite(greenLEDpin, HIGH);
+  if (!file.sync()) error("sync");
+  digitalWrite(greenLEDpin, LOW);
+  
+  if (file.writeError) error("write data");
+
+return;
+}
+}

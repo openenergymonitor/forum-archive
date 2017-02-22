@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/9997 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:43:40 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>[SOLVED] Running Emonhub, emoncms on Laptop with Jeelink | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">[SOLVED] Running Emonhub, emoncms on Laptop with Jeelink</h3>
+        <span class="submitted">Submitted by <a href="../user/5074.html" title="View user profile.">hatfieldr</a> on Mon, 12/01/2015 - 16:42</span>
+        <div class="content"><p>Hi</p>
+<p>I have a monitoring &amp; multizone control system running on RPi (emoncms, emonhub, scheduler) which is all working fine but as it is now in full control of our heating system I would like to leave it alone for a bit!</p>
+<p>I am trying to set up a system on my laptop, using a Jeelink as a radio, for&nbsp; experimentation but I am having difficulty getting emonhub to talk to the jeelink.</p>
+<p>The Laptop has Ubuntu 14.04 with emoncms 8.3.6 installed (Rpi Module removed) &amp; Emonhub</p>
+<p>The Jeelink has RF12_demo sketch (<a href="https://github.com/jcw/jeelib/tree/master/examples/RF12/RF12demo" title="https://github.com/jcw/jeelib/tree/master/examples/RF12/RF12demo">https://github.com/jcw/jeelib/tree/master/examples/RF12/RF12demo</a>) set to 9600 baud, it sits on /dev/ttyUSB0 which has been set in emonhub.conf</p>
+<p>Packetgen in emoncms on the laptop has been configured to mimic the one running on the Pi but the node in emonhub.conf has been set to 16 to avoid conflict</p>
+<p>Emonhub seems to run OK on the laptop and packetgen is successfully broadcast but I cannot get it to receive properly:</p>
+<p>richard@richard-Aspire-ES1-512:/var/www/html/emoncms/Modules/scheduler$ sudo service emonhub restart<br />
+[sudo] password for richard:<br />
+&nbsp;* Restarting OpenEnergyMonitor emonHub emonhub&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ OK ]<br />
+richard@richard-Aspire-ES1-512:/var/www/html/emoncms/Modules/scheduler$ tail -f /var/log/emonhub/emonhub.log<br />
+2015-01-12 16:25:37,143 DEBUG 4 NEW FRAME : 1421079937.14&nbsp; P i16 g210 @ 433 MHz q1<br />
+2015-01-12 16:25:37,144 WARNING 4 Discarded RX frame &#39;non-numerical content&#39; : [&#39;P&#39;, &#39;i16&#39;, &#39;g210&#39;, &#39;@&#39;, &#39;433&#39;, &#39;MHz&#39;, &#39;q1&#39;]<br />
+2015-01-12 16:25:37,346 DEBUG 5 NEW FRAME : 1421079937.35 &gt; 16i<br />
+2015-01-12 16:25:37,346 WARNING 5 Discard RX frame &#39;information&#39; : [&#39;&gt;&#39;, &#39;16i&#39;]<br />
+2015-01-12 16:25:37,549 DEBUG 6 NEW FRAME : 1421079937.55&nbsp; P i16 g210 @ 433 MHz q1<br />
+2015-01-12 16:25:37,549 WARNING 6 Discarded RX frame &#39;non-numerical content&#39; : [&#39;P&#39;, &#39;i16&#39;, &#39;g210&#39;, &#39;@&#39;, &#39;433&#39;, &#39;MHz&#39;, &#39;q1&#39;]<br />
+2015-01-12 16:25:37,756 DEBUG 7 NEW FRAME : 1421079937.76 OK 1 0 0 0 0 0 0 0 0 0 0 244 1 8 7 114 7 8 7 235 17 172 15 2 8 4 17 22 14 103 15<br />
+2015-01-12 16:25:37,757 WARNING 7 Discarded RX frame &#39;non-numerical content&#39; : [&#39;OK&#39;, &#39;1&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;244&#39;, &#39;1&#39;, &#39;8&#39;, &#39;7&#39;, &#39;114&#39;, &#39;7&#39;, &#39;8&#39;, &#39;7&#39;, &#39;235&#39;, &#39;17&#39;, &#39;172&#39;, &#39;15&#39;, &#39;2&#39;, &#39;8&#39;, &#39;4&#39;, &#39;17&#39;, &#39;22&#39;, &#39;14&#39;, &#39;103&#39;, &#39;15&#39;]<br />
+2015-01-12 16:25:37,966 DEBUG 8 NEW FRAME : 1421079937.97 OK 15 0 16 25 33 1 0 1 1 0 0 1 0 0 0 144 1 20 0 1 7 7 50 6 150 6 108 7 1 244 1 0 244 1 0 244 1 0 244 1 0 108 7 1 244 1 0 244 1 0 169 6<br />
+2015-01-12 16:25:37,966 WARNING 8 Discarded RX frame &#39;non-numerical content&#39; : [&#39;OK&#39;, &#39;15&#39;, &#39;0&#39;, &#39;16&#39;, &#39;25&#39;, &#39;33&#39;, &#39;1&#39;, &#39;0&#39;, &#39;1&#39;, &#39;1&#39;, &#39;0&#39;, &#39;0&#39;, &#39;1&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;144&#39;, &#39;1&#39;, &#39;20&#39;, &#39;0&#39;, &#39;1&#39;, &#39;7&#39;, &#39;7&#39;, &#39;50&#39;, &#39;6&#39;, &#39;150&#39;, &#39;6&#39;, &#39;108&#39;, &#39;7&#39;, &#39;1&#39;, &#39;244&#39;, &#39;1&#39;, &#39;0&#39;, &#39;244&#39;, &#39;1&#39;, &#39;0&#39;, &#39;244&#39;, &#39;1&#39;, &#39;0&#39;, &#39;244&#39;, &#39;1&#39;, &#39;0&#39;, &#39;108&#39;, &#39;7&#39;, &#39;1&#39;, &#39;244&#39;, &#39;1&#39;, &#39;0&#39;, &#39;244&#39;, &#39;1&#39;, &#39;0&#39;, &#39;169&#39;, &#39;6&#39;]<br />
+2015-01-12 16:25:40,993 DEBUG 9 NEW FRAME : 1421079940.99 OK 15 0 16 25 39 1 0 1 1 0 0 1 0 0 0 144 1 20 0 1 7 7 50 6 150 6 108 7 1 244 1 0 244 1 0 244 1 0 244 1 0 108 7 1 244 1 0 244 1 0 175 6<br />
+2015-01-12 16:25:40,994 WARNING 9 Discarded RX frame &#39;non-numerical content&#39; : [&#39;OK&#39;, &#39;15&#39;, &#39;0&#39;, &#39;16&#39;, &#39;25&#39;, &#39;39&#39;, &#39;1&#39;, &#39;0&#39;, &#39;1&#39;, &#39;1&#39;, &#39;0&#39;, &#39;0&#39;, &#39;1&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;144&#39;, &#39;1&#39;, &#39;20&#39;, &#39;0&#39;, &#39;1&#39;, &#39;7&#39;, &#39;7&#39;, &#39;50&#39;, &#39;6&#39;, &#39;150&#39;, &#39;6&#39;, &#39;108&#39;, &#39;7&#39;, &#39;1&#39;, &#39;244&#39;, &#39;1&#39;, &#39;0&#39;, &#39;244&#39;, &#39;1&#39;, &#39;0&#39;, &#39;244&#39;, &#39;1&#39;, &#39;0&#39;, &#39;244&#39;, &#39;1&#39;, &#39;0&#39;, &#39;108&#39;, &#39;7&#39;, &#39;1&#39;, &#39;244&#39;, &#39;1&#39;, &#39;0&#39;, &#39;244&#39;, &#39;1&#39;, &#39;0&#39;, &#39;175&#39;, &#39;6&#39;]</p>
+<p>...</p>
+<p>2015-01-12 16:29:19,235 DEBUG RFM2Pi broadcasting control packet 0,16,29,19,0,0,0,0,0,0,0,0,0,0,144,1,20,0,1,0,0,0,0,0,0,244,1,0,244,1,0,244,1,0,244,1,0,244,1,0,244,1,0,244,1,0,244,1,0,0,0,s</p>
+<p>The packetgen packet is correctly broadcast on node 16 (received and decoded on an emontx)</p>
+<p>I suspect that the problem is either in RF12demo or emonhub but I can&#39;t find it!</p>
+<p>I would greatly appreciate some help !</p>
+<p>Richard</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="9999.html" class="topic-previous" title="Go to previous forum topic">‹ alphanumeric input-field in dashboards possible?</a>
+              <a href="9996.html" class="topic-next" title="Go to next forum topic">Check to see if Redis server is running. ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-26707"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: [SOLVED] Running Emonhub, emoncms on Laptop with Jeelink</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 12/01/2015 - 17:09.</div>
+    <div class="content">
+     <p>Hi Richard, can you confirm which emonHub version you are using? I suspect it may be rc1.0 which wasn&#39;t too happy with the &quot;OK&quot; prefix used in jeelib but not&nbsp;in rfm12&nbsp;rfm2pi&nbsp;firmware.</p>
+<p>v1.1 onwards is more Jeelink friendly. The warnings at start up&nbsp;are more precise in the later versions too.&nbsp;</p>
+<p>You can update emonHub&nbsp;using a git pull in the emonhub folder. although this may not be straight forward if you have made the packetgen mods to emonHub, you will need to redo those after the update.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26711"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5074.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hatfieldr&#039;s picture" title="hatfieldr&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: [SOLVED] Running Emonhub, emoncms on Laptop with Jeelink</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5074.html" title="View user profile.">hatfieldr</a> on Mon, 12/01/2015 - 18:06.</div>
+    <div class="content">
+     <p>Hi Paul</p>
+<p>Many thanks! - Emonhub now woks on the laptop &amp; pulls in Inputs!</p>
+<p>I am a little puzzled though... when I start emonhub the expected&nbsp; directory for emonhub python scripts was /home/USER/emonhub/scr&nbsp; not /home/USER/emonhub/src (as per the Git pull)</p>
+<p>Also the git pull didn&#39;t bring in emonhub_buffer.py or emonhub_coder.py?</p>
+<p>I renamed the directory /scr &amp; copied across the old versions of the above files (as well as the packetgen changes) And it seems to work fine!</p>
+<p>&nbsp;</p>
+<p>Also is &#39;service feedwriter&#39; part of the&nbsp;emonhub setup?&nbsp; this seems to be running on my Pi&nbsp; but not on the laptop?</p>
+<p>&nbsp;</p>
+<p>Thanks for your help</p>
+<p>Richard</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26713"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: [SOLVED] Running Emonhub, emoncms on Laptop with Jeelink</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 12/01/2015 - 18:31.</div>
+    <div class="content">
+     <blockquote><p><em>I am a little puzzled though... when I start emonhub the expected&nbsp; directory for emonhub python scripts was /home/USER/emonhub/scr&nbsp; not /home/USER/emonhub/src (as per the Git pull)</em></p>
+</blockquote>
+<p>I&#39;m a&nbsp;little confused by that too, where did the &quot;scr&quot; expectation&nbsp;come from? It is supposed to be &quot;src&quot; and I have just searched the repo&#39;s for &quot;scr&quot; expecting to find a typo which didn&#39;t find any occurrences&nbsp;</p>
+<blockquote><p><em>Also the git pull didn&#39;t bring in emonhub_buffer.py or emonhub_coder.py?</em></p>
+</blockquote>
+<p>This too is odd, but git and I have never seen eye-to-eye so I won&#39;t even try to explain or even understand why :-)</p>
+<blockquote><p><em>Also is &#39;service feedwriter&#39; part of the&nbsp;emonhub setup?&nbsp;</em></p>
+</blockquote>
+<p>No that belongs to&nbsp;low-write emoncms</p>
+<p>​Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26717"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5074.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hatfieldr&#039;s picture" title="hatfieldr&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: [SOLVED] Running Emonhub, emoncms on Laptop with Jeelink</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5074.html" title="View user profile.">hatfieldr</a> on Mon, 12/01/2015 - 18:46.</div>
+    <div class="content">
+     <p>Many thanks!</p>
+<p>Just had a look at my copy of&nbsp; /home/USER/emonhub/conf/default/emonhub :</p>
+<p>## emonHub settings</p>
+<p># Edit this to configure the parameters used in<br />
+# the /etc/init.d/emonhub script.</p>
+<p># This file should be deployed to /etc/default/emonhub<br />
+# unless you have edited the init.d file to give an<br />
+# alternate SYSCONF_PATH</p>
+<p># Specify the directory in which emonhub.py is found:<br />
+EMONHUB_PATH=/home/richard/emonhub/scr/</p>
+<p># Specify the full config file path:<br />
+EMONHUB_CONFIG=/home/richard/emonhub/conf/emonhub.conf</p>
+<p># Specify the full log file path:<br />
+EMONHUB_LOG=/var/log/emonhub/emonhub.log</p>
+<p>&nbsp;</p>
+<p>Emonhub path seems to have scr? (I don&#39;t think I changed that??) memory isn&#39;t too good though........</p>
+<p>Regards</p>
+<p>Richard</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26718"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: [SOLVED] Running Emonhub, emoncms on Laptop with Jeelink</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 12/01/2015 - 19:06.</div>
+    <div class="content">
+     <p>Ahh ok, the default locations are</p>
+<blockquote><p># Specify the directory in which emonhub.py is found:<br />
+EMONHUB_PATH=/usr/share/emonhub/<br />
+# Specify the full config file path:<br />
+EMONHUB_CONFIG=/etc/emonhub/emonhub.conf</p>
+</blockquote>
+<p>This is where the files will (eventually) be installed to, during the development it has been easier to install the repo to the user&#39;s homedir&nbsp;and &quot;symlink&quot; all the files to their intended locations, which is what the <a href="https://github.com/emonhub/dev-emonhub">&quot;dev-emonhub&quot;</a> install script does.</p>
+<p>The main thing is you got it working :-)</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26727"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5074.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hatfieldr&#039;s picture" title="hatfieldr&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: [SOLVED] Running Emonhub, emoncms on Laptop with Jeelink</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5074.html" title="View user profile.">hatfieldr</a> on Mon, 12/01/2015 - 23:04.</div>
+    <div class="content">
+     <p>Many Thanks Paul!</p>
+<p>Now works great on the Pi &amp; the laptop!</p>
+<p>Richard</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/9997"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-xWFC9nyGqpsYSIIREBHr1UniCv3VhIeE0E0P-eJ_uAk" value="form-xWFC9nyGqpsYSIIREBHr1UniCv3VhIeE0E0P-eJ_uAk"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/9997 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:43:40 GMT -->
+</html>

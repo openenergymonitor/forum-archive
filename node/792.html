@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/792 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:33:42 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Max 3.3 volt regulator | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Max 3.3 volt regulator</h3>
+        <span class="submitted">Submitted by <a href="../user/905.html" title="View user profile.">robw</a> on Mon, 02/07/2012 - 18:42</span>
+        <div class="content"><p>Sorry im not great with electronics and not sure what im after is called..</p>
+<p>Im poweing my GLCD with a LiPo Pack (3.7V) its charged with a solar panel but when the pack finishes charging the output from the pack / charger is 6V. currently the GLCD is doing the voltage regulation but i would like to impliment some power monitoring..</p>
+<p>Iv tried using this code.</p>
+<pre>
+void setup(void)
+
+  {
+  Serial.begin(115200);
+  }
+    
+void loop(void)
+  {
+  Serial.println (getBandgap ());
+  delay(1000);
+  }
+
+const long InternalReferenceVoltage = 1062;  // Adjust this value to your board's specific internal BG voltage
+ 
+// Code courtesy of &quot;Coding Badly&quot; and &quot;Retrolefty&quot; from the Arduino forum
+// results are Vcc * 100
+// So for example, 5V would be 500.
+int getBandgap () 
+  {
+  // REFS0 : Selects AVcc external reference
+  // MUX3 MUX2 MUX1 : Selects 1.1V (VBG)  
+   ADMUX = _BV (REFS0) | _BV (MUX3) | _BV (MUX2) | _BV (MUX1);
+   ADCSRA |= _BV( ADSC );  // start conversion
+   while (ADCSRA &amp; _BV (ADSC))
+     { }  // wait for conversion to complete
+   int results = (((InternalReferenceVoltage * 1023) / ADC) + 5) / 10; 
+   return results;<code style="font-size: larger; ">&nbsp;</code></pre><p>And it works fine.. BUT the regulator is also Boosting the voltage when it gets too low. Well i think it is.. say 3.0V to 3.3V. as i never see any other value other than 330, It does flicker around but not by much..</p>
+<p>What im after is some how making the voltage a max of 3.3V but not to boost the voltage if lower. &nbsp;Some one at work sugested using a zener diode but i not sure how this would help.&nbsp;<br />
+I guess i need to replace or remove the current regulator and add a new circuit.&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="794.html" class="topic-previous" title="Go to previous forum topic">‹ just have a look</a>
+              <a href="787.html" class="topic-next" title="Go to next forum topic">negative PowerFactor(V sensor) ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/792 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:33:42 GMT -->
+</html>

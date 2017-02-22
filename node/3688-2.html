@@ -1,0 +1,730 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>New emoncms raspberrypi harddrive image | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/5">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">New emoncms raspberrypi harddrive image</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Mon, 20/01/2014 - 23:13</span>
+        <div class="content"><p>I&#39;ve uploaded a new updated emoncms raspberrypi harddrive setup image which fixes a few bugs that where in the last one, there where a few problems with packetgen conflicting with emonglcd time sending and also having the possibility to get stuck just continuously sending rf packets both of which have now been fixed.</p>
+<p>The latest image can be downloaded here</p>
+<p><a href="http://217.9.195.228/2014-01-20-emoncms_raspberrypi_hdd_stack.zip">http://217.9.195.228/2014-01-20-emoncms_raspberrypi_hdd_stack.zip</a></p>
+<p>which is also linked from the main emoncms.org documentation here <a href="http://emoncms.org/site/docs/raspberrypihdd">http://emoncms.org/site/docs/raspberrypihdd</a></p>
+<p>The upgrade steps for those of you who are using the first image and dont want to start from scratch are the following fairly extensive list of terminal commands (sorry). These will download the latest updates to emoncms core and the add-on modules.</p>
+<pre>
+<strong>System update steps</strong>
+
+sudo apt-get update
+sudo apt-get upgrade
+
+Downloads 153MB takes a bit of time.
+
+<strong>Emoncms and modules update steps</strong>
+
+cd /var/www/emoncms
+git pull
+git checkout master
+
+cd /var/www/emoncms/Modules/packetgen
+git pull
+
+cd /var/www/emoncms/Modules/raspberrypi
+git pull
+git checkout raspberrypi_run.php
+git checkout master
+git pull
+
+cd /var/www/emoncms/Modules/event
+git pull
+git checkout master
+git pull
+
+cd /var/www/emoncms/Modules/mqtt
+git pull
+
+cp /var/www/emoncms/Modules/packetgen/copyto_raspberrpi_module/raspberrypi_run.php /var/www/emoncms/Modules/raspberrypi
+
+redis-cli
+&gt;flushall
+
+sudo /etc/init.d/rfm12piphp  restart
+
+<strong>Setup RFM12Pi firmware update system</strong>
+
+sudo apt-get install arduino
+sudo apt-get install python-dev&amp;&amp;python-rpi.gpio
+git clone <a href="https://github.com/mharizanov/avrdude-rpi.git" title="https://github.com/mharizanov/avrdude-rpi.git">https://github.com/mharizanov/avrdude-rpi.git</a>
+cd avrdude-rpi
+sudo cp autoreset /usr/bin
+sudo cp avrdude-autoreset /usr/bin
+sudo mv /usr/bin/avrdude /usr/bin/avrdude-original
+sudo ln -s /usr/bin/avrdude-autoreset /usr/bin/avrdude
+cd /home/pi
+git clone https://github.com/mharizanov/RFM2Pi.git</pre>  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/5461" class="topic-previous" title="Go to previous forum topic">‹ login-problems to emoncms on Windows-Wamp [solved]</a>
+              <a href="/emon/node/5451" class="topic-next" title="Go to next forum topic">Need help with the Input Configuration in emoncms ›</a>
+      </div>
+</div>
+      </div>
+    
+      </div>
+<div id="comments">
+  <a id="comment-17811"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3619" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="deskyeti&#039;s picture" title="deskyeti&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3619" title="View user profile.">deskyeti</a> on Tue, 21/01/2014 - 20:10.</div>
+    <div class="content">
+     <p>Hi Trystan,</p>
+<p>&nbsp;</p>
+<p>i updated my system using the info supplied and all seemed to go well apart from the fact that the time on my emonGLCD&nbsp;is no longer updating from my raspberry Pi base.</p>
+<p>anything obvious I should check? Last time this happened it was down to an issue with packetgen code I think.</p>
+<p>Regards, Keith</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-17832"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3619" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="deskyeti&#039;s picture" title="deskyeti&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3619" title="View user profile.">deskyeti</a> on Wed, 22/01/2014 - 13:14.</div>
+    <div class="content">
+     <p>Bit more information, running the serial monitor on the emonGLCD I am getting the following info:-</p>
+<p>Mymon2 GLCD example<br />
+	Node: 20 Freq: 433Mhz Network: 210<br />
+	RX<br />
+	NODE 15Received from 15 Pi ; Node 15<br />
+	; CRC 0 ; HDR 15 ; Data1 0 ; Data2 35 ; Data3 0 ; Data4 35 ; Data5 0 ;<br />
+	RX<br />
+	NODE 10Received from 10 emontx ; Node 10<br />
+	; CRC 0 ; HDR 10 ; Data1 4 ; Data2 108 ; Data3 91 ; Data4 0 ; Data5 0 ; Power1 1071<br />
+	RX<br />
+	NODE 15Received from 15 Pi ; Node 15<br />
+	; CRC 0 ; HDR 15 ; Data1 0 ; Data2 35 ; Data3 0 ; Data4 35 ; Data5 0 ;<br />
+	RX<br />
+	NODE 15Received from 15 Pi ; Node 15<br />
+	; CRC 0 ; HDR 15 ; Data1 0 ; Data2 35 ; Data3 0 ; Data4 35 ; Data5 0 ;<br />
+	RX<br />
+	NODE 10Received from 10 emontx ; Node 10<br />
+	; CRC 0 ; HDR 10 ; Data1 4 ; Data2 77 ; Data3 91 ; Data4 0 ; Data5 0 ; Power1 1070</p>
+<p>So it looks like the Pi is not broadcasting the correct time info in its packets since the update, the LCD is showing time of 0:35. Time on the Pi is correct.</p>
+<p>&nbsp;</p>
+<p>Regards, Keith</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-17834"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Wed, 22/01/2014 - 14:11.</div>
+    <div class="content">
+     <p>Hello Keith</p>
+<p>I think its to do with the old packet being saved in the database without the time fields. I&#39;ve added a little feature that can be used for reset the packet to the default template packet. If you do another git pull on packet gen you should get it:</p>
+<p>cd /var/www/emoncms/Modules/packetgen<br />
+	git pull</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-17836"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3619" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="deskyeti&#039;s picture" title="deskyeti&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3619" title="View user profile.">deskyeti</a> on Wed, 22/01/2014 - 16:02.</div>
+    <div class="content">
+     <p>That sorted it. When I looked at the Packet Generator page I can see where the 35 is coming from! Default values set up now and suddenly the time is correct on the display. Many thanks for the quick fix.</p>
+<p>&nbsp;</p>
+<p>Keith</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-17883"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="stegr&#039;s picture" title="stegr&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by stegr (not verified) on Sat, 25/01/2014 - 14:59.</div>
+    <div class="content">
+     <p>I uploaded the new image and modules last night (24th Jan) and had the same problem as Keith.</p>
+<p>Re-pulled the packetgen module but was told it was already uptodate. Rebooting the Pi and the GLCD now shows the time stuck at 6.28am not the 0.35am prevoiusly.</p>
+<p>What is going on or should I say not going on?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-17897"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4913" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="sbeausol&#039;s picture" title="sbeausol&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4913" title="View user profile.">sbeausol</a> on Sat, 25/01/2014 - 20:29.</div>
+    <div class="content">
+     <p>I just followed this sequence update, and now my Edimax&nbsp;Wifi adapter no longer works. &nbsp;It appears that the driver is no longer loading. &nbsp;It worked prior to this update.... I am working on installing the driver, but most info indicates that it should be included in the kernel already</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-17900"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4913" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="sbeausol&#039;s picture" title="sbeausol&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4913" title="View user profile.">sbeausol</a> on Sat, 25/01/2014 - 21:42.</div>
+    <div class="content">
+     <p>Just to update further -- it appears this update brings you 3.6.11+ for which there don&#39;t seem to be any kernel headers. &nbsp;As a result many drivers are not included... looks like the only way to go will be to manually install the driver for my wifi&nbsp;dongle</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-17924"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Mon, 27/01/2014 - 12:02.</div>
+    <div class="content">
+     <p>Do you think it would be worth recreating the image without the update? how difficult is it to add the drivers?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-17928"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1894" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1894" title="View user profile.">Ian Eagland</a> on Mon, 27/01/2014 - 12:12.</div>
+    <div class="content">
+     <p>Hi Trystan</p>
+<p>If you do create a new image may I suggest you make it larger. I ran into a problem with update due to lack of space. I had to shut down and resize partition with a PC.</p>
+<p>Regards</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-17930"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4913" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="sbeausol&#039;s picture" title="sbeausol&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4913" title="View user profile.">sbeausol</a> on Mon, 27/01/2014 - 13:50.</div>
+    <div class="content">
+     <p>Ok, I had some more time to work on this. &nbsp;What I found (and I still don&#39;t completely understand it) is that even if you start with the latest Raspbian image from here:&nbsp;http://downloads.raspberrypi.org/raspbian_latest, they don&#39;t seem to include the drivers that are compiled in the kernel. &nbsp;However, the version of Raspbian that you included in the first version did have those drivers. &nbsp;The part that has confused me more is that even though the previous version worked, it seems to have the same kernel:</p>
+<p>pi@raspberrypi ~ $ uname -a<br />
+	Linux raspberrypi 3.6.11+ #538 PREEMPT Fri Aug 30 20:42:08 BST 2013 armv6l GNU/Linux</p>
+<p>The problem I find is that when upgrading via&nbsp;</p>
+<p>sudo&nbsp;apt-get update</p>
+<p>sudo apt-get upgrade</p>
+<p>Those modules no longer get loaded for anything. &nbsp;Right now my solution has been to revert back to the version of Raspbian that you imaged originally, and then just updating emoncms. &nbsp;Does make this sense? &nbsp;You can tell that there aren&#39;t any drivers loading by typing:</p>
+<p>lsmod</p>
+<p>This should yield several things printing (they are loaded kernel modules) - my wifi dongle should be one of them.</p>
+<p>After updating, lsmod showed nothing....</p>
+<p>What I think is happening is that the new raspbian version has upgraded to something like 3.10.x but the system is still running kernel 3.6.11. &nbsp;When it goes to load the kernel modules (ie drivers) it looks in /lib/modules/[Kernel version] and can&#39;t find any drivers for 3.6.11, and thus loads nothing...</p>
+<p>Any ideas?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18082"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1894" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1894" title="View user profile.">Ian Eagland</a> on Sat, 01/02/2014 - 11:03.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>I have just set up a new emoncms using the 17 jan image from scratch.</p>
+<p>I can now confirm that that image does not install any drivers so my wifi and mouse do not work.</p>
+<p>Regards</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18457"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3655" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="keithpark&#039;s picture" title="keithpark&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3655" title="View user profile.">keithpark</a> on Sat, 15/02/2014 - 12:30.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Have been using the SD method successfully for a while but thought I&#39;d give the HDD version&nbsp;a go. The install all appeared to go well until after about 7hrs&nbsp;all my feeds stopped reporting with no light flashing on the RFM12Pi.</p>
+<p>I swapped back in my previous SD card and all was back to normal so I think it must be a software issue. Have tried both the new HDD image and the previous one manually upgraded and have the same issue, works for a while then the RFM12 gives up.</p>
+<p>My RFM12Pi is v1 rather than the newer v2. Could that be caousing a problem?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18497"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1531" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1531" title="View user profile.">Jérôme</a> on Mon, 17/02/2014 - 08:18.</div>
+    <div class="content">
+     <p>RFM2Pi v1 can fail if the &quot;broadcast time for emonGLCD&quot; option is turned on. Maybe it is on by default in one version and not in the other ? (Check oemgateway.conf)</p>
+<p>Regarding the partition size, I don&#39;t know about the ready-to-go SD card, but in Raspian, there is a nice feature allowing you to resize the partition just after the install, to fit the card. I could expand the image to my whole 32 GB card.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18552"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/5586" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Spexx&#039;s picture" title="Spexx&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/5586" title="View user profile.">Spexx</a> on Wed, 19/02/2014 - 19:02.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>I think I have the same problem. My USB-devices like my mouse don&#39;t work. During the booting I got some errors with &quot;/lib/modules/3.6.11+/&quot;... Is there any fix for this or can I download anywhere the older image version?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18575"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1894" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1894" title="View user profile.">Ian Eagland</a> on Thu, 20/02/2014 - 09:22.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>I don&#39;t know of a fix. lsmod&nbsp;will show no modules. The older image (lower down on the same page <a href="http://emoncms.org/site/docs/raspberrypihdd" title="http://emoncms.org/site/docs/raspberrypihdd">http://emoncms.org/site/docs/raspberrypihdd</a>) works provided you do not run update and upgrade as ugrading also removes all the drivers. I understand&nbsp;if you use the latest raspbian image from&nbsp;http://www.raspberrypi.org/downloads and install emoncms from scratch it works OK. I have not tried this as I am able to run on a wired connection (As wifi also will not work) until a fix is available.</p>
+<p>Regards</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18594"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Thu, 20/02/2014 - 17:59.</div>
+    <div class="content">
+     <p>Hi,<br />
+	I experienced some of these issues too and found the problems seem to be caused by the pi not recognising it has the 3.10.25+ kernel not the 3.6.11. This is because of the sdcard boot partition not mounting correctly and not getting updated. this in turn means the files on the boot partition have not been updated. this fix worked for me&nbsp;</p>
+<p>I have made a copy of the boot.img with the updated 3.10.25+ files on a partition so that it gets mounted correctly. just replacing the existing boot.img with this new boot.img should sort most of these issues but to be safe the old 3.6.11 files should also be removed to avoid future confusion. (there is also a redundant txt file called &quot;NEW BOOT_IMG&quot; this is just for identification and confirmation use and can be deleted after)</p>
+<p>So if you have these symptoms<br />
+	1 - &quot;lsmod&quot; returns an empty list<br />
+	2 - &quot;uname - a&quot; returns 3.6.11</p>
+<p>try replacing the boot.img if it doesn&#39;t work you can always change back</p>
+<p>You can download it from my dropbox here <a href="https://www.dropbox.com/s/xok2zvs85gwwv35/boot.zip">https://www.dropbox.com/s/xok2zvs85gwwv35/boot.zip</a>&nbsp;it&#39;s only 16MB</p>
+<p>After changing the boot.img you should get these results straight after booting up<br />
+	1 - &quot;lsmod&quot; returns a list of loaded modules (inc wifi if usual dongle connected)<br />
+	2 - &quot;uname - a&quot; returns 3.10.25+</p>
+<p>if successful the step-by-step instructions to &quot;clean-up&quot; are as follows</p>
+<p class="rteindent1">cd /boot<br />
+	ls</p>
+<p>confirm the &quot;NEW BOOT_IMG&quot; file is there</p>
+<p class="rteindent1">cd ../<br />
+	sudo umount /boot</p>
+<p class="rteindent1">cd /boot<br />
+	ls</p>
+<p>confirm the &quot;NEW BOOT_IMG&quot; file is NOT there</p>
+<p class="rteindent1">sudo rm *<br />
+	cd ../<br />
+	sudo mount /boot<br />
+	cd /boot</p>
+<p>confirm the &quot;NEW BOOT_IMG&quot; file is there again</p>
+<p>the boot partition on the hdd is not used but may cause confusion so copy your sd card to that partition just to be tidy</p>
+<p class="rteindent1">sudo dd if=/dev/mmcblk0p1 of=/dev/sda1 bs=1M count=57</p>
+<p>Apt-get update and apt-get upgrade should also work correctly now.</p>
+<p><span style="font-size: 12px;">Hope this helps&nbsp;</span></p>
+<p>Paul</p>
+<p>PS this works with the stock 20th&nbsp;jan 2014 image so if you have made changes to the partition structure you should factor that in.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18613"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1894" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1894" title="View user profile.">Ian Eagland</a> on Fri, 21/02/2014 - 10:34.</div>
+    <div class="content">
+     <p>Hi Paul</p>
+<p>Many thanks, that worked like a charm. I now have wifi back.</p>
+<p>The only odd thing was that I got the following when I tried to copy to the boot partition on the hdd.</p>
+<p>pi@Emoncms1 /boot $ sudo dd if=/dev/mmcblk0p1 of=/dev/sda1 bs=1M count=57</p>
+<p>dd: writing `/dev/sda1&#39;: No space left on device<br />
+	57+0 records in<br />
+	56+0 records out<br />
+	58720256 bytes (59 MB) copied, 5.5938 s, 10.5 MB/s</p>
+<p>I assume it does not matter.</p>
+<p>Regards</p>
+<p>Ian</p>
+<p>I spoke too soon. Wifi&nbsp;seems to be cutting out after a while. Comes back with a reboot. Something else to investigate!</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18627"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Fri, 21/02/2014 - 15:31.</div>
+    <div class="content">
+     <p>Hi Ian,</p>
+<p>I&#39;m glad it worked (even if it was only for a while) there are a lot of reports of wifi dropping out on RPi, nothing to do with the OEM or EmonCMS software. I&#39;m currently using an ethenet cable as wifi kept dropping out but have since seen several blogs etc suggesting a cron&nbsp;entry to ping the router every min or so and if no response restart&nbsp;wifi. I haven&#39;t tried it yet but it sound like it should work. sorry I didn&#39;t keep any links,&nbsp;googling should work.</p>
+<p><span style="font-size: 12px;">and no that message doesn&#39;t really matter at all.</span></p>
+<p><span style="font-size: 12px;">thanks for the feedback</span></p>
+<p><span style="font-size: 12px;">Regards Paul</span></p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18638"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1894" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1894" title="View user profile.">Ian Eagland</a> on Fri, 21/02/2014 - 17:35.</div>
+    <div class="content">
+     <p>Hi Paul</p>
+<p>The odd thing about the wifi&nbsp; dropping out is that before I upgraded as per Trystan&#39;s instructions at the beginning of this thread the system had been up and running for months. It makes me think something has changed in the software as the hardware is unchanged. I had switched to a hard drive installation a long time ago using berryboot&nbsp;as prior to that I had very bad experiences with SD cards failing.</p>
+<p>Regards</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18645"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Fri, 21/02/2014 - 18:44.</div>
+    <div class="content">
+     <p>Hi Ian</p>
+<p>I wish I knew the answer, I&#39;ve always been plagued with wifi issues with RPi, even though the hardware and the software has been changed numerous times, in fact the only thing that has been consistent&nbsp;is poor wifi. I have multiple pi&#39;s two different types of wifi&nbsp;adapter, various&nbsp;usb hubs and power supplies but I am yet to find an acceptable level of service. to be fair I haven&#39;t tried too hard to fix it as I am currently wired due to using remote desktop &amp;&nbsp;xrdp alot&nbsp;and its a pain even if it drops out once.</p>
+<p>My wifi&nbsp;was at its best immediately&nbsp;before I switched to a hdd, After the switch it was so poor I plugged in a lead. I hadn&#39;t installed emoncms then so it wasn&#39;t that. I have since installed emoncms&nbsp;and when i tried wifi&nbsp;after the fix above it worked but as I couldn&#39;t get xrdp to work with the emoncms&nbsp;image (another issue to sort) I went back to my previous image until I have time to address the xrdp&nbsp;issue.</p>
+<p><span style="font-size: 12px;">Whilst </span>i&#39;m<span style="font-size: 12px;"> no expert, I think any&nbsp;</span>wifi<span style="font-size: 12px;"> issues introduced by this image are more likely to be due to the </span>raspbian<span style="font-size: 12px;"> update rather than </span>emoncms<span style="font-size: 12px;">, in fact now I think about it, coincidentally&nbsp;I upgraded to 3.10.25 from 3.6.11 at the same time as installing the </span>hdd.</p>
+<p>I would like to go back to a wifi connection but have had more pressing and interesting issues to deal with 1st. I think some community collaboration on RPi wifi and maybe a new Raspberry Pi WiFi thread as a focus point could be in order as you are definitely not alone.</p>
+<p>Regards Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18655"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4913" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="sbeausol&#039;s picture" title="sbeausol&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4913" title="View user profile.">sbeausol</a> on Sat, 22/02/2014 - 01:18.</div>
+    <div class="content">
+     <p>Guys-</p>
+<p>I experienced wifi&nbsp;dropping out also and found that if I added the line:</p>
+<p>wireless-power off</p>
+<p>to /etc/network/interfaces</p>
+<p>it helped. &nbsp;My wifi device has been reported to go to sleep if this line isn&#39;t present. &nbsp;Since adding this line, I&#39;ve had reliable wifi access to my Pi. &nbsp;</p>
+<p>In terms of the boot.img, I think that makes sense. &nbsp;I found after upgrading the kernel wasn&#39;t right, and such the &nbsp;drivers didn&#39;t work. &nbsp;I&#39;ll give it a try when I get a chance...</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18668"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/5586" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Spexx&#039;s picture" title="Spexx&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/5586" title="View user profile.">Spexx</a> on Sat, 22/02/2014 - 20:13.</div>
+    <div class="content">
+     <p>Thanks Pauls, seems to work for me. I don&#39;t use a wifi device, but know I can use my FTDI-programmer. I got also the message &quot;No space left on device&quot; like Ian but it works anyway.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18678"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/10" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/10" title="View user profile.">glyn.hudson</a> on Sun, 23/02/2014 - 13:35.</div>
+    <div class="content">
+     <p>Great, thanks a lot for the fix Paul.</p>
+<p>The new boot image has been zipped up into a new image download&nbsp;</p>
+<p><a href="http://files.openenergymonitor.org/2014-02-23-emoncms_raspberrypi_hdd_stack.zip">http://files.openenergymonitor.org/2014-02-23-emoncms_raspberrypi_hdd_stack.zip</a></p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18687"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1894" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1894" title="View user profile.">Ian Eagland</a> on Sun, 23/02/2014 - 18:02.</div>
+    <div class="content">
+     <p>Many thanks Sbeausol.&nbsp;Great stuff!</p>
+<p>Adding wireless-power off seems to have cured my wifi dropping out.</p>
+<p>Regards</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18692"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Sun, 23/02/2014 - 20:29.</div>
+    <div class="content">
+     <p>Ian - ssssssssshhhhhhhhh! don&#39;t speak too soon :-) &nbsp;bloody wifi! I thought I would give Sbeausol&#39;s&nbsp;suggestion a try, so as I haven&#39;t been using it recently I connected wifi without adding &quot;wireless-power off&quot; first, to compare against and its been perfect all day... typical</p>
+<p><span style="background-color: transparent; font-size: 12px;">Glyn - glad it helped, There is another thread&nbsp;with the same problem, I will link it to here so the new image can be found.</span></p>
+<p><span style="background-color: transparent; font-size: 12px;">Also I though it was worth mentioning that&nbsp;Glyn&nbsp;has added the new boot image to the existing hdd image so if you already have the hdd image you can still just replace the boot image, downloading the 16MB&nbsp;zipped boot image will be quicker and less strain on oem site than downloading the whole&nbsp;1GB zipped image.&nbsp;</span></p>
+<p><span style="background-color: transparent; font-size: 12px;">Paul</span></p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18726"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3464" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3464.jpg" alt="Bra1n&#039;s picture" title="Bra1n&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3464" title="View user profile.">Bra1n</a> on Mon, 24/02/2014 - 18:41.</div>
+    <div class="content">
+     <p>Marvelous, now I can get the watchdog running to try and improve my uptime :)</p>
+<p>Will the kernel headers problem re-occur whenever the Kernel is updated ?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18727"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Mon, 24/02/2014 - 18:57.</div>
+    <div class="content">
+     <p>Not if the sd card&#39;s boot partition is mounted to the /boot folder of the root file system (hdd). if its not mounted then any kernel update process will just put the new boot files in the folder /boot on the hdd which will never get used.</p>
+<p>if you run <strong>mount </strong>at the command line this line</p>
+<p class="rteindent1">/dev/mmcblk0p1 on /boot type vfat</p>
+<p>means its mounted and any updating of the kernel or packages should be successful.</p>
+<p>Regards Paul</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18734"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3464" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3464.jpg" alt="Bra1n&#039;s picture" title="Bra1n&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3464" title="View user profile.">Bra1n</a> on Mon, 24/02/2014 - 20:42.</div>
+    <div class="content">
+     <p>Thanks Paul, I&#39;ve got :-</p>
+<p>/dev/mmcblk0p1 on /boot type vfat (rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,errors=remount-ro)</p>
+<p>so I guess I&#39;m ok ?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-18779"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1178" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1178.jpg" alt="alco&#039;s picture" title="alco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1178" title="View user profile.">alco</a> on Tue, 25/02/2014 - 20:39.</div>
+    <div class="content">
+     <p>Paul you made my day. !!I</p>
+<p>was struggling to get my I2C connection right (to add a LCD) but didn&#39;t get the kernel update working with rpi-update. Now it connects perfectly and I gonna try to make an emon GLCD on the RPI :)</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-19196"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/5710" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-5710.jpg" alt="Teslafly&#039;s picture" title="Teslafly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/5710" title="View user profile.">Teslafly</a> on Thu, 13/03/2014 - 04:28.</div>
+    <div class="content">
+     <p>Thanks for the update. I have gone though with it but have not had the chance to test anything. an important note though. you should be able to copy /paste the whoe line of commands into putty or other ssh program and the pi will execute them one after another. it gets a little confused at the</p>
+<p>redis-cli</p>
+<p>&gt;flushall</p>
+<p>section as you do not have an &quot;exit&quot; command after this to continue the script.(If you could call it that) - You just have to do each update by pasting in that section otherwise.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-22736"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Tue, 29/07/2014 - 08:57.</div>
+    <div class="content">
+     <p>Trying to install the Root files into a 21GB HDD partition - sda2, but although dd appears to copy the files OK with no errors reported, when I check the integrity of the partition I get the error <strong>&#39;The file system is not clean&#39;.</strong></p>
+<p>I&#39;ve reformatted sda2&nbsp;and gone through the process again, but still get the same result.</p>
+<p>Any ideas?</p>
+<p>My intention was to edit the cmdline.txt file (boot) to point to the new root partition.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-22738"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Tue, 29/07/2014 - 09:35.</div>
+    <div class="content">
+     <p>Hello Paul, which guide, system setup are you following? If your settings up a new system it might be worth skiping to the new emonhub + emoncms (low write version). There&#39;s documentation on how to use it with a harddrive and update to the full version of emoncms if you wish too. <a href="https://github.com/emoncms/emoncms/tree/bufferedwrite">https://github.com/emoncms/emoncms/tree/bufferedwrite</a></p>
+<p>I&#39;ve just been updating the links on the site: guide, modules, emoncms.org etc to point to it and have archived the old harddrive build. Maybe we should start a new thread as this one references the older harddrive build?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-22740"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: New emoncms raspberrypi harddrive image</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Tue, 29/07/2014 - 09:52.</div>
+    <div class="content">
+     <p>No, I wasn't using that version, I followed the link from emoncms.org to the old version.<br />
+I'll try the new version tonight when I get home.</p>
+<p>Thanks</p>
+<p>Paul</p>
+<p>PS, I've locked this thread now</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<form action="/emon/node/3688."  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-SVLLjehQrXfvZ_DSALPLu7prmN2V0MdLaz2RIggenyk" value="form-SVLLjehQrXfvZ_DSALPLu7prmN2V0MdLaz2RIggenyk"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

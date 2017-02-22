@@ -1,0 +1,266 @@
+//--------------------------------------------------------------------------------------
+// Mains AC Non-Invasive Energy Monitor (2 channel) 
+// Last revision 27th Oct 2010
+// Licence: GNU GPL
+// By Trystan Lea (updated to support two channel energy monitoring by Glyn Hudson)
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+// VARIABLE DECLERATION
+//--------------------------------------------------------------------------------------
+  //--ENERGY MEASURMENT VARIABLES------------------------------
+  
+  //Power measurement/time variables
+  unsigned long t_now, t_diff, t_last, t_culm;
+   
+  //kwhTotal is cumulative kwh today.
+  double Solarkwh =0.0;
+  double Mainskwh =0.0;
+//--------------------------------------------------------------------------------------
+// EMON
+//--------------------------------------------------------------------------------------
+
+// include the library code:
+#include <LiquidCrystal.h>  // initialize the library with the numbers of the interface pins
+LiquidCrystal lcd(8, 9, 10, 11, 12, 13);
+int menuState = 0;
+int menu = 0;
+
+int wavelengths = 3000;   //number of wavelengths to sample
+int inPinV = 1;           //Analog input pin number that voltage signal is connected to
+int inPinI_1 = 3;         //Analog input pin number that current signal is connected to. Channel 1
+int inPinI_2 = 2;         //Analog input pin number that current signal is connected to. Channel 2 
+int menupin = 1;          //Arduino pin 1 goes to pushbutton for menu
+int RelayOn = 4;          //Arduino pin 4 goes to the opto isolator (full power)
+int HRelayOn = 3;         //Arduino pin 3 goes to opto isolator (half power)
+int led_on = 6;           //Arduino pin 6 goes to panel LED
+
+
+//channel 1
+double VCAL = 1.28348;              //Voltage calibration scaler
+double ICAL_1 = 0.05815;            //Current calibration scaler
+double ICAL_2 = 0.05806;
+
+double PHASECAL = 2.3;                        //Shifts voltage relative to current, 
+                                              //subtracting any phase shifting caused by components
+    
+int emon_timeout = 2000;                       //how long to wait ms if something goes wrong.
+
+
+class Channel
+{
+  public:
+    void emon_calc(int,double);                //create pulse function 
+    double realPower,                          //Output variables
+       apparentPower,
+       powerFactor,
+       Vrms,
+       Irms, 
+       whInc, 
+       wh;
+
+  private: // Variable declaration for emon_calc procedure
+   int lastSampleV,sampleV;                          //sample_ holds the raw analog read value, lastSample_ holds the last sample_
+    int lastSampleI,sampleI;                      
+
+    double lastFilteredV,filteredV;                   //Filtered_ is the raw analog value minus the DC offset
+    double lastFilteredI, filteredI;                  
+    
+    double phaseShiftedV;                             //Holds the calibrated phase shifted voltage.
+    
+    double sqV,sumV,sqI,sumI,instP,sumP;              //sq = squared, sum = Sum, inst = instantaneous
+    
+    int startV;                                       //Instantaneous voltage at start of sample window.
+    
+    boolean lastVCross, checkVCross;                  //Used to measure number of times threshold is crossed.
+    int crossCount;                                   // ''
+    
+    unsigned long lwhtime, whtime;                    //used to calculate energy used.
+
+};
+
+Channel ch1,ch2;    //create two incidence of class channel for the two channels
+
+//--------------------------------------------------------------------------------------
+// SETUP
+//--------------------------------------------------------------------------------------
+void setup()
+{
+   lcd.begin(16, 2); // set up the LCD's number of columns and rows:
+  
+   Serial.begin(9600); 
+   pinMode(RelayOn,OUTPUT); // this sets the pin named RelayOn to be an output
+   pinMode(HRelayOn,OUTPUT); // this sets the pin named RelayOn to be an output
+   pinMode(menupin, INPUT); // this sets the pin named menupin to be an input
+   pinMode (led_on, OUTPUT); //this sets the pin named led_on to be an output
+
+   t_culm = (3600000 * 12);       //On first run, advances the 24hr timer by 12hrs (so can restart at midday!)  
+   //t_culm = (3600000 * 23.75);  //FOR TESTING ONLY
+   
+   digitalWrite(RelayOn,HIGH);   //Switches relay off
+   digitalWrite(HRelayOn,HIGH);  //Switches relay off
+   
+   //Introduces 15 second delay to allow caps to charge up
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("  Please Wait  ");
+    lcd.setCursor(0, 1);
+    lcd.print("Initialising....");
+    delay (15000);
+}
+
+unsigned long wtime;
+
+//--------------------------------------------------------------------------------------
+// MAIN LOOP
+//--------------------------------------------------------------------------------------
+void loop()
+{ 
+  //-------------------------------------------------------------------------------------------
+  // 1) Calculate energy monitor values
+  //-------------------------------------------------------------------------------------------
+  ch1.emon_calc(inPinI_1,ICAL_1);  //Energy Monitor calc function for channel 1, pass Arduino analog in pin nummber and calibration coefficient 
+  ch2.emon_calc(inPinI_2,ICAL_2);  //Energy Monitor calc function, for channel 2, pass Arduino analog in pin nummber and calibration coefficient
+
+  //--ENERGY MEASURMENT CALCULATION----------------   
+ 
+ //Power measurement
+  t_now = millis();
+    if ( t_now > t_last ) {   //check to see if millis has overflowed back to zero (after approx 49 days)
+      t_diff = t_now - t_last; } //if not, the time each emon cycle takes
+        else {  //if millis has reset...
+          t_diff = 4127; }   //t_diff = (the amount of time each average emon cycle takes), again dealing with the millis reset.
+  t_culm += t_diff;
+  t_last = t_now;
+  
+  if ( t_culm > (3600000 * 24)){ //check to see if 24hrs has elapsed
+  Solarkwh = 0; // RESET
+  Mainskwh = 0; // RESET
+  t_culm = 0;   // RESET
+  }
+
+  //ch1.realPower = 2534;  //FOR TESTING ONLY
+  //ch2.realPower = 1522;  //FOR TESTING ONLY
+  
+  //Calculate number of kwh generated.
+  Solarkwh = Solarkwh + ((ch1.realPower/1000.0) * 1.0/3600.0 * (t_diff/1000.0));
+  Mainskwh = Mainskwh + ((ch2.realPower/1000.0) * 1.0/3600.0 * (t_diff/1000.0));  
+
+    //------------Data Output-------------
+     
+    //Read menupin to see what menu to display
+    menuState = digitalRead(menupin);
+    if ( menuState == LOW) {
+    menu = menu+1; }
+    if (menu > 4){
+    menu = 0;
+    }  
+    
+    //MENU 0   
+    if (menu == 0) {
+    // clear the lcd screen
+    lcd.clear();
+    //if-else statement to alter LCD print format depending upon power reading
+    lcd.setCursor(0, 0);
+        if (ch1.realPower >= 1000)  {
+      lcd.print("Solar "); lcd.print(ch1.realPower / 1000.0, 3); lcd.print(" kW");  }
+    else  {
+      lcd.print("Solar "); lcd.print(ch1.realPower, 0); lcd.print(" Watts");  }
+    
+    lcd.setCursor(0, 1);
+        if (ch2.realPower >= 5000)  {
+      lcd.print("M/Power over 5kW"); }
+    else
+      if (ch2.realPower >= 1000)  {
+      lcd.print("Mains "); lcd.print(ch2.realPower / 1000.0, 3); lcd.print(" kW");  }
+    else  {
+      lcd.print("Mains "); lcd.print(ch2.realPower, 0); lcd.print(" Watts");  }
+    }
+
+    //MENU 1 - to enable detailed readings for calibration
+    if (menu == 1) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Solar "); lcd.print(Solarkwh); lcd.print(" kWh");
+    lcd.setCursor(0, 1);
+    lcd.print("Mains "); lcd.print(Mainskwh); lcd.print(" kWh");  }
+
+    //MENU 2 - to enable detailed readings for calibration
+    if (menu == 2) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("PowerF "); lcd.print(ch1.powerFactor, 2);
+    lcd.setCursor(0, 1);
+    lcd.print("Voltage "); lcd.print(ch1.Vrms, 0); lcd.print(" V");  }
+    
+    //MENU 3 - to enable detailed readings for calibration
+    if (menu == 3) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Solar "); lcd.print(ch1.realPower, 0); lcd.print(" W");
+    lcd.setCursor(0, 1);
+    lcd.print("Mains "); lcd.print(ch2.realPower, 0); lcd.print(" W");  }
+    
+    //MENU 4 - DEMO MODE
+    if (menu == 4) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print ("Press button for");
+    lcd.setCursor(0, 1);
+    lcd.print("3 secs for demo");
+    delay (3000);
+    if (digitalRead(menupin)== LOW) {  //check to see if button is still pressed
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print ("DEMO MODE");
+    delay (2000);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Solar 1.326 kW");
+    lcd.setCursor(0, 1);
+    lcd.print("Mains 298 Watts");
+    digitalWrite (led_on,HIGH);
+    delay (10000); 
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Solar 18.36 kWh");
+    lcd.setCursor(0, 1);
+    lcd.print("Mains 4.29 kWh");
+    digitalWrite (led_on,HIGH);
+    delay (10000); 
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("PowerF 0.98");
+    lcd.setCursor(0, 1);
+    lcd.print("Voltage 247 V");
+    digitalWrite (led_on,HIGH);
+    delay (10000);
+    menu = 0; }
+    else {
+      menu = 0; }
+    }
+       
+ //checks to see if can run at full power
+  if (ch1.realPower > (ch2.realPower +1090)) {
+      digitalWrite(HRelayOn,HIGH); //turn the half power output off
+      digitalWrite(RelayOn,LOW); //turn the full output on
+       }
+  else{
+      digitalWrite(RelayOn,HIGH); //turn the output off
+       //checks to see if can run at half power
+       if (ch1.realPower > (ch2.realPower +545)) {
+        digitalWrite(HRelayOn,LOW); }//turn the output on
+          else  {
+           digitalWrite(HRelayOn,HIGH); //turn the output off
+     }
+   }
+ //LED control 
+   if (digitalRead(RelayOn) == LOW) {
+     analogWrite(led_on, 200);  }
+   else if (digitalRead(HRelayOn) == LOW) {
+     analogWrite(led_on, 30);   } //quarter brightness
+   else {
+         digitalWrite (led_on,HIGH);
+         delay (100);
+         digitalWrite (led_on,LOW);
+        }
+ }

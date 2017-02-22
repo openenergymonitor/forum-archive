@@ -1,0 +1,409 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1522 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:07:24 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>How do I export data from latest emoncms to debug water monitor issue | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">How do I export data from latest emoncms to debug water monitor issue</h3>
+        <span class="submitted">Submitted by <a href="../user/349.html" title="View user profile.">EnergyRnR</a> on Sun, 02/12/2012 - 02:10</span>
+        <div class="content"><p>Water Monitoring<br />
+	I&#39;m trying to debug a problem with my water monitor. The question is ; how can i get a data dump from the db at emoncms.org to go an see what the trend is.....</p>
+<p>&nbsp;</p>
+<p>I&#39;ve included some info here in case someone has ideas I could try. As you can see the data resets frequently, though sometimes it clearly increments from one reading to the next before &#39;deciding&#39; to drop again.&nbsp;</p>
+<p>I&rsquo;m trying to get a daily weekly zoom working, but would expect the raw data to show continuously incrementally increasing&nbsp;values since the input is a pulse water meter.</p>
+<p>I suspect the unit is resetting or I have a data overflow, or, as Andy pointed out in his write up, there may be an issue with the RF TX trigerring&nbsp;an interrupt....</p>
+<p>If it were an overflow though, it should be much more consistent&hellip;&hellip;and I&#39;m using unsigned int&#39;s! Some code snippets are below..</p>
+<p><img alt="" src="../../../i609.photobucket.com/albums/tt176/Scoileanna/Water_m3.png" style="width: 1024px; height: 513px;" /></p>
+<p><strong>emontx code:</strong><br />
+	Uses 2 unsigned long variables&hellip;&hellip;<br />
+	typedef struct {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int W_supplyV; unsigned long W_litres;<br />
+	} Payload2;<br />
+	Payload2 WaterMeter;<br />
+	&nbsp; unsigned long pulseCount = 0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Number of pulses.<br />
+	<strong>emonbase code:</strong><br />
+	Uses unsigned char&hellip;..<br />
+	for (byte i=0; i&lt;n; i+=2)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unsigned int num = (abs((unsigned char)rf12_data[i+1] &lt;&lt; 8 | (unsigned char)rf12_data[i]));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (i) str.print(&quot;,&quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; str.print(num);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2184.html" class="topic-previous" title="Go to previous forum topic">‹ Probs getting started with &quot;interface script is not running&quot; and &quot;file_get_contents&quot;</a>
+              <a href="2200.html" class="topic-next" title="Go to next forum topic">Emoncms host computers  ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-7901"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arvidb&#039;s picture" title="arvidb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by arvidb (not verified) on Sun, 02/12/2012 - 03:52.</div>
+    <div class="content">
+     <p>Why are you casting rf12_data[n] to (unsigned char) before shifting? If you shift an 8-bit value eight bits, there's nothing left...</p>
+<p>What's the type of *rf12_data? If it's smaller than int, its value should automatically be promoted to int when you apply the shift operator to it. I.e. don't cast it.</p>
+<p>Why the abs()? Are there really negative values in the rf12_data array?</p>
+<p>It's generally a bad idea to mix different types in C, because the rules for promotion and implicit type casts are pretty complicated. Use (long) on the arduino if you need the 32 bits; use (int) otherwise (e.g. for the loop variable i).</p>
+<p>Don't use type casting unless it's absolutely necessary, and use -Wall when compiling. This way the compiler will help you find many issues.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7911"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 02/12/2012 - 14:15.</div>
+    <div class="content">
+     <p>For what it&#39;s worth, rf12_data is actually a pointer in the library to the start of the 66-byte data block. So unless you are sending and retrieving bytes, it needs either a cast or a union.</p>
+<p>arvidb, &quot;If you shift an 8-bit value eight bits, there&#39;s nothing left...&quot; is a red herring. The intention is to shift an 8-bit byte from the arrray into the high order byte of the 16-bit integer, and that&#39;s OK. This line has been lifted out of the multi-node base sketch. The cast is OK because all you are trying to do is recover exactly what you put in at the other end, and you don&#39;t want to treat the most significant bit as a sign bit.</p>
+<p>But I think that emoncms.org can only handle signed integer inputs. So if you feed it an unsigned,&nbsp; you&#39;ll have to figure out how to handle it in the inputs and feeds pages.</p>
+<p>As I see it, we don&#39;t know exactly what or where the problem is. My best suggestion is to hang a serial monitor on your base, and put a few lines in to output the values so that you can actually see what you are trying to send to emoncms. Then take it from there. What actually is your data, is it a consumption rate, or is it an accumulator (i.e. the meter reading)?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7916"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/349.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-349.jpg" alt="EnergyRnR&#039;s picture" title="EnergyRnR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by <a href="../user/349.html" title="View user profile.">EnergyRnR</a> on Sun, 02/12/2012 - 17:14.</div>
+    <div class="content">
+     <p>folks-thanks for the input.&nbsp;</p>
+<p>I think I do need to get in close and see exactly what I&#39;m sending . and get rid of the abs() which I&#39;d forgotten about..</p>
+<p>arvidb&#39;s&nbsp;comment to avoid mixing types is very good advice &nbsp;; I&#39;ll try to simplify things</p>
+<p>My payload from the emontx is an int(emontx voltage) and unsigned long accumator(pulse count). I&#39;m converting the pulse count from the ElsterV100 to litres at the emontx and sending that over to the base. (code attached) but would really like to get a csv dump from the db and look through the inputs for both these variables; anyone know how I do that from emonemc.org?</p>
+<p>Eamonn</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7917"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/349.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-349.jpg" alt="EnergyRnR&#039;s picture" title="EnergyRnR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by <a href="../user/349.html" title="View user profile.">EnergyRnR</a> on Sun, 02/12/2012 - 17:20.</div>
+    <div class="content">
+     <p>try to attach again .....</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7918"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1741.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1741.jpg" alt="ukmoose&#039;s picture" title="ukmoose&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1741.html" title="View user profile.">ukmoose</a> on Sun, 02/12/2012 - 17:34.</div>
+    <div class="content">
+     <p>You can get a dump of all the values of a feed by using&nbsp;</p>
+<p>/emoncms/feed/data?id=1 &nbsp; where 1 is the number of the feed. &nbsp;This will deliver it to the screen in a&nbsp;json-like format but its easy enough to cut and paste into the spreadsheet of your choice where you can reformat it until your hearts content.&nbsp;</p>
+<p>&nbsp;</p>
+<p>On the feeds screen if you click on &quot;Feed API Help&quot; you&#39;ll see the options</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7921"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arvidb&#039;s picture" title="arvidb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by arvidb (not verified) on Mon, 03/12/2012 - 03:21.</div>
+    <div class="content">
+     <p>A bit OT now, but: Robert is right about the &quot;red herring&quot;, since the cast has higher precedence than the shift. The original code is:</p>
+<pre>
+  int num = ((unsigned char)rf12_data[i+1] &lt;&lt; 8 | (unsigned char)rf12_data[i]);</pre><p>and the steps done become:</p>
+<ol>
+<li>
+		Cast uint8_t (the type of *rf12_data) to unsigned char (should have no effect?)</li>
+<li>
+		Promote* type of value to int</li>
+<li>
+		Shift left 8 bits (will give incorrect result if MSb is set)</li>
+</ol>
+<p>* See e.g. <a href="http://www.google.com/search?q=c+integer+promotion" title="www.google.com/search?q=c+integer+promotion">www.google.com/search?q=c+integer+promotion</a></p>
+<p>May I suggest this code instead:</p>
+<pre>
+for (int i=0; i&lt;n; i+=2)
+{
+  unsigned int num = rf12_data[i+1];
+  num &lt;&lt;= 8;
+  num |= rf12_data[i];
+
+  ...
+}
+</pre><p>(Verified to compile only; not tested further.)</p>
+<p>Edit: Show code correctly.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7929"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/349.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-349.jpg" alt="EnergyRnR&#039;s picture" title="EnergyRnR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by <a href="../user/349.html" title="View user profile.">EnergyRnR</a> on Mon, 03/12/2012 - 00:08.</div>
+    <div class="content">
+     <p>can&#39;t seem to get certain feeds data.</p>
+<p>Am I right in thinking the following should get me everything for feed 2499 from</p>
+<p>01 Aug 2012 00:00:00 GMT to 01 Oct 2012 00:00:00 GMT?</p>
+<p><a href="http://emoncms.org/feed/data?id=2499?start=1343779200&amp;end=1349049600" title="http://emoncms.org/feed/data?id=2499?start=1343779200&amp;end=1349049600">http://emoncms.org/feed/data?id=2499?start=1343779200&amp;end=1349049600</a></p>
+<p>I only get a [] returned, and can see the data clearly in the charts.</p>
+<p>strange... other feeds work ok - just seems to be an issue with the unixtime spec.</p>
+<p>thanks a lot,</p>
+<p>Eamonn</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7930"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1741.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1741.jpg" alt="ukmoose&#039;s picture" title="ukmoose&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1741.html" title="View user profile.">ukmoose</a> on Mon, 03/12/2012 - 00:29.</div>
+    <div class="content">
+     <p>they look right to me. &nbsp;You don&#39;t need to add the start/end</p>
+<p><a href="http://emoncms.org/feed/data?id=2499" title="http://emoncms.org/feed/data?id=2499">http://emoncms.org/feed/data?id=2499</a> should dump all the data for the feed.</p>
+<p>You can then look at the&nbsp;timestamps and see whats happening&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7931"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 03/12/2012 - 01:06.</div>
+    <div class="content">
+     <p>&quot;Is there a way to post code on this forum? &quot;</p>
+<p>Two ways:<br />
+	either attach a file (best if it is more than a short snip - i.e longer than this!) - Note my post about making it visible at <a href="841.html#comment-7895" title="http://openenergymonitor.org/emon/node/841#comment-7895">http://openenergymonitor.org/emon/node/841#comment-7895</a></p>
+<p>or paste the code in, switch to plain text editor and surround it with &lt;pre&gt; &lt;/pre&gt; tags</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10559"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="llevvellyn&#039;s picture" title="llevvellyn&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by llevvellyn (not verified) on Wed, 20/03/2013 - 20:38.</div>
+    <div class="content">
+     <p>Hello,</p>
+<p>I have a Raspberry Pi with an image I created over Christmas (so must be whatever was latest around then).</p>
+<p>It&#39;s been running pretty happily since then and I&#39;d now like to get some data off and put it in Excel or equivelant in order to play around with it a bit.</p>
+<p>I&#39;ve tried the suggestion from ukmoose &quot;/emoncms/feed/data?id=1&nbsp;&nbsp; where 1 is the number of the feed&quot; where I put that in the browser preceeded by the RPi IP address but I get a message on emoncms&nbsp;&quot;Message: Permission Denied&quot;.</p>
+<p>Anyone got any idea how I get permission?</p>
+<p>I was also thinking of putting phpMyAdmin onto the RPi but it seems like it might be complicated to link it to the already existing databases so I&#39;ve chickened out for now.</p>
+<p>Thanks for any help.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10561"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 20/03/2013 - 21:27.</div>
+    <div class="content">
+     <p>Yes, append your API key &quot;/emoncms/feed/data?id=1&amp;apikey=[YOUR API KEY] &quot; to the request. (Probably the read-only one for safety).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10562"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 21/03/2013 - 05:31.</div>
+    <div class="content">
+     <p>EnergyRnR did you ever get to the bottom of your original issue?</p>
+<p>I just happened across this thread and looked at your sending code. &nbsp;One possible issue is that in this line:</p>
+<p>WaterMeter.W_litres=(pulseCount)*0.25;</p>
+<p>the read of pulseCount is not atomic on a processor like the AVR. &nbsp;</p>
+<p>pulseCount is an unsigned long so you&#39;re at risk of the ISR firing while the above code is reading pulseCount. &nbsp;This can lead to inconsistencies if the ISR&#39;s</p>
+<p>pulseCount++;</p>
+<p>results in a carry from one byte up to the next byte while your process level code is fetching those bytes.</p>
+<p>In addition to that problem, you should also tell the compiler that pulseCount is volatile.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10699"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/349.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-349.jpg" alt="EnergyRnR&#039;s picture" title="EnergyRnR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by <a href="../user/349.html" title="View user profile.">EnergyRnR</a> on Fri, 29/03/2013 - 10:52.</div>
+    <div class="content">
+     <p>Thanks a lot for that. I had 2 problems, (....apart from some serious personality defects, but this isn&#39;t the time or place :-) )</p>
+<p>&nbsp;- was using litres in my payload and hitting int overflow. I&#39;m now using m3 and will never get near the limit, unless there is some serious tea drinking going on! &nbsp; casting it as an int like this - WaterMeter.m3=int((pulseCount)*0.00025);</p>
+<p>- was not declaring the pulseCount&nbsp;variable as volatile, so this is now sorted. Has anyone tried usint the &lt;utils/atomic.h&gt; lib. Seems to be similar to using the nointerrupts(), interrupts() wrappers but I haven&#39;t had time to try it out. Apart from the volatile declarations, would it also be good coding practice to always use those wrappers? I haven&#39;t...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10982"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Sun, 07/04/2013 - 20:56.</div>
+    <div class="content">
+     <p><em>Has anyone tried usint the &lt;utils/atomic.h&gt; lib. Seems to be similar to using the nointerrupts(), interrupts() wrappers</em></p>
+<p>Either will work... they both basically do the same thing. &nbsp;</p>
+<p><em>Apart from the volatile declarations, would it also be good coding practice to always use those wrappers?</em></p>
+<p>Yes, &nbsp;you need to do both as they each solve a different problem.</p>
+<p><i>volatile&nbsp;</i>tells the compiler not to use a local register copy of a variable, but rather read it from (or write it to) memory each time you access it in your code.</p>
+<p>The atomic stuff (doesn&#39;t matter whether you use atomic.h, or nointerrupts()/interrupts(), or cli()/sei()) ensures that when you&#39;re reading a variable larger than 1 byte, you get the entire variable snapshotted in one consistent state.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10990"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/349.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-349.jpg" alt="EnergyRnR&#039;s picture" title="EnergyRnR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How do I export data from latest emoncms to debug water monitor issue</h3>
+
+    <div class="submitted">Submitted by <a href="../user/349.html" title="View user profile.">EnergyRnR</a> on Mon, 08/04/2013 - 10:36.</div>
+    <div class="content">
+     <p>thanks for that.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/1522"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-qV1-Piep296YNeuFKaR_5m4FN8QTdCFMo0RN5vitQFw" value="form-qV1-Piep296YNeuFKaR_5m4FN8QTdCFMo0RN5vitQFw"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1522 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:07:37 GMT -->
+</html>

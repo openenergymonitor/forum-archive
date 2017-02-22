@@ -1,0 +1,322 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11102 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:46:13 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Wrong AC Current reading | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Wrong AC Current reading</h3>
+        <span class="submitted">Submitted by <a href="../user/8323.html" title="View user profile.">lamela</a> on Wed, 12/08/2015 - 06:33</span>
+        <div class="content"><p>Hello guys! I&#39;m using two analog inputs voltage &amp; current with serial communication from arduino to labview. I use ACS712 for the current sensor. The readings I get are ranging from -6 to +5 from the AC signal after the calculations. If I take the RMS, I will get around 3.9 - 4.0. I use 230AC supply with load 229ohms so I should get around 1.004? The value I get should be near to 1 but I&#39;m getting 3.9 RMS?</p>
+<p>I&#39;ve double checked the hardware(connection) and software(calculations) and I don&#39;t think there is anything wrong? What should I do? This value I&#39;m getting is totally far from 1A that I should be getting!</p>
+<p>I&#39;m taking the reading from Analog input 0 to divide 1023 then * 5000. Then I minus the 2500 offset and divide 185.</p>
+<p>&nbsp;</p>
+<p>Here is my code:</p>
+<p>&nbsp;</p>
+<p>const int analogIn0 = A0;<br />
+const int analogIn1 = A1;<br />
+int mVperAmp = 185; // use 100 for 20A Module and 66 for 30A Module<br />
+int RawCurrentValue= 0;<br />
+int RawVoltageValue= 0;<br />
+int ACSoffset = 2500;</p>
+<p>int Denominator = 0;<br />
+float AcVoltage = 0;<br />
+float Voltage0 = 0;<br />
+float Voltage1 = 0;<br />
+float Amps = 0;</p>
+<p>void setup(){&nbsp;<br />
+&nbsp;Serial.begin(9600);<br />
+}</p>
+<p>void loop(){<br />
+&nbsp;<br />
+&nbsp;RawCurrentValue = analogRead(analogIn0);<br />
+&nbsp;RawVoltageValue = analogRead(analogIn1);</p>
+<p>&nbsp;Denominator = 10000/130000;<br />
+&nbsp;<br />
+&nbsp;Voltage0 = (RawCurrentValue / 1023.0) * 5000;&nbsp;<br />
+&nbsp;Voltage1 = (RawVoltageValue / 1023.0) * 5000;&nbsp;<br />
+&nbsp;AcVoltage = (Voltage1 / Denominator ) ;<br />
+&nbsp;Amps = ((Voltage0 - ACSoffset) / mVperAmp);<br />
+&nbsp;<br />
+&nbsp;<br />
+Serial.print(Amps);<br />
+Serial.print(&quot;, &quot;);<br />
+Serial.println(AcVoltage);</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>I&#39;ve also serial printed the 3 values, the RawCurrentValue, the Millivolt and the Current reading. I verified that the Millivolt values are correct, so I assume the rawcurrentvalue shouldn&#39;t be the problem though.. I should be getting a current close to 1.</p>
+<p>The values of the RawCurrentValue is ranging from 290-705. Millivolt is ranging from 1400-3450 and current is from -5.96 to 5.16. These are the values if I use 230AC with load 229 ohms.</p>
+<p>Really appreciate if you guys can help!</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11135.html" class="topic-previous" title="Go to previous forum topic">‹ Current only diverter.</a>
+              <a href="10165.html" class="topic-next" title="Go to next forum topic">Turnkey system for the US? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-33271"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wrong AC Current reading</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 12/08/2015 - 10:01.</div>
+    <div class="content">
+     <p>That device is ratiometric, therefore the output depends directly on its supply voltage. Can we have a circuit diagram? </p>
+<p>How are you calculating the rms value?</p>
+<p>[Edit]<br />
+You've quoted so many numbers that it's difficult to follow what you're trying to do. OK, you want to measure voltage and current, but in detail I can't follow you. All I think your sketch is doing is printing sampled voltages/currents from random points on the alternating wave.</p>
+<p>Here's what I know and what I'd do:<br />
+Any d.c. offset will spoil the readings, therefore subtracting half-scale isn't the best way to remove it, because the offset might not be exactly half-scale. In emonLib we use a low pass filter to extract the true offset, then we can subtract the true value. What you're left with is a series of values that represent samples at a sequence of points on the wave. To get the rms value, you need to square each, then take the average over a whole number of mains cycles (or a sufficient number of cycles so that the error from a part-cycle doesn't matter too much), then get the square root. Finally, you need to calibrate the result.</p>
+<p>Given that, I'd simply plug your sensor pin numbers into emonLib, which does all that maths for you, then I'd sit down and work through the Building Blocks article on calibration theory - don't expect to understand it the first time round, you'll need pencil, paper and a calculator and work through it several times to understand how it all works - and calculate your calibration constant. It will depend of the sensitivity of your ACS712, which you know from the data sheet and its supply voltage, and the ADC reference voltage of your Arduino.<br />
+To give you a guide, a standard shop CT with the standard burden resistor gives about 1.1 V rms at 100 A, and the current calibration constant is 90.9, so (very, very roughly) it's the number of amps to get 1 V at your ADC input. Likewise for voltage the AC adapter and voltage divider steps the mains voltage down to about 1.1 V so the voltage calibration constant is (again very, very roughly) the mains voltage for 1 V at the ADC input. (It doesn't matter whether you use rms, peak or peak-peak, as long as both are the same units.)</p>
+<p>When you've got past the initial testing, do NOT put print statements inside the sampling loop - they will slow it down to the point where the numbers are almost meaningless. You will need two loops - a 'fast' loop to read the analogue values, square and accumulate, and a 'slow' loop around that to do the average, the square root, the scale factor to calibrate and print the result.<br />
+To give you an idea of the speed, emonLib takes roughly 2500 sample pairs (voltage and current) per mains cycle, i.e. about 50 sample pairs per second. </p>
+<p>[Edit 2]<br />
+In your code, what value does "Denominator" get - bear in mind it's declared as an Integer?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33280"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8323.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="lamela&#039;s picture" title="lamela&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wrong AC Current reading</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8323.html" title="View user profile.">lamela</a> on Wed, 12/08/2015 - 15:24.</div>
+    <div class="content">
+     <p>Thanks for your reply!</p>
+<p>Is the emonLib compatible with the Arduino Yun? So I just have to change the input pin to A0 &amp; A1 for current and voltage from the sketch. Do you have a list of&nbsp;how the calculations are being made or how do I change the calculations for the current &amp; the voltage? Because I&#39;m using a different load, a current sensor,&nbsp;different transformer &nbsp;to step down voltage with different resistors for the voltage dividing so I have to change the values a bit.</p>
+<p>I&#39;ll probably try this tomorrow when I get back to my school&#39;s lab!&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33281"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wrong AC Current reading</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 12/08/2015 - 15:34.</div>
+    <div class="content">
+     <p><i>"Is the emonLib compatible with the Arduino Yun?"</i><br />
+I don't know the Arduino range, but it is maths so all you will have to do is change some pin references.</p>
+<p><i>"Do you have a list..."</i><br />
+No, that is the point of you studying the explanation of the theory behind the calibration. (And that is why I gave you some very rough values so that you would know when your value was in the right area.)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33422"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8323.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="lamela&#039;s picture" title="lamela&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wrong AC Current reading</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8323.html" title="View user profile.">lamela</a> on Tue, 18/08/2015 - 16:31.</div>
+    <div class="content">
+     <p>Ok! The calibration for the voltage part is alright to me but I&#39;m having trouble finding the current calibration. Since I&#39;m following the calculations from here:&nbsp;http://openenergymonitor.org/emon/buildingblocks/ct-and-ac-power-adaptor-installation-and-calibration-theory</p>
+<p>I don&#39;t know what&#39;s the secondary, primary current and transformer ratio for the ACS712 current sensor.. Do you have any idea on how to calculate it? The sensitivity is 0.185V/mA. There is 1.004A flowing through the current sensor and about 2.2V on the analog input. The supply voltage is 5V and based on the datasheet, ACS712 uses&nbsp;1.2 m&Omega; burden resistor.&nbsp;</p>
+<p>I&#39;m kind of stuck here. Really appreciate if you could help me with this!&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33425"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wrong AC Current reading</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 18/08/2015 - 18:44.</div>
+    <div class="content">
+     <p>You will need to treat this as a "voltage output current transformer".</p>
+<p>But first, you need to get the correct numbers - the sensitivity is <b>not</b> 0.185V/mA (obviously - if you give it 1 A you cannot have 185 V out. A typo?)</p>
+<p>The data sheet says 185 mV/A, so I'll use that. </p>
+<p>Look at the section on the page you linked: "If you use a current transformer with a built-in burden (voltage output type)"<br />
+Where it says "For example, the Yhdc SCT-013-030 gives 1 V at a rated current of 30 A, so for this transformer you have: current constant = 30 ÷ 1 = 30", that tells you exactly what you want.</p>
+<p>So applying the same thinking to yours, yours gives you 185 mV at a current of 1 A, therefore:<br />
+your current constant = 1 (A) ÷ 0.185 (V) = 5.405</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33431"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8323.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="lamela&#039;s picture" title="lamela&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wrong AC Current reading</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8323.html" title="View user profile.">lamela</a> on Wed, 19/08/2015 - 02:28.</div>
+    <div class="content">
+     <p>Thanks for your reply!</p>
+<p>Hmm.. If I take 5.405 as the current constant, I get 3.67A rms on the serial monitor? But I&#39;m supposed to get about 1A? Even for the voltage constant, I calculated 233.94 as the Vmain and the counts is 185.75, I take 233.94/185.75 and I got 1.259 as the voltage constant. But if I input this value 1.259 I&#39;m getting 1.07Vrms..</p>
+<p>What do you think is the problem here?</p>
+<p>here are the readings I got</p>
+<p>(realpower, apparent power, Vrms, Irms, power factor)</p>
+<p>3.98 3.96 1.07 3.69 1.01&nbsp;</p>
+<p>Please help! The deadline of my project is two more days&nbsp;:(</p>
+<p>&nbsp;</p>
+<p>Edit: I&#39;ve realized if I divide the Irms&nbsp;by 4, I get the correct reading. This is the same problem when I use the normal calculation to calculate? What am I doing wrong?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33433"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wrong AC Current reading</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 19/08/2015 - 09:45.</div>
+    <div class="content">
+     <p>Which version of the ACS712 do you have. There are three, with different sensitivities (see Page 5 of the data sheet):</p>
+<p>ACS712ELCTR-<b>05B</b>-T which is 185 mV/A<br />
+ACS712ELCTR-<b>20A</b>-T which is 100 mV/A<br />
+ACS712ELCTR-<b>30A</b>-T which is  66 mV/A</p>
+<p>Are you using the latest version of emonLib? The code you included in your first post <b>will not work with alternating current</b>, so you must use emonLib to get the rms values. You want a sketch like <a href="https://learn.openenergymonitor.org/?redirect=arduino-sketch-current-only" title="http://openenergymonitor.org/emon/buildingblocks/arduino-sketch-current-only">http://openenergymonitor.org/emon/buildingblocks/arduino-sketch-current-...</a></p>
+<p>Can you attach your <u>complete</u> sketch?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33434"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8323.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="lamela&#039;s picture" title="lamela&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wrong AC Current reading</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8323.html" title="View user profile.">lamela</a> on Wed, 19/08/2015 - 09:53.</div>
+    <div class="content">
+     <p>I&#39;m using the&nbsp;ACS712ELCTR-05B-T which is 185 mV/A. Yeap, I got it from the website not long ago?</p>
+<p>Is the sketch correct? Is it the latest?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33438"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wrong AC Current reading</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 19/08/2015 - 10:46.</div>
+    <div class="content">
+     <p>Obviously something is not what it is supposed to be, but everything looks correct to me.</p>
+<p>What is the rms voltage from the ACS712? Measure it with respect to Vcc/2 (2.5 V dc), not with respect to GND in case your meter does not remove the dc component.<br />
+Measured on the dc voltage range, the output should be 2.5 V dc, though the filter in emonLib should remove any offset.</p>
+<p><i>"here are the readings I got</p>
+<p>(realpower, apparent power, Vrms, Irms, power factor)</p>
+<p>3.98 3.96 1.07 3.69 1.01 "</i></p>
+<p>What was the actual current that produced those numbers?</p>
+<p>If you connect an unused analogue input to Vcc, and do<br />
+  Serial.println(analogRead(...whichever...);<br />
+do you get 1023 or something very close to that?</p>
+<p>I have checked the numbers with an emonTx (with input pins suitably changed), and with 2.4 V on the voltage input ( &divide; 13 = 185 mV ac on the analogue input pin), your sketch gives me 1.04 A rms, so I think the calibration constant is correct.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11102"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-nN9BFIvMijKy4-A0NHR30IcFBuQYqQlciaLoVTm3MnM" value="form-nN9BFIvMijKy4-A0NHR30IcFBuQYqQlciaLoVTm3MnM"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11102 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:46:13 GMT -->
+</html>

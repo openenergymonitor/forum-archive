@@ -1,0 +1,329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Solved: avrdude-original: Using autoreset DTR on GPIO Pin 7 | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/6">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Solved: avrdude-original: Using autoreset DTR on GPIO Pin 7</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/7305" title="View user profile.">IngmarVerheij</a> on Thu, 03/12/2015 - 19:25</span>
+        <div class="content"><p>So I tried a new thing today, updating the firmware on the RFMpi. Since I&#39;m about to replace the RFM12b with a RFM69cw I figured it would be wise to try and upload the RFM12b&nbsp;firmware first before I&#39;d start replacing the hardware.</p>
+<p>I followed the (very easy) guide -&nbsp;http://wiki.openenergymonitor.org/index.php?title=RFM69Pi_V3 - and used the firmware for the RFM12b</p>
+<pre>
+avrdude -v -c arduino -p ATMEGA328P -P /dev/ttyAMA0 -b 38400 -U flash:w:RFM12_Demo_ATmega328.cpp.hex</pre><p>Unfortunately this led to quick stop. After the &quot;using autoreset...&quot; message it simply stopped.&nbsp;</p>
+<pre>
+avrdude-original: Version 6.1, compiled on Jul  7 2015 at 13:18:47
+                  Copyright (c) 2000-2005 Brian Dean, <a href="http://www.bdmicro.com/" title="http://www.bdmicro.com/">http://www.bdmicro.com/</a>
+                  Copyright (c) 2007-2014 Joerg Wunsch
+
+                  System wide configuration file is &quot;/etc/avrdude.conf&quot;
+                  User configuration file is &quot;/root/.avrduderc&quot;
+                  User configuration file does not exist or is not a regular file, skipping
+
+                  Using Port                    : /dev/ttyAMA0
+                  Using Programmer              : arduino
+                  Overriding Baud Rate          : 38400
+avrdude-original: Using autoreset DTR on GPIO Pin 7
+pi@raspberrypi ~/RFM2Pi/firmware/RF12_Demo_atmega328 $</pre><p>Fortunately I&#39;m not the only one (link) and found out that avrdude version 6.1 was the culprit and this could be solved by using an older version (5.11). So an easy solution to my misery was to remove 6.11</p>
+<pre>
+sudo apt-get remove avrdude
+sudo rm /usr/bin/avrdude-original</pre><p>and update the installation script of&nbsp;<a href="https://github.com/openenergymonitor/avrdude-rpi/blob/master/install">avrdude-rpi</a> to force apt-get to use version 5.11:</p>
+<pre>
+#!/bin/bash
+
+echo &quot;display serial console to enable use of /dev/AMA0 serial port&quot;
+sudo wget <a href="https://raw.githubusercontent.com/openenergymonitor/rpi-serial-console/master/rpi-serial-console" title="https://raw.githubusercontent.com/openenergymonitor/rpi-serial-console/master/rpi-serial-console">https://raw.githubusercontent.com/openenergymonitor/rpi-serial-console/m...</a> -O /usr/bin/rpi-serial-console &amp;&amp; sudo chmod +x /usr$
+sudo rpi-serial-console disable
+
+sudo apt-get install -y avrdude=5.11.1-1 python-dev python-rpi.gpio minicom
+
+echo &quot;install avrdude autoreset&quot;
+
+sudo cp /home/pi/avrdude-rpi/autoreset /usr/bin
+sudo cp /home/pi/avrdude-rpi/avrdude-autoreset /usr/bin
+
+if [ ! -f /usr/bin/avrdude-original ]; then 
+        sudo mv /usr/bin/avrdude /usr/bin/avrdude-original
+        sudo ln -s /usr/bin/avrdude-autoreset /usr/bin/avrdude
+fi</pre><p>Now when I issue the same command, everything works :-)</p>
+<pre>
+pi@raspberrypi ~/RFM2Pi/firmware/RFM69CW_RF_Demo_ATmega328 $ avrdude -v -c arduino -p ATMEGA328P -P /dev/ttyAMA0 -b 38400 -U flash:w:RFM12_Demo_ATmega328.cpp.hex
+
+avrdude-original: Version 5.11.1, compiled on May 23 2012 at 11:08:25
+                  Copyright (c) 2000-2005 Brian Dean, <a href="http://www.bdmicro.com/" title="http://www.bdmicro.com/">http://www.bdmicro.com/</a>
+                  Copyright (c) 2007-2009 Joerg Wunsch
+
+                  System wide configuration file is &quot;/etc/avrdude.conf&quot;
+                  User configuration file is &quot;/root/.avrduderc&quot;
+                  User configuration file does not exist or is not a regular file, skipping
+
+                  Using Port                    : /dev/ttyAMA0
+                  Using Programmer              : arduino
+                  Overriding Baud Rate          : 38400
+avrdude-original: Using autoreset DTR on GPIO Pin 7
+                  AVR Part                      : ATMEGA328P
+                  Chip Erase delay              : 9000 us
+                  PAGEL                         : PD7
+                  BS2                           : PC2
+                  RESET disposition             : dedicated
+                  RETRY pulse                   : SCK
+                  serial program mode           : yes
+                  parallel program mode         : yes
+                  Timeout                       : 200
+                  StabDelay                     : 100
+                  CmdexeDelay                   : 25
+                  SyncLoops                     : 32
+                  ByteDelay                     : 0
+                  PollIndex                     : 3
+                  PollValue                     : 0x53
+                  Memory Detail                 :
+
+                                           Block Poll               Page                       Polled
+                    Memory Type Mode Delay Size  Indx Paged  Size   Size #Pages MinW  MaxW   ReadBack
+                    ----------- ---- ----- ----- ---- ------ ------ ---- ------ ----- ----- ---------
+                    eeprom        65    20     4    0 no       1024    4      0  3600  3600 0xff 0xff
+                    flash         65     6   128    0 yes     32768  128    256  4500  4500 0xff 0xff
+                    lfuse          0     0     0    0 no          1    0      0  4500  4500 0x00 0x00
+                    hfuse          0     0     0    0 no          1    0      0  4500  4500 0x00 0x00
+                    efuse          0     0     0    0 no          1    0      0  4500  4500 0x00 0x00
+                    lock           0     0     0    0 no          1    0      0  4500  4500 0x00 0x00
+                    calibration    0     0     0    0 no          1    0      0     0     0 0x00 0x00
+                    signature      0     0     0    0 no          3    0      0     0     0 0x00 0x00
+
+                  Programmer Type : Arduino
+                  Description     : Arduino
+                  Hardware Version: 3
+                  Firmware Version: 4.4
+                  Vtarget         : 0.3 V
+                  Varef           : 0.3 V
+                  Oscillator      : 28.800 kHz
+                  SCK period      : 3.3 us
+
+avrdude-original: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.00s
+
+avrdude-original: Device signature = 0x1e950f
+avrdude-original: safemode: lfuse reads as 0
+avrdude-original: safemode: hfuse reads as 0
+avrdude-original: safemode: efuse reads as 0
+avrdude-original: NOTE: FLASH memory has been specified, an erase cycle will be performed
+                  To disable this feature, specify the -D option.
+avrdude-original: erasing chip
+avrdude-original: reading input file &quot;RFM12_Demo_ATmega328.cpp.hex&quot;
+avrdude-original: input file RFM12_Demo_ATmega328.cpp.hex auto detected as Intel Hex
+avrdude-original: writing flash (8982 bytes):
+
+Writing | ################################################## | 100% 3.17s
+
+avrdude-original: 8982 bytes of flash written
+avrdude-original: verifying flash memory against RFM12_Demo_ATmega328.cpp.hex:
+avrdude-original: load data flash data from input file RFM12_Demo_ATmega328.cpp.hex:
+avrdude-original: input file RFM12_Demo_ATmega328.cpp.hex auto detected as Intel Hex
+avrdude-original: input file RFM12_Demo_ATmega328.cpp.hex contains 8982 bytes
+avrdude-original: reading on-chip flash data:
+
+Reading | ################################################## | 100% 2.87s
+
+avrdude-original: verifying ...
+avrdude-original: 8982 bytes of flash verified
+
+avrdude-original: safemode: lfuse reads as 0
+avrdude-original: safemode: hfuse reads as 0
+avrdude-original: safemode: efuse reads as 0
+avrdude-original: safemode: Fuses OK</pre><p>&nbsp;</p>
+<p>Hope this helps for others with the same challenge</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/11785" class="topic-previous" title="Go to previous forum topic">‹ Mysql fails on emonSD-17Jun2015.img</a>
+              <a href="/emon/node/11752" class="topic-next" title="Go to next forum topic">git checkout 9.x ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-36715"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/10" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solved: avrdude-original: Using autoreset DTR on GPIO Pin 7</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/10" title="View user profile.">glyn.hudson</a> on Fri, 04/12/2015 - 16:27.</div>
+    <div class="content">
+     <p>Nice work, thanks a lot for figuring this out. It&#39;s strange that the new version of avrdude caused issues. Avrdude V6.1 works fine uploading to the emonPi&nbsp;and autorest via GPIO&nbsp;</p>
+<p>&nbsp;</p>
+<p>
+avrdude version 6.1</p>
+<p>I&#39;m using baud&nbsp;115200, this is the only difference I can see.&nbsp;</p>
+<p><a href="https://github.com/openenergymonitor/emonpi/blob/master/emonpiupdate">https://github.com/openenergymonitor/emonpi/blob/master/emonpiupdate</a></p>
+<p>=================================<br />
+EmonPi update started<br />
+=================================<br />
+Start ATmega328 serial upload using avrdude with emonPi_latest.hex<br />
+avrdude-original: Using autoreset DTR on GPIO Pin 7<br />
+strace: |autoreset: Broken pipe<br />
+strace: |autoreset: Broken pipe</p>
+<p>avrdude-original: AVR device initialized and ready to accept instructions</p>
+<p>Reading | ################################################## | 100% 0.00s</p>
+<p>avrdude-original: Device signature = 0x1e950f<br />
+avrdude-original: NOTE: &quot;flash&quot; memory has been specified, an erase cycle will be performed<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; To disable this feature, specify the -D option.<br />
+avrdude-original: erasing chip<br />
+avrdude-original: reading input file &quot;/home/pi/emonpi/Atmega328/emonPi_RFM69CW_RF12Demo_DiscreteSampling/compiled/emonPi_latest.hex&quot;<br />
+avrdude-original: input file /home/pi/emonpi/Atmega328/emonPi_RFM69CW_RF12Demo_DiscreteSampling/compiled/emonPi_latest.hex auto detected as Intel Hex<br />
+avrdude-original: writing flash (19074 bytes):</p>
+<p>Writing | ################################################## | 100% 2.73s</p>
+<p>avrdude-original: 19074 bytes of flash written<br />
+avrdude-original: verifying flash memory against /home/pi/emonpi/Atmega328/emonPi_RFM69CW_RF12Demo_DiscreteSampling/compiled/emonPi_latest.hex:<br />
+avrdude-original: load data flash data from input file /home/pi/emonpi/Atmega328/emonPi_RFM69CW_RF12Demo_DiscreteSampling/compiled/emonPi_latest.hex:<br />
+avrdude-original: input file /home/pi/emonpi/Atmega328/emonPi_RFM69CW_RF12Demo_DiscreteSampling/compiled/emonPi_latest.hex auto detected as Intel Hex<br />
+avrdude-original: input file /home/pi/emonpi/Atmega328/emonPi_RFM69CW_RF12Demo_DiscreteSampling/compiled/emonPi_latest.hex contains 19074 bytes<br />
+avrdude-original: reading on-chip flash data:</p>
+<p>Reading | ################################################## | 100% 2.06s</p>
+<p>avrdude-original: verifying ...<br />
+avrdude-original: 19074 bytes of flash verified<br />
+strace: |autoreset: Broken pipe<br />
+strace: |autoreset: Broken pipe<br />
+strace: |autoreset: Broken pipe<br />
+strace: |autoreset: Broken pipe<br />
+strace: |autoreset: Broken pipe</p>
+<p>avrdude-original done. &nbsp;Thank you.</p>
+<p>strace: |autoreset: Broken pipe</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36749"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solved: avrdude-original: Using autoreset DTR on GPIO Pin 7</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Sat, 05/12/2015 - 13:12.</div>
+    <div class="content">
+     <p><a href="https://github.com/deanmao/avrdude-rpi/issues/4#issuecomment-161353936">avrdude 6.1 breaking changes&nbsp;#4</a></p>
+<p>I can confirm this as I have been using 0.3s for some months now, at that time I found&nbsp;anywhere between 0.24s to 0.34s seconds worked but had hoped to find out what the actual required timing by spec was, to be sure it was right but I haven&#39;t as yet.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36754"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/10" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solved: avrdude-original: Using autoreset DTR on GPIO Pin 7</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/10" title="View user profile.">glyn.hudson</a> on Sat, 05/12/2015 - 14:16.</div>
+    <div class="content">
+     <p>Thanks, I&#39;ve updated our version and tested 0.32&nbsp;sleep. Works fine&nbsp;<a href="https://github.com/openenergymonitor/avrdude-rpi">https://github.com/openenergymonitor/avrdude-rpi</a></p>
+<p>​Do you mean 0.32 or 0.34?&nbsp;</p>
+<p>the&nbsp;github issue says 0.32. They both probably work!&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36805"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solved: avrdude-original: Using autoreset DTR on GPIO Pin 7</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Mon, 07/12/2015 - 10:06.</div>
+    <div class="content">
+     <p>I&#39;m sure 0.32 will be fine!</p>
+<p>In my tests anything from 0.24 <strong>to 0.34&nbsp;</strong>seemed&nbsp;to work, <strong>I use 0.3</strong> since 0.29 is centre of the working range (and 2&nbsp;decimal places&nbsp;seemed overkill at this level of science).</p>
+<p>This has worked for me for many months as I was using 6.1 way before ir reached wheezy stable due to it&#39;s spi/gpio programming ability not in 5.11.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/11747"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-0fg-Y4saBMruoTo1aqpk0UPTDIUSASM0_wOKEqBW8Mo" value="form-0fg-Y4saBMruoTo1aqpk0UPTDIUSASM0_wOKEqBW8Mo"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

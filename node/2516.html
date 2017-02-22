@@ -1,0 +1,481 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2516 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:21:31 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonTX + DS18B20: invalid temperature read? | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonTX + DS18B20: invalid temperature read?</h3>
+        <span class="submitted">Submitted by Guest on Mon, 01/07/2013 - 00:39</span>
+        <div class="content"><p>Hi,</p>
+<p>just got around to building my emonTx&nbsp;and connecting to it the weatherproof temp sensor bought from the online store here.</p>
+<p>emonTX seems fine, I am talking to it over USB for the moment.</p>
+<p>However I cannot read a valid temperature from the&nbsp;DS18B20.</p>
+<p>It is correctly detected by the DallasTemperature library, and has a plausible looking address of 28:B8:0D:A2:04:00:00:64<br />
+	The Dallas code decides this is a valid device address.</p>
+<p>however the temperature read back from the device is a contant and strange 85C.<br />
+	Dumping out the scratchpad using the Dallas API just gives a constand set of bytes</p>
+<p>Any clue about what might be wrong?</p>
+<p>Is is plausible that the device is just bad?<br />
+	I don&#39;t have another one to try ...</p>
+<p>Thanks<br />
+	Liam</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2696.html" class="topic-previous" title="Go to previous forum topic">‹ RF12B module interfacing question?</a>
+              <a href="2741.html" class="topic-next" title="Go to next forum topic">problem getting DS18B20 working ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-13329"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="liamf&#039;s picture" title="liamf&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by liamf (not verified) on Mon, 01/07/2013 - 07:56.</div>
+    <div class="content">
+     <p>Hmm</p>
+<p>OK I see from the DS18B20 datasheet that 0x50 0x05&nbsp;in the first two bytes of the device scratchpad (a.k.a the temperature reading of 85C) is the scratchpad power up state.</p>
+<p>Curious.</p>
+<p>But it would suggest that I am at least talking to the device.</p>
+<p>The code just looks like this:</p>
+<p>sensors.setWaitForConversion(true);<br />
+	sensors.setCheckForConversion(true);<br />
+	sensors.requestTemperaturesByAddress(tempSensorAddr); &nbsp;<br />
+	if( sensors.isConversionAvailable(tempSensorAddr))<br />
+	{<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot;Temperature conversion is available&quot;);<br />
+	} else {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot;No temp conversionavailabe&quot;);<br />
+	}</p>
+<p>/* Dump out the scratchpad&nbsp;: debug */ &nbsp;&nbsp;<br />
+	sensors.readScratchPad(tempSensorAddr, scpad);<br />
+	Serial.println(&quot;Scratchpad...&quot;);<br />
+	for(i=0; i&lt;9; i++)<br />
+	{<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(scpad[i], HEX);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot; &quot;);<br />
+	}<br />
+	Serial.println(&quot;&quot;);<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	temp=sensors.getTempC(tempSensorAddr);<br />
+	Serial.print(temp, DEC);</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13330"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="liamf&#039;s picture" title="liamf&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by liamf (not verified) on Mon, 01/07/2013 - 08:22.</div>
+    <div class="content">
+     <p>And one followup question if I could</p>
+<p>The store-provided outdoor-ready temp sensor kit has 3 wires + a braid.<br />
+	Should the braid connected be connected to ground too?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13331"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 01/07/2013 - 11:23.</div>
+    <div class="content">
+     <p>What does the example sketch <a href="https://github.com/openenergymonitor/emonTxFirmware/blob/master/emonTx_temperature_examples/emontx_temperature_power/emontx_temperature_power.ino">EmonTx_temperature_power</a> give you? - after plugging in the address of your sensor, of course.</p>
+<p>Check whether the screen braid is connected anywhere else! If not, then earthing it is probably a good idea.</p>
+<p>[Edit]</p>
+<p>After adding some declarations and minor details like setup( ) and loop( ) to your &quot;sketch&quot; to allow it to compile, it does seem to be giving me the correct temperature readings.</p>
+<pre class="rteindent1">
+Temperature conversion is available
+Scratchpad...
+73 1 4B 46 7F FF D 10 41
+23.1875000000</pre><p>So I suggest you check your definitions for the variables and your connections to the sensor. <a href="https://learn.openenergymonitor.org/?redirect=DS18B20-temperature-sensing" title="http://openenergymonitor.org/emon/buildingblocks/DS18B20-temperature-sensing">http://openenergymonitor.org/emon/buildingblocks/DS18B20-temperature-sen...</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13337"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="liamf&#039;s picture" title="liamf&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by liamf (not verified) on Mon, 01/07/2013 - 15:47.</div>
+    <div class="content">
+     <p>Thanks</p>
+<p>A colleague also suggests that he has seen exactly the same behaviour, caused by incorrect wiring on his part.</p>
+<p>So I need to check that i have soldered the board together properly. The temp sensor is definitely connected properly to the 3.5mm jack, at least it is according to the picture on this page:</p>
+<p><a href="https://learn.openenergymonitor.org/?redirect=DS18B20-temperature-sensing" title="http://openenergymonitor.org/emon/buildingblocks/DS18B20-temperature-sensing">http://openenergymonitor.org/emon/buildingblocks/DS18B20-temperature-sen...</a></p>
+<p>And I also have other generic Arduino boards, I might be able to connect the temp probe to one of them as a second check.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13353"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="liamf&#039;s picture" title="liamf&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by liamf (not verified) on Tue, 02/07/2013 - 00:10.</div>
+    <div class="content">
+     <p>Experiments with another arduino board showed that the temperature sensor works fine.</p>
+<p>I spent a *long* time trying to figure out what I did wrong with the emonTx, but to no avail. I can&#39;t find anything wrong with the connections, but it just does not want to play ball with the temperature sensor.</p>
+<p>I don&#39;t really have any debugging kit here either, beyond a simple multimeter.</p>
+<p>Oh well, I guess I broke it :-)</p>
+<p>I will build another one. Carefully.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13357"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/937.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/937.html" title="View user profile.">Bramco</a> on Tue, 02/07/2013 - 14:35.</div>
+    <div class="content">
+     <p>Liam,</p>
+<p>I&#39;m about to start on the same journey, so if you do ever do find out what went wrong it would be good to hear about it.</p>
+<p>Simon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13359"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 02/07/2013 - 16:26.</div>
+    <div class="content">
+     <p>liam,</p>
+<p>Before you do that:</p>
+<p>There are only 3 connections to the jack socket - 5 V, GND and the Input to Pin 6 on the processor (DIO 4). Can you check continuity with your meter on those - a faulty socket is not unheard of. I presume you have R9 (4k7) fitted and you get 5 V on the ring, 0 V on the sleeve and something in between on the tip with the sensor connected or 5 V without.</p>
+<p>You can prove the digital input by writing a &quot;one-liner&quot; sketch to read DIO4, it should read HIGH with nothing connected and LOW if you short tip to sleeve.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13995"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="liamf&#039;s picture" title="liamf&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by liamf (not verified) on Thu, 01/08/2013 - 22:53.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>apologies for not monitoring the forum. Some vacation time intervened.</p>
+<p>I built another emonTx there this evening (very, very carefully) and connected to it one of the weather proof temp sensors from this site. In various experiments I &lt;ahem&gt; sort of broke the first one ;-)</p>
+<p>Somewhat to my annoyance, this didn&#39;t work properly either: a sketch would find the Dallas chip, no problem. But the temperature read from sensor was always incorrect (+127C)</p>
+<p>After a spot of googling and some experiments, though, I discovered how to fix it.</p>
+<p>Instead of the 4.7K pullup resistor which is part of the standard kit, I used a 2.2K pullup.<br />
+	well, OK, not exactly 2.2K, but I had another 4.7K on the bench so I wired that in parallel. So 2.35K to you.</p>
+<p>Now it works just fine. This at the moment is running from USB power, but ultimately will be outside running off battery+solar power.</p>
+<p>So why, we wonder, does it not work with the standard 4.7K value, which is even recommended by the DS1820 datasheet.</p>
+<p>Any idea? Should I be concerned about it?</p>
+<p>Next I will have to see if the RF module works and try running it from battery power</p>
+<p>Liam</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13998"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 02/08/2013 - 00:27.</div>
+    <div class="content">
+     <p><em>So why, we wonder, does it not work with the standard 4.7K value, which is even recommended by the DS1820 datasheet. Any idea? Should I be concerned about it?</em></p>
+<p>Indeed we do wonder. I assume the supply is correct at 5 V and relatively clean?&nbsp; I&#39;ll flag it to Glyn &amp; Trystan.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14007"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="liamf&#039;s picture" title="liamf&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by liamf (not verified) on Fri, 02/08/2013 - 12:23.</div>
+    <div class="content">
+     <p>Hi Robert</p>
+<p>seems fine, all measured voltages on the board seems correct (but I can&#39;t do a very fine measurement at home, just a multimeter)</p>
+<p>
+	I am only powering it over USB/FTDI interface from a laptop, but it&#39;s only running the arduino + a single temperature probe, nothing else, and I have never noticed problems before powering arduino toys over USB from that laptop ...</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14018"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Fri, 02/08/2013 - 16:16.</div>
+    <div class="content">
+     <p>It usually works fine with a 4.7k resistor, so that sounds strange, did you say that you had two sensors and both dont work?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14029"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3434.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="jpbrigg&#039;s picture" title="jpbrigg&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3434.html" title="View user profile.">jpbrigg</a> on Sat, 03/08/2013 - 14:21.</div>
+    <div class="content">
+     <p>Hi, First post but may have something to add&nbsp; regarding 85C reading.</p>
+<p>Having only recently changed from a Combi boiler to a regular boiler and Hot Water tank plus Robin&#39;s excellent circuit, I was interested in knowing how much hot water was available. I do fully appreciate there are issues with measuring the temperature of the&nbsp; external pipework.&nbsp; I chose 4&nbsp; approx equally spaced levels. With pointers from this site I was able to concoct a sketch that read 4 &nbsp;&nbsp; DS18B20 sensors and display the results on a 20x4 LCD HD44780 display.</p>
+<p>All was working well until I moved the 1 sensor from one place to another, from then on, when first powered up, it sometimes reads as 127C and sometimes 85C.&nbsp; Two or three resets of the Arduino usually cure it. The other&nbsp; three sensors, on the same circuit, continue to work correctly. My circuit uses a 4.7K pullup resistor. I have so far put this false reading down to my poor soldering onto the first sensor, that showed up once I moved it.</p>
+<p>John</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14063"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="liamf&#039;s picture" title="liamf&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by liamf (not verified) on Sun, 04/08/2013 - 14:01.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>so far I&#39;ve only tried one sensor: a weatherproof assembly one which I built from this site.</p>
+<p>I have a couple more though on hand (just bare DS1820s, not the weatherproof assemblies), and I am going to build some temperature-only nodes with bare Arduinos, so I can also test the weatherproof sensor I have on one of those Arduino boards, when I get them built, using 4.7K pullups on those Arduino&nbsp;boards.</p>
+<p>I will also double check the soldering on the one I assembled, but I doubt that&#39;s the problem.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14065"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 04/08/2013 - 14:37.</div>
+    <div class="content">
+     <p>You are using an emonTx, aren&#39;t you? Do you have an &quot;iffy&quot; socket or plug? Problem sockets are not unknown, it&#39;s also not unknown to have a bad contact between the tag for the tip connection and the rivet in the plug. It would pay to check those carefully before you look for anything more complicated.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14075"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="liamf&#039;s picture" title="liamf&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by liamf (not verified) on Sun, 04/08/2013 - 19:21.</div>
+    <div class="content">
+     <p>Yes, emonTx for the moment.</p>
+<p>I&#39;ll try your suggestions ...&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14467"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="liamf&#039;s picture" title="liamf&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by liamf (not verified) on Wed, 21/08/2013 - 00:45.</div>
+    <div class="content">
+     <p>I have been experimenting some more with this (this == an emonTx board with a DS1820&nbsp;weatherproof sensor, kits all purchased in the store here)</p>
+<p>For the moment I am concentrating on temperature reading only, current sensing will come later.</p>
+<p>My results are a bit surprising (at least to me)</p>
+<p>* temperature reading only works if the pullup resistor is 2.2K and not 4.7K. 4.7K just doesn&#39;t work ever (invalid value of +127C read)</p>
+<p>* it works correctly (RF12B&nbsp;transmission to base station, + correct temp read) if powered by USB/FTDI, or it will work if powered with a battery pack of 4 AA rechargeables (yes, 4) connected as recommended on the site between PWR and GND.</p>
+<p>* it will not work with 3 x rechargeable AAs, even freshly charged and delivering about 4.2V.</p>
+<p>With 3 x AAs, the RF12B works fine, and the board runs fine, but the temperature reading is invalid (+127C, always).<br />
+	I have played around with the dallas library, tried very conservative temp conversion timings, etc. No avail. &lt;4 AA cells, no workee at all. 4 AA cells (or USB power) works fine.</p>
+<p>I only have one of those weatherproof sensors, which is a pity, because I wonder if it&#39;s a bit of a dud. Why else would it not work properly with 4.2V supply?</p>
+<p>I will persevere with my 4xAA solution. On the plus side, this should run for ages.<br />
+	On the minus side, I am going to have to adjust my solar charger circuit a bit.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14555"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 23/08/2013 - 22:42.</div>
+    <div class="content">
+     <p>I haven&#39;t forgotten you. I&#39;ll try to check one on reduced voltage tomorrow.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14563"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 24/08/2013 - 11:40.</div>
+    <div class="content">
+     <p>I&#39;m not sure that you&#39;ll like this.</p>
+<p>I fed my emonTx from my lab power supply. It stopped transmitting below 4.8 V, so inconclusive.</p>
+<p>So instead I lifted the red wire (power to the DS18B20) off the plug and fed that alone from my variable supply. It was accurate down to 2.4 V (at room temp) and &quot;worked&quot; but gave wrong readings some way below that.</p>
+<p>I wonder whether the impedance of your battery is to blame, and you need a fatter capacitor across the supply to hold it up whilst the DS18B20 is drawing current? From the data sheet: &quot;when the DS18B20 is performing temperature conversions or copying data from the scratchpad memory to EEPROM, the operating current can be as high as 1.5mA.&quot;&nbsp; It seems unlikely that 1.5 mA would cause trouble but in the absence of anything else to blame it&#39;s worth checking.</p>
+<p>And all this with the standard 4k7 on-board pull-up.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14604"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="liamf&#039;s picture" title="liamf&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTX + DS18B20: invalid temperature read?</h3>
+
+    <div class="submitted">Submitted by liamf (not verified) on Mon, 26/08/2013 - 14:54.</div>
+    <div class="content">
+     <p>Hmm interesting</p>
+<p>Thanks for experimenting and following up.</p>
+<p>I had gone ahead and built my 4x rechargeable AA powered external temp + current emonTx&nbsp;board.</p>
+<p>
+	This is running away there now, happily outputting a valid temperature + power reading. I need to make one firmware update to it to fix a stupid bug I have in my power reading code, but apart from that it&#39;s working OK. Of course I don&#39;t know yet if my rather amateur-hour solar powered trickle charger will keep the rechargeables topped up, especially in winter. In Ireland. But hey, that&#39;s what experiments are for.</p>
+<p>The next phase of my project is to build some more temperature only nodes and although those won&#39;t be using the weatherproof DS18B20s&nbsp;(just plain vanilla DS18B20s) I can try to reproduce the issue and then experiment with the larger capacitor as you suggest.</p>
+<p>Highly entertaining though, the whole thing.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2516"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-NHr8kr4XWSZM2uW9KsRJA9ZkWFY96KVykD3ggeXxgHg" value="form-NHr8kr4XWSZM2uW9KsRJA9ZkWFY96KVykD3ggeXxgHg"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2516 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:21:31 GMT -->
+</html>

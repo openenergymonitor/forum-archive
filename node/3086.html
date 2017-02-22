@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3086 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:24:26 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Emoncms.org Status [Solved] | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Emoncms.org Status [Solved]</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 02/11/2013 - 18:53</span>
+        <div class="content"><p>If your using emoncms.org to store your data, you have probably noticed it has been quite slow recently and not very stable.</p>
+<p>Here&#39;s a picture of the server load (1 minute) as measured with the command uptime over the last few months</p>
+<p><a href="../sites/default/files/serverload.png"><img alt="" src="../sites/default/files/serverload.png" style="width: 650px; height: 224px;" /></a></p>
+<p>Although its been growing for some time above server loads that would be considered healthy its really in the last 2 weeks that its gone through the roof. We&#39;re now measuring average sever loads of around 80. When we moved the server which is now on a virtual machine to a dedicated server which had 4GB ram and 4 cores the dedicated server reached a load of about 20 and became completely unresponsive so it was put back on the virtual server.</p>
+<p>Emoncms is hosted on BigV <a href="http://bigv.io/" title="http://bigv.io/">http://bigv.io/</a> and a few people have suggested that even thorough the virtual machines spec is lower than the dedicated server, the virtual machine may be being given bursts of capacity above its stated spec, so thankyou bigv!</p>
+<p>Its not clear yet why the load has grown in the way it has in the last few weeks, the rate of increase of active feeds has actually slowed due to the slow downs.</p>
+<p>I&#39;ve been working on trying to solve this problem with Ynyr Edwards a good friend of mine and a software developer with many years of experience. Ynyr joined Glyn and I and is helping with both software dev and running the shop as Glyn mentioned in the blog post: <a href="http://openenergymonitor.blogspot.com/2013/10/new-office-space-and-new-units.html">http://openenergymonitor.blogspot.com/2013/10/new-office-space-and-new-units.html</a>.</p>
+<p>So far we&#39;ve started to try moving some of the feed and input meta data information to redis which is in memory rather than on disk database, the branch of emoncms with redis in it is available here: <a href="https://github.com/emoncms/emoncms/tree/redismetadata" title="https://github.com/emoncms/emoncms/tree/redismetadata">https://github.com/emoncms/emoncms/tree/redismetadata</a></p>
+<p>We havent seen a great improvement with redis yet, I think it appears to have moved the load from waiting io to the processor but not sure.</p>
+<p>Over the next day or so there will be some downtime and strange behavior on the server as we try and better understand and solve the problem.</p>
+<p>A few things on the list to try are:</p>
+<p>- upgrade the vm to 4GB ram and 2 cores</p>
+<p>- redis based input queue so that apache instances can close faster, connections are not left waiting.</p>
+<p>- split the load out to multiple vm&#39;s, maybe completely separate instances of emoncms.</p>
+<p>- try nginx web server</p>
+<p>- optimize apache? does anyone have any experience with this.</p>
+<p>I will keep this post updated and would be happy to hear suggestions if anyone has any.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="3102.html" class="topic-previous" title="Go to previous forum topic">‹ Dashboard graph controls, transparency</a>
+              <a href="3089.html" class="topic-next" title="Go to next forum topic">value.json ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-16108"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org Status [Solved]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 02/11/2013 - 19:22.</div>
+    <div class="content">
+     <p>Ok that was surprising. I&#39;ve just changed the apache2.conf setting of maxclients from 150 to 100 and then 50 and the load as dropped right down to below 1. Maybe it was just set too high and was swapping. Im now going to increase it until the performance starts to degrade and work out if a lower value is causing requests to queue and timeout.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16109"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org Status [Solved]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 02/11/2013 - 19:46.</div>
+    <div class="content">
+     <p>With MaxClients of 80, load is ~16, free -m [+- buffers 473].</p>
+<p>vmstat 3<br />
+	procs -----------memory---------- ---swap-- -----io---- -system-- ----cpu----<br />
+	r&nbsp; b&nbsp;&nbsp; swpd&nbsp;&nbsp; free&nbsp;&nbsp; buff&nbsp; cache&nbsp;&nbsp; si&nbsp;&nbsp; so&nbsp;&nbsp;&nbsp; bi&nbsp;&nbsp;&nbsp; bo&nbsp;&nbsp; in&nbsp;&nbsp; cs us sy id wa<br />
+	8&nbsp; 0&nbsp; 52680 345064&nbsp; 29168 196552&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;&nbsp; 42&nbsp; 3174&nbsp;&nbsp; 40&nbsp;&nbsp; 44 70 18&nbsp; 1 11<br />
+	5&nbsp; 5&nbsp; 52680 346368&nbsp; 29172 196556&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp; 1457&nbsp; 448 9388 71 29&nbsp; 0&nbsp; 0<br />
+	19&nbsp; 0&nbsp; 52680 343132&nbsp; 29216 197100&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp; 191&nbsp; 3964&nbsp; 539 5209 51 11&nbsp; 0 38</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16119"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org Status [Solved]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 02/11/2013 - 22:35.</div>
+    <div class="content">
+     <p>Ok! progress!</p>
+<p>With 1GB of ram and 1 core emoncms could only handle 50-80 simultaneous apache2 clients before running out of either CPU or memory. Reducing the MaxClients helped the load but meant that a lot of connections are being queued and so the response time of emoncms.org becomes really slow, especially if the connection is not kept alive and you cant keep all the connections alive as an open connection reduces the number available for other requests. (If I understand correctly) Testing with ab showed request times of 4s.</p>
+<p>Upgrading the bigv vm to 2 cores and 4gb of ram and then upping the maxclients to 150 again meant that the apache queuing is much reduced. There are now 88 apache2 clients and the response times are an amazing 10ms right now. Thats almost as fast as emoncms running localy here on my own laptop which has 4 cores and 8gb of ram (60-100ms for a timestore graph load vs 44ms on my local machine)</p>
+<p>&nbsp;&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16148"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="ngbod&#039;s picture" title="ngbod&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org Status [Solved]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3824.html" title="View user profile.">ngbod</a> on Mon, 04/11/2013 - 11:09.</div>
+    <div class="content">
+     <p>Whatever you&#39;ve done is &nbsp;working well on my setup. I noticed yesterday morning that emoncms.org seemed to have been turbocharged. It seems just as fast as my local timestore &nbsp;instance now despite my emoncms.org account still being on phptimeseries.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3086"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-zpOya0cBihnLatsTePgu32y-PzXAaoDvimivse5QwEA" value="form-zpOya0cBihnLatsTePgu32y-PzXAaoDvimivse5QwEA"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3086 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:24:27 GMT -->
+</html>

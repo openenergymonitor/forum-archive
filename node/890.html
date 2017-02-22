@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/890 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:14 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>new emonTx_CT123_3Phase_voltage sketch | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">new emonTx_CT123_3Phase_voltage sketch</h3>
+        <span class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Fri, 27/07/2012 - 12:39</span>
+        <div class="content"><p>I have just seen this new sketch which follows the idea of e.g. Robert to use delayed voltage samples for 'real' three-phase power measurements. I think that there might be a severe inaccuracy in this sketch.</p>
+<p>As this sketch does not use interrupts, the sampling of all the analog inputs is dependant on the runtime of the code in between the samplings. The four consecutive samples for V, I1, I2, I3 are done without any code 'in between', so more or less with the same delay between samples (not regarding interrupts).</p>
+<p>But the time between these bursts of four samples depends on the code in between these bursts. And this time or delay depends on the number of cycles used for these calculations, which <strong>may</strong> be differing a little bit. This is the same problem with all the 'non-interrupt' sketches.</p>
+<p>But in this sketch, the pre-sampling of the delayed voltage buffer (crossCount&lt;=2) is done with a different 'sampling rate' as when (crossCount&gt;2). There are much more calculations done after (crossCount&gt;2).</p>
+<p>Please correct me if I'm wrong there. I am not using 'Arduino' code so much, so it might be that I am wrong.</p>
+<p>J&ouml;rg.</p>
+<p>&nbsp;EDIT: I am aware of the fact that the error gets smaller the higher the number of 'cycles' is in calling </p>
+<pre><span class="n">calcVI3Ph</span><span class="p">(</span><span class="kt">int</span> <span class="n">cycles</span><span class="p">,</span> <span class="kt">int</span> <span class="n">timeout</span><span class="p">)  </span></pre><p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="887.html" class="topic-previous" title="Go to previous forum topic">‹ EMONCMS3 </a>
+              <a href="889.html" class="topic-next" title="Go to next forum topic">Testing the new emonTx_CT123_3Phase_Voltage sketch ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-5419"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: new emonTx_CT123_3Phase_voltage sketch</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 27/07/2012 - 16:20.</div>
+    <div class="content">
+     <p>The sketch followed exactly the algorithm of the standard example sketches - and for that matter the Atmel example application. The sketch can only deliver approximations and the limitations are clearly described in the comment. It is likely that the assumption that the same voltage is present on all phases will be the largest source of error.</p>
+<p>If you want to include all the code in the first cycle, feel free to do so (then reset the accumulators so that the results are not used).</p>
+<p>Perhaps you can explain what interrupts would achieve? Maybe you could time the samples more accurately, but it would be at the expense of waiting for the interrupt to happen and you would inevitably end up having fewer samples. I'm assuming your interrupts would be timed, because there's nothing else to generate them. If there is an advantage in having each sample at a known fixed time in the cycle - assuming of course the mains frequency doesn't change, I can't see it when the result ends up averaged. In fact, I would suspect that having the samples free running might actually give a more accurate result in the presence of higher harmonic content. Or is there something I don't understand and there's some magical process that can manifest processor instruction cycles out of thin air?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-5420"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: new emonTx_CT123_3Phase_voltage sketch</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Fri, 27/07/2012 - 16:57.</div>
+    <div class="content">
+     <p><em>The sketch followed exactly the algorithm of the standard example  sketches - and for that matter the Atmel example application. </em></p>
+<p>??? And?<em><br />
+</em></p>
+<p><em>The sketch  can only deliver approximations .... </em></p>
+<p>This is true for all measurements! Some are better, some are worth.</p>
+<p><em>It is likely that the assumption that the same voltage is present on all phases will be the largest source of error.</em></p>
+<p>Yes!<em><br />
+</em></p>
+<p><em>If you want to include all the code in the first cycle, feel free to do  so (then reset the accumulators so that the results are not used).</em></p>
+<p>Excellent idea!</p>
+<p><em>Perhaps you can explain what interrupts would achieve? Maybe you could  time the samples more accurately, but it would be at the expense of  waiting for the interrupt to happen and you would inevitably end up  having fewer samples.</em></p>
+<p>Robert, it is the big advantage of interrupts, that you do <strong>not</strong> have to 'wait' for them to happen. This is the exact opposit to the existing 'arduino' analogRead() where the processor has to run in circles waiting for the adc to finish the conversion. After that, a lot of processor cycles are used for calculations where the adc is not doing anything. We can do better with interrupts!!!</p>
+<p>If the code in the ISR is always shorter than the periode of the interrupt, than first the sampling point will be absolutely exact. Second, the processing time that is not 'used' up in the ISR can be used for other purposes. The timing of the interrupts can either be done with a timer or, as in Pcunhas code, by the timing of the free-running adc.</p>
+<p><em>.......you would inevitably end up having fewer samples. </em></p>
+<p>Using the free running adc means that you have a new sample every 104us. This gives for sure <strong>more</strong> samples than the original code!</p>
+<p><em>If there is an advantage in having each sample at a known fixed time in  the cycle - assuming of course the mains frequency doesn't change, I  can't see it when the result ends up averaged.</em>&nbsp;</p>
+<p>The advantage is not to have the sample done at a fixed phase angle but to have it at fixed intervals at all. This has absolutely nothing to do with the mains frequency.</p>
+<p><em>Or is there something I don't understand and there's some magical  process that can manifest processor instruction cycles out of thin air?</em></p>
+<p>??? Heh? British humour?<em><br />
+</em></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-5423"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: new emonTx_CT123_3Phase_voltage sketch</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 27/07/2012 - 18:54.</div>
+    <div class="content">
+     <p>I wrote the sketch to satisfy a request from someone who obviously needed help. Do you ignore a request like that, or do you start them off?&nbsp; I didn't have the time to research the fine details (and when I started I was not aware of another sketch that I could have used as a starting point). If you can improve on either the algorithm or the implementation, then this is what Open-Source is all about. If you have access to a 3-phase supply where you can experiment and test, so much the better. I don't have access to that facility, so the only tests I can do use theory to predict the 'wrong' results that I will get and then prove it by getting the expected 'wrong' results. I shall be the first to claim that this is less than satisfactory.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-5425"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: new emonTx_CT123_3Phase_voltage sketch</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Fri, 27/07/2012 - 19:40.</div>
+    <div class="content">
+     <p>I think that the basic idea for this sketch is very nice. Use the existing emontx hardware to achieve the best result you can get from it. And in my opinion a working three-phase solution is the final goal for a majority of the audience. I might be wrong there because I do not know exactly how widespread thre-phase systems really are in households. In Germany this is the standard. So what you normally want is a three-phase solution that gives 'good enough' results. It does not have to be perfect, just as good as possible. But if you can avoid mistakes or insufficiencies, why not try to do so.</p>
+<p>Your solution to do the same calculations already during the first two cycles and ignore the results is very good, it does not need more than changing two or three lines in the code. If this improves accuracy by a few tenth of a percent, perfect!</p>
+<p>&nbsp;</p>
+<p>I do not want to say that the 'final solution' of a three-phase monitoring <strong>has</strong> to be interrupt driven. I just think that this is the normal way an embedded software engineer would approach a problem like this. <strong>If</strong> he (or she<img src="../sites/all/modules/fckeditor/fckeditor/editor/images/smiley/msn/shades_smile.html" alt="" />) is free in his 'choice of weapons'. This might not be the case here where nearly all code follows 'arduino' style (higher abstraction level, use library code, whatever this means...). And this code might be easier to understand, use, modify.</p>
+<p>BR, J&ouml;rg.</p>
+<p>PS: And, my approach in solving problems is a bit different than yours: I use theory to predict how 'good' results can theoretically be and then I try to achieve these results in reality (sounds more 'positive', or? <img alt="" src="../sites/all/modules/fckeditor/fckeditor/editor/images/smiley/msn/regular_smile.html" />)</p>
+<p>&nbsp; &nbsp; &nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/890"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-yglgilJrgTXkOJ8xMPrCunfUAL-Jl1YqJCrgQZ3q2i8" value="form-yglgilJrgTXkOJ8xMPrCunfUAL-Jl1YqJCrgQZ3q2i8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/890 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:14 GMT -->
+</html>

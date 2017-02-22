@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10195 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:06:25 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>How to calculate the V rms of the Main  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">How to calculate the V rms of the Main </h3>
+        <span class="submitted">Submitted by <a href="../user/7721.html" title="View user profile.">Aoun_46271</a> on Thu, 19/02/2015 - 14:05</span>
+        <div class="content"><p>Hey i am working on a project &quot; power Factor correction &quot; and for that i have to calculate the power factor . I am facing the problems while calculating the Vrms of the main.&nbsp;<br />
+Components i am using are AC to AC adapter 230/9V for isolation and then further step downs&nbsp;the voltage to 0.5voltes using the potential divider. The voltage i stepped down is Ac 0.5 v which contains negative cycle with it therefore i added Dc off set of 2.5 v to it.&nbsp;<br />
+&nbsp;</p>
+<p><strong>Code :</strong></p>
+<p>long readVcc() {<br />
+&nbsp; long result;<br />
+&nbsp; // Read 1.1V reference against AVcc<br />
+&nbsp; ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+&nbsp; delay(2); // Wait for Vref to settle<br />
+&nbsp; ADCSRA |= _BV(ADSC); // Convert<br />
+&nbsp; while (bit_is_set(ADCSRA,ADSC));<br />
+&nbsp; result = ADCL;<br />
+&nbsp; result |= ADCH&lt;&lt;8;<br />
+&nbsp; result = 1125300L / result; // Back-calculate AVcc in mV<br />
+&nbsp; return result;<br />
+}</p>
+<p>int value=0;<br />
+int sum_squared_voltage=0;<br />
+void setup()<br />
+{<br />
+&nbsp; Serial.begin(9600);<br />
+}</p>
+<p>void loop()<br />
+{&nbsp;<br />
+&nbsp; double Vcc;<br />
+&nbsp;for(int i=0;i&lt;40;i++)<br />
+&nbsp;{<br />
+&nbsp;value = analogRead(0);<br />
+&nbsp;}<br />
+&nbsp;Vcc = readVcc()/1000;<br />
+&nbsp; int voltage =(value / 1023.0) * Vcc;<br />
+&nbsp;<br />
+&nbsp;int number_of_samples=60;<br />
+for (int n=0; n&lt;number_of_samples; n++)<br />
+{</p>
+<p>&nbsp; int squared_voltage = voltage *voltage;</p>
+<p>&nbsp; &nbsp;sum_squared_voltage += squared_voltage;<br />
+}</p>
+<p>int mean_square_voltage = sum_squared_voltage / number_of_samples;<br />
+int root_mean_square_voltage = sqrt(mean_square_voltage);<br />
+int Vrms=root_mean_square_voltage;<br />
+&nbsp;Serial.println (Vrms);<br />
+}</p>
+<p><strong>Description:</strong> In Programming i used &quot;&nbsp;long&nbsp;readVcc() &quot; function for correction of Arduino&nbsp;Vcc first. After that in Void loop() i used for-loop for correct Digital samples of analog signals and calculated the voltage which gives me the value of 1.10 volts which is ok as i have given my input analog pin the voltage of 0.5 volts.&nbsp;</p>
+<p><strong>Problem Facing :</strong><br />
+1) This do not gives me the 217 vrms&nbsp;as my DMM showed.<br />
+&nbsp;</p>
+<p><strong>Queries:</strong><br />
+1) Where and why voltage constant is multiplied.<br />
+2) In Emonlib,cpp what does this line do &quot;&nbsp;offsetV = ADC_COUNTS&gt;&gt;1; d &quot; &nbsp;in&nbsp;&nbsp;&quot;&nbsp;&nbsp;void &nbsp;EnergyMonitor::voltage(unsigned int _inPinV, double _VCAL, double _PHASECAL) &quot; function.<br />
+3) Is it necessary to extract&nbsp;the DC offset from AC signal before calculations for rms.</p>
+<p><strong>Note: I am weak in programming my questions might be simple and stupid so its a humble request to a professional to help me out and clear my problems.</strong></p>
+<p>
+<strong>References&nbsp;&nbsp;:&nbsp;http://hacking.majenko.co.uk/node/57</strong></p>
+<p><strong>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;http://openenergymonitor.org/emon/buildingblocks/ct-and-ac-power-adaptor-installation- &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;and-calibration-theory</strong></p>
+<p><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</strong><strong>https://github.com/openenergymonitor/EmonLib/blob/master/EmonLib.cpp</strong></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10204.html" class="topic-previous" title="Go to previous forum topic">‹ Issues with SCT-013-030</a>
+              <a href="10192.html" class="topic-next" title="Go to next forum topic">Cannot get Local monitoring ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-27940"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to calculate the V rms of the Main </h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 19/02/2015 - 18:08.</div>
+    <div class="content">
+     <p>All you need is in emonLib. The theoretical basis of all (I think all) our code is explained in the Building Blocks section of this website.</p>
+<p>I suggest you use the design of the emonTx, and one of the sketches for the emonTx, as your starting point. All our sketches are known to work, and can produce accurate results when correctly calibrated.</p>
+<p>[Edit]<br />
+Now that I have had time to study you code in detail - I cannot see how it can possibly work.<br />
+1. You are reading AI0 40 times but only using the final (40th) value.<br />
+2. Next, you take that value, square it and add it to the sum 60 times.<br />
+3. Then you take the mean of that and the square root.<br />
+This must give you the value that you started with, so it is quite useless.</p>
+<p>Question 1. How to scale the input is complicated. You need to study, understand and calculate for yourself, using Building Blocks, &quot;CT and AC power adapter installation and calibration theory&quot; as your guide.<br />
+Question 2. It provides an initial value for the low-pass filter.<br />
+Question 3. Yes. Make a sine wave in a spreadsheet and do the maths there to see what effect the offset has. But to calculate the average real power, you only need to remove the offset of one of the variables, either voltage or current, and not both. But if you want rms voltage and rms current separately, you must remove the offset from both.</p>
+<p>Why are you reducing the voltage to 0.5 V rms? If you are using the 1.1 V range of the ADC, then your d.c. offset of 2.5 V is wrong and 0.5 V is too big; but if your input range is 5 V, the offset is correct but for best accuracy, you should have 5 V peak-peak (or a little less), so approx 1.6 V rms is a good value to aim for.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27971"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to calculate the V rms of the Main </h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Fri, 20/02/2015 - 09:19.</div>
+    <div class="content">
+     <p>It may be worth checking how Vrms is calculated in my <strong>Mk2i_PV_Router_rev6.ino</strong> sketch.&nbsp; There is a link to this code in my <a href="1757.html">Summary Page </a>which contains the following entry:</p>
+<p><em><strong>Mk2i_PV_Router_rev6.ino&nbsp;</strong> Upgraded to include datalogging via an RFM12B module.&nbsp; A second current sensor is now supported so that the amount of diverted energy can be accurately monitored.&nbsp; Posted, on 22/04/14 at <a href="1912.html" title="http://openenergymonitor.org/emon/node/1912">http://openenergymonitor.org/emon/node/1912</a>, this code is available at http://openenergymonitor.org/emon/sites/default/files/Mk2i_PV_Router_rev6.ino_.zip</em></p>
+<p>This sketch does not use emonLib, so all the maths can be seen in the sketch itself.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10195"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-faXVB-BRGbexV_B3pJMB96oaHZFdoNli_c_qhqRlxjo" value="form-faXVB-BRGbexV_B3pJMB96oaHZFdoNli_c_qhqRlxjo"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10195 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:06:25 GMT -->
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11567 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:13:53 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Emontx_V3 serial direct problems | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Emontx_V3 serial direct problems</h3>
+        <span class="submitted">Submitted by <a href="../user/8902.html" title="View user profile.">atilev</a> on Tue, 10/11/2015 - 18:19</span>
+        <div class="content"><p>Hi Folks,</p>
+<p>I&#39;m trying to get my emontx talking to my beagle bone black through serial connection.</p>
+<p>So far I&#39;ve read the other posts on the topic and have both of the devices talking to each other.&nbsp;</p>
+<p>- I&#39;m running the sketch for serial connection&nbsp;https://github.com/openenergymonitor/emonTxFirmware/blob/master/emonTxV3/noRF/emonTxV3_DirectSerial/emonTxV3_DirectSerial.ino</p>
+<p>- I&#39;m using the latest code for emonhub&nbsp;from &nbsp;github on the bbb.</p>
+<p>&nbsp;</p>
+<p>It seems with the serial communication between my serial node and emonhub I can&#39;t get emonhub&nbsp;to agree with the datacodes values. My emonhub.conf is as follows:</p>
+<p>[[Serial]]<br />
+&nbsp; &nbsp; Type = EmonHubSerialInterfacer<br />
+&nbsp; &nbsp; [[[init_settings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; com_port = /dev/ttyO2<br />
+&nbsp; &nbsp; &nbsp; &nbsp; com_baud = 9600<br />
+&nbsp; &nbsp; [[[runtimesettings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; pubchannels = ToEmonCMS,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; subchannels = ToSerial,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; basetopic = emonhub/</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;[[10]]<br />
+&nbsp; &nbsp; nodename = emonTx_1<br />
+&nbsp; &nbsp; firmware =V1_6_emonTxV3_4_DiscreteSampling.ino<br />
+&nbsp; &nbsp; hardware = emonTx_(NodeID_DIP_Switch1:OFF)<br />
+&nbsp; &nbsp; #hardware = emonTx_1</p>
+<p>&nbsp; &nbsp; [[[rx]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp;names = power1, power2, power3, power4, Vrms, temp1, temp2, temp3, temp4, temp5, temp6, pulse #Firmware V1.6<br />
+&nbsp; &nbsp; &nbsp; &nbsp;#names = power1, power2, power3, power4, Vrms, temp &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #Firmware =&lt;V1.4 (un-comment)<br />
+&nbsp; &nbsp; &nbsp; &nbsp;datacodes =h, h, h, h, h, h, h, h, h, h, h, h<br />
+&nbsp; &nbsp; &nbsp; &nbsp;scales = 1,1,1,1,0.01,0.1,0.1, 0.1,0.1,0.1,0.1,1 #Firmware V1.6<br />
+&nbsp; &nbsp; &nbsp; &nbsp;units =W,W,W,W,V,C,C,C,C,C,C,p &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #FirmwareV1.6<br />
+&nbsp; &nbsp; &nbsp; &nbsp;#scales = 1,1,1,1,0.01,0.1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #Firmware =&lt;V1.4 (un-comment)<br />
+&nbsp; &nbsp; &nbsp; &nbsp;#units =W,W,W,W,V,C &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;#Firmware =&lt;V1.4 (un-comment)</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>There error I&#39;m getting is that the size of the data recieved is not matching that of the calculated datacodes.</p>
+<p>&nbsp;</p>
+<p>2015-03-02 04:01:32,325 DEBUG &nbsp; &nbsp;Serial &nbsp; &nbsp; 1 NEW FRAME : 10 0 0 0 0 24620 3000 3000 3000 3000 3000 3000 19909with size 52<br />
+2015-03-02 04:01:32,329 DEBUG &nbsp; &nbsp;Serial &nbsp; &nbsp; ######ALP DEBUG: nodeid 10 size 12 &nbsp;data [0, 0, 0, 0, 24620, 3000, 3000, 3000, 3000, 3000, 3000, 19909]<br />
+2015-03-02 04:01:32,335 DEBUG &nbsp; &nbsp;Serial &nbsp; &nbsp; Printing Datacodes [&#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;]<br />
+2015-03-02 04:01:32,339 WARNING &nbsp;Serial &nbsp; &nbsp; 1 RX data length: 12 is not valid for datacodes [&#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;]calculated datasize: 24<br />
+2015-03-02 04:01:32,342 WARNING &nbsp;Serial &nbsp; &nbsp; 1 RX data length: 12 is not valid for datacodes [&#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;]calculated datasize: 24</p>
+<p>Note i&#39;ve added some extra debugging to emon_interfacer.py to try to figure out the problem.</p>
+<p>What&#39;s interesting is I&#39;ve compared the same data sent with the RF sketch to the emonpi and added the same debug logging there.<br />
+emon pi raw: [0, 0, 0, 0, 0, 0, 0, 0, 136, 97, 184, 11, 184, 11, 184, 11, 184, 11, 184, 11, 184, 11, 1, 0]<br />
+emon pi parsed: [0, 0, 0, 0, 249.68, 300, 300, 300, 300, 300, 300, 1]<br />
+bbb: &nbsp;[0, 0, 0, 0, 24945, 3000, 3000, 3000, 3000, 3000, 3000, 19907]&nbsp;</p>
+<p>on the emon pi this works when the data comes through RF and the datasize appears &nbsp;as 24 but on the bbb through serial the same data size is 12. Not sure where the difference is here.</p>
+<p>Thanks again for any assistance.</p>
+<p>All the best,</p>
+<p>Alp</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11524.html" class="topic-previous" title="Go to previous forum topic">‹ LED pulse sensor with Arduino-like board</a>
+              <a href="11499.html" class="topic-next" title="Go to next forum topic">Probleme mit Arduino und 4 CT Sensoren ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-35789"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emontx_V3 serial direct problems</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 10/11/2015 - 21:08.</div>
+    <div class="content">
+     <p>Hi Alp</p>
+<p>The main difference between the rf and non-rf versions of the sketch is that the rf version packages the data up as a stream of byte values which emonHub&nbsp;needs to reconstruct to real&nbsp;values, hence the datacodes are the key&nbsp;whereas the non-rf version prints all the characters of each value to the serial port, so the latter doesn&#39;t need decoding just reading.</p>
+<p>ie in your &quot;emon pi raw:&quot; example the 136 and 97 are 2 bytes of the integer 24968, which is then scaled by 0.01 to reach the &quot;emon pi parsed:&quot; value of 249.68. however the same value is passed as the&nbsp;string of characters &quot;249.68&quot; via the Serial.print() of the non-rf version</p>
+<p>Use &quot; datacode = 0&quot;&nbsp;<span style="line-height: 20.8px;">to define &quot;zero decoding</span>&nbsp;required<span style="line-height: 20.8px;">&quot;</span><span style="line-height: 20.8px;">&nbsp;</span><span style="line-height: 1.6;">or &quot;</span>datacode<strong>s</strong><span style="line-height: 1.6;"> = 0,0,0,0,0,0,0,0,0,0,0,0&quot; to define 12 values which do not require decoding&quot;</span></p>
+<p><span style="line-height: 1.6;">Paul</span></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35793"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8902.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="atilev&#039;s picture" title="atilev&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emontx_V3 serial direct problems</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8902.html" title="View user profile.">atilev</a> on Wed, 11/11/2015 - 06:47.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>That makes complete sense , &nbsp;I figured it was something like that. Does it make sense to update the wiki documentation for a serial connection accordingly? I&#39;m happy to do this if no one else is up for it!</p>
+<p>All&nbsp;the best,</p>
+<p>Alp</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11567"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-s3KhtFQMTnuQSlga0sUlbtm0pxjvEG29PoddeZC_Pwc" value="form-s3KhtFQMTnuQSlga0sUlbtm0pxjvEG29PoddeZC_Pwc"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11567 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:13:53 GMT -->
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5428 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:27:14 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Emoncms v8.3.0 | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Emoncms v8.3.0</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 19/07/2014 - 21:43</span>
+        <div class="content"><p>In the latest version of emoncms v8.3.0 that&#39;s just been comitted PHPFiwa, PHPFina and PHPTimestore feed engines no longer record the number of datapoints in an emoncms meta file. The number of datapoints are instead calculated from the filesize as recorded by the filesystem in its inode data. clearstatcache(<em>filename</em>) is used to ensure that php&#39;s copy of the file stat info is refreshed prior to calling filesize().</p>
+<p>The main advantage is that it reduces the disk write load by reducing the number of files opened, written to and closed per datapoint update. It also simplifies things quite a bit.&nbsp; There&#39;s more on reducing write loads mainly focusing on the buffered writing and filesystem choice here if anyone missed the post and related investigation from last week <a href="5387.html" title="http://openenergymonitor.org/emon/node/5387">http://openenergymonitor.org/emon/node/5387</a></p>
+<p><strong>Backing up before you upgrade:&nbsp;</strong> Given that this is a change to the feed engine implementation I would recommend making a backup of your data prior to the upgrade, there&#39;s more on backing up here: <a href="http://emoncms.org/site/docs/backup" title="http://emoncms.org/site/docs/backup">http://emoncms.org/site/docs/backup</a></p>
+<p>I&#39;ve also updated the usefulscripts file to no longer create the npoints data files and to ensure that the integrity check and datarecovery tools still work. The backup script also copies the remote account inputs now and It works great for replicating a raspberrypi system, just used it to setup 2 parallel test systems today.</p>
+<p>There are also two new scripts (Thanks for asking<a href="5319.html"> @engeeaitch</a>) for converting phpfiwa and phptimestore feed engines to phpfina which has a much smaller write load and is a lot better to use if your datalogging to an SD card. The PHPFina feed engine is the engine of choice (because it doesnt have averaged layers which add additional write load) for the new in early testing SD card optimized &#39;bufferedwrite&#39; branch of emoncms here <a href="https://github.com/emoncms/emoncms/tree/bufferedwrite" title="https://github.com/emoncms/emoncms/tree/bufferedwrite">https://github.com/emoncms/emoncms/tree/bufferedwrite</a> which I&#39;ve started long term testing of on my home system.</p>
+<p><strong>Edit by mod - Paul</strong><br />
+	<em>Don&#39;t forget, with this update, default.settings.php has been changed, and needs to be updated with your mysql/timestore key, etc, and saved back as settings.php</em></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5437.html" class="topic-previous" title="Go to previous forum topic">‹ Input sign Emoncms</a>
+              <a href="5438.html" class="topic-next" title="Go to next forum topic">missing rfm2pigateway files while building SD from scratch ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-22628"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6476.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="johnemo&#039;s picture" title="johnemo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6476.html" title="View user profile.">johnemo</a> on Sun, 20/07/2014 - 05:51.</div>
+    <div class="content">
+     <p>I am currently running v8.1.2 (from apt) on raspberry pi hard drive monitoring solar PV installation.</p>
+<p>Although I have an emoncms folder at var/www/ it does not contain much, it seems that my program folder is at /usr/share/emoncms/www/ although I only have Events under the Extras tab.</p>
+<p>Will an update &#39;fix&#39; this? (or, indeed, does it need to be fixed?) Can you please inform me of the commands to update?</p>
+<p>Thanks. Sorry if this has been answered before.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22630"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 20/07/2014 - 08:35.</div>
+    <div class="content">
+     <p>Hi&nbsp;&nbsp;johnemo,</p>
+<p>In short no, your version isn&#39;t broken&nbsp;and this won&#39;t fix it, the &quot;git&quot; version is installed to /var/www and the &quot;apt&quot; version to /usr/share, the 2 install methods are not compatible.&nbsp;</p>
+<p>Normally emonCMS&nbsp;would get updated by just running</p>
+<p class="rteindent1">sudo apt-get update<br />
+	sudo apt-get upgrade</p>
+<p>but currently v8.1.2 is the latest &quot;apt&quot; version.</p>
+<p>I really hope the apt version will get updated soon but in the interim I have posted <a href="5431.html">how to make the switch from &quot;apt&quot; to &quot;git&quot;</a> if you need the latest version of emoncms&nbsp;but this is not the &quot;recommended&quot; route.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22632"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6476.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="johnemo&#039;s picture" title="johnemo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6476.html" title="View user profile.">johnemo</a> on Sun, 20/07/2014 - 10:56.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>Very many thanks for your information on the &#39;git&#39; and &#39;apt&#39; version of emoncms. I don&#39;t particularly want, or need, the latest version, although I do like to keep up to date on all of my software, but I&#39;m puzzled why there are 2 routes. Is this by design or is it a mistake?</p>
+<p>You said that you hope that the apt version will get updated - is there any question that it won&#39;t? I&#39;m really confused why and what route I should be following.</p>
+<p>Regards.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22634"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 20/07/2014 - 12:08.</div>
+    <div class="content">
+     <p>Emoncms has been around sometime and was always installed using git, the versions were a little unclear which made support difficult and there where a lot of steps to install, plus the steps changed with different versions. so over the last year there has been a versioning system put in place and a package installer version developed to reduce installing emoncms to under half a dozen lines (on linux).</p>
+<p>This &quot;apt&quot; method is simpler and more controlled, therefore easier to support. The development of this method was done by schism who hasn&#39;t been about much recently, so the versions have fallen behind a bit. When he is able I&#39;m sure he will update the &quot;apt&quot; versions, they are exactly the same as the &quot;git&quot; versions of the same number but installed to a different location to a) prevent mixing install methods and to comply with &quot;debian&quot; official standards.</p>
+<p>If schism&#39;s unable to continue maintaining the debian&nbsp;&quot;apt&quot; packages then I hope someone will step in (or I will have to take a crash course in the subject) as it is without a doubt a superior installation method for the large part.</p>
+<p>The original &quot;git&quot; method was not replaced by &quot;apt&quot; because some users prefer it, many already have it and it is necessary for development.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22635"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6476.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="johnemo&#039;s picture" title="johnemo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6476.html" title="View user profile.">johnemo</a> on Sun, 20/07/2014 - 12:18.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>Thanks for your succinct reply. I&#39;m grateful to you and all the others working to keep this project working.</p>
+<p>Regards.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22641"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Sun, 20/07/2014 - 17:23.</div>
+    <div class="content">
+     <p>Hi Trystan</p>
+<p>I backed up my Pi based master system to my backup emoncms on a different linux&nbsp;machine using the original backup.php.</p>
+<p>That worked fine.</p>
+<p>I upgraded the backup emoncms to 8.3.</p>
+<p>I then upgraded the master system to 8.3.</p>
+<p>I pulled the latest backup files onto the backup system, made the changes required in backup.php and ran backup again to check every thing. I got a string of data like this:-</p>
+<p>{&quot;id&quot;:&quot;2&quot;,&quot;nodeid&quot;:&quot;18&quot;,&quot;name&quot;:&quot;1&quot;,&quot;description&quot;:&quot;&quot;,&quot;processList&quot;:&quot;2:0.01,1:42&quot;,&quot;time&quot;:&quot;1405876162&quot;,&quot;value&quot;:&quot;2787&quot;}<br />
+	{&quot;id&quot;:&quot;3&quot;,&quot;nodeid&quot;:&quot;18&quot;,&quot;name&quot;:&quot;2&quot;,&quot;description&quot;:&quot;&quot;,&quot;processList&quot;:&quot;2:0.001,1:43&quot;,&quot;time&quot;:&quot;1405876162&quot;,&quot;value&quot;:&quot;2987&quot;}</p>
+<p>Then I got this:-</p>
+<p>22 Emoncms.org feeds found<br />
+	PHPFIWA: 22<br />
+	local and remote meta data do not match<br />
+	PHPTIMESERIES: 37<br />
+	--downloaded: 0 bytes<br />
+	PHPFIWA: 38<br />
+	local and remote meta data do not match<br />
+	PHPTIMESERIES: 39<br />
+	--downloaded: 0 bytes<br />
+	PHPFIWA: 40<br />
+	local and remote meta data do not match<br />
+	PHPFIWA: 41<br />
+	local and remote meta data do not match<br />
+	PHPFIWA: 42<br />
+	local and remote meta data do not match</p>
+<p>There are then more of the same errors.</p>
+<p>Regards</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22643"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 20/07/2014 - 21:04.</div>
+    <div class="content">
+     <p>Ian, this might not be the answer to your problem, but did you notice that the default.settings.php file was updated in v8.3.0, and needs to be edited with database details, timestore&nbsp;key etc, and saved back as settings.php</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22649"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 21/07/2014 - 07:54.</div>
+    <div class="content">
+     <p>Ian, I&#39;ve added more error logging to the backup script, hopefully it will give us some more information as to what&#39;s going wrong.&nbsp;</p>
+<p>Can you see your data through emoncms in your remote server? I wonder if its the data directory settings that are wrong as Paul suggests?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22651"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 21/07/2014 - 08:24.</div>
+    <div class="content">
+     <p>I missed a bug in the usefulscripts phpfiwa backup function that read the local meta data incorrectly, I&#39;ve fixed that now. The directory settings where also hardcoded in the phptimeseries export function in emoncms, I&#39;ve switched to use the settings file directory settings. That brings us to v8.3.2</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22655"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Mon, 21/07/2014 - 09:26.</div>
+    <div class="content">
+     <p>Hi Trystan</p>
+<p>Pulled latest versions including usefulscripts.</p>
+<p>Backup.php ran without errors.</p>
+<p>Regards</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22678"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6325.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="haden&#039;s picture" title="haden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6325.html" title="View user profile.">haden</a> on Tue, 22/07/2014 - 08:17.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>I was hoping that the apt method was updated with x86 support as&nbsp;I was going to test it on a virtual machine before getting a Pi.</p>
+<p>Is it easy to change to Git when you know nothing about linux?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22679"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 22/07/2014 - 08:33.</div>
+    <div class="content">
+     <p><em>Is it easy to change to Git when you know nothing about linux?</em></p>
+<div>
+	</p>
+<div>
+		Well Paul&#39;s guide couldn&#39;t be much clearer, but it depends what you mean by &#39;nothing&#39;. Have a look at the guide and you&#39;ll probably answer the question yourself.</div>
+<div>
+		&nbsp;</div>
+<div>
+		Paul</div>
+</div>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22682"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6325.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="haden&#039;s picture" title="haden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6325.html" title="View user profile.">haden</a> on Tue, 22/07/2014 - 10:51.</div>
+    <div class="content">
+     <p>Do you mean this guide?</p>
+<p><a href="http://emoncms.org/site/docs/installlinux" title="http://emoncms.org/site/docs/installlinux">http://emoncms.org/site/docs/installlinux</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22684"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 22/07/2014 - 12:05.</div>
+    <div class="content">
+     <p>This is the guide you want haden: <a href="5431.html" title="http://openenergymonitor.org/emon/node/5431">http://openenergymonitor.org/emon/node/5431</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22691"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6325.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="haden&#039;s picture" title="haden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6325.html" title="View user profile.">haden</a> on Wed, 23/07/2014 - 06:33.</div>
+    <div class="content">
+     <p>Trystan; Thanks, but i&#39;m not migrating. I&#39;m starting from scratch and looked at the apt method as it looked&nbsp;as the&nbsp;simplest method.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22695"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms v8.3.0</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 23/07/2014 - 11:51.</div>
+    <div class="content">
+     <p>ah ha!</p>
+<p>haden - Your use of the term &quot;change to Git&quot; is why the responses aren&#39;t quite what you expected. You do have the correct link for a fresh install to linux from Git.</p>
+<p>You are right, apt-get is by far the simplest way to install but it&#39;s still in it&#39;s infancy with regard to this project, not all software has made it to a debian package and not all platforms are catered for unfortunately.</p>
+<p>I recall a previous discussion and believe you are installing to a non-Pi linux&nbsp;machine, currently that is only possible via git until the i386 or amd64 emoncms packages are available again,</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5428"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-mzUg07w3ntqDUZUqKY899Xx0P5tgYad82U_wk5QWbYY" value="form-mzUg07w3ntqDUZUqKY899Xx0P5tgYad82U_wk5QWbYY"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5428 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:27:14 GMT -->
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10545 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:47:01 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Can EmonHub run out of memory? | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Can EmonHub run out of memory?</h3>
+        <span class="submitted">Submitted by <a href="../user/7687.html" title="View user profile.">xzuttz</a> on Thu, 30/04/2015 - 08:06</span>
+        <div class="content"><p>Hi.</p>
+<p>What will happen if a remote server (EmonCMS) is down for a longer period of time?</p>
+<p>Will EmonHub keep storing buffers in the memory until the Raspberry Pi&nbsp;does not have any memory left?</p>
+<p>If not, how much is the&nbsp;maximum amount of space that EmonHub&nbsp;can use?</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10547.html" class="topic-previous" title="Go to previous forum topic">‹ New EmonTX with v1.5 - latest version?</a>
+              <a href="10543.html" class="topic-next" title="Go to next forum topic">No feeds after first reboot of emoncms on pi ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-29997"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Can EmonHub run out of memory?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 30/04/2015 - 11:58.</div>
+    <div class="content">
+     <p>The emonhub buffers have a default size of 1000 frames, frame sizes vary considerably depending on the count&nbsp;and types of variables etc. That size can be set&nbsp;in the [reporters] section of emonhub.conf.</p>
+<p>Each reporter has it,s own buffer so the size can be set to a low number for a local emoncms whilst still maintaining a larger buffer for a remote emoncms.To change from the default of 1000 add a &quot;buffer_size = 12345&quot; line in a&nbsp;reporters [[[init_settings]]].</p>
+<p>There are a lot of factors to consider&nbsp;if you decide to increase dramatically, I have one Pi that receives a 5 integer frame every 5 secs&nbsp;and that has a 30000 frame buffer which has absolutely no problem&nbsp;&nbsp;running on a Pi B (512mb RAM) with raspian in read-only mode. Read-only is more RAM dependent as there is no caching and also the logfiles&nbsp;are written to RAM too.&nbsp;emonhubs&nbsp;logfiles are limited in size too so even if you have a runaway issue the <em>emonhub</em> logs cannot choke the Pi,</p>
+<p>Because it&#39;s the number rather than the size of the buffers that is managed you will need to tally up the frequency and size of all your nodes to get an idea of how much time&nbsp;a buffer will cover and how much RAM will be used to do so.</p>
+<p>I couldn&#39;t predict what the&nbsp;maximum would be that it could safetly use without causing issues for the OS etc that depends on what other stuff is going on but unless you are running many&nbsp;nodes with frequent and large data payloads&nbsp;and/or sending to several emoncms servers I would be very surprised if the buffers could choke a Pi with 512mb&nbsp;RAM, I have not tested an A&nbsp;(256mb) and expect the 2B (1024mb) to be way more&nbsp;superior.</p>
+<p>See the&nbsp;<a href="6084.html">emonhub&#39;s data buffers</a>&nbsp;for a bit more info too.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10545"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-DwYsk4BjtGPv5EFPVQ_8CqY-g5VlxKJQ-b0Jo1sfPfU" value="form-DwYsk4BjtGPv5EFPVQ_8CqY-g5VlxKJQ-b0Jo1sfPfU"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10545 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:47:02 GMT -->
+</html>

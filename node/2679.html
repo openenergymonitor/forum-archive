@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2679 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:54:29 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Solar Controller / PV Router code - working on 60Hz / 120V power systems | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Solar Controller / PV Router code - working on 60Hz / 120V power systems</h3>
+        <span class="submitted">Submitted by <a href="../user/3367.html" title="View user profile.">Dan Woodie</a> on Wed, 14/08/2013 - 01:21</span>
+        <div class="content"><p>I wanted to share my experience in getting the Solar Controller / PV Router code (I have seen it referred to by many names) running on a North American 60 Hz / 120 V power system. The code is really nice code written by MartinR for the purpose of diverting excess PV production into a hot water heater instead of exporting it. The code, although very well written, has several spots in it hard coded for a 50 Hz line frequency, and it also is setup for only 2 CTs instead of the standard 3 on a EmonTX. With some assistance (thanks to all who gave feedback) I have been able to make the necessary changes to get it to work on 60 Hz line frequency and with 3 CTs. I am currently benchmarking it over 3 - 4 days for accuracy against some external meters. I would like to make some suggestions to the community to make the current release of the software more internationally friendly. Now, I have not tested my code on a 50 Hz install (unless someone wants to fly me and my hardware over and host me for a few days ;-) ), so I cannot guarantee that my changes did not affect that function.</p>
+<p>My first suggestion would be to transfer the code to GIT so all of the various edits can be tracked. This may already be done, but it was a bit confusing to follow the long forum posts with various edits from the original post that MartinR released the code on. I was uncertain if the file at the top of that long discussion was the original, or had been updated with the many changes that had been suggested over the months of discussion. It appears it was updated, but that was not obvious at first.</p>
+<p>Secondly, I changed the sections of code that were hardcoded for 50 Hz to use compiler calculations using the user defined frequency. (I didn&#39;t have these compiler calculations and branching in my FORTRAN / Pascal days, they are neat!) I also used these compiler options to include / exclude the temperature measurement, power diversion, and syncpin pulsing. I don&#39;t have the one wire libraries and didn&#39;t feel like hunting them down since I am not doing any temp measurement. For power diversion, the code is very useful even if you don&#39;t need to divert excess power. Much of the U.S. is a net metered area, meaning I sell my excess back to the grid at the same price as I buy, so no motivation to use excess power. Lastly, looking at the PLL Lock / Unlock status on the serial monitor, by disabling the syncpin, it may have reduced some of the ADC noise and made it easier to lock. I tightened up the PLLUNLOCKRANGE (amount the first voltage sample is able to vary off of zero before you declare the PLL to be unlocked) quite a bit to see how well the loop was tracking. By using a value of 3 instead of 80, I could see how much the loop was bouncing around. Removing the syncpin output lines seemed to drastically improve the locking of the loop.</p>
+<p>Anyhow, I am attaching that code here in the hopes that it may assist some one else. I am certain my edits are in no way optimized so any suggestions on how to improve would be useful. MartinR, thank you for sharing your work. I hope you see my additions as helpful for getting more 60 Hz folks able to utilize it.</p>
+<p>I look forward to discussion and feedback. Thanks.</p>
+<p>Dan</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2624.html" class="topic-previous" title="Go to previous forum topic">‹ Problems getting PV Router software running on 120 V AC / 60 Hz</a>
+              <a href="2671.html" class="topic-next" title="Go to next forum topic">emonGLCD spare pin out, need a PWM ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-14327"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar Controller / PV Router code - working on 60Hz / 120V power systems</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Wed, 14/08/2013 - 06:26.</div>
+    <div class="content">
+     <p>Well done Dan, some good work there.</p>
+<p>Interesting re the sync pin introducing noise. I suppose it makes sense that toggling a digital output just at the critical point for PLL lock will add noise. I will look into it on the original code. It&#39;s only really there to sync a scope anyway.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2679"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-iYJJsurmwL3x19MNF6srH8x4rgJdbzl4UDFM2QgR2mE" value="form-iYJJsurmwL3x19MNF6srH8x4rgJdbzl4UDFM2QgR2mE"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2679 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:54:29 GMT -->
+</html>

@@ -1,0 +1,1025 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/685 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:05:52 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Diverting power from Solar PV to a heater (immersion controller) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Diverting power from Solar PV to a heater (immersion controller)</h3>
+        <span class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Thu, 17/05/2012 - 22:36</span>
+        <div class="content"><p>As the thread &quot;Solar Energy Managment&quot; is getting so long now, I&#39;ve started a new thread detailing how I&#39;m building a proportional, burst fire SSR controlled surplus energy controller (aka hot water controller!!)</p>
+<p>The code for this project is on GITHUB... <a href="https://github.com/stuartpittaway/VariableTimeBaseSSR" title="https://github.com/stuartpittaway/VariableTimeBaseSSR">https://github.com/stuartpittaway/VariableTimeBaseSSR</a></p>
+<p>I&#39;m using a zero crossing detector circuit, powered from a AC-AC (9v) adapter, same as used with emonTX to identify when the mains power is zero and then fire an interrupt.</p>
+<p>I&#39;ve recently brought a new digital scope (toy!), so heres the picture of what&#39;s happening....</p>
+<p><img alt="" src="../../../i48.tinypic.com/ezjpcz.jpg" style="width: 479px; height: 287px;" /></p>
+<p>The blue trace is the mains AC&nbsp; (via 9v adapter).&nbsp; The yellow pulse is the zero cross circuit before it passes through an optoisolator.&nbsp; The purple is the output after the optoisolator.</p>
+<p>The purple pulses above are fed into Arduino pin 3 (interrupt 1) and occur twice per cycle, so UK mains at 50hz produces 100 pulses per second.</p>
+<p>Using this pulse I&#39;m switching on/off a zero crossing SSR (cheap one from ebay)</p>
+<p><img alt="" src="../../../i50.tinypic.com/bezeyw.jpg" style="width: 481px; height: 288px;" /></p>
+<p>This yellow trace shows the output of the SSR (mains switching taken through a very poor quality power supply so I didn&#39;t break the scope)</p>
+<p>The green pulses are the request to switch the SSR on, this is at 50% power, 2 off cycles, followed by 2 on cycles.</p>
+<p>You can see from the timing, that the request to switch on the SSR occurs almost at zero, but this appears to be too late to get the SSR to switch on, which seems to happen half cycle afterwards (at the next zero cross).</p>
+<p>I don&#39;t this is a problem, it just means the SSR is out by half cycle, but the frequency is perfectly in sync.</p>
+<p>&nbsp;</p>
+<p>I&#39;ve also tried triggering the interrupt on a failling edge of the 100Hz pulse (purple line) and I think this may be the best answer.</p>
+<p><img alt="" src="../../../i47.tinypic.com/345mw3o.jpg" style="width: 484px; height: 290px;" /></p>
+<p>Worked example..</p>
+<p><img alt="" src="../../../i49.tinypic.com/1lyrq.jpg" style="width: 482px; height: 289px;" /></p>
+<p>A = zero cross detected (1) and rising pulse generated</p>
+<p>B = falling edge of pulse, triggers interrupt</p>
+<p>C = interrupt code asks SSR to &quot;switch on&quot;</p>
+<p>D = next zero cross occurs (2), SSR switches on (E)</p>
+<p>F = 2nd falling edge of zero cross and SSR asked to switch off</p>
+<p>G = next zero cross occurs (3), SSR switches off</p>
+<p>You can see that the code switches on the SSR at (C) but it wont energise until the next zero cross at D, once energised, current flows E + G</p>
+<p>&nbsp;</p>
+<p>I need to get a second AC-AC adapter so I can measure this properly!</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2158.html" class="topic-previous" title="Go to previous forum topic">‹ Getting Started, a few simple questions </a>
+              <a href="2144.html" class="topic-next" title="Go to next forum topic">CurrentCost IAM decoding ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-4484"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Thu, 17/05/2012 - 22:37.</div>
+    <div class="content">
+     <p>Theres no reason why this circuit can be used for other resistive loads, such as oil filled radiators - perhaps heating a conservatory in winter sunshine?</p>
+<p>Jacuzzi/Spa heater perhaps ?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4486"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Thu, 17/05/2012 - 23:01.</div>
+    <div class="content">
+     <p>... or a storage heater, the output of which can be opened up in the evening after being heated during the day.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4487"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 17/05/2012 - 23:51.</div>
+    <div class="content">
+     <p>It would be a nice touch to make sure you load positive and negative half-cycles in equal numbers, so that you don&#39;t load the PV inverter with D.C. I&#39;ve no idea whether it will object to a small amount of D.C., but I&#39;m sure it will be happier without it.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4490"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/380.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-380.jpg" alt="mharizanov&#039;s picture" title="mharizanov&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/380.html" title="View user profile.">mharizanov</a> on Fri, 18/05/2012 - 13:14.</div>
+    <div class="content">
+     <p>I see there are DC immersion heaters available also, that may also be an option</p>
+<p>&nbsp;</p>
+<p>edit: for example one like this:&nbsp;<a href="http://www.ebay.co.uk/itm/ws/eBayISAPI.dll?ViewItem&amp;item=180296507747&amp;clk_rvr_id=344090125608#ht_4702wt_1270">http://www.ebay.co.uk/itm/ws/eBayISAPI.dll?ViewItem&amp;item=180296507747&amp;clk_rvr_id=344090125608#ht_4702wt_1270</a></p>
+<p>you can hook up several of them since they vary in wattage according to voltage, there is a table at the end&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4496"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Fri, 18/05/2012 - 13:19.</div>
+    <div class="content">
+     <p>It&#39;s great to see progress being made on this topic. Have you thought about using a triac instead of a SSR? A triac will automatically switch of at the zero crossing, it&#39;s just a matter of triggering it to switch on at a zero crossing.&nbsp;</p>
+<p>One of the ideas I had was to use small opto isolated triac with built in zero-crossing detection to fire a larger power triac. An Arduino&nbsp;could be then used to fire the small opto-isolated&nbsp;zero-crossing detection triac&nbsp;at various speeds/firing patters. &nbsp;</p>
+<p>I did a quick test ((using the same toy scope!) with the <a href="http://www.rapidonline.com/Electronic-Components/Tlp3042-Triac-Driver-Optoisolator-58-0542">TLP3042</a> opto-isolated&nbsp;triac&nbsp;with built in zero-crossing and it seemed to work. The yellow line is a digital pulse from the Arduino&nbsp;and the blue line is the output from the triac. I used a 9V&nbsp;50Hz AC signal to simulate mains power:</p>
+<p><img alt="" src="../sites/default/files/IMAG014.png" style="width: 400px; height: 240px; " /></p>
+<p>This is what the basic circuit would look like accept the MOC3021&nbsp;would be replaced with a opto isolated triac with built in zero crossing (<a href="http://www.fairchildsemi.com/search/tree/optoelectronics/optoelectronics/triac-driver-optocouplers/zero-crossing-triac-driver/">there are loads to choose from</a>) and the transistor would be replaced with an Arduino:</p>
+<p><img alt="" src="../sites/default/files/MOC3021%20Resistive%20Load.jpg" /></p>
+<p><a href="http://www.rapidonline.com/Electronic-Components/Bta26-600brg-25a-600v-Isolated-Tri-47-3258">BTA26-600B</a>&nbsp;could be a suitable power triac. This circuit could potentially be quite cheap to build with the two triac units costing about &pound;3.50 in total.&nbsp;</p>
+<p>I&#39;m not sure if this approach is a good one, I would be interested to hear your throughts. It was just an interesting idea to explore but not one that I&#39;ve done any work on lately. Working on emonTx SMT is taking up most of my time at the moment!&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4499"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 18/05/2012 - 15:21.</div>
+    <div class="content">
+     <blockquote><p>&quot;Have you thought about using a triac instead of a SSR?&quot;</p>
+</blockquote>
+<p>Er..... Glyn, what&#39;s inside a SSR (<strong>S</strong>olid <strong>S</strong>tate <strong>R</strong>elay) ? ? ! ! !&nbsp;&nbsp; (The clue is in the name).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4500"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 18/05/2012 - 15:27.</div>
+    <div class="content">
+     <p>Someone has pointed out that using the DC direct from the solar panels means that it is not metered, hence you don&#39;t get paid for it. A good idea - I had it a while ago ;-)&nbsp; - but until the legislation catches up with what might well be best engineering practice (because you avoid the inverter losses), I think for financial reasons you need to stick with loading the inverter output.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4502"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Fri, 18/05/2012 - 18:43.</div>
+    <div class="content">
+     <p>Robert,</p>
+<p>According to Wikipedia, a <a href="http://en.wikipedia.org/wiki/Solid_state_relay">solid-state relay</a> includes an opto-isolator whereas a <a href="http://en.wikipedia.org/wiki/Triac">triac</a> doesn&#39;t.&nbsp; Their corresponding articles read quite differently.</p>
+<p>Or am I missing something?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4503"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Fri, 18/05/2012 - 21:24.</div>
+    <div class="content">
+     <p>I can see the benefits in striving for zero-cross switching, but in burst fire mode we may only be dealing with a small number of mains cycles, therefore if we time it wrongly and trigger just after a zero-cross, we will lose almost 1/2 cycle whilst the next zero-cross arrives, which would affect accuracy.</p>
+<p>Couldn&#39;t the burst be more accurately controlled by ignoring the zero-cross, and fire the Triac&nbsp;on a strict timing routine? &nbsp;Would ignoring the zero-cross really cause so many problems when switching a purely resistive load.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4506"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 19/05/2012 - 01:57.</div>
+    <div class="content">
+     <p><a href="../user/956.html" title="View user profile.">calypso_rae:</a></p>
+<p>Quite possibly you are: I&#39;ve met solid state relays with reed relays inside for galvanic isolation between the control terminals and the load. I also seem to remember coming across one without galvanic isolation, but a long time ago. The point of my comment was the output element(s) of an SSR designed for a.c. and switching at the zero crossing will probably be a triac or a pair of back-to-back thyristors. An SSR offering zero crossing switching thus removes the need for you to take account of that in your design, whereas a bare triac will turn on on demand - and unless you can accurately fire it very close to the zero crossing it will require filtering and possibly commutation components around it. Both will inherently switch off when the current falls below the holding value for a sufficient time provided the command signal has been removed.</p>
+<p>Optically fired thyristors also exist - yes, the &quot;gate&quot; connection is an optical fibre. These are very useful for high voltage applications, not needing a trigger transformer with near-impossible isolation requirements. I doubt that anyone has made an optically fired triac (as distinct from a triac incorporating an opto-coupler).</p>
+<p>[Edit}</p>
+<p>See this Omron SSR <a href="http://www.farnell.com/datasheets/1470863.pdf " title="http://www.farnell.com/datasheets/1470863.pdf ">http://www.farnell.com/datasheets/1470863.pdf </a> I think you&#39;ll find on page 5 a pair of back-back thyristors or a triac, depending on the load current capability.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4516"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 19/05/2012 - 23:22.</div>
+    <div class="content">
+     <p>Robert, there is clearly an element of debate of the differences between a SSR and a Triac, but there is no need for sarcasm towards our host!</p>
+<p>If you you wish to make a point, then make it, but please don&#39;t resort to rudeness.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4518"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sun, 20/05/2012 - 08:16.</div>
+    <div class="content">
+     <p>No offense taken. I was under the impression the SSR&#39;s were mainly DC&nbsp;mosfet based. Looking through farnell they seem to come in a range to different types. Some mosfet, some with zero-crossing and some without. My point was that a correctly rated ssr&nbsp;seems to cost in the region of &pound;15-&pound;20 where the raw components to do the same job can be bought for about &pound;3.50.</p>
+<p>Although I can see the value in using a properly tested unit for mains switching, safer and one less thing to worry about!&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4534"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Mon, 21/05/2012 - 18:19.</div>
+    <div class="content">
+     <p>Currently I&#39;m happy with the circuit I&#39;ve got, it works at 1% resolution (could be adapted to reduce this to 0.5%) and fires really nicely and evenly all the way up to 100% power.&nbsp; The circuit I&#39;ve built in effect does zero crossing twice, once on the arduino circuit and again on the SSR.</p>
+<p>I don&#39;t think this is actually a problem, because I&#39;m not losing any power/cycles, simply the SSR is half a cycle behind the arduino.&nbsp; They are both in sync.</p>
+<p>Additionally, I agree that the triac might be a good option, but I was hoping to design a safe(ish) circuit for a generic module for O.E.M, minimum mains wiring.&nbsp; The SSR I&#39;m using also cost less than &pound;6, there are much cheaper ones about as well...</p>
+<p>For instance, &pound;3.50...</p>
+<p><a href="http://www.ebay.co.uk/itm/Control-Solid-State-Relay-SSR-40DA-40A-24-380V-AC-Module-Fast-Switching-/170802773696?pt=UK_BOI_Electrical_Components_Supplies_ET&amp;hash=item27c4a37ec0" title="http://www.ebay.co.uk/itm/Control-Solid-State-Relay-SSR-40DA-40A-24-380V-AC-Module-Fast-Switching-/170802773696?pt=UK_BOI_Electrical_Components_Supplies_ET&amp;hash=item27c4a37ec0">http://www.ebay.co.uk/itm/Control-Solid-State-Relay-SSR-40DA-40A-24-380V...</a></p>
+<p><a href="http://www.ebay.co.uk/itm/SSR-25A-Solid-State-Relay-24-380V-AC-Temperature-Controller-K-/170826293079?pt=UK_BOI_Electrical_Components_Supplies_ET&amp;hash=item27c60a5f57" title="http://www.ebay.co.uk/itm/SSR-25A-Solid-State-Relay-24-380V-AC-Temperature-Controller-K-/170826293079?pt=UK_BOI_Electrical_Components_Supplies_ET&amp;hash=item27c60a5f57">http://www.ebay.co.uk/itm/SSR-25A-Solid-State-Relay-24-380V-AC-Temperatu...</a></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4538"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="kash&#039;s picture" title="kash&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by kash (not verified) on Mon, 21/05/2012 - 19:51.</div>
+    <div class="content">
+     <p>I&#39;ve come across a &quot;3800W SCR Voltage Regulator Dimming Light Speed Control&quot; on ebay that&#39;d appear to achieve the same for a fraction of the price of, say, a site transformer - would such a device be sufficient for reducing a 3kw immersion energy usage down to half or lower?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4546"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Tue, 22/05/2012 - 09:12.</div>
+    <div class="content">
+     <p>I&#39;ve updated the code to include a new burst firing table, so it now works on 0.5% steps, so for a 3kw heater, thats 15W resolution.</p>
+<p>I&#39;ve found an old ac transformer in a nokia mobile phone charger, so if I get brave tonight, I&#39;ll put that on the scope and test it out !</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4547"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Tue, 22/05/2012 - 09:21.</div>
+    <div class="content">
+     <p>I did start out doing burst fire against an SSR and ignored the timings/zero cross.&nbsp; It works, but its difficult to maintain an accurate power output level, over time the firing drifts out and the power increases/decreases dramatically.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4548"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Tue, 22/05/2012 - 09:39.</div>
+    <div class="content">
+     <p>Looks like firing whole AC cycles rather than the half cycles I&#39;m currently doing will prevent DC from being generated and passed into the heating elements, increasing their life expectancy!</p>
+<p>&nbsp;</p>
+<p>Bit more background reading...</p>
+<p><a href="http://instrumentation-central.com/SCRPowerControls/ssrz_series.pdf" title="http://instrumentation-central.com/SCRPowerControls/ssrz_series.pdf">http://instrumentation-central.com/SCRPowerControls/ssrz_series.pdf</a></p>
+<p><a href="http://www.watlow.com/downloads/en/whitepapers/burst fire output.pdf" title="http://www.watlow.com/downloads/en/whitepapers/burst%20fire%20output.pdf">http://www.watlow.com/downloads/en/whitepapers/burst%20fire%20output.pdf</a></p>
+<p><a href="http://www.scribd.com/nealmalm/d/51105918-SCR-power-control-Watlow#outer_page_15" title="http://www.scribd.com/nealmalm/d/51105918-SCR-power-control-Watlow#outer_page_15">http://www.scribd.com/nealmalm/d/51105918-SCR-power-control-Watlow#outer...</a></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4550"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 22/05/2012 - 14:15.</div>
+    <div class="content">
+     <p>I&#39;m slightly skeptical&nbsp;of the CE mark on SSR&#39;s from ebay, the price is very&nbsp;low! Although I have managed to find a manufacture website with some poorly translated datasheets which is slightly assuring:&nbsp;<a href="http://www.fotek.com.tw/Ecenter1.asp?class1_sn=4&amp;class2_sn=16">http://www.fotek.com.tw/Ecenter1.asp?class1_sn=4&amp;class2_sn=16</a></p>
+<p><a href="http://www.fotek.com.tw/pdf/etc_206.pdf">http://www.fotek.com.tw/pdf/etc_206.pdf&nbsp;</a></p>
+<p>The datasheet shows that they do indeed contain a traic with optical firing:</p>
+<p><a href="../sites/default/files/ebaySSR.png"><img alt="" src="../sites/default/files/ebaySSR.png" style="width: 400px; height: 172px; " /></a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4662"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/851.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="daveb&#039;s picture" title="daveb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/851.html" title="View user profile.">daveb</a> on Sun, 03/06/2012 - 11:44.</div>
+    <div class="content">
+     <p>I&#39;ve recently posted some design notes on phase control of Triacs on my website :</p>
+<p><a href="http://www.rotwang.co.uk/projects/triac.html" title="http://www.rotwang.co.uk/projects/triac.html">http://www.rotwang.co.uk/projects/triac.html</a></p>
+<p>What I wanted to do was to reduce the power to a load so that it only used the available excess solar power. When the solar panels are generating less than the load consumes, I thought I could reduce the power to the load using a phase controlled triac.</p>
+<p>The problem with all these phase control systems is that it relies on defects in the supply meter design to work. If you only switch the supply on for part of the phase, although the average consumption is reduced, the peak consumption (while it is on) is exactly the same. So, if the meter correctly measures power, and modern meter should do, the load will still be importing power from the grid during the on periods.&nbsp;</p>
+<p>So, these circuits may not work as intended. I want to look at using an IGBT to shop rectified mains as an alternative.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4665"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Mr. Sharkey&#039;s picture" title="Mr. Sharkey&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by Mr. Sharkey (not verified) on Sun, 03/06/2012 - 15:47.</div>
+    <div class="content">
+     <p><i>"these circuits may not work as intended"</i></p>
+<p>That's what I suspected also, but the experiences of other users as well as my own testing has proved otherwise:</p>
+<p><a href="1764658.html?page=2" title="http://openenergymonitor.org/emon/node/176?page=2">http://openenergymonitor.org/emon/node/176?page=2</a></p>
+<p>You can shift a significant load back and forth across the utility meter without ever registering a consumption.</p>
+<p>Having said this, I am still pleased that my variable transformer-based proportional solar dump load controller works as well as it does without all of the contortions that using a triac involves.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4668"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sun, 03/06/2012 - 17:20.</div>
+    <div class="content">
+     <p>On the linked page above, search for &quot;trampoline&quot; !</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4671"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/851.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="daveb&#039;s picture" title="daveb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/851.html" title="View user profile.">daveb</a> on Mon, 04/06/2012 - 07:51.</div>
+    <div class="content">
+     <p>In which case, the triac controller I presented about will probably do what most people want - provide proportional phase control to a load that can soak up excess energy.</p>
+<p>I still have reservations about the meter design though. What they should do is multiply V * I at a high sample rate and sum any <u>positive</u> values. This would stop the phase control (or any other pulse width etc) from working. I suspect that meter manufacturers are only just starting to worry about people generating their own power. In the past the meter was easy as the flow was all one way. That will probably change, so any investment in hardware would be possibly short lived. We will all be forced to have new smart meters soon, which may well prevent us from doing this.</p>
+<p>I wouldn&#39;t describe the triac control as &quot;contortions&quot;. The circuit is simple and the software, well, its just software. The only thing my circuit is missing is a nice box and an adequate heatsink.</p>
+<p><a href="http://www.rotwang.co.uk/projects/triac.html" title="http://www.rotwang.co.uk/projects/triac.html">http://www.rotwang.co.uk/projects/triac.html</a></p>
+<p>What you need in addition to this is some feedback from the generation and consumption meters, but that depends on your setup.</p>
+<p>I was going to abandon this experiment, as I didn&#39;t have access to a modern meter to verify that the principle works. But this thread has encouraged me to continue. I don&#39;t even have an immersion heater! If someone is able to verify that a phase controlled triac will not register on a modern meter, then I will be happy to continue the experiment. Happy to discuss this offline at : solar at rotwang dot co dot uk</p>
+<p>I need to get real time monitoring of my import meter, and that is my next stage.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4675"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Mon, 04/06/2012 - 10:30.</div>
+    <div class="content">
+     <p>Daveb,&nbsp; proportional phase-control using a triac should work fine with modern supply meters.&nbsp; It&#39;s really no different than having lots of lights on a dimmer circuit.&nbsp; Power companies can&#39;t charge the customer for parts of the cycle where no energy has been consumed.</p>
+<p>My interest is in using entire cycles, or half cycles, to power the immersion using surplus PV energy.&nbsp; By switching only at zero-crossing points, all sorts of problems with EMC and buzzing etc. should be greatly reduced.&nbsp;&nbsp; This approach takes advantage of the fact that modern supply meters conveniently allow small amounts of power to flow back and forth without being recorded.&nbsp; Such behaviour only occurs when the customer is generating power on-site.&nbsp; If the meter manufacturers were to change this arrangement, i.e. to withdraw their trampoline as you have suggested, then dumping surplus PV power to a resistive load would become a whole lot more challenging.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4684"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 04/06/2012 - 14:29.</div>
+    <div class="content">
+     <p>Daveb,</p>
+<blockquote><p>&quot;What they should do is multiply V * I at a high sample rate and sum any <u>positive</u> values.&quot;</p>
+</blockquote>
+<p>But then the meter would only read power correctly with a resistive load. Remember that a non-unity power factor will also return power to the supply for part of the cycle (we call it circulating vars - <strong>V</strong>olt <strong>A</strong>mperes <strong>r</strong>eactive).</p>
+<blockquote><p>&quot;I suspect that meter manufacturers are only just starting to worry about people generating their own power.&quot;</p>
+</blockquote>
+<p>On the contrary (only it wasn&#39;t genuine generation they were worried about). Most meters have never allowed reverse power because prior to private generation becoming widely available, reverse power was a sure sign of the customer fiddling the meter!</p>
+<p>As I understand it, many smart meters have an optional setting (the supply companies option, that is) to allow or block reverse power.</p>
+<blockquote><p>&quot;The only thing my circuit is missing is a nice box and an adequate heatsink.&quot;</p>
+</blockquote>
+<p>And some large filter components to reduce the interference that you will generate.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4686"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/851.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="daveb&#039;s picture" title="daveb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/851.html" title="View user profile.">daveb</a> on Mon, 04/06/2012 - 14:50.</div>
+    <div class="content">
+     <p>Hi calypso_rae. There is no question of being charged for parts of the cycle where no energy is being consumed. It is a problem that only occurs when you are generating power, which is largely a recent phenomena. The meter merely multiplies the instantaneous current and voltage together and integrates this over time. With old meters this is done using an electromagnetic system. With modern meters it is done electronically and in software.</p>
+<p>The critical issue is how the integrating is done. Is the sum of V * I taken over a period and then any import (ie. net +ve) amount added to the meter reading, or are only those V * I products that are positive integrated? The meter can do this either way. It is an implementation detail. If you have no generation capability, the numbers will come out the same. It only matters when you can export as well as import.</p>
+<p>This is complicated when you consider that the load might be an inductive one. With inductive loads the current is out of phase with the voltage. The meter shouldn&#39;t charge you when the current flows in reverse because of inductance. It should integrate. This situation looks a lot like a phase control case when you are also generating power. So perhaps the meter must always subtract any current flowing out to the grid when it integrates?</p>
+<p>Experience shows that import and exports are simply summed, so the principle works with at least some meters. But it all depends on the design of the meter, and that may change as the utilities get more used to people generating their own power.</p>
+<p>It also doesn&#39;t make much difference whether you talk about phase control (part cycles) or switching at zero crossing points for selected cycles, (apart from the EMC / buzzing issue you mention). The issue is the peak current drawn when the load is on. If this peak&nbsp; current is greater than the current supplied by your inverter, then technically you are importing power, whether it is for a part of a cycle or a half cycle. The fact this doesn&#39;t show up on your meter is down to the detail of how the meter is implemented. Both phase and cycle control have the same behaviour.</p>
+<p>I&#39;m going to try and summarize all this with diagrams etc and post a link here later.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4687"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/851.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="daveb&#039;s picture" title="daveb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/851.html" title="View user profile.">daveb</a> on Mon, 04/06/2012 - 14:57.</div>
+    <div class="content">
+     <p>Yes, you are right about people reversing the meter, but that is easily handled.</p>
+<p>Good points about reactive power. I only saw your post after I&#39;d added mine. Maybe that is the answer?</p>
+<p>&quot;And some large filter components to reduce the interference that you will generate&quot;</p>
+<p>yes, that is true. They don&#39;t have to be too large though :)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4688"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Mon, 04/06/2012 - 15:24.</div>
+    <div class="content">
+     <p><em>daveb, &quot;The issue is the peak current drawn when the load is on. If this peak current is greater than the current supplied by your inverter, then technically you are importing power, whether it is for a part of a cycle or a half cycle. The fact this doesn&#39;t show up on your meter is down to the detail of how the meter is implemented.&quot;</em></p>
+<p>Indeed so, and I was voicing precisely the same argument on this forum only a few weeks ago.&nbsp; However, since then, I have found by experimentation that our Landis meter has a &#39;power window&#39; of around 1Wh within which no permanent records are kept of any power which flows to and fro.&nbsp; So if your control system stays within that region, there is no cost penalty for bouncing small amounts of energy in and out of the low impedance grid.&nbsp; The trampoline is freely available for anyone who wants to play!</p>
+<p>Our system really does heat up the water by using isolated whole cycles of mains power and the supply meter is happy, as am I :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4689"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Mr. Sharkey&#039;s picture" title="Mr. Sharkey&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by Mr. Sharkey (not verified) on Mon, 04/06/2012 - 15:35.</div>
+    <div class="content">
+     <p>Don't bother spending any time worrying about whether "smart meters" can sense reverse power (energy production rather than consumption), they all already have that capability. Unless programmed otherwise by the utility, they will treat any production as consumption and bill you for the result.</p>
+<p>Old, mechanical meters could be run backwards unless they were "ratcheted", that is prevented mechanically from tuning backwards (these meters are actually rather rare). In the US, utility meters are socketed, that is they have a four blade connection system that is identical no matter whether the meter is right side up or upside down.</p>
+<p>In the old days, inverting a mechanical meter would, either stop it's rotation (due to the meter needing gravity to be right side up to spin), or run backwards.</p>
+<p>New "smart" meters can likewise be inverted in the socket, but gravity won't affect their operation. As such, the meter can not ignore "backwards" power, but must treat it as consumption so that cheaters still get the bill at the end of the month.</p>
+<p>Actually, most "smart" meters can tell if they have been removed from a live socket and will scream bloody murder to the utility.</p>
+<p>Consumer production of energy is more common than you might think, and meter manufacturers are competitive in creating products that utilities can use to accommodate customers who have a legitimate grid intertied system. The new meters can be configured to separately register and total that production, although the default settings is to treat it as consumption.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4690"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/851.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="daveb&#039;s picture" title="daveb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/851.html" title="View user profile.">daveb</a> on Mon, 04/06/2012 - 16:47.</div>
+    <div class="content">
+     <p>I&#39;ve drawn a graph of how I think the issue can be described.</p>
+<p><a href="../../../www.rotwang.co.uk/projects/images/phase_power_graph.html" title="http://www.rotwang.co.uk/projects/images/phase_power_graph.png">http://www.rotwang.co.uk/projects/images/phase_power_graph.png</a></p>
+<p>This uses a phase control example, but it equally applicable to the whole cycle case. For simplicity I&#39;ve used a 90 degree phase switch.</p>
+<p>When the load is off, you are exporting power. This should not appear on your import. I believe it is incorrect to say &#39;they will treat any production as consumption and bill you for the result.&#39; The import factor here is the direction of the current, which both old mechanical and new electronic meters will accurately measure. Neither will count exported power as imported. The net power is the sum of the instantaneous current and voltage, integrated over time. In this example, the hatched area on the left hand side of the graph, which the meter will treat as export and therefore ignore.</p>
+<p>When the load is on, the net current flow is equal to the load current minus the generation current, assuming always that I_load &gt; I_gen. The meter will again integrate the net current flow, multiplied by the voltage. In this case the hatched area on the right of the graph, which is a net import of energy.</p>
+<p>The question is, does the meter add these 2 areas, one negative (export) the other positive (import)? My mechanical meter does, and clearly other people with electronic meters also say it does. calypso_rae&#39;s meter even averages over multiple cycles. This may be common behaviour. If the sum of the hatched areas is &lt;= 0, ie. net export, the meter shouldn&#39;t register any usage.</p>
+<p>The question of detecting fraudulent use of the meter is different. The meter simply never counts backwards. This is achieved with a ratchet in mechanical systems, and with software in electronic meters.</p>
+<p>&#39;the default settings is to treat it as consumption&#39;. I suspect this can&#39;t be true. If this were the case then everyone who is a power generator would get larger bills, not smaller. The bill would be the sum of exported and imported power. I don&#39;t imagine for a minute that this is happening.</p>
+<p>Yes, modern meters can measure import and export.&nbsp; My generation meter has fields in its IrDA output data, but they are turned off. I&#39;ve decoded these and seen them :</p>
+<p><a href="http://www.rotwang.co.uk/projects/meter.html" title="http://www.rotwang.co.uk/projects/meter.html">http://www.rotwang.co.uk/projects/meter.html</a></p>
+<p>The solid-state-relays will simply use the same switching techniques as in my triac design. &#39;linear&#39; ones, will probably use phase control. It is just the same basic design in an enclosed box.</p>
+<p>All this still leaves the question open in my mind. I think that the fact that meters have to deal with reactive loads gives a hint that they must always subtract negative currents when they integrate. This may mean that they will always work as desired. I think that is the most important contribution to this debate.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4691"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Mon, 04/06/2012 - 17:08.</div>
+    <div class="content">
+     <p>daveb, nice diagram and explanation.&nbsp; Meters could doubtless be set up to operate as you suggest, but that would cause problems with capacitive and reactive loads.</p>
+<p>For me, the most important contribution to this debate was the realisation that energy can be bounced in &amp; out of our supply&nbsp; meter without charge.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4692"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 04/06/2012 - 17:16.</div>
+    <div class="content">
+     <blockquote><p>&quot;&#39;the default settings is to treat it as consumption&#39;. I suspect this can&#39;t be true. If this were the case then everyone who is a power generator would get larger bills, not smaller. The bill would be the sum of exported and imported power. I don&#39;t imagine for a minute that this is happening.&quot;</p>
+</blockquote>
+<p>I seem to recollect seeing anecdotal evidence - on here I think - that the customer proved that the bill was for total power irrespective of direction, and got a meter change and a refund from the energy supplier as a result.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4694"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Mr. Sharkey&#039;s picture" title="Mr. Sharkey&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by Mr. Sharkey (not verified) on Mon, 04/06/2012 - 19:58.</div>
+    <div class="content">
+     <p>"<i>'the default settings is to treat it as consumption'. I suspect this can't be true.</i>"</p>
+<p>If this is what you believe to be the case, there is one very fast, easy, and convincing method of proving it one way or the other.</p>
+<p>If you have the capability of producing and exporting energy (PV's, etc), turn off all the loads in your service, disconnect any dump load devices, and allow 1kWh+ of energy to flow back into the grid and read the results on your meter.</p>
+<p>I can tell you unequivocally that the utility meter installed on my electric service will increment the consumption by the amount of energy fed back into the grid, and I have no reason to expect that most if not all "smart" meters are set up the same from the factory. This is the selling point that the manufacturers use to convince utilities to switch to these types of meters to begin with. That, and the fact that they sense small amounts of energy usage more accurately and are less apt to have calibration errors caused by old, creaky gears, dirt, dust, etc. If your utility is installing "smart" meters, they aren't doing it for your benefit, it's solely for theirs.</p>
+<p>If you have entered into a net metering/tariff-feed-in agreement with your utility, then your electronic meter will be programmed to accumulate consumption and production in separate registers. Some utilities, when faced with net metering, will simply leave the old (non-ratcheted) analog meters in place and let them spin backwards when production exceeds consumption.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4695"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Mon, 04/06/2012 - 20:41.</div>
+    <div class="content">
+     <p>On a good day, when the water is up to temperature, our PV is still active, and the house is using minimal power:</p>
+<p>- the LED on our supply meter glows continuously, but the numbers don&#39;t change because we are exporting;</p>
+<p>- the LED on our generation meter pulses regularly, each one being worth approx 0.05p to me in FIT payments.&nbsp; But as we&#39;re often reminded on this side of the Pond, every little helps :)</p>
+<p>- the &#39;fourth quartile&#39; (blue) LED on my Arduino&#39;s &#39;display panel&#39; is on, this showing that the control logic is trying as hard as it can to reduce the level of export, which it can&#39;t do because the thermostat is no longer able to draw current.</p>
+<p>Job done. We are definitely not being charged for exported power!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4696"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/783.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-783.gif" alt="Lloyd&#039;s picture" title="Lloyd&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/783.html" title="View user profile.">Lloyd</a> on Mon, 04/06/2012 - 21:14.</div>
+    <div class="content">
+     <p>Mr. Sharkey I suggest you get your meter changed. I'm definitely not charged for exported power.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4700"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Mr. Sharkey&#039;s picture" title="Mr. Sharkey&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by Mr. Sharkey (not verified) on Tue, 05/06/2012 - 00:57.</div>
+    <div class="content">
+     <p>Believe me, if I could get the meter changed back to the analog disc-type meter, I'd do so in a heartbeat. That way, I would have no use for a dump load -or- a controller, and I wouldn't be here bothering people with facts they don't accept.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4701"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Tue, 05/06/2012 - 08:01.</div>
+    <div class="content">
+     <p>If you are in the UK, then your electric company can/will/must re-program your meter for you to record exported energy properly.&nbsp;They won&#39;t install the disc&nbsp;meter!</p>
+<p>Seems quite a few people have had this problem after installing PV, some threads about the problem here..</p>
+<p><a href="http://www.electriciansforums.co.uk/photovoltaic-solar-panels-green-energy-forum/">http://www.electriciansforums.co.uk/photovoltaic-solar-panels-green-energy-forum/</a></p>
+<p>Your electric supplier is incorrectly billing you !</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4703"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 05/06/2012 - 10:13.</div>
+    <div class="content">
+     <p>Mr Sharkey,</p>
+<p>Please realise that, to the best of my knowledge, most modern digital meters can work whichever way the supply company sets them up - <u>on an individual basis</u>. So what is true for one customer - whichever country they are in - might not be true for their neighbour next door, somebody across the street or for you in a different country, but it might be true for someone a dozen houses away and someone in the next road. Only the supplier and the meter itself knows, and it looks like they aren&#39;t telling.</p>
+<p>So what are facts for some people might not be facts in your case. It doesn&#39;t mean either of you are wrong, it is likely that you are both right. You are talking about different situations.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4705"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 05/06/2012 - 14:02.</div>
+    <div class="content">
+     <p>The commonly fitted Siemans&nbsp;<span style="font-family: arial, sans-serif; font-size: small; line-height: 16px; ">S2AS-100 meters are notorious for charging customers for both import &amp; export, and although the utility companies can re flash the firmware to overcome this error, they usually just replace the meter, and re-flash/refurbish the old meter back in the factory for re-issue.</span></p>
+<p><span style="font-family: arial, sans-serif; font-size: small; line-height: 16px; ">​I had one of these fitted initially, so I speak from experience!!</span></p>
+<p><span style="font-family: arial, sans-serif; font-size: small; line-height: 16px; ">​Paul</span></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4706"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Tue, 05/06/2012 - 17:56.</div>
+    <div class="content">
+     <p><em><span style="font-family: arial,sans-serif; font-size: small; line-height: 16px;">pauldreed: ​I had one of these fitted initially, so I speak from experience!!</span></em></p>
+<p>Was this meter already in place before your panels were fitted, or was it fitted specifically to work alongside your panels but then failed to do so?</p>
+<p>At the time when our PV was installed, we had a disc-type meter that went backwards when we started to export.&nbsp; Although I reported this on Day 1, it took Scottish Power a couple of months before they got around to fitting a digital replacement.&nbsp; Pity that this was in November/December rather than during the summer months!&nbsp;</p>
+<p>(aside) Do power companies generally check whether the meters of their PV-equipped customers go backwards or not.&nbsp; It would seem in their interests to do so.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4707"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 05/06/2012 - 18:53.</div>
+    <div class="content">
+     <p>Yes the meter was in place before the panels were fitted. Because I had the panels fitted early winter, I wasn&#39;t aware that there was a problem until 5 or 6 months later, when we got some strong spring sunshine.</p>
+<p>Scottish Power were really good at sorting it out though, got a really generous refund, basing average daily usage on a sunny week in May, which they applied back to the previous October!</p>
+<p>I don&#39;t think anyone checked, neither the power company nor the Solar installer. Scottish Power didn&#39;t even check, they took my word for it and organized&nbsp;a meter change (although they probably have had loads of complaints).</p>
+<p>&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4738"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="eof&#039;s picture" title="eof&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by eof (not verified) on Sat, 09/06/2012 - 12:14.</div>
+    <div class="content">
+     <p>My supplier at the time (nPower) was very keen to change my analogue meter as quickly as possible when I declared I had had PV fitted.&nbsp; I&#39;m sure it depends on your supplier.</p>
+<p>Regardless of the theoretical capabilities of the meter, I would be very surprised if it weren&#39;t designed to mimic the mechanical inertia of an analogue meter in at least being as &quot;fair&quot;, otherwise customers would be billed unequally depending on what sort of meter they had.</p>
+<p>I&#39;m shocked that there are digital meters which charge export as import, and even more shocked that it seems some were fitted in response to PV installations.&nbsp; Does the LED still glow continuously when power is being exported, despite it being metered as imported power?</p>
+<p>I&#39;m also very interested to hear about &quot;trampolining&quot;, as burst-firing allows much simpler and cheaper circuitry than phase control.&nbsp; Did you say what model of meter?&nbsp; Mine is a Landis and Gyr 5235A.&nbsp; Edit: I see this is one confirmed to &quot;trampoline&quot; - yippee!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4739"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="eof&#039;s picture" title="eof&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by eof (not verified) on Sat, 09/06/2012 - 12:08.</div>
+    <div class="content">
+     <p>[Responding to question about 3800W dimmer on eBay - why doesn&#39;t quoting work?]</p>
+<p>Yes, but not without difficulty.&nbsp; For a start, I don&#39;t believe that heatsink is nearly big enough.&nbsp; It&#39;s also got no filtering so will break all the regulations for electromagnetic interference.&nbsp; Even if that doesn&#39;t affect you, it&#39;s still very anti-social.&nbsp; And it&#39;s lots of live metalwork, including, by the looks of it, the heatsink.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4740"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 09/06/2012 - 12:47.</div>
+    <div class="content">
+     <blockquote><p>&quot;... why doesn&#39;t quoting work?]&quot;</p>
+</blockquote>
+<p>It&#39;s a format. It inserts &lt;blockquote&gt; tags. Like this:</p>
+<pre>
+&lt;blockquote&gt;
+    &lt;p&gt;&amp;quot;why doesn&amp;#39;t quoting work?]&amp;quot;&lt;/p&gt;
+&lt;/blockquote&gt;</pre><p>You need to copy and paste the text you want to quote. And put the inverted commas around it if you so desire.</p>
+<p>&nbsp;</p>
+<p>(And having engineered a 3 MW DC drive, tell me about harmonics and dip! - and G5/3 as it was then)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4750"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sat, 09/06/2012 - 17:02.</div>
+    <div class="content">
+     <p><em>eof: I&#39;m also very interested to hear about &quot;trampolining&quot;, as burst-firing allows much simpler and cheaper circuitry than phase control.&nbsp; Did you say what model of meter?&nbsp; Mine is a Landis and Gyr 5235A.</em></p>
+<p>Trampolining - yes, it&#39;s very satisfying when an existing word can convey a new situation so succinctly.&nbsp; Maybe there needs to be a disambiguation page on Wikipedia to distinguish it from the Olympic alternative.</p>
+<p>My supply meter is the same model as yours (user manual attached), so you too should be able to benefit from the bouncing bonanza :)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4754"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="eof&#039;s picture" title="eof&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by eof (not verified) on Sat, 09/06/2012 - 21:50.</div>
+    <div class="content">
+     <p>Ooh very interesting - shall read!&nbsp; I have now read through the other thread and see that you and friends have pretty much sewn up burst firing while my attention was elsewhere!</p>
+<p>Pity no-one&#39;s managed to hack into the meter to get it to display with a greater resolution.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4792"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Tue, 12/06/2012 - 20:26.</div>
+    <div class="content">
+     <p>How much more resolution do you need?&nbsp;</p>
+<p>If I want an accurate power reading at the grid connection point, I just plug the laptop into my adjacent Arduino and read it from the Serial port :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4793"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="eof&#039;s picture" title="eof&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by eof (not verified) on Tue, 12/06/2012 - 21:06.</div>
+    <div class="content">
+     <p>The greater resolution would make it easier to see exactly how the meter responds to playing about with power flow.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4807"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Wed, 13/06/2012 - 14:41.</div>
+    <div class="content">
+     <p>Sure, but I think it&#39;s fair to assume that whenever the LED does anything, then the underlying energy flow will have been noted.&nbsp;</p>
+<p>After a period of consumption, no charge is presumably made until the next blink occurs.&nbsp; If the LED goes permanently on, you&#39;ve just lost up to 1Wh&#39;s worth of free energy.&nbsp; C&#39;est la vie.</p>
+<p>After a period of export, the LED going off probably means that you&#39;ve been charged for 1Wh&#39;s worth of energy from the grid.&nbsp; While it remains on, you could of course be exporting megaJoules but the meter would ignore your generosity.</p>
+<p>Any system which can accurately measure current at the supply point, and respond quickly to any change, should have a good chance of staying in the sweet zone between chargeable events.&nbsp;</p>
+<p>Maybe it&#39;s just me, but I&#39;ve found that monitoring the meter&#39;s LED while turning various loads on and off is surprisingly theraputic.&nbsp; The hot-air blower, with two settings and a real trigger is my favourite!</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4809"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="eof&#039;s picture" title="eof&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by eof (not verified) on Wed, 13/06/2012 - 15:31.</div>
+    <div class="content">
+     <p>Yes, I agree.&nbsp; My &quot;favourite&quot; pass-time is pushing pause on the washing machine as the sun goes in and out...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8307"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Alan&#039;s picture" title="Alan&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by Alan (not verified) on Mon, 17/12/2012 - 16:38.</div>
+    <div class="content">
+     <p>Hi&nbsp; I came across this website whilst doing a research on the Arduino.</p>
+<p>The monitor looks to be a very well engineered and documented package.</p>
+<p>Congratulations.</p>
+<p>I went on to look at the thread on using water heating to dump excess solar energy.</p>
+<p>I had considered using such a system but I have finally decided to employ a combi boiler and minimise the plumbing.</p>
+<p>However, from a technical view point I am still interested but I have reservations about the underlying principles.&nbsp; I have not doubt that average power input to the heater can be reduced by simple fractions&nbsp; times it&#39;s rated value. The zero crossing switch also reduces the potential for transient generation.</p>
+<p>You appear to imply that if the excess energy is less than the rated demand&nbsp; for the heater then it can be used to equalised to the solar output.</p>
+<p>We have to consider the performance of the system formed by the generation meter, the consumption meter and the inverter.</p>
+<p>During the on cycle the inverter will try to furnish the rated current but will be able to furnish the maximum available for the solar conditions the shortfall will be drawn from the main clocking up the consumption meter, during off cycles the the available current will be returned to the main.<br />
+	in my house this turns the old style meter backwards. The meter should have been changed&nbsp; for a more modern version.</p>
+<p>I don&#39;t see how this is going to save money or use the energy more wisely unless the consumption meter is also averaging the power used or feedback across several cycles. What do the various types of meter acually do ?&nbsp;&nbsp; Has anybody tried them ?</p>
+<p></p>
+<p>Would somebody care to shoot this argument down or clarify the situation.</p>
+<p>Alan</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8310"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 17/12/2012 - 20:18.</div>
+    <div class="content">
+     <p>There has been a lot of work done on trying to understand how various meters work. You&#39;ll find the results are unfortunately scattered across many threads, but they&#39;re there. Pending someone putting together an article collating all the knowledge, all I can suggest is you read up on Calypo-rae&#39;s project and its offshoots. And do a lot of searching, unfortunately.</p>
+<p>The basic idea is: The meters (universally) seem to record energy in 1 Wh (3600 J) packets. The controller manages energy consumption within the bounds of this packet, so that there is no nett transfer recorded. Obviously, if generation exceeds the sum of the fixed load and controlled load, the system fails and energy is exported; likewise if the uncontrolled part of the load exceeds generation, energy is imported. In between, the controller successfully manages the controlled load to achieve zero nett import/export.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10580"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Diverting power from Solar PV to a heater (immersion controller)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Fri, 22/03/2013 - 17:11.</div>
+    <div class="content">
+     <p><em>RW:&nbsp; Pending someone putting together an article collating all the knowledge, all I can suggest is you read up on Calypo-rae&#39;s project and its offshoots. And do a lot of searching, unfortunately.</em></p>
+<p>All of which Robert has since done, the resulting article being at&nbsp; <a href="https://learn.openenergymonitor.org/?redirect=meters">http://openenergymonitor.org/emon/buildingblocks/meters</a> :)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/685"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Dr-cNZhkFw10sYjmpA4qY1JM_V4yJervBbP34P7Qy9k" value="form-Dr-cNZhkFw10sYjmpA4qY1JM_V4yJervBbP34P7Qy9k"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/685 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:06:08 GMT -->
+</html>

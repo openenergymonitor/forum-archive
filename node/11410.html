@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11410 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:58:36 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Emonhub error log | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Emonhub error log</h3>
+        <span class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 15/10/2015 - 21:44</span>
+        <div class="content"><p>On 3 occasions&nbsp;over the past 2 days, my v9.0 Raspberry Pi installation has stopped updating all feeds supplied via emonhub&nbsp;(MQTT&nbsp;feeds continue OK), and I&#39;ve had to reboot, to get them working again.</p>
+<p>To try and find out what was going on, I set the emonhub log to debug, and the attached log extract resulted a few hours later.</p>
+<p>The first section of the log shows a normal handshake with emoncms, but the second clearly is causing some concern, and which emoncms does not recover from thereafter. Could it be interference as the RSSI&nbsp;is&nbsp;-100? if so, is there any way to screen/reject it?</p>
+<p>Paul</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11416.html" class="topic-previous" title="Go to previous forum topic">‹ Help setting up btmon.py to send to emoncms.org</a>
+              <a href="11401.html" class="topic-next" title="Go to next forum topic">Trouble with rawdata graphs based on local time ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-34963"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub error log</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 15/10/2015 - 23:00.</div>
+    <div class="content">
+     <p>Hi Paul</p>
+<p>Try updating the rfm2pi firmware, there should not be any instance that a node id should be passed to emonHub that is&nbsp;higher than 31. the line&nbsp;<a href="https://github.com/openenergymonitor/RFM2Pi/blob/master/firmware/RFM69CW_RF_Demo_ATmega328/RFM69CW_RF12_Demo_ATmega328/RFM69CW_RF12_Demo_ATmega328.ino#L663">showByte(rf12_hdr &amp; 0x1F);</a>&nbsp;was amended to include the &quot;&amp; 0x1F&quot; mask to prevent acks&nbsp;etc causing a problem.</p>
+<p>That &quot;correction&quot; will prevent the node id of 157 slipping through to emoncms and causing the error you see. I don&#39;t think emoncms is needing a restart, what is happening is because emoncms is not replying with &quot;ok&quot; upon receipt of the out of scope node, emonHub&nbsp;cannot delete the &quot;successfully posted&quot; packet and gets stuck retrying, each time rejected. You can test this theory by restarting emonhub&nbsp;or by forcing the reporter to rebuild by adding a &quot;#&quot; in front of the &quot;Type = &quot; line in emonhub.conf for that reporter, save and remove the &quot;#&quot; again,&nbsp;</p>
+<p>I believe this is new behavior&nbsp;by emoncms, I think previously it was just accepting the payload and discarding out of scope stuff, fault feedback is great IF the receiving&nbsp;software is geared up for it and&nbsp;it doesn&#39;t cause further problems, This will&nbsp;become an &nbsp;issue&nbsp;if any single erroneous packet can cause an immediate halt&nbsp;to any and all data from emonHub.</p>
+<p>However this &quot;correction&quot; to the rfm2pi firmware will of allowed that same packet through to emoncms&nbsp;with a node id of 29, which you will have to delete if you don&#39;t want it (assuming 29 isn&#39;t an active node), I believe that is a better outcome than a complete halt in data, but to remove the interference is a better solution,</p>
+<p>I need to think on this a&nbsp;bit more, yes it would be easy to add a filter to eliviate&nbsp;your issue, if you keep the &quot;faulty&quot; firmware, but I feel this is papering over the cracks rather than tackling the issue. Plus I have previously put a &lt;32 check on the node id and then we removed it again as it is user set in emoncms so a node id of over 32 is quite valid.</p>
+<p>There is also a setting in settings.php I recall that enables/disables verbose error replies from emoncms is that active? I did ask Chaveiro&nbsp;do default that to off as a large number of users already have emonHub and&nbsp;I have seen several instances that a warning has been replied along with &quot;ok&quot; which will still stop emonHub&nbsp;deleting and moving on and it will then retry to post the same data until restarted.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34989"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub error log</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Fri, 16/10/2015 - 10:39.</div>
+    <div class="content">
+     <p>Ok, updated&nbsp;RFM69Pi&nbsp;firmware &amp; changed;</p>
+<pre>
+&nbsp;$display_errors = true;</pre><p>to false in settings.php, so we&#39;ll see if that helps.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34990"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub error log</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 16/10/2015 - 11:00.</div>
+    <div class="content">
+     <p>My fingers are crossed :-)</p>
+<p>Just to add to this emonhub could, as I mentioned have a &lt;32 filter added but both the&nbsp;JeeLib&nbsp;rfm69&nbsp;and LowPowerLabs&nbsp;libs&nbsp;use upto&nbsp;~255 node ids so it would not be a long term fix.</p>
+<p>I believe there is a rssi threshold in the mix now (or coming soon) in JeeLib so we should be able to filter all below say -80db in the rfm2pi firmware, in&nbsp;fact I believe&nbsp; -80db&nbsp;threshold&nbsp;is already in use in the&nbsp;JeeLib&nbsp;&quot;RFxConsole&quot;&nbsp;examples&nbsp;</p>
+<p>I hope the &quot;display_errors = false;&quot; stops all messages&nbsp;as unfortunately the verbose error messaging from emoncms&nbsp;effectively breaks the emonhub&nbsp;to emoncms&nbsp;compatibility, even if the previous warnings that I encountered alongside an &quot;ok&quot; <em>could</em> be handled by changing what&nbsp;emonHub&nbsp;expects to hear from emoncms&nbsp;to <em>includes</em> &quot;ok&quot; rather than <em>equals</em>&nbsp;&quot;ok&quot; but that makes emonhub and any data in-transit vulnerable to misinterpreting any error message containing &quot;ok&quot; as a successful post (eg &quot;to<strong>ok</strong> too long timed-out&quot;) and deleting the buffered data. Since in mant instances emoncms relays the error mesage&nbsp;it encounters there is no telling what could be returned to emonHub, So this&nbsp;isn&#39;t really a viable solution either.&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11410"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-NqX884d45gGN1Ney6ypzFXdYKDPFYdJwAf53Oi24FNo" value="form-NqX884d45gGN1Ney6ypzFXdYKDPFYdJwAf53Oi24FNo"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11410 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:58:36 GMT -->
+</html>

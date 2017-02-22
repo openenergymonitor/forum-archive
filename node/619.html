@@ -1,0 +1,581 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/619 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:28:50 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>adding 16 channel multiplexer to increase inputs | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">adding 16 channel multiplexer to increase inputs</h3>
+        <span class="submitted">Submitted by <a href="../user/1016.html" title="View user profile.">jstoaks</a> on Mon, 23/04/2012 - 04:21</span>
+        <div class="content"><p>Hey All,</p>
+<p>I have added a 16 channel multiplexor to increase the available analog inputs to the emonTX. All is going well so far in the affect of reading through all the channels on the multiplexor and reading multiple CT&#39;s being channeled into a single analog IO on an Arduino. My reading of the analog IO straight indicates that it is reading a value just fine, but when reading the calculated values the numbers drop with each sample and reading of the ct channel. same goes for the calculated voltage reading. Bear in mind I&#39;m in the states and running 110v mains.</p>
+<p>I also had to dig into the EmonLib.cpp and EmonLib.h files to integrate the code needed for the 16 ch multiplexor.</p>
+<p>the LipoV&nbsp;and LipoSOC are for my lipo&nbsp;fuel guage&nbsp;IC, so never mind those. See below how the values decrease with each increment.&nbsp;</p>
+<p>&nbsp;</p>
+<div>
+	LipoV=3971.25 &nbsp; LipoSOC=72.74 &nbsp; Main-1: 21918 Main-2: 18525 Volts: 179.48</div>
+<div>
+	LipoV=3971.25 &nbsp; LipoSOC=72.74 &nbsp; Main-1: 10701 Main-2: 7752 Volts: 126.11</div>
+<div>
+	LipoV=3972.50 &nbsp; LipoSOC=72.74 &nbsp; Main-1: 5597 Main-2: 3689 Volts: 91.20</div>
+<div>
+	LipoV=3972.50 &nbsp; LipoSOC=72.74 &nbsp; Main-1: 3160 Main-2: 1817 Volts: 68.61</div>
+<div>
+	LipoV=3972.50 &nbsp; LipoSOC=72.74 &nbsp; Main-1: 905 Main-2: 741 Volts: 36.69</div>
+<div>
+	LipoV=3972.50 &nbsp; LipoSOC=72.74 &nbsp; Main-1: 213 Main-2: 437 Volts: 17.92</div>
+<div>
+	LipoV=3973.75 &nbsp; LipoSOC=72.74 &nbsp; Main-1: 138 Main-2: 283 Volts: 14.52</div>
+<div>
+	LipoV=3973.75 &nbsp; LipoSOC=72.74 &nbsp; Main-1: 81 Main-2: 193 Volts: 11.16</div>
+<div>
+	&nbsp;</div>
+<div>
+	I also wanted to ask for an explanation of this code in EmonLib.cpp</div>
+<div>
+	&nbsp;</div>
+<div>
+<div>
+		long EnergyMonitor::readVcc() {</div>
+<div>
+		&nbsp; long result;</div>
+<div>
+		&nbsp; ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);</div>
+<div>
+		&nbsp; delay(2);</div>
+<div>
+		&nbsp; ADCSRA |= _BV(ADSC);</div>
+<div>
+		&nbsp; while (bit_is_set(ADCSRA,ADSC));</div>
+<div>
+		&nbsp; result = ADCL;</div>
+<div>
+		&nbsp; result |= ADCH&lt;&lt;8;</div>
+<div>
+		&nbsp; result = 1126400L / result;</div>
+<div>
+		&nbsp; return result;</div>
+<div>
+		}</div>
+<div>
+		&nbsp;</div>
+<div>
+		Mostly this part</div>
+<div>
+		ADMUX&nbsp;= _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);</div>
+<div>
+		&nbsp;</div>
+<div>
+		But in general what this function does?</div>
+<div>
+		&nbsp;</div>
+<div>
+		Thanks in advance for any insight.</div>
+<div>
+		Great work guys, I love this project.</div>
+<div>
+		see <a href="http://www.stoaks.net/" title="www.stoaks.net">www.stoaks.net</a> for my take on your project.</div>
+</div>
+<div>
+	&nbsp;</div>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1781.html" class="topic-previous" title="Go to previous forum topic">‹ Feed list in multigraph editor too wide - not possible to click Add button</a>
+              <a href="1762.html" class="topic-next" title="Go to next forum topic">Raspberry Pi hangs when RFM12Pi connected ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-3997"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: adding 16 channel multiplexer to increase inputs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 24/04/2012 - 10:41.</div>
+    <div class="content">
+     <blockquote><p>&quot;the values decrease with each increment&quot;</p>
+</blockquote>
+<p>Have you allowed the high pass filter to settle?&nbsp; (That&#39;s the software filter:</p>
+<blockquote><p>filteredV = 0.996*(lastFilteredV+sampleV-lastSampleV);</p>
+</blockquote>
+<p>that removes the effect of the Vs/2 offset applied in the hardware).</p>
+<p>How are you de-multiplexing the values in the software?</p>
+<p>&nbsp;</p>
+<blockquote><p>&quot;long EnergyMonitor::readVcc()&quot;</p>
+</blockquote>
+<p>Look at the Atmel data sheet (page 251)!&nbsp; It is reading the supply voltage to the chip itself. If you look at the rest of the code, you can see how that voltage is used to adjust the calibration so that the final value is not dependent upon the voltage supplied to the chip.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-3999"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="jstoaks&#039;s picture" title="jstoaks&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: adding 16 channel multiplexer to increase inputs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1016.html" title="View user profile.">jstoaks</a> on Tue, 24/04/2012 - 13:19.</div>
+    <div class="content">
+     <p>I&#39;m using a&nbsp;<span style="color: rgb(74, 74, 68); font-family: Georgia, Palatino, Times, 'MS Serif', serif; line-height: 22px; text-align: left; ">CD74HC4067 16 channel IC. which is like a 16 position switch. I have added this function to EmonLib.cpp</span></p>
+<p><span style="color: rgb(74, 74, 68); font-family: Georgia, Palatino, Times, 'MS Serif', serif; line-height: 22px; text-align: left; ">​This function is from the Bldr tutorial for this IC.</span></p>
+<p>&nbsp;int readMux(int channel){</p>
+<div>
+	int s0 = 7;</div>
+<div>
+	int s1 = 8;</div>
+<div>
+	int s2 = 9;</div>
+<div>
+	int s3 = 10;</div>
+<div>
+	&nbsp;</div>
+<div>
+	//Mux in &quot;SIG&quot; pin</div>
+<div>
+	int SIG_pin = 0;</div>
+<div>
+	&nbsp;</div>
+<div>
+	&nbsp; pinMode(s0, OUTPUT);</div>
+<div>
+	&nbsp; pinMode(s1, OUTPUT);</div>
+<div>
+	&nbsp; pinMode(s2, OUTPUT);</div>
+<div>
+	&nbsp; pinMode(s3, OUTPUT);&nbsp;</div>
+<div>
+	&nbsp;&nbsp;</div>
+<div>
+	&nbsp; digitalWrite(s0, LOW);</div>
+<div>
+	&nbsp; digitalWrite(s1, LOW);</div>
+<div>
+	&nbsp; digitalWrite(s2, LOW);</div>
+<div>
+	&nbsp; digitalWrite(s3, LOW);</div>
+<div>
+	&nbsp;</div>
+<div>
+	&nbsp;int controlPin[] = {s0, s1, s2, s3};</div>
+<div>
+	&nbsp;</div>
+<div>
+	&nbsp; int muxChannel[16][4]={</div>
+<div>
+	&nbsp; &nbsp; {0,0,0,0}, //channel 0</div>
+<div>
+	&nbsp; &nbsp; {1,0,0,0}, //channel 1</div>
+<div>
+	&nbsp; &nbsp; {0,1,0,0}, //channel 2</div>
+<div>
+	&nbsp; &nbsp; {1,1,0,0}, //channel 3</div>
+<div>
+	&nbsp; &nbsp; {0,0,1,0}, //channel 4</div>
+<div>
+	&nbsp; &nbsp; {1,0,1,0}, //channel 5</div>
+<div>
+	&nbsp; &nbsp; {0,1,1,0}, //channel 6</div>
+<div>
+	&nbsp; &nbsp; {1,1,1,0}, //channel 7</div>
+<div>
+	&nbsp; &nbsp; {0,0,0,1}, //channel 8</div>
+<div>
+	&nbsp; &nbsp; {1,0,0,1}, //channel 9</div>
+<div>
+	&nbsp; &nbsp; {0,1,0,1}, //channel 10</div>
+<div>
+	&nbsp; &nbsp; {1,1,0,1}, //channel 11</div>
+<div>
+	&nbsp; &nbsp; {0,0,1,1}, //channel 12</div>
+<div>
+	&nbsp; &nbsp; {1,0,1,1}, //channel 13</div>
+<div>
+	&nbsp; &nbsp; {0,1,1,1}, //channel 14</div>
+<div>
+	&nbsp; &nbsp; {1,1,1,1} &nbsp;//channel 15</div>
+<div>
+	&nbsp; };</div>
+<div>
+	&nbsp;</div>
+<div>
+	&nbsp; //loop through the 4 sig</div>
+<div>
+	&nbsp; for(int i = 0; i &lt; 4; i ++){</div>
+<div>
+	&nbsp; &nbsp; digitalWrite(controlPin[i], muxChannel[channel][i]);</div>
+<div>
+	&nbsp; }</div>
+<div>
+	&nbsp;</div>
+<div>
+	&nbsp; //read the value at the SIG pin</div>
+<div>
+	&nbsp; int sampleI = analogRead(SIG_pin);</div>
+<div>
+	&nbsp;</div>
+<div>
+	&nbsp; //return the value</div>
+<div>
+	&nbsp; return sampleI;</div>
+<div>
+	&nbsp;&nbsp;</div>
+<div>
+	}</div>
+<div>
+	&nbsp;</div>
+<div>
+	I have changed the calling IF statements to the following:</div>
+<div>
+	&nbsp;</div>
+<div>
+<div>
+		void EnergyMonitor::currentTX(int _channel, double _ICAL)</div>
+<div>
+		{ &nbsp;</div>
+<div>
+		&nbsp; &nbsp;if (_channel == 1) muxCh = 0; &nbsp;// formerly inPinI = 3;</div>
+<div>
+		&nbsp; &nbsp;if (_channel == 2) muxCh = 1; // &nbsp;formerly inPinI = 0;</div>
+<div>
+		&nbsp; &nbsp;if (_channel == 3) muxCh = 2; &nbsp;// formerly inPinI&nbsp;= 1</div>
+<div>
+		&nbsp; &nbsp;if (_channel == 4) muxCh = 3; // &nbsp;formerly inPinI = 4; // added for a 4th CT</div>
+<div>
+		&nbsp; &nbsp;ICAL = _ICAL;</div>
+<div>
+		}</div>
+</div>
+<p>&nbsp;</p>
+<div>
+	I have changed the analogRead(inPinI); to the following.</div>
+<div>
+	&nbsp; &nbsp; //-----------------------------------------------------------------------------</div>
+<div>
+	&nbsp; &nbsp; // A) Read in raw voltage and current samples</div>
+<div>
+	&nbsp; &nbsp; //-----------------------------------------------------------------------------</div>
+<div>
+	&nbsp; &nbsp; sampleV = analogRead(inPinV); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; //Read in raw voltage signal</div>
+<div>
+	&nbsp; &nbsp; sampleI = readMux(muxCh);</div>
+<div>
+	&nbsp;</div>
+<div>
+	This should switch the channels as called and funnel all the reading into Analog 0.</div>
+<div>
+	I believe it calls the Mux channel and then reads the sample and then call the next channel.</div>
+<div>
+	If i add some print statements I can see the analog values for each mux channel. they sit around 510.</div>
+<div>
+	&nbsp;</div>
+<div>
+	No change to the software filter for the high pass, I would think that it has more time to settle with the added functions to read the analog values.</div>
+<div>
+	&nbsp;</div>
+<div>
+	I got the ReadVCC() function, Thanks for the explanation.</div>
+<div>
+	Not sure if all this will really work, it almost feels like a timing issue with the multiplexor changing channels.</div>
+<div>
+	&nbsp;</div>
+<div>
+	Open to any suggestions.</div>
+<div>
+	Best regards to all</div>
+<div>
+	J</div>
+<div>
+	&nbsp;</div>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4004"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: adding 16 channel multiplexer to increase inputs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 24/04/2012 - 14:13.</div>
+    <div class="content">
+     <p>Wait. It&#39;s not clear to me what you are actually doing in the software. I&#39;m OK with controlling the multiplexer, it&#39;s what you do with the output of the ADC that is not clear. Are you reading the channels in sequence, or are you reading one channel for (say, as in the default software) 10 cycles of line frequency and calculating the rms, then stepping on to the next channel?</p>
+<p>The way I would have done it is: In the sketch (.ino) create 16 instances of EnergyMonitor then in the loop( ) function call the Calc( ) method on all 16 in turn. Of course, you will need to integrate the multiplexer control with this as you appear to have done, but you&#39;d only switch the multiplexer at the start of each 10 cycles worth of readings. Apologies if you are doing it that way, but as you switch the multiplexer before each reading it seems like you&#39;re not.</p>
+<p>Check the time it takes to take a reading. If you are reading the 16 channels in sequence, then you may well be only sampling each channel less than 3 times per cycle, so uncomfortably close to the Nyquist frequency and you cannot expect a faithful representation of the waveform.</p>
+<p>The time constant for the filter with only one channel is several seconds, if you are reading 16 channels then because the time constant is related to iterations round the loop, not real time by the clock, it will take 16 times as long - i.e. minutes. (The filter stops while you are working on other instances, then restarts as that input is sampled again).</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4017"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="jstoaks&#039;s picture" title="jstoaks&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: adding 16 channel multiplexer to increase inputs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1016.html" title="View user profile.">jstoaks</a> on Wed, 25/04/2012 - 02:04.</div>
+    <div class="content">
+     <p>&quot;or are you reading one channel for (say, as in the default software) 10 cycles of line frequency and calculating the rms, then stepping on to the next channel?&quot;</p>
+<p>Yes, as in the default software. But I am only actually reading the first four channels at the moment. So it doesn&#39;t&nbsp;take too much longer than the default 2 CT configuration using the ATMega328 ADC&#39;s.</p>
+<p>My intention was to treat the multiplexer&nbsp;channels in the same fashion as the original EmonLib.cpp calls and sets the analog inputs. I did not mention earlier that The AC 9V&nbsp;supply is still on the default analog(2).</p>
+<p>Instead of saying&nbsp;</p>
+<p>&nbsp;</p>
+<div>
+	void EnergyMonitor::currentTX(int _channel, double _ICAL)</div>
+<div>
+	{ &nbsp;</div>
+<div>
+	&nbsp; &nbsp;if (_channel == 1) inPinI = 0; &nbsp;// Analog ADC&#39;s on Atmel328</div>
+<div>
+	&nbsp; &nbsp;if (_channel == 2) inPinI = 1;</div>
+<div>
+	&nbsp; &nbsp;if (_channel == 3) inPinI = 3;</div>
+<div>
+	&nbsp; &nbsp;if (_channel == 4) inPinI = 4;</div>
+<div>
+	&nbsp; &nbsp;ICAL = _ICAL;</div>
+<div>
+	}</div>
+<div>
+	&nbsp;</div>
+<div>
+	Change the Call of the Pin assignment to&nbsp;</div>
+<div>
+	&nbsp;</div>
+<div>
+<div>
+		void EnergyMonitor::currentTX(int _channel, double _ICAL)</div>
+<div>
+		{ &nbsp;</div>
+<div>
+		&nbsp; &nbsp;if (_channel == 1) muxCh = 0;</div>
+<div>
+		&nbsp; &nbsp;if (_channel == 2) muxCh = 1;</div>
+<div>
+		&nbsp; &nbsp;if (_channel == 3) muxCh = 2;</div>
+<div>
+		&nbsp; &nbsp;if (_channel == 4) muxCh = 3;</div>
+<div>
+		&nbsp; &nbsp;ICAL = _ICAL;</div>
+<div>
+		}</div>
+<div>
+		&nbsp;</div>
+<div>
+		So when ct1.CalcVI() is executed in the .ino loop the calcVI&nbsp;function is called upon, the currentTX channels are set to work with the multiplexor input assignments.</div>
+<div>
+		&nbsp;</div>
+<div>
+		The calcVI function then sets sampleI = readMux(muxCh); The IF statements dictate which muxCh is active.</div>
+<div>
+		&nbsp;</div>
+<div>
+		The readMux routine sets the channel specified in muxCh, readAnalog(0) is called to return the value to sampleI</div>
+<div>
+		&nbsp;</div>
+<div>
+		I hope that all makes sense, I tried to make this function transparent to all the calculation functions.</div>
+<div>
+		&nbsp;</div>
+<div>
+		&nbsp;</div>
+<div>
+		If I add some print statements to the call of sampleI, I can see it sample about 50 times and then move to the next CT channel and by bread boarding &nbsp;some leds in with the signal inputs for the multiplexor, I can see the multiplexor changing channel inputs corresponding with the CT channel.</div>
+<div>
+		&nbsp;</div>
+<div>
+		Best regards,</div>
+<div>
+		J</div>
+</div>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4028"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: adding 16 channel multiplexer to increase inputs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 25/04/2012 - 16:44.</div>
+    <div class="content">
+     <p>The voltage input should make no difference to your problem. In the standard, it is sampled alternately with current, no matter which CT is being read. You will be doing the same.</p>
+<p>It is starting to look like a timing problem. I&#39;m not questioning how you are switching the multiplexer, you say it is working correctly - but I am questioning when. If you are still (re-)setting the multiplexer before each reading, then I would think the favourite explanation for the drift is the output from it has not settled before it is grabbed by the sample-and-hold within the ADC input circuitry. You only need to switch the multiplexer at the head of calcVI( ) - you can do it before it enters the loop to wait for the voltage zero crossing, so the multiplexer will have settled long before the first sample is read.</p>
+<p>Do bear in mind that because the filter is a high-pass with a time constant of around 250 times the sampling period (i.e. about a second), and because it gets a half full scale step at startup, it takes many seconds to settle. What value does the input settle to after several minutes with a constant input?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4059"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="jstoaks&#039;s picture" title="jstoaks&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: adding 16 channel multiplexer to increase inputs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1016.html" title="View user profile.">jstoaks</a> on Fri, 27/04/2012 - 00:46.</div>
+    <div class="content">
+     <p>Robert,</p>
+<p>Thank you for all your insight, and logical thoughts. It would appear as though my issue may be hardware related. Just for giggles I removed the multiplexor and returned to the original EmonTX design and current firmware and continue to get the same results. I had it working before I added the multiplexor, so I will have to dig into the hardware for errors, I would love to continue this thread after I have resolved my issue at hand.</p>
+<p>again Thanks for your support,</p>
+<p>Best regards,</p>
+<p>J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4070"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: adding 16 channel multiplexer to increase inputs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 27/04/2012 - 23:01.</div>
+    <div class="content">
+     <p>I hope you track down your problem. When you get it working, please post the full details in the spirit of open source so that others can benefit from your experience.</p>
+<hr />
+<p>If you still have problems, then by all means revive this thread, but if I don&#39;t spot it you might need to PM me to wake me up! Unfortunately, this website software won&#39;t allow me to flag a single thread to watch.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8814"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Pierre&#039;s picture" title="Pierre&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: adding 16 channel multiplexer to increase inputs</h3>
+
+    <div class="submitted">Submitted by Pierre (not verified) on Tue, 01/01/2013 - 14:59.</div>
+    <div class="content">
+     <p>Hi, I think I have the same king of problem.</p>
+<p>I was trying to control a solid states relay with current load.</p>
+<p>I loaded the emontx&nbsp;on my arduino&nbsp;and add a simple line like:</p>
+<p>if current &gt; set point;</p>
+<p>high output 2</p>
+<p>else low output 2</p>
+<p>&nbsp;</p>
+<p>I test it with digital i/o 13 to see with the onboard led if it was working, and all was working just fine.</p>
+<p>but when I use pin 2 or 4 and that the pin is switch to LOW then values start to be erratic, when It goes back to HIGH then all restart to work fine, and again as soon as the pin is switch to LOW nothing work correctly.</p>
+<p>&nbsp;</p>
+<p>If you what, you could test just for fun to let pin 7, 8, 9 and 10 to high, to see if you have the same problem.</p>
+<p>&nbsp;</p>
+<p>I test something, remove all my modify line and just add a line LOW 2 in setup and I have the same problem but when I mod it to HIGH 2 all is ok... weird</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8822"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: adding 16 channel multiplexer to increase inputs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 02/01/2013 - 01:34.</div>
+    <div class="content">
+     <p>Are you sinking or sourcing current, and how much are you drawing from the output? If it works fine with an LED but not with the SSR, then I suspect you are not driving the SSR properly. Check the Atmel data sheet, and your SSR data sheet, for the voltages and currents required by each. Note the Arduino has significant differences between sinking and sourcing.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/619"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-4Otp8S9rT9oqhJnJyjSPBkHIeX5HnQV4YCcEetCIboc" value="form-4Otp8S9rT9oqhJnJyjSPBkHIeX5HnQV4YCcEetCIboc"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/619 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:28:50 GMT -->
+</html>

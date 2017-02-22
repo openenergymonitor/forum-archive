@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2243 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:07:14 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emoncms + raspberrypi computation errors | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emoncms + raspberrypi computation errors</h3>
+        <span class="submitted">Submitted by <a href="../user/2590.html" title="View user profile.">svetsch</a> on Mon, 15/04/2013 - 20:26</span>
+        <div class="content"><p>Hi,</p>
+<p>I have installed since 3 months an emonTx&nbsp;sending values to a raspberry pi on which emoncms&nbsp;is running.</p>
+<p>The emonTx is sending every 5 seconds 4 values (3 phases power + 1 temp).</p>
+<p>I have setup very simple feeds mainly a global power + kwh and kwhd.</p>
+<p>So far it is running for 3 months giving more than 950&#39;000 rows in the mysql database.</p>
+<p>Everything went fine, however I started to look carefully at the results and some days, the results of the kwh and the kwhd&nbsp;where quite wrong. I started to analyse more precisely and I found that the emoncms on raspberry wasn&#39;t fast enough on some request to store the data.</p>
+<p>I even discovered that some kwd&nbsp;values where not only increasing but sometimes decreasing indicating negative power. After a deeper look, I found the some request where stalling leading to unordered value storage. If this isn&#39;t an issue for power values, it is a real problem when computing kwh and kwhd.&nbsp;</p>
+<p>So, most of my kwh values where simply wrong.</p>
+<p>The evidence of my analysis comes from the http access logs:</p>
+<p>127.0.1.1:80 127.0.0.1 - - [<strong>20/Mar/2013:00:00:09</strong> +0100] &quot;GET /emoncms/input/post?apikey=abc&amp;node=11&amp;csv=621,112,1141,2000 HTTP/1.1&quot; 200 285 &quot;-&quot; &quot;Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)&quot;<br />
+	127.0.1.1:80 127.0.0.1 - - [<strong>20/Mar/2013:00:00:01</strong> +0100] &quot;GET /emoncms/input/post?apikey=abc&amp;node=11&amp;csv=624,112,1146,2000 HTTP/1.1&quot; 200 285 &quot;-&quot; &quot;Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)&quot;<br />
+	127.0.1.1:80 127.0.0.1 - - [20/Mar/2013:00:00:14 +0100] &quot;GET /emoncms/input/post?apikey=abc&amp;node=11&amp;csv=624,112,1134,2000 HTTP/1.1&quot; 200 285 &quot;-&quot; &quot;Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)&quot;<br />
+	127.0.1.1:80 127.0.0.1 - - [20/Mar/2013:00:00:27 +0100] &quot;GET /emoncms/input/post?apikey=abc&amp;node=11&amp;csv=623,117,1135,2000 HTTP/1.1&quot; 200 285 &quot;-&quot; &quot;Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)&quot;<br />
+	127.0.1.1:80 127.0.0.1 - - [20/Mar/2013:00:00:34 +0100] &quot;GET /emoncms/input/post?apikey=abc&amp;node=11&amp;csv=625,115,1144,1993 HTTP/1.1&quot; 200 285 &quot;-&quot; &quot;Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)&quot;<br />
+	127.0.1.1:80 127.0.0.1 - - [20/Mar/2013:00:00:40 +0100] &quot;GET /emoncms/input/post?apikey=abc&amp;node=11&amp;csv=573,113,1127,2000 HTTP/1.1&quot; 200 285 &quot;-&quot; &quot;Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)&quot;<br />
+	127.0.1.1:80 127.0.0.1 - - [<strong>20/Mar/2013:00:00:54</strong> +0100] &quot;GET /emoncms/input/post?apikey=abc&amp;node=11&amp;csv=574,111,1134,2000 HTTP/1.1&quot; 200 285 &quot;-&quot; &quot;Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)&quot;<br />
+	127.0.1.1:80 127.0.0.1 - - [<strong>20/Mar/2013:00:00:47</strong> +0100] &quot;GET /emoncms/input/post?apikey=abc&amp;node=11&amp;csv=571,112,1128,1993 HTTP/1.1&quot; 200 285 &quot;-&quot; &quot;Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)&quot;</p>
+<p>127.0.1.1:80 127.0.0.1 - - [20/Mar/2013:00:01:00 +0100] &quot;GET /emoncms/input/post?apikey=abc&amp;node=11&amp;csv=572,112,1136,2000 HTTP/1.1&quot; 200 285 &quot;-&quot; &quot;Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)&quot;&nbsp;</p>
+<p>(Sadly, by default, the log is not showing the time to process the request)</p>
+<p>and the database content:</p>
+<p>Time &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Unix time &nbsp; &nbsp; &nbsp; &nbsp;Power Kwh&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Diff between measures<br />
+	00:00:09 &nbsp; &nbsp;1363734009 1874 &nbsp; &nbsp;2930.020996 0.004150391<br />
+	00:00:14 &nbsp; &nbsp;1363734014 1870 &nbsp; &nbsp;2930.026855 0.005859375<br />
+	00:00:27 &nbsp; &nbsp;1363734027 1875 &nbsp; &nbsp;2930.036865 0.010009766<br />
+	00:00:34 &nbsp; &nbsp;1363734034 1884 &nbsp; &nbsp;2930.043701 0.006835938<br />
+	00:00:41 &nbsp; &nbsp;1363734041 1819 &nbsp; &nbsp;<strong>2930.043457</strong> -<strong>0.000244141</strong><br />
+	00:00:47 &nbsp; &nbsp;1363734047 1819 &nbsp; &nbsp;<strong>2930.042969</strong> -<strong>0.000488281</strong><br />
+	00:00:54 &nbsp; &nbsp;1363734054 1822 &nbsp; &nbsp;2930.046631 0.003662109<br />
+	00:01:00 &nbsp; &nbsp;1363734060 1820 &nbsp; &nbsp;2930.046631 0</p>
+<p>Hopefully, the base power values are correct, so I can run a sample stored procedure to fix the kwh and kwhd&nbsp;values.</p>
+<p>One could argue to simply increase the elapse time between measures, but I don&#39;t want to loose precision and I even saw some request taking more than 20 seconds. It will probably go even worse as database size increases.</p>
+<p>So now, I will really look forward to change hardware, as the raspberry will never be enough powerful for even simple processing.</p>
+<p>Thanks for reading,</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2248.html" class="topic-previous" title="Go to previous forum topic">‹ emoncms mysql data types</a>
+              <a href="2241.html" class="topic-next" title="Go to next forum topic">Operation without emoncms ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-11322"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms + raspberrypi computation errors</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 15/04/2013 - 21:52.</div>
+    <div class="content">
+     <p>Interesting, thanks for your post with debugging details. I have experienced this issue with certain SD Cards that dont seem to be as good as others. We had some Kingston SD cards here that I think had a really slow write speed so that all the input recording and processing was stacking up with the results that you describe.&nbsp;What is your raspberrypi system load?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11323"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms + raspberrypi computation errors</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 15/04/2013 - 21:54.</div>
+    <div class="content">
+     <p>the results of the SD cards that we tested are in the wiki here&nbsp;<a href="http://wiki.openenergymonitor.org/index.php?title=Raspberry_Pi#SD_Card_Speed_.26_Benchmarking">http://wiki.openenergymonitor.org/index.php?title=Raspberry_Pi#SD_Card_Speed_.26_Benchmarking</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11325"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms + raspberrypi computation errors</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 15/04/2013 - 21:59.</div>
+    <div class="content">
+     <p>I have found recompiling histogram data to work fine on the pi, so recompiling the histogram and kwhd data from your exisiting&nbsp;power data is a viable option. I uploaded a module that converts a power feed to a histogram feed with grater detail than the current histogram processor here:&nbsp;<a href="https://github.com/emoncms/feedconvert">https://github.com/emoncms/feedconvert</a></p>
+<p>To run the conversion you just call:</p>
+<p><a href="http://ipaddress/emoncms/feedconvert/convert?power=POWERFEEDID&amp;histogram=HISTOGRAMFEEDID&amp;bucket=25" title="http://ipaddress/emoncms/feedconvert/convert?power=POWERFEEDID&amp;histogram=HISTOGRAMFEEDID&amp;bucket=25">http://ipaddress/emoncms/feedconvert/convert?power=POWERFEEDID&amp;histogram...</a></p>
+<p>Its a module thats&nbsp;in very early development, hence the lack of documentation</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11357"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2590.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="svetsch&#039;s picture" title="svetsch&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms + raspberrypi computation errors</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2590.html" title="View user profile.">svetsch</a> on Tue, 16/04/2013 - 20:11.</div>
+    <div class="content">
+     <p>The load of my raspberry is :</p>
+<p>Linux 3.2.27+ (raspberry)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 16/04/13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _armv6l_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (1 CPU)</p>
+<p>&nbsp;</p>
+<p>22:07:49&nbsp;&nbsp;&nbsp;&nbsp; CPU&nbsp;&nbsp;&nbsp; %usr&nbsp;&nbsp; %nice&nbsp;&nbsp;&nbsp; %sys %iowait&nbsp;&nbsp;&nbsp; %irq&nbsp;&nbsp; %soft&nbsp; %steal&nbsp; %guest&nbsp;&nbsp; %idle<br />
+	22:07:49&nbsp;&nbsp;&nbsp;&nbsp; all&nbsp;&nbsp;&nbsp; 6.69&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp; 8.95&nbsp;&nbsp; 62.10&nbsp;&nbsp;&nbsp; 0.09&nbsp;&nbsp;&nbsp; 0.04&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp; 22.12</p>
+<p>I&#39;m using a Transcend SD card of 8G&nbsp;class 10, I reach 16.4MB/s on writing.</p>
+<p>Maybe 1 million rows on mysql on raspberry is too much for such a small system.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2243"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-nYHPhnTc_rtGZVv5SoByrMWEe_SBmuO6Dv1yjIxEC04" value="form-nYHPhnTc_rtGZVv5SoByrMWEe_SBmuO6Dv1yjIxEC04"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2243 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:07:14 GMT -->
+</html>

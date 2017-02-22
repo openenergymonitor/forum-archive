@@ -1,0 +1,729 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11390 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:44:28 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>RF69 reliability, timing, temp sensors, mqtt &amp; lowpowerlabs | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">RF69 reliability, timing, temp sensors, mqtt &amp; lowpowerlabs</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 13/10/2015 - 17:39</span>
+        <div class="content"><p>I&#39;ve been investigating the emonpi sent back by Jez Wingfield as discussed in this thread &quot;<a href="11218.html">EmonPi losing connection to EmonTX and EmonTH</a>&quot;. The issue Jez Wingfield reported had similarities to one part of the issue John Cantor reported from a monitoring installation discussed <a href="11062.html#comment-33154">here</a>. We had several nodes stop reporting for several hours there too although that wasn&#39;t the focus of the discussion.</p>
+<p>After reading through the threads again these were I think, the main findings. Please correct me if I have missed anything and thank you all for your input on this:</p>
+<p>1. Paul Burnell identified adding a delay after waking the RFM69 module as one solution that improved reliability in the &quot;<a href="11062.html">emonTH Unreliable reading timing?</a>&quot; thread.<br />
+2. Ian Davies and emjay identified the long string of zero&#39;s on the emontx as being an issue in the thread&nbsp; &quot;<a href="10900.html">Data loss due to RF packets getting corrupted</a>&quot; due to bit slicing going out of sync.<br />
+3. Paul Burnell also identified that the rf data packet interval being longer than the fixed interval of the feed engines also produced a missing packet: 62s emonth update rate, 11.2s emontx update rate, results in a missing packets every 30 and ~9 packets.</p>
+<p>I&#39;ve been running a series of tests here, first comparing the returned emonpi, thanks to Jez Wingfield, with an off the shelf emonpi. I then applied the data timing correction (3) and removed the unused temp sensor entries (2). I also tested recording the data via the HTTP connection between emonhub and emoncms on the pi and the MQTT connection that was added earlier this year. The results so far show a significant improvement and an interesting result on the HTTP vs MQTT routes.</p>
+<p>Before application of timing correction and removal of extra temp sensors:</p>
+<p>100% SUCCESS RATE = 2024 packets</p>
+<p>Control EmonPi</p>
+<p>&nbsp;&nbsp;&nbsp; JeeLib Pi2 1630 http 81%<br />
+&nbsp;&nbsp;&nbsp; JeeLib Pi2 1571 mqtt 78%</p>
+<p>EmonPi returned:</p>
+<p>&nbsp;&nbsp;&nbsp; JeeLib Pi1 1384 http 68%<br />
+&nbsp;&nbsp;&nbsp; JeeLib Pi1 1342 mqqt 66%<br />
+&nbsp;&nbsp; &nbsp;<br />
+After application of timing correction and removal of extra temp sensors:</p>
+<p>100% SUCCESS RATE = 576 packets</p>
+<p>Control EmonPi</p>
+<p>&nbsp;&nbsp;&nbsp; JeeLib Pi2 549 http 95%<br />
+&nbsp;&nbsp;&nbsp; JeeLib Pi2 535 mqtt 93%<br />
+&nbsp;&nbsp; &nbsp;<br />
+EmonPi returned:</p>
+<p>&nbsp;&nbsp;&nbsp; JeeLib Pi1 431 http 75%<br />
+&nbsp;&nbsp;&nbsp; JeeLib Pi1 416 mqtt 72%<br />
+&nbsp;&nbsp; &nbsp;</p>
+<p>I&#39;m not sure why some packets are getting lost via the internal mqtt route. I have a feeling it&#39;s the MQTT php client I&#39;m using, but I need to do some more investigation.</p>
+<p>Should I make the emontxv3 packet change its length depending on the number of temperature sensors connected<strong>?</strong> This would require modifications to the emonhub decoder as more temperature sensors are added. Alternatively, I could set the temperature values to an out-of-range value if they are not connected, such as -99.</p>
+<p>I&#39;m not sure if the above gets us closer to the answer as to what was causing the nodes to stop updating for several hours, I&#39;ve yet to replicate this issue in these tests.</p>
+<p><strong>LowPowerLabs</strong> &nbsp;&nbsp;<br />
+To add another thing to the mix: A couple of weeks ago, I thought I&#39;d try testing the LowPowerLabs RFM69 library <a href="https://github.com/LowPowerLab/RFM69">https://github.com/LowPowerLab/RFM69</a> because I read that it might be more reliable. It&#39;s also a dedicated RFM69 library and has encryption built in. The following tests also include ACK&#39;s which may account for the very slight difference in performance vs the control emonpi after the timing correction and removal of extra temp sensors. More testing needed.</p>
+<p>run1:<br />
+&nbsp;&nbsp;&nbsp; LowPowerLabs http 573 99%<br />
+&nbsp;&nbsp;&nbsp; LowPowerLabs mqtt 547 95%</p>
+<p>run2:<br />
+&nbsp;&nbsp;&nbsp; LowPowerLabs http 2005 99%<br />
+&nbsp;&nbsp;&nbsp; LowPowerLabs mqtt 1867 92%</p>
+<p>I&#39;ve uploaded a series of LowPowerLab&#39;s examples here: <a href="https://github.com/openenergymonitor/emonLPL">https://github.com/openenergymonitor/emonLPL</a></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11815.html" class="topic-previous" title="Go to previous forum topic">‹ Amazon cloud AWS emonCMS hosting - Nano Instances</a>
+              <a href="11610.html" class="topic-next" title="Go to next forum topic">Year 1 of my solar pv, how do I compare? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-34903"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 13/10/2015 - 20:13.</div>
+    <div class="content">
+     <p>Hi Trystan</p>
+<p>Where are you counting successful packets? Ideally each portion of the journey needs to be assessed independently. There is a strong possibility some packets are being lost within emoncms itself. I have experienced some &quot;missing data&quot; despite having a confirmed receipt in&nbsp;emonhub.log, a similar thing is apparent in this&nbsp;<a href="589.html">Re: Software only solution for feeding weather data</a>&nbsp;thread which is improved by double posting.</p>
+<p>The difference in packet loss between http and mqtt&nbsp;could be effected by different posting rates, on the emonPi it appears&nbsp;both use a fire and forget method however the http is throttled to post every 30secs&nbsp;and the mqtt&nbsp;is not, therefore a dropped packet in http is more significant although possibly&nbsp;less likely due to reduced traffic.</p>
+<p>Although ultimately&nbsp;the overall success rate is the target to improve, I think the rf performance needs to be measured and assessed before any processing, preferably at the serial port to have enough meaning to evaluate the rf&nbsp;libs. I have written a draft debug mode for the JeeInterfacer of emonhub&nbsp;to&nbsp;&quot;jeebug&quot; the received packets in tandem with emonhub&nbsp;operating as normal, it timestamps&nbsp;and counts&nbsp;each packet before saving to a log in csv so that can be tailed, attached to a forum post&nbsp;or opened in a spreadsheet for analysis.</p>
+<p>The temperture sensor count could be reduced to 4 to reduce the errors to an acceptable level, we never seem to have any issue with packet loss when 4 ct&#39;s are at zero so I think 6 temp sensors is just pushing the limit abit. although the length&nbsp;of the packets is still unnecessary traffic which could also impact the success rate.</p>
+<p>Having said that I am a big fan of using a positive fault indicator for absent or unreadable sensors, A&nbsp;custom emoncms&nbsp;&quot;temperture&quot;&nbsp;process could &quot;update feed if input less than 300&quot; for example,&nbsp;so that only good values are recorded yet 300+ numbers would still get updated in the inputs page as a form of error code.</p>
+<p>Using any encryption will automatically alleviate the &quot;run of zeros errors&quot; I would expect so just using the rf69 specific methods of jeelib would probably improve things&nbsp;significantly too, (but won&#39;t fully support rf12&#39;s although there is now a rf12_compat mode for rf69 too), have you tried the rf12&nbsp;lib&nbsp;encryption in JeeLib? I&#39;ve seen it but not tried it.</p>
+<p>Did you determine why the returned emonPi is performing significantly poorer than the &quot;off the shelf&quot; emonPi? It certainly looks like there are a wide range of smaller issues that need to be tackled one by one rather than finding any one fix all solution.&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34905"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8827.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Kaed&#039;s picture" title="Kaed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8827.html" title="View user profile.">Kaed</a> on Tue, 13/10/2015 - 21:12.</div>
+    <div class="content">
+     <p>Good works!</p>
+<p>last 3 day I have this idea, conect nodes from RFM69 library, but i dont write this sketch corectly...</p>
+<p>For next using in my project please send to github sketch for Emontx and emonBase with MQTT format data comunication. Thanks.</p>
+<p>Kaed</p>
+<p>
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34942"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 15/10/2015 - 11:36.</div>
+    <div class="content">
+     <p>Thanks Paul</p>
+<p>Im counting packets at the graph output. If all the packets get through we should see a complete graph with no missing datapoints and using the skip missing checkbox it&#39;s easy to see how much did get through vs how many datapoints should be there.</p>
+<p>I like the sound of the debug mode you mention and counting the success rate earlier on in the chain. Would it be possible to record something like a count of missed packets? it would need to expect a certain number of packets with a record of the expected interval or have a counter being sent from each node..</p>
+<p>Id be happy to use a positive fault indicator. Should we go for 300?, or maybe the HTTP error code 204 No Content but maybe thats just a bit confusing.</p>
+<p>I havent worked out yet why the returned emonpi is performing poorer, I tried adding a bit of solder to all the radio module connections, double checked for solder bridges etc but the performance is still worse.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34975"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 16/10/2015 - 00:22.</div>
+    <div class="content">
+     <p>Hi Trystan,&nbsp;</p>
+<p>Yes for the moment I have a incrementing&nbsp;counter in each node (just for testing) this can just be a byte and ignore the rollover as we are only looking for missing packets so it&#39;s easy to use&nbsp;the&nbsp;received increment, if it&#39;s greater than 1 to count dropped packets and that can be configured to count per node rather than just totals, this could be paired with the rssi as a successful percentage (link quality?) on each packet or I was also looking at passing RFM stats under there own node id, either the baseid but that may conflict with emonPi&nbsp;base/node or as node 31 since that is never actually used.</p>
+<p>I only use 300 out of habit since MartinR&nbsp;used it in his sketches, I will give it some thought as to what may be better.</p>
+<p>Regards the emonPi are you using the same SDcard? have you tried swapping them over to determine if it&#39;s software or hardware related?</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34995"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Fri, 16/10/2015 - 13:48.</div>
+    <div class="content">
+     <p>Trystan,</p>
+<p><em>I haven&#39;t worked out yet why the returned emonpi is performing poorer, I tried adding a bit of solder to all the radio module connections, double checked for solder bridges etc but the performance is still worse.</em></p>
+<p>Do you have access to a spectrum visualiser?&nbsp; I suspect that the crystal on the marginal module is out at the edge of the tolerance band.&nbsp; Since the same crystal defines both Tx and Rx centre frequency, forcing an ACK will display the remote packet and the ACK response spectra in sequence.</p>
+<p><a href="http://jeelabs.net/projects/cafe/wiki/NRfMon_-_nano_Spectrum_Analyzer_with_the_RFM12B">This</a>&nbsp; is adequate if you have a spare JeeLink around.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35312"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 24/10/2015 - 11:24.</div>
+    <div class="content">
+     <p>I&#39;ve upgraded the emonTxV3_4_DiscreteSampling firmware to send its data in just under 10s and set the status code for no temperature sensors to 3000 (will show as 300 in emoncms once the x0.1 node decoding in emonhub is applied). The transmit timing is also adjusted for when there are a different number of CT&#39;s connected, ACAC and DS18B20 temperature sensors.</p>
+<p><a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3/RFM/emonTxV3.4/emonTxV3_4_DiscreteSampling" title="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3/RFM/emonTxV3.4/emonTxV3_4_DiscreteSampling">https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3...</a></p>
+<p>We will aim to start shipping emonTxV3&#39;s with this firmware next week.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35989"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 17/11/2015 - 11:40.</div>
+    <div class="content">
+     <p>Resuming testing on this, a couple of results for the latest EmonTH code overnight:</p>
+<p>emonTH_DHT22_DS18B20_RFM69CW_Pulse, dht22 only, v2.6, MQTT: 1022 out of 1092: 94%<br />
+emonTH_DHT22_DS18B20_RFM69CW_Pulse, dht22 only, v2.6, HTTP: 1071 out of 1095: 98%</p>
+<p>Next im going to add a emontx v3 and run both as an ongoing test.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35992"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 17/11/2015 - 13:12.</div>
+    <div class="content">
+     <p>Those numbers look much better, are you still counting in emoncms&nbsp;using a fixed interval feed ?</p>
+<p>The recent change to make the interval just shy of a minute rather than slightly over so that every recorded fixed interval in emoncms&nbsp;is present actually makes it impossible to actually get 100% of data and only gives the appearance of &quot;no missing packets&quot;.</p>
+<p>For example (on an emonTx) if you were using a fixed interval of 10&nbsp;secs&nbsp;and a send interval of 9&nbsp;secs, every datapoint in emoncms&nbsp;will be present, But every 90secs there will be 2 packets received in a single fixed interval, so&nbsp;one will be dropped, So even if it appeared&nbsp;100% successful&nbsp;it could only ever be up&nbsp;to 90% successful at most.</p>
+<p>Where as previously, for example using a fixed interval of 10 secs and a send interval of 11 secs, it is possible every packet is recorded without fail but every 110&nbsp;secs&nbsp;a fixed interval&nbsp;datapoint is not used giving the appearance of a 91% success rate when in actual fact it is 100%.</p>
+<p>Assuming all the sent packets were to arrive at emoncms, the send&nbsp;interval can play&nbsp;quite a small part either in the actual&nbsp;success&nbsp;rate or just the perceived&nbsp;success&nbsp;rate so as long as the difference in intervals is minimal. The longer intervals eg 1min&nbsp;fixed interval in emoncms and a 59sec send interval&nbsp;could give up to a 98.3% success rate (seen as 100%), or at 61 sec send interval a 100% success rate is possible but will give the appearance of a 98.3% success rate due to the occasional empty datapoint.</p>
+<p>I only mention this so that we can be aware of the regular dropped ( or perceived&nbsp;absent) packet during development and also to say if you are counting at source and your (http) tests are on 59sec/1min intervals, you are unlikely to see any better than ~98%. But if counting in emoncms then 98% of 98% would be&nbsp;96%.</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35994"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 17/11/2015 - 14:03.</div>
+    <div class="content">
+     <p>Thanks Paul, yes, quite right and yes using fixed interval feed as my counting method.</p>
+<p>I&#39;ve been thinking about adding an acknowledgment check for nodes that are powered all the time to see if its possible to achieve feeds with no gaps and improve the reliability that final few percent, or higher for systems in higher noise environments or suffering lower reliability for other reasons.</p>
+<p>I&#39;ve got example transmitter and receiver code (attached) with ack&#39;s working following examples by Jean Claude Wippler here:</p>
+<p><a href="http://jeelabs.org/2010/12/11/rf12-acknowledgements" title="http://jeelabs.org/2010/12/11/rf12-acknowledgements">http://jeelabs.org/2010/12/11/rf12-acknowledgements</a><br />
+<a href="https://github.com/jcw/jeelib/blob/master/examples/RF12/roomNode/roomNode.ino" title="https://github.com/jcw/jeelib/blob/master/examples/RF12/roomNode/roomNode.ino">https://github.com/jcw/jeelib/blob/master/examples/RF12/roomNode/roomNod...</a></p>
+<p>Il create an emontx v3 example with this build in and a emonpi reciever and continue with the testing.</p>
+<p>Id like to get to a point where we can say with some certainty what level of packet reliability we expect from the system.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36007"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 17/11/2015 - 17:41.</div>
+    <div class="content">
+     <p>I&#39;ve created a version of the standard EmonTxV3 firmware that waits for an ACK and am now testing this in parallel with the current firmware. <a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3/RFM/emonTxV3.4/emonTxV3_4_DiscreteSampling_ACK" title="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3/RFM/emonTxV3.4/emonTxV3_4_DiscreteSampling_ACK">https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3...</a></p>
+<p>There is also a minor fix to the emonpi firmware to remove the serial print when it sends an ack.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36083"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 19/11/2015 - 14:57.</div>
+    <div class="content">
+     <p>Some more test results, 1x EmonTH and 2x EmonTx&#39;s one with acknowledgments.<br />
+Test duration 25 hours and 30 mins.</p>
+<p>Reliability recorded by counting total number of NAN values in the feed data directly using this script: <a href="https://github.com/emoncms/usefulscripts/blob/master/integritycheck/missingcheck.php" title="https://github.com/emoncms/usefulscripts/blob/master/integritycheck/missingcheck.php">https://github.com/emoncms/usefulscripts/blob/master/integritycheck/miss...</a></p>
+<p>EmonTH temperature MQTT 60s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 124 missing, 91.9%<br />
+EmonTH temperature HTTP 60s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 101 missing, 93.4%</p>
+<p>EmonTx temperature MQTT 10s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 749 missing, 91.8%<br />
+EmonTx temperature HTTP 10s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 593 missing, 93.5%</p>
+<p>EmonTx RMS Voltage MQTT 10s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 749 missing, 91.8%<br />
+EmonTx RMS Voltage HTTP 10s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 593 missing, 93.5%<br />
+EmonTx RMS Voltage MQTT 10s with ACK&nbsp;&nbsp;&nbsp; 458 missing, 95.0%<br />
+EmonTx RMS Voltage HTTP 10s with ACK&nbsp;&nbsp;&nbsp; 377 missing, 95.9%</p>
+<p>Jeelink test transmitter 5s with ACK &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 716 missing, 96.1%</p>
+<p>The reliability seems to have dropped by about 2% from the previous run which had one EmonTH running. Im also surprised that adding acknowledgments did not improve things to a greater extent, I was hoping for near 100%. I will try and dig into this some more. I will try recording jumps in an incrementing&nbsp;counter as you suggest Paul.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36406"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/937.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/937.html" title="View user profile.">Bramco</a> on Sat, 28/11/2015 - 15:24.</div>
+    <div class="content">
+     <p>Wasn&#39;t sure whether I should start a new thread but I have had a couple of complete drop outs in the comms&nbsp;to my system. This is a new pi2 with a new rfm69pi&nbsp;on 868MHz and running V9 rc2. The emonTX has been running for the last couple of years without any hitches. This is doing PV diversion, Martin&#39;s PLL sketch with 5 DS1820B temperature sensors. So it will be rfm12 not rfm 69.</p>
+<p>On a several occasions recently the inputs have just stopped. Rebooting brings them back of course but when you are away for a while you can&#39;t necessarily do the reboot unless you have set up your router to allow remote access.</p>
+<p>I know the emonTX is still running because I can see the effects of the PV diversion - the tank gets hotter and also when I reboot the inputs become active.</p>
+<p>Trystan, did you get anywhere with this reliability issue, or should I go back to the rfm12pi that I had on my previous system?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36455"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 29/11/2015 - 21:46.</div>
+    <div class="content">
+     <p>Bramco - The drop-outs maybe the rfm2pi&nbsp;locking out and rebooting the Pi also restarts the rfm2pi, see the latter part of the&nbsp;<a href="5549.html">RFM12PI receiver goes hard down sometimes</a>&nbsp;thread for more info. the test would be to ssh in and reset the rfm2pi by pulsing the reset pin (pin7&nbsp;of the Pi&#39;s gpio).</p>
+<p>The issues here may apply but it would be unusual that no packets get through, these issues normally arise from clashes and/or bit syncing issues, the bit syncing is unlikely unless you have all the temp sensors disconnected (zero values) and although the extra sensitivity of the rfm69&nbsp;may introduce some clashing some data would still get through.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36462"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/937.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/937.html" title="View user profile.">Bramco</a> on Mon, 30/11/2015 - 07:44.</div>
+    <div class="content">
+     <p>Paul, thanks for the link, daft isn&#39;t it that I had actually contributed to that thread earlier this year but couldn&#39;t find it yesterday through search. Anyway, I&#39;ll continue this there.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36898"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 10/12/2015 - 14:53.</div>
+    <div class="content">
+     <p>I&#39;ve been continuing with the testing on this, every few days/week setting new tests and adjusting them when I realise a better way to run them. As before Im keen to get to a point where we have a clear understanding of what to expect in terms of the reliability of the radio link.</p>
+<p><strong>Test 1: short packet, message id, replies and failure count (test in the office)</strong></p>
+<p>I put together a basic test node which sends just 3 unsigned longs: message id, number of retries and recorded failures. I then had a jeelink with a receiver sketch that printed this packet out to serial and recorded the number of failed packets from its perspective: by counting failures as any gaps in the message id.</p>
+<p>Testing with jeelib, 12 byte packet every 5s, ~4m apart, 5 retries and a 10ms wait time for an ack and another 10ms before trying to send a packet again:</p>
+<p>total number of messages: 29080<br />
+total retries: 19271<br />
+total failures (node): 933<br />
+total failures (receiver):&nbsp;932<br />
+success rate: 96.8%<br />
+retry rate: 66%</p>
+<p><strong>Test 2: Long packet (test at home)</strong></p>
+<p>As I mentioned <a href="11722.html">here</a> I&#39;ve been working on adding continuous sampling to the emontx and emonpi code. One of my goals for the new firmware is to also record accumulating watt-hours on the emontx to reduce dependency on reliable radio and internet connection for accurate kwh data.</p>
+<p>Adding 4x Long type watt hour values to the emontx packet which already has 6x temperature values extends the packet to a total of 42 bytes: (decoder: h,h,h,h,h,L,L,L,L,L,h,h,h,h,h,h) along side this I wanted to record message id, number of retries and failure count bringing the packet length to a total of 54 bytes (66 bytes is the jeelib limit, low power labs limit 61 bytes).</p>
+<p>I noticed that the emontx would crash after a couple of a number of hours, start resetting and stop (other nodes connected to the same emonpi continued ok). The packet reliability was also quite bad and so I manually set some of the CT channels I was not using to be non-zero. The emontx kept crashing and so I thought Id try a low power labs version. Initially the low power labs version would not run it kept resetting at which point I realised that this was of course a power issue with the longer packet and powering the emontx from the acac supply. I adjusted the transmit power level down on the low power labs version and it started working reliably.</p>
+<p>I then adjusted both the low power labs test and the jeelib test to run as similar code as I could: same number of retry attempts: 2, same ack wait time: 40ms, same delay between retry attempts: 50ms. Low power labs implements encryption so I did not non-zero any of the values, the jeelib test ran with temperatures set to 3000. The power level on the low power labs test was set to 10. Im not sure what the power level is on the jeelib test. Both where set to a 9.8s transmit time.</p>
+<p>The results of this test where:</p>
+<p><strong>Low Power Labs:</strong></p>
+<p>test duration 15.7 hours</p>
+<p>total message count: 5710<br />
+total retries: 915<br />
+total failures (emontx): 256<br />
+total missing emoncms: 472<br />
+total points at 10s data interval: 5659</p>
+<p>emontx success rate: 95.5%<br />
+emoncms success rate: 91.7%<br />
+retry rate: 16%</p>
+<p><strong>Jeelib</strong></p>
+<p>emontx crashed after 3 hours:<br />
+message count: 1076<br />
+number of retries: 1371<br />
+number of failures (emontx): 299<br />
+total datapoints in emoncms if full: 1058<br />
+total datapoints in emoncms recorded: 841<br />
+total failures (emoncms): 217</p>
+<p>The success rate over this period from emoncms perspective was 79.5%<br />
+The success rate from the emontx&#39;s perspective was 72.2%<br />
+The number of retries was 127%</p>
+<p>I then restarted the test again moving both emontx&#39;s to the exact same location, Increased the wait between retries to 100ms and disabled the LED on both, to see if the jeelib test would run for longer. this test is ongoing.</p>
+<p><strong>Test 3: short packet again (test in the office) jeelib</strong></p>
+<p>Updated tx to have 40ms ack wait time, 2 retries and 100ms retry delay.</p>
+<p>total number of messages: 14768<br />
+total retries: 7208<br />
+total failures (node): 316<br />
+total failures (receiver):&nbsp;314<br />
+success rate: 97.8%<br />
+retry rate: 49%<br />
+&nbsp;</p>
+<p>This testing is still ongoing so there&#39;s no conclusion yet. I need to investigate the power supply question a bit more on the emontx. It should be possible to set the power level with jeelib in addition to lowpowerlabs with&nbsp;uint16_t rf12_control(uint16_t cmd). perhaps I should run a comparison with a smaller packet length too. It would be useful to be able to get all the data out of the emontx, watt hours and temperature values but maybe theres another way to do it by breaking the packet down into multiple packets or requiring an additional power supply when we want everything recorded.. or reducing the power level.</p>
+<p>We&#39;ve discussed the goal to have encryption on the rfm network for some time and encryption has the added bonus of solving the zero value problem. The low power labs library also resulted in smaller retry rates.</p>
+<p>Personally Im edging towards using the low power labs library as its designed with the rfm69 in mind but then it would be a big task to make the switch as it doesn&#39;t support the rfm12 and so would create its own problems with backwards compatibility.</p>
+<p>Il keep at it parallel testing for a while, Il see if I can sort the power issue on the continuous sampling long packet test and report back soon.</p>
+<p>Im now building quite a collection of lowpowerlabs examples here for anyone interested:<br />
+<a href="https://github.com/openenergymonitor/emonLPL" title="https://github.com/openenergymonitor/emonLPL">https://github.com/openenergymonitor/emonLPL</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36901"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/937.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/937.html" title="View user profile.">Bramco</a> on Thu, 10/12/2015 - 17:08.</div>
+    <div class="content">
+     <p>Trystan,</p>
+<p>A couple of things spring to mind.. Firstly is there any reason all the data has to be sent together. Could you send alternate packets with the data split into 2 blocks so that you are sending short packets, these seem to have a better success rate.&nbsp;The TX could send as if it is 2 nodes. One for temperatures, one for power for example.</p>
+<p>Secondly although I haven&#39;t looked the libraries I&#39;m guessing there is a fair amount of code you never use. Could you not strip the libraries down to only the essential part, or even make your own libraries. I haven&#39;t looked at teh code for a while but I&#39;m pretty sure Martin&#39;s PLL code didn&#39;t use the libraries, so may have the kernel of what&#39;s needed at the sending end.</p>
+<p>It would be good to find out why the jeelibs version crashed as this may possibly have something to do with the issues.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36924"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Fri, 11/12/2015 - 13:14.</div>
+    <div class="content">
+     <p>Thanks Bramco, yes that could be a possibility, perhaps in the long term we need to develop the way we send data further. One of the challenges at the moment is the need to define decoders in emonhub.conf. Id like to explore the possibility of sending the decoder definition as a configuration packet at startup to make this step easier which would then require a way to itentify if a packet was a data packet or a configuration packet. This would need perhaps one byte at the start of a packet which could then identify up to 256 different packets from one node.. that would be a very large change however but something to think about.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36927"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 11/12/2015 - 13:55.</div>
+    <div class="content">
+     <p><i>"Could you not strip the libraries down to only the essential part..."</i></p>
+<p>Transmit-only? Like I did in the 3-phase sketch?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36928"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 11/12/2015 - 14:44.</div>
+    <div class="content">
+     <p>I haven&#39;t had much time to delve much deeper into this recently, but I was asked ( at the 11th hour) to install a 3ph system not so&nbsp;long back, Due to the short deadline and no on-going access I had to put something together that was fairly bullet-proof without thorough&nbsp;testing.</p>
+<p>I installed 3 x&nbsp;emonTx&nbsp;v3.4&#39;s running a cut down version of the discreet sampling sketch v2.0, I simply removed all the temp sensing and pulse counting etc to reduce the packet size and also reduce&nbsp;any variation in the send interval due to interruptions etc, I adjusted the send interval to target 10s and when tested individually the timestamps assigned by emonhub&nbsp;were consistently&nbsp;~9.98s.</p>
+<p>The packet is power1. power2, power3, power4, voltage and a packet counter that simply gets incremented immediately&nbsp;after each send.</p>
+<p>The 3 emonTx&#39;s are installed in a box with a Raspberry Pi and RFM69Pi&nbsp;(and Wi-Fi dongle) all the emonTx&#39;s are AC-AC powered, one off each phase and the Pi has a AC-DC power supply, so signal strength is very strong, consistent and as far as I could tell no outside influence.</p>
+<p>There are no ACK&#39;s in play and there is no synchronization beyond initially waiting 2secs between powering each emonTx up over 2 months ago.</p>
+<p>Due to a proxy server this data didn&#39;t start to flow or get recorded until the 25th&nbsp;Nov, The pulse counters are simply logged to a timeseries feed at emoncms.org and&nbsp;last night I exported the pulse count feeds and&nbsp;found these results.</p>
+<table align="center" border="1" cellpadding="1" cellspacing="1" style="width: 500px;">
+<thead>
+<tr>
+<th scope="row">&nbsp;</th>
+<th scope="col">Counted</th>
+<th scope="col">Missing</th>
+<th scope="col">Total</th>
+<th scope="col">Success Rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">node/phase 1</th>
+<td style="text-align: center;">125275</td>
+<td style="text-align: center;">12011</td>
+<td style="text-align: center;">137286</td>
+<td style="text-align: center;">91%</td>
+</tr>
+<tr>
+<th scope="row">node/phase 2</th>
+<td style="text-align: center;">125265</td>
+<td style="text-align: center;">9213</td>
+<td style="text-align: center;">134478</td>
+<td style="text-align: center;">93%</td>
+</tr>
+<tr>
+<th scope="row">node/phase 3</th>
+<td style="text-align: center;">124026</td>
+<td style="text-align: center;">14803</td>
+<td style="text-align: center;">138829</td>
+<td style="text-align: center;">89%</td>
+</tr>
+<tr>
+<th scope="row">TOTALS</th>
+<td style="text-align: center;">374566</td>
+<td style="text-align: center;">36027</td>
+<td style="text-align: center;">410593</td>
+<td style="text-align: center;">91%</td>
+</tr>
+</tbody>
+</table>
+<p>The &quot;missing&quot; are a sum of all the counter increments greater than 1. This success rate wasn&#39;t a surprise and with&nbsp;3 nodes and no ACK or sync a 10% error can be at least expected even if not acceptable.</p>
+<p>The real eye opener came when looking closer at&nbsp;the intervals etc&nbsp;</p>
+<table align="center" border="1" cellpadding="1" cellspacing="1" style="width: 500px;">
+<thead>
+<tr>
+<th scope="row">&nbsp;</th>
+<th scope="col">Time span</th>
+<th scope="col">Interval count</th>
+<th scope="col">Average interval</th>
+<th scope="col">Min interval</th>
+<th scope="col">Max interval</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">1</th>
+<td style="text-align: center;">1330376</td>
+<td style="text-align: center;">137286</td>
+<td style="text-align: center;">9.690544s</td>
+<td style="text-align: center;">4s</td>
+<td style="text-align: center;">1523s</td>
+</tr>
+<tr>
+<th scope="row">2</th>
+<td style="text-align: center;">1330402</td>
+<td style="text-align: center;">134478</td>
+<td style="text-align: center;">9.893083s</td>
+<td style="text-align: center;">4s</td>
+<td style="text-align: center;">603s</td>
+</tr>
+<tr>
+<th scope="row" style="text-align: center;">3</th>
+<td style="text-align: center;">1330417</td>
+<td style="text-align: center;">138829</td>
+<td style="text-align: center;">9.583135s</td>
+<td style="text-align: center;">4s</td>
+<td style="text-align: center;">1415s</td>
+</tr>
+</tbody>
+</table>
+<p>Subtracting the 1st timestamp from the last to get the time spanned, then divided by the packets accounted for above (logged or missing) gives us an average logging&nbsp;interval of 9.73s which is only 0.25s out, However many of the recorded intervals are well under 10s especially when following a late arrival eg 14secs then 6secs, since there is no ACK or coding for retries,syncing or buffering so the times are being delayed due to traffic and being delayed automatically..</p>
+<p>This revelation makes me question if the use of acks&nbsp;(and/or controlled retries) is&nbsp;actually imposing a limit and adding to the failures, It will certainly cause &quot;missing&quot; datapoints</p>
+<p>When used with a fixed interval feed the extended intervals caused by &quot;delays&quot;&nbsp;will cause empty datapoints and the shortened intervals caused by a catchup could (unless perfectly aligned) get overwritten by the next arrival and ignored&nbsp;</p>
+<p>There are a vast number of&nbsp;intervals&nbsp;greater than 10s but less than 0.15% (that&#39;s well under a sixth of one percent)&nbsp;of the intervals recorded were greater than 30s so the massive &quot;max intervals&quot; were a bit&nbsp;misleading at first, but what they do show is prolonged&nbsp;&quot;outages&quot; presumably due to the&nbsp;slow move through a clashing&nbsp;cycle due to similar send intervals. as the posting always resumes with the correct count&nbsp;and there is no&nbsp;resetting&nbsp;or user intervention at all, I am also using original&nbsp;emonhub&nbsp;with buffering and there is never more than one&nbsp;emonTx&nbsp;&quot;not reporting&quot; at any one time,</p>
+<p>Plus in many instances when the &quot;blocked&quot; emonTx&nbsp;reappears another is blocked instantly and if you look at the last page of the&nbsp;attached spreadsheet I have highlighted a few examples in colour, the first in blue you can see node 1 and 3 jostle for dominance blocking the other.</p>
+<p>These results seem to suggest any attempts to set the send&nbsp;interval to match&nbsp;the fixed interval is pointless if there is any chance the packet will not reach the receiver&nbsp;first attempt, this would also be the case in your own examples as a 9.8s interval delayed by waiting for an ack then delaying for a retry, twice over will probally&nbsp;be over 10 seconds and result in a missing datapoint&nbsp;anyway.</p>
+<p>I&#39;m sure the success would be heavily impacted if the packet length was extended&nbsp;for the wh values or tempertures, but I also think dividing the packet would increase the traffic and result in many more succesful&nbsp;half packets but the impact on the whole data may not improve much especially as the overhead size (and processing time) is increased for the same size data. It would be interesting to test that theory, one instant where it could work is IF temperture&nbsp;and/or Wh totals were being sent less frequently eg every 60s with power every 10s, (this could also be done using 2 packet sizes for the same node with some mods to emonhub, cycling 5 short then 1&nbsp;long packet)</p>
+<p><a href="https://www.dropbox.com/s/j9480kkyrab71qu/3phase counters.xlsx?dl=0">This is a link to the spreadsheet&nbsp;<span style="line-height: 20.8px;">&nbsp;I was using (</span><span style="line-height: 1.6;">in my </span>dropbox as&nbsp;<span style="line-height: 1.6;">(it&#39;s </span>28Mb<span style="line-height: 1.6;"> so I couldn&#39;t upload it here</span><span style="line-height: 1.6;">)</span></a><span style="line-height: 1.6;"><a href="https://www.dropbox.com/s/j9480kkyrab71qu/3phase counters.xlsx?dl=0">,</a> it&#39;s not </span>labelled<span style="line-height: 1.6;"> up all that well but should be self </span><span style="line-height: 1.6;">explanatory</span><span style="line-height: 1.6;">,&nbsp;</span><span style="line-height: 1.6;">&nbsp;for each feed there is a timestamp and a count, to that I&#39;ve added a calculated &quot;interval&quot; and &quot;packets missed&quot;.</span></p>
+<p>(or the feeds&nbsp;used are 95037,95038 and 95407 so you can check the data directly on the emoncms server.)</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36932"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/937.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/937.html" title="View user profile.">Bramco</a> on Fri, 11/12/2015 - 16:17.</div>
+    <div class="content">
+     <p>Robert, yes, that was what I was thinking. I haven&#39;t looked at the libraries but from experience there are fewer bugs in a a smaller code base.</p>
+<p>Paul, interesting analysis. And it confirms what Trystan is seeing which begs the question can you ever get to 100% reliability with the rfm systems. Almost makes you think it might be worth switching to an ESP8266 based system with WiFi.</p>
+<p>Also I wouldn&#39;t change emonhub, I&#39;d just switch to thinking of the nodes as virtual, i.e. they can be housed on one physical device.</p>
+<p>In my case for instance I have one emonTX doing PV diversion and monitoring my electric as well as measuring temperatures on my heat bank. So actually logically they would be better to be sent as two packets with different node ids even though one physical device is doing the work.</p>
+<p>Also Trystan, given things are not as reliable as we&#39;d like, it may make things less reliable to start relying on configuration packages. You&#39;d have to build in quite a lot of error correction and failsafe into things if you do that, e.g. what happens after a power failure, or a restart of one of the systems etc. Personally I haven&#39;t any nodes defined in emonhub, I just use the &nbsp;default. With my CH system which is on an ESP8266 I&#39;ve had to do quite a bit of code to handle various system outages and I&#39;m still not sure I&#39;ve got everything covered.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36933"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 11/12/2015 - 16:53.</div>
+    <div class="content">
+     <p><em>&quot;One of the challenges at the moment is the need to define decoders in emonhub.conf&quot;</em></p>
+<p>I agree, however this &quot;need&quot; is imposed by emoncms&#39;s&nbsp;nodes module and fixed payloads, not emonhub.</p>
+<p>Sometime ago I had a working example of a payload structure that could be defined in the node using signed or unsigned&nbsp;1,2,4 &amp; 8 byte ints/longs plus&nbsp;floats&nbsp;and then be automatically decoded AND scaled by emonhub with no previous knowledge of the payload at a cost of 1byte per value, which also worked to prevent long zero runs as each values data was separated&nbsp;by the key byte.</p>
+<p>I have since scrapped that idea as the names etc still need allocating and it really doesn&#39;t make sense to me to &quot;define&quot; the payload in the one place that is not editable ie an uneditable sketch usually connected by rf.</p>
+<p>I prefer to define the payloads in&nbsp;emonhub&nbsp;if anywhere (it shouldn&#39;t be mandatory) but not just to match pre-defined payloads but to actually define the payloads.</p>
+<p>I am moving towards a system&nbsp;of&nbsp;having a &quot;catalog&quot; of possible variables that could be returned by a particular node (like the continuous sampling sketch) that I can add to the emonhub.conf to actually define the remote nodes payload. by setting varX&nbsp;varY varZ in emonhub this would be sent to the node and the payload changed to return those variables, meaning any change to the payload could be edited in one place to be executed in the node and updated to emoncms&nbsp;eliminating any chance of mismatched payloads, keeping it flexible and the payloads only need be as long as required (at that time) with no additional payload overhead, just the occasional&nbsp;update packet.</p>
+<p>By opening the door on &quot;2-way RF&nbsp;comms&quot; for control packets and payload definition&nbsp;we could also look at calibration and other settings for battery devices this could be done using a &quot;message pending&quot; flagged ack to change the sleep pattern for receipt of the message.<span style="line-height: 20.8px;">&nbsp;</span></p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37006"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 14/12/2015 - 17:29.</div>
+    <div class="content">
+     <p>Thanks a lot for the input on this Paul. Im not sure that I understand where your minimum update times of 4s are coming from, if the packets are being timestamped in emonhub? The longer than the interval updates make sense I think.</p>
+<p>For systems with acks: It should be possible to set the interval and number of retries to always ensure the timing is within 9.8s. i.e sending every 9.4s with 2x retries at 40ms ack wait + 100ms retry delay = max time of&nbsp;420ms. The min time should then be 9.4s and max time 9.82s?</p>
+<p>I wonder if there would be a way to add a slight random factor that would avoid aligned collisions? lets say a 100ms variation in send interval?</p>
+<p>Id like to check how many failures adding the ACK check actually reduces via the message counter method.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37015"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 14/12/2015 - 23:09.</div>
+    <div class="content">
+     <p>I&#39;m not sure I &quot;understand&quot; exactly why/how they occur myself, but I suspect JeeLib or the rfm itself is pausing or retrying and these attempts appear to go on for up to 6 seconds.</p>
+<p>See the attached clip of 9mins from feed 95037 (90 x&nbsp;timeseries datapoints&nbsp;1448440750 to&nbsp;1448441671). The &quot;interval&quot; is derived from subtracting the timestamp from the previous one and the &quot;missing&quot; is from subtracting the count from the previous record and also -1 for the expected increment.</p>
+<p>The timestamp is set by emonhub upon arrival from the rfm69pi, the feed is timeseries so the timestamps are not changed in emoncms.</p>
+<p>The count from &quot;259&quot; to &quot;352&quot; is consistent&nbsp;apart from &quot;292&quot;,&quot;315&quot;,&quot;317&quot; and &quot;350&quot; missing, there is an additional &nbsp;gap of around 10s for each of those missing packets. (marked in red)</p>
+<p>There are also a number of values coming in late, (marked in blue) with corresponding shorter &quot;catch up&quot; intervals, the count is ok, and the &quot;catch-up&quot; packet continues the intervals as they were prior to the &quot;late&quot; arrival. So the packets seem to be produced and initially sent at 10s intervals, but it appears the delayed packets do not effect&nbsp;the next packet, somehow it is getting &quot;delayed&quot; independently in transit.</p>
+<p>In my emonTx&nbsp;sketch I&#39;m using a &quot;calculate and send if greater than interval&quot; in the main loop. timestamps aside the success rate is pretty good for 3 unmanaged emonTx&#39;s in a box, so much so that the timestamp could almost be ignored in favour of just using the &quot;count&quot; after all the actual timestamp we should be recording is when the data was recorded not when it was received, the count increment tells us which 10s slot it belongs to.</p>
+<p>The adjustment to the interval to allow for the possible retries you suggest might work for the battery devices sending every minute or so, as 0.25 to 0.5 of a sec in 60secs only represents a 0.4 to 0.8% adjustment. But on a 10 second interval, dropping to 9.4 secs&nbsp;dictates&nbsp;a 94% success rate,even if no packets are lost, unless retries are needed, effectively making a success rate of over 94% dependent on the first send attempts failing, because if successful there is a greater&nbsp;chance&nbsp;it will be overwritten within the same fixed interval in emoncms. IMO it would be better to aim for 10s and the IF delayed&nbsp;the data rolls over to the next fixed interval, yes that will result in an empty data point, but at least all the data is retained and 100% success is at least a possibility.</p>
+<p>Using &quot;if&nbsp;millis() &gt;= last update + 10s&quot;&nbsp;and no deep sleep on 10s update devices and a small interval reduction on 60s update devices using sleepy might be the way to go but using sleepy lose sometime and interrupts&nbsp;will still make the interval unpredictable and if data is being over written or the device is sending more frequently due to in accurate time keeping it may actually be more battery friendly to keep millis() going and not use sleepy lose some time. the efficient use of battery life has to be measured in usable data rather than time in the device 6mths&nbsp;good data is better than 9mths patchy data, plus you can always extend the interval if you want more life,&nbsp;</p>
+<p>I guess it boils down to making sure every transmission counts being the most efficient use of resources, whether it be battery power for the emonTH&nbsp;or &quot;air space&quot; for the more frequent emonTx&#39;s.</p>
+<p>The 100ms random bit might help the long aligned clashes but again the variation might take you into the next datapoint unless you reduce the interval even further. another 100ms&nbsp;on a 10s interval&nbsp;means 93 to 94%, That&#39;s not far off the results of my 3 unmanaged emonTx&#39;s in a box or your tests above.</p>
+<p>Paul</p>
+<p>EDIT - added a&nbsp;spreadsheet of the 9mins of data as the png didn&#39;t scale so well (added &quot;.txt&quot; to upload, save as 95037.xlsx)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37090"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RF69 reliability, timing, temp sensors, mqtt & lowpowerlabs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 16/12/2015 - 14:38.</div>
+    <div class="content">
+     <p>Thanks Paul. good points, i guess the most important thing is that the graphs appear complete rather than 100% success rate from the transmitters perspective, hence why I wasn&#39;t really worried about sending at 9.4s resulting in an overwrite every 16 packets but yes good point and yes battery life would also be a very important consideration.</p>
+<p>A couple more tests, two emontx v3.4&#39;s overnight on jeelib, 2x retries, 40ms ack wait time, 100ms retry time.</p>
+<p>Emontx 1 running discreet sampling code: 5622 msg, 5469 retries, 1343 fail 76%<br />
+via emoncms graph:<br />
+@evening 1929/2279 = 85%<br />
+@2kw 1130/1338 = 84%<br />
+@50w 969/1136 = 85%</p>
+<p>Emontx 2 running continuous sampling code: 5687, 4354, 1153 80%<br />
+via emoncms graph:<br />
+@evening 2051/2279 = 89%<br />
+@2kw 1152/1338 = 86%<br />
+@50w 1022/1136 = 90%</p>
+<p>The failure rate is greatly affected by temperature, Il get a screenshot of this later its quite pronounced.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11390"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-yEVPZ0mgYKeImjv_7l5wxeKuhacEd5ggAiYwEb1TOZY" value="form-yEVPZ0mgYKeImjv_7l5wxeKuhacEd5ggAiYwEb1TOZY"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11390 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:44:28 GMT -->
+</html>

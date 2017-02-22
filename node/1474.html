@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Installer sur Ubuntu, Debian et Raspberry Pi | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h1>
+	Installation de Emoncms sur Ubuntu / Debian / Raspberry Pi</h1>
+<p>Ce guide a &eacute;t&eacute; &eacute;crit lors de l&#39;installation d&#39;emoncms sur une Raspberry Pi avec une distribution <a href="http://www.raspberrypi.org/downloads">raspbian &ldquo;wheezy&rdquo;</a>, les &eacute;tapes ci-dessous devrait donc fonctionner sur l&#39;ensemble des distributions bas&eacute;es sur Debian.</p>
+<h3>
+	1) Installer mysql</h3>
+<pre>
+$ sudo apt-get install mysql-server mysql-client</pre><p>Lorsque l&#39;invite de commande appara&icirc;t, indiquez un mot de passe pour l&#39;utilisateur <em>root</em> (notez ce mot de passe car vous en aurez besoin plus tard).</p>
+<h3>
+	2) Installer apache2</h3>
+<pre>
+$ sudo apt-get install apache2
+</pre><h3>
+	3) Installer php</h3>
+<pre>
+$ sudo apt-get install php5 libapache2-mod-php5</pre><pre>
+$ sudo apt-get install php5-mysql</pre><h3>
+	4) Activer le mod rewrite</h3>
+<pre>
+$ sudo a2enmod rewrite</pre><pre>
+$ sudo nano /etc/apache2/sites-enabled/000-default</pre><p>Modifiez les lignes 7 et 11: &quot;AllowOverride None&quot; to &quot;AllowOverride All&quot;.<br />
+	Enregistrez :<em> [Ctrl + X ]</em> puis<em> [Y]</em> et enfin<em> [Entr&eacute;e]</em>.</p>
+<h3>
+	5) Red&eacute;marrez le serveur afin de prendre en compte les modifications</h3>
+<pre>
+$ sudo /etc/init.d/apache2 restart</pre><h2>
+	&nbsp;</h2>
+<h2>
+	Installation&nbsp; de emoncms:</h2>
+<h3>
+	6) Installer git (optionnel)</h3>
+<pre>
+$ sudo apt-get install git-core</pre><p>Vous pouvez suivre ce tutoriel afin de g&eacute;n&eacute;rer les cl&eacute;s SSH n&eacute;cessaires au bon fonctionnement de git avec github.<br />
+	<a href="https://help.github.com/articles/generating-ssh-keys">https://help.github.com/articles/generating-ssh-keys</a></p>
+<p><strong>Utile :</strong> Si vous g&eacute;n&eacute;rez vos cl&eacute;s en depuis un terminal SSH, utilisez la commande <em>$ cat /home/pi/.ssh/id_rsa.pub </em>pour afficher les cl&eacute;s dans votre terminal. Vous pouvez alors copier ces cl&eacute;s (en utilisant <em>[Ctrl+Maj+C]</em>) puis les coller sur la page de configuration GitHub.</p>
+<h3>
+	7) T&eacute;l&eacute;charger Emoncms</h3>
+<p>Rendez vous dans le r&eacute;pertoire <em>/var/</em> :</p>
+<pre>
+$ cd /var/</pre><p>Changer les droits du r&eacute;pertoire <em>/var/www</em> pour autoriser l&#39;utilisateur <em>pi</em> &agrave; modifier ce r&eacute;pertoire :</p>
+<pre>
+$ sudo chown pi www</pre><p>Rentrez dans le r&eacute;pertoire</p>
+<pre>
+$ cd www</pre><p>T&eacute;l&eacute;chargez la&nbsp; version stable de emoncms gr&acirc;ce &agrave; la commande <em>git clone</em> :</p>
+<pre>
+$ git clone git://github.com/emoncms/emoncms.git</pre><p><strong>Vous pouvez &eacute;galement t&eacute;l&eacute;charger la derni&egrave;re version de emoncms et la d&eacute;zipper sur votre serveur :</strong><br />
+	<a href="https://github.com/emoncms/emoncms">https://github.com/emoncms/emoncms</a></p>
+<h3>
+	8) Cr&eacute;er une base de donn&eacute;es MySQL</h3>
+<pre>
+$ mysql -u root -p</pre><p>Vous devez indiquez ici le mot de passe que vous avez tap&eacute; &agrave; l&#39;&eacute;tape 1.</p>
+<p>Cr&eacute;ez la base de donn&eacute;es appel&eacute;e <em>emoncms</em> :</p>
+<pre>
+mysql&gt; CREATE DATABASE emoncms;</pre><p>Quittez en tapant :</p>
+<pre>
+mysql&gt; exit</pre><h3>
+	9) Configurer la base de donn&eacute;es emoncms</h3>
+<p>Changez de r&eacute;pertoire pour modifier le fichier de configuration :</p>
+<pre>
+$ cd /var/www/emoncms/</pre><p>Copiez le fichier<em> default.settings.php</em> et renommez le <em>settings.php</em> :</p>
+<pre>
+$ cp default.settings.php settings.php
+</pre><p>Ouvez <em>settings.php</em> :</p>
+<pre>
+$ nano settings.php</pre><p>Vous devriez avoir ceci:</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/Capture terminal.png" style="width: 634px; height: 391px;" /></p>
+<p>Modifiez le fichier en indiquand vos param&egrave;tres.</p>
+<p>Enregistrez : <em>[Ctrl+X],</em> puis tapez <em>[Y]</em></p>
+<h3>
+	10) Lancez emoncms depuis votre navigateur</h3>
+<pre>
+<a href="http://YOURIP/emoncms" title="http://YOURIP/emoncms">http://YOURIP/emoncms</a>
+</pre><p>La base de donn&eacute;es va &ecirc;tre automatiquement configur&eacute;e la premi&egrave;re fois que vous lancez emoncms. Vous n&#39;avez plus qu&#39;&agrave; cr&eacute;er un nouveau compte en tapant un nom d&#39;utilisateur et un mot de passe. Enfin, cliquez sur <em>S&#39;inscrire</em>.</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/Capture navigateur.png" style="width: 634px; height: 471px;" /></p>
+<h3>
+	11) Configuration du module PHP Suhosin (Optionel - Debian 6)</h3>
+<p>Si vous rencontrez des probl&egrave;mes lors de la modification de votre Tableau de Bord. Cela peut &ecirc;tre d&ucirc; &agrave; la valeur maximale des arguments HTTP GET (qui sous Debian 6 est fixa&eacute;e &agrave; 512 octets).</p>
+<p>Pour rem&eacute;dier &agrave; ce probl&egrave;me, vous pouvez modifier&nbsp; <em>suhosin.get.max_value_length</em> dans le fichier <em>/etc/php5/conf.d/suhosin.ini</em>&quot; (une valeur comprise entre 8000, 16000 devrait &ecirc;tre suffisante).</p>
+</div>
+    
+    
+      </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

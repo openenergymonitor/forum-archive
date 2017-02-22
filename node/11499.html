@@ -1,0 +1,424 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11499 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:13:53 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Probleme mit Arduino und 4 CT Sensoren | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Probleme mit Arduino und 4 CT Sensoren</h3>
+        <span class="submitted">Submitted by <a href="../user/8929.html" title="View user profile.">aDm1N</a> on Thu, 29/10/2015 - 21:38</span>
+        <div class="content"><p>Hallo</p>
+<p>Leider ist mein englisch nicht so gut als das ich es so erkl&auml;ren kann, ich hoffe es ist auch in Deutsch&nbsp;ok.</p>
+<p>Ich bin neu hier und habe leider sofort eine frage zu einem Problem das ich bis jetzt nicht selber l&ouml;sen konnte.</p>
+<p>Zu meinem Problem, ich habe emoncms installiert und zum laufen gebracht. Ich habe 4 ct sensoren bis 100A die ich mit einem&nbsp;arduino auslesen wollte und via ethernet&nbsp;zum server senden wollte. ich habe mir dazu nach&nbsp;dieser Seite&nbsp;eine&nbsp;Platine gebastelt, mit eing&auml;ngen f&uuml;r 4 sensoren.&nbsp;<a href="https://learn.openenergymonitor.org/?redirect=how-to-build-an-arduino-energy-monitor-measuring-current-only">http</a><a href="https://learn.openenergymonitor.org/?redirect=how-to-build-an-arduino-energy-monitor-measuring-current-only">://openenergymonitor.org/emon/buildingblocks/how-to-build-an-arduino-energy-monitor-measuring-current-only</a></p>
+<p>​Der arduino wurde mit diesem sketch bespielt:</p>
+<p>/*<br />
+&nbsp; Arduino &amp; OpenEnergyMonitor&nbsp;<br />
+&nbsp;&nbsp;<br />
+&nbsp; This sketch connects to an emoncms server and makes a request using<br />
+&nbsp; Arduino Ethernet shield (or other based on Wiznet W5100) or an&nbsp;<br />
+&nbsp; Arduino Wifi Shield<br />
+&nbsp;&nbsp;<br />
+&nbsp; author Mirco Piccin aka pitusso<br />
+&nbsp;&nbsp;<br />
+&nbsp; based on&nbsp;<br />
+&nbsp; <a href="http://arduino.cc/en/Tutorial/WebClientRepeating" title="http://arduino.cc/en/Tutorial/WebClientRepeating">http://arduino.cc/en/Tutorial/WebClientRepeating</a><br />
+*/</p>
+<p>char foo; &nbsp;//without a simple variable declaration, use of #ifdef at the top of your code raises an error!</p>
+<p>//if using a W5100 based Ethernet shield, comment out the following line;&nbsp;<br />
+//leave untouched if using Arduino Wifi Shield<br />
+//#define WIFI</p>
+<p>#include &lt;SPI.h&gt;</p>
+<p>/*#ifdef WIFI<br />
+&nbsp; #include &lt;WiFi.h&gt;<br />
+&nbsp; #include &lt;WiFiClient.h&gt;<br />
+#else */<br />
+&nbsp; #include &lt;Ethernet.h&gt;<br />
+//#endif</p>
+<p>// Include Emon Library<br />
+#include &quot;EmonLib.h&quot; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>//network configuration, WIRED or WIFI<br />
+/*#ifdef WIFI<br />
+&nbsp; //if using WIFI&nbsp;<br />
+&nbsp; char ssid[] = &quot;ssid&quot;; // &nbsp;your network SSID (name)&nbsp;<br />
+&nbsp; char pass[] = &quot;password&quot;; &nbsp; &nbsp;// your network password (use for WPA, or use as key for WEP)</p>
+<p>&nbsp; int status = WL_IDLE_STATUS;<br />
+&nbsp; int keyIndex = 0; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// your network key Index number (needed only for WEP)<br />
+&nbsp;&nbsp;<br />
+&nbsp; WiFiClient client;<br />
+#else*/<br />
+&nbsp; //if using WIRED<br />
+&nbsp; byte mac[] = {0x90, 0xA2, 0xDA, 0x00, 0x69, 0xD5};<br />
+&nbsp;&nbsp;<br />
+&nbsp; // fill in an available IP address on your network here,<br />
+&nbsp; // for auto configuration:<br />
+&nbsp; IPAddress ip(192, 168, 1, 300);<br />
+&nbsp; IPAddress subnet(255, 255, 255, 0);<br />
+&nbsp; IPAddress DNS(192, 168, 1, 300);<br />
+&nbsp; IPAddress gw(192, 168, 1, 300);<br />
+&nbsp;&nbsp;<br />
+&nbsp; EthernetClient client;<br />
+//#endif</p>
+<p>//Calibrations<br />
+const int volt = 230;<br />
+const float ct_calibration1 = 111.1;<br />
+const float ct_calibration2 = 111.1;<br />
+const float ct_calibration3 = 111.1;<br />
+const float ct_calibration4 = 111.1;<br />
+const float temp_offset = 0;</p>
+<p>// Sensor pins<br />
+//const int tempSensorPin = A0;<br />
+//const int lightSensorPin = A1;<br />
+const int currentSensorPin1 = 0;<br />
+const int currentSensorPin2 = 1;<br />
+const int currentSensorPin3 = 2;<br />
+const int currentSensorPin4 = 3;</p>
+<p>//float tempValue = 0;<br />
+float Irms1 = 0;<br />
+float Irms2 = 0;<br />
+float Irms3 = 0;<br />
+float Irms4 = 0;<br />
+//int lightValue = 0;</p>
+<p>// Create an Emon instance<br />
+EnergyMonitor emon1;&nbsp;<br />
+EnergyMonitor emon2;&nbsp;<br />
+EnergyMonitor emon3;<br />
+EnergyMonitor emon4;</p>
+<p>//Emoncms configurations<br />
+//char server[] = &quot;emoncms.org&quot;; &nbsp; &nbsp; // name address for emoncms.org<br />
+IPAddress server(192, 168, 1, 300); &nbsp;// numeric IP for emoncms.org (no DNS)</p>
+<p>String apikey = &quot;MY-API&quot;; &nbsp;//api key<br />
+int node = 1; //if 0, not used</p>
+<p>unsigned long lastConnectionTime = 0; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// last time you connected to the server, in milliseconds<br />
+boolean lastConnected = false; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // state of the connection last time through the main loop<br />
+const unsigned long postingInterval = 10*1000; &nbsp;// delay between updates, in milliseconds</p>
+<p>void setup() {<br />
+&nbsp; // start serial port:<br />
+&nbsp; Serial.begin(9600);</p>
+<p>&nbsp; // Display a welcome message<br />
+&nbsp; Serial.println(&quot;Emoncms client starting...&quot;);</p>
+<p>&nbsp; emon1.current(currentSensorPin1, ct_calibration1);<br />
+&nbsp; emon2.current(currentSensorPin2, ct_calibration2);<br />
+&nbsp; emon3.current(currentSensorPin3, ct_calibration3);<br />
+&nbsp; emon4.current(currentSensorPin4, ct_calibration4);</p>
+<p>/*#ifdef WIFI<br />
+&nbsp; // check for the presence of the shield:<br />
+&nbsp; if (WiFi.status() == WL_NO_SHIELD) {<br />
+&nbsp; &nbsp; Serial.println(&quot;WiFi shield not present&quot;);&nbsp;<br />
+&nbsp; &nbsp; // don&#39;t continue:<br />
+&nbsp; &nbsp; while(true);<br />
+&nbsp; }&nbsp;<br />
+&nbsp;&nbsp;<br />
+&nbsp; // attempt to connect to Wifi network:<br />
+&nbsp; while ( status != WL_CONNECTED) {&nbsp;<br />
+&nbsp; &nbsp; Serial.print(&quot;Attempting to connect to SSID: &quot;);<br />
+&nbsp; &nbsp; Serial.println(ssid);<br />
+&nbsp; &nbsp; // Connect to WPA/WPA2 network.&nbsp;<br />
+&nbsp; &nbsp; status = WiFi.begin(ssid, pass);<br />
+&nbsp;&nbsp;<br />
+&nbsp; &nbsp; // wait 10 seconds for connection:<br />
+&nbsp; &nbsp; delay(10000);<br />
+&nbsp; }&nbsp;<br />
+&nbsp; Serial.println(&quot;Connected to wifi&quot;);<br />
+#else*/<br />
+&nbsp; //if (!Ethernet.begin(mac))&nbsp;<br />
+&nbsp; {<br />
+&nbsp; &nbsp; // if DHCP fails, start with a hard-coded address:<br />
+&nbsp; &nbsp; //Serial.println(&quot;Failed to get an IP address using DHCP, forcing manually&quot;);<br />
+&nbsp; &nbsp; Ethernet.begin(mac, ip, dns, gw, subnet);<br />
+&nbsp; }<br />
+//#endif &nbsp;</p>
+<p>&nbsp; printStatus();<br />
+}</p>
+<p>void loop() {<br />
+&nbsp;&nbsp;<br />
+&nbsp; // if there&#39;s incoming data from the net connection.<br />
+&nbsp; // send it out the serial port. &nbsp;This is for debugging<br />
+&nbsp; // purposes only:<br />
+&nbsp; if (client.available()) {<br />
+&nbsp; &nbsp; char c = client.read();<br />
+&nbsp; &nbsp; Serial.print(c);<br />
+&nbsp; }</p>
+<p>&nbsp; // if there&#39;s no net connection, but there was one last time<br />
+&nbsp; // through the loop, then stop the client:<br />
+&nbsp; if (!client.connected() &amp;&amp; lastConnected) {<br />
+&nbsp; &nbsp; Serial.println();<br />
+&nbsp; &nbsp; Serial.println(&quot;Disconnecting...&quot;);<br />
+&nbsp; &nbsp; client.stop();<br />
+&nbsp; }<br />
+&nbsp;&nbsp;<br />
+&nbsp; // if you&#39;re not connected, and at least &lt;postingInterval&gt; milliseconds have<br />
+&nbsp; // passed sinceyour last connection, then connect again and<br />
+&nbsp; // send data:<br />
+&nbsp; if(!client.connected() &amp;&amp; (millis() - lastConnectionTime &gt; postingInterval)) {<br />
+&nbsp; &nbsp;<br />
+&nbsp; &nbsp; //read sensors<br />
+&nbsp; &nbsp; //lightValue = analogRead(lightSensorPin);<br />
+&nbsp; &nbsp; //tempValue = getCelsius(analogRead(tempSensorPin));<br />
+&nbsp; &nbsp; Irms1 = emon1.calcIrms(1480);<br />
+&nbsp; &nbsp; Irms2 = emon2.calcIrms(1480);<br />
+&nbsp; &nbsp; Irms3 = emon3.calcIrms(1480);<br />
+&nbsp; &nbsp; Irms4 = emon3.calcIrms(1480);<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; //Print values (debug)<br />
+&nbsp; &nbsp; Serial.println();<br />
+&nbsp; &nbsp; Serial.print(&quot; ; Power L1 : &quot;);<br />
+&nbsp; &nbsp; Serial.println(Irms1*volt);<br />
+&nbsp; &nbsp; Serial.print(&quot; ; Power L2 : &quot;);<br />
+&nbsp; &nbsp; Serial.println(Irms2*volt);<br />
+&nbsp; &nbsp; Serial.print(&quot; ; Power L3 : &quot;);<br />
+&nbsp; &nbsp; Serial.println(Irms3*volt);<br />
+&nbsp; &nbsp; Serial.print(&quot; ; Power N : &quot;);<br />
+&nbsp; &nbsp; Serial.println(Irms4*volt);<br />
+&nbsp; &nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; //send values<br />
+&nbsp; &nbsp; sendData();<br />
+&nbsp; }<br />
+&nbsp; // store the state of the connection for next time through<br />
+&nbsp; // the loop:<br />
+&nbsp; lastConnected = client.connected();<br />
+}</p>
+<p>// this method makes a HTTP connection to the server:<br />
+void sendData() {<br />
+&nbsp; // if there&#39;s a successful connection:<br />
+&nbsp; if (client.connect(server, 80)) {<br />
+&nbsp; &nbsp; Serial.println(&quot;Connecting...&quot;);<br />
+&nbsp; &nbsp; // send the HTTP GET request:<br />
+&nbsp; &nbsp; client.print(&quot;GET /emoncms/input/post.json?&quot;);<br />
+&nbsp; &nbsp; if (node &gt; 0) {<br />
+&nbsp; &nbsp; &nbsp; client.print(&quot;node=&quot;);<br />
+&nbsp; &nbsp; &nbsp; client.print(node);<br />
+&nbsp; &nbsp; }<br />
+&nbsp; &nbsp; client.print(&quot;&amp;json={&quot;);<br />
+&nbsp; &nbsp; client.print(&quot;power-L1:&quot;);<br />
+&nbsp; &nbsp; client.print(Irms1*volt);<br />
+&nbsp; &nbsp; client.print(&quot;,power-L2:&quot;);<br />
+&nbsp; &nbsp; client.print(Irms2*volt);<br />
+&nbsp; &nbsp; client.print(&quot;,power-L3:&quot;);<br />
+&nbsp; &nbsp; client.print(Irms3*volt);<br />
+&nbsp; &nbsp; client.print(&quot;,power-N:&quot;);<br />
+&nbsp; &nbsp; client.print(Irms4*volt);&nbsp;<br />
+&nbsp; &nbsp; client.print(&quot;}&amp;apikey=&quot;);<br />
+&nbsp; &nbsp; client.print(apikey);&nbsp;<br />
+&nbsp; &nbsp; client.println(&quot; HTTP/1.1&quot;);<br />
+&nbsp; &nbsp; client.println(&quot;Host:emoncms.org&quot;);<br />
+&nbsp; &nbsp; client.println(&quot;User-Agent: Arduino-ethernet&quot;);<br />
+&nbsp; &nbsp; client.println(&quot;Connection: close&quot;);<br />
+&nbsp; &nbsp; client.println();</p>
+<p>&nbsp; &nbsp; // note the time that the connection was made:<br />
+&nbsp; &nbsp; lastConnectionTime = millis();<br />
+&nbsp; }&nbsp;<br />
+&nbsp; else {<br />
+&nbsp; &nbsp; // if you couldn&#39;t make a connection:<br />
+&nbsp; &nbsp; Serial.println(&quot;Connection failed&quot;);<br />
+&nbsp; &nbsp; Serial.println(&quot;Disconnecting...&quot;);<br />
+&nbsp; &nbsp; client.stop();<br />
+&nbsp; }<br />
+}</p>
+<p>
+void printStatus() {<br />
+&nbsp;/* #ifdef WIFI<br />
+&nbsp; &nbsp; // print the SSID of the network you&#39;re attached to:<br />
+&nbsp; &nbsp; Serial.print(&quot;SSID: &quot;);<br />
+&nbsp; &nbsp; Serial.println(WiFi.SSID());</p>
+<p>&nbsp; &nbsp; // print your WiFi shield&#39;s IP address:<br />
+&nbsp; &nbsp; IPAddress ip = WiFi.localIP();<br />
+&nbsp; &nbsp; Serial.print(&quot;IP Address: &quot;);<br />
+&nbsp; &nbsp; Serial.println(ip);</p>
+<p>&nbsp; &nbsp; // print the received signal strength:<br />
+&nbsp; &nbsp; long rssi = WiFi.RSSI();<br />
+&nbsp; &nbsp; Serial.print(&quot;signal strength (RSSI):&quot;);<br />
+&nbsp; &nbsp; Serial.print(rssi);<br />
+&nbsp; &nbsp; Serial.print(&quot; dBm&quot;);<br />
+&nbsp; #else*/<br />
+&nbsp; &nbsp; // print your local IP address:<br />
+&nbsp; &nbsp; Serial.print(&quot;IP address: &quot;);<br />
+&nbsp; &nbsp; for (byte thisByte = 0; thisByte &lt; 4; thisByte++) {<br />
+&nbsp; &nbsp; &nbsp; // print the value of each byte of the IP address:<br />
+&nbsp; &nbsp; &nbsp; Serial.print(Ethernet.localIP()[thisByte], DEC);<br />
+&nbsp; &nbsp; &nbsp; Serial.print(&quot;.&quot;);&nbsp;<br />
+&nbsp; &nbsp; } &nbsp;<br />
+&nbsp;// #endif<br />
+&nbsp; Serial.println();<br />
+}</p>
+<p>float getCelsius(int sensorValue) {<br />
+/*<br />
+&nbsp; created by Federico Vanzati for TinkerKit Thermistor Library<br />
+*/<br />
+&nbsp; const static float ADCres = 1023.0;<br />
+&nbsp; const static int Beta = 3950;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// Beta parameter<br />
+&nbsp; const static float Kelvin = 273.15;&nbsp;&nbsp; &nbsp;// 0&deg;C = 273.15 K<br />
+&nbsp; const static int Rb = 10000;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// 10 kOhm<br />
+&nbsp; const static float Ginf = 120.6685;&nbsp;&nbsp; &nbsp;// Ginf = 1/Rinf&nbsp;<br />
+&nbsp;&nbsp;<br />
+&nbsp; float Rthermistor = Rb * (ADCres / sensorValue - 1);<br />
+&nbsp; float _temperatureC = Beta / (log( Rthermistor * Ginf )) ;<br />
+&nbsp; return _temperatureC - Kelvin;<br />
+}</p>
+<p>&nbsp;</p>
+<p>Es arbeitet auch alles wie es soll, bis auf das die Daten an Pin 2 und 3 nicht koreckt ankommen. die daten von CT3 (Pin2) werden&nbsp;an den Server als Daten von CT3 und ct4 &uuml;bergeben und die Daten von ct4 kommen&nbsp;garnicht erst an. Stecke ich die beiden&nbsp;Kabel&nbsp;um auf Pin 0 und 1 kommen die Daten ohne probleme an, ein hardware fehler&nbsp;w&auml;re also aus&nbsp;zu schlie&szlig;en.&nbsp;Leider komme ich nicht dahinter warum es ab ct3 probleme gibt, an den pins kann es nicht liegen, da die seperat funktionieren. k&ouml;nnte es an der emonlib liegen, das diese nur mit 3 senoren funktioniert?</p>
+<p>&nbsp;</p>
+<p>Englische&nbsp;Version mit &uuml;bersetzer</p>
+<p>&nbsp;</p>
+<p>Hello</p>
+<p>&nbsp;unfortunately&nbsp;is&nbsp;my&nbsp;English&nbsp;not&nbsp;so&nbsp;well&nbsp;thanwhich&nbsp;I&nbsp;it&nbsp;explain&nbsp;in such a way&nbsp;can,&nbsp;I&nbsp;hopes&nbsp;it&nbsp;isalso&nbsp;in&nbsp;German&nbsp;ok.&nbsp;I&nbsp;am&nbsp;again&nbsp;here&nbsp;and&nbsp;haveunfortunately&nbsp;immediately&nbsp;one&nbsp;ask&nbsp;to&nbsp;a&nbsp;problemwhich&nbsp;I&nbsp;not&nbsp;solve&nbsp;up to now&nbsp;could.&nbsp;To&nbsp;my&nbsp;problem,&nbsp;Iinstalled&nbsp;emoncms&nbsp;and&nbsp;to&nbsp;run&nbsp;brought.&nbsp;I&nbsp;have&nbsp;4&nbsp;ctsensors&nbsp;to&nbsp;100A&nbsp;which&nbsp;I&nbsp;with&nbsp;one&nbsp;arduino&nbsp;to selectwanted&nbsp;and&nbsp;via&nbsp;ethernet&nbsp;to&nbsp;the&nbsp;server&nbsp;sendwanted.&nbsp;I&nbsp;tinkered myself&nbsp;in addition&nbsp;after&nbsp;this&nbsp;sidea&nbsp;plate,&nbsp;with&nbsp;entrances&nbsp;for&nbsp;4&nbsp;sensors.http://openenergymonitor.org/emon/buildingblocks/how-to-build-an-arduino-energy-monitor-measuring-current-only&nbsp;arduino&nbsp;was taped&nbsp;with&nbsp;this&nbsp;sketch:&nbsp;</p>
+<p>
+<i>[2nd copy of sketch deleted - Moderator (RW)]</i>
+</p>
+<p>Itworks&nbsp;also&nbsp;everything&nbsp;like&nbsp;it&nbsp;is,&nbsp;up to&nbsp;which&nbsp;the&nbsp;datat&nbsp;pin&nbsp;2&nbsp;and&nbsp;3&nbsp;do not arrive&nbsp;koreckt.&nbsp;the&nbsp;data&nbsp;ofCT3&nbsp;(Pin2)&nbsp;are handed&nbsp;over&nbsp;to&nbsp;the&nbsp;server&nbsp;as&nbsp;dataof&nbsp;CT3&nbsp;and&nbsp;ct4&nbsp;and&nbsp;the&nbsp;data&nbsp;of&nbsp;ct4&nbsp;to come&nbsp;notonly&nbsp;on.&nbsp;I&nbsp;put&nbsp;the&nbsp;two&nbsp;cables&nbsp;over&nbsp;on&nbsp;pin&nbsp;0&nbsp;and&nbsp;1arrive&nbsp;the&nbsp;data&nbsp;without&nbsp;problems,&nbsp;for&nbsp;a&nbsp;hardware&nbsp;anerror&nbsp;would be&nbsp;thus&nbsp;out&nbsp;to be closed.&nbsp;UnfortunatelyI&nbsp;do not come&nbsp;behind&nbsp;it&nbsp;why&nbsp;it&nbsp;starting from&nbsp;ct3&nbsp;ofproblems&nbsp;give,&nbsp;at&nbsp;the&nbsp;pins&nbsp;cannot&nbsp;it&nbsp;lie,&nbsp;since&nbsp;thosefunction&nbsp;separately.&nbsp;could&nbsp;it&nbsp;lie&nbsp;to&nbsp;emonlib,&nbsp;this&nbsp;onlywith&nbsp;3&nbsp;senoren&nbsp;functioned?</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11567.html" class="topic-previous" title="Go to previous forum topic">‹ Emontx_V3 serial direct problems</a>
+              <a href="5124.html" class="topic-next" title="Go to next forum topic">Monitoring battery voltages ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-35498"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Probleme mit Arduino und 4 CT Sensoren</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 29/10/2015 - 22:44.</div>
+    <div class="content">
+     <p>Hier ist ihr Problem:</p>
+<pre>
+    Irms3 = emon3.calcIrms(1480);
+    Irms4 = emon<b>3</b>.calcIrms(1480);
+</pre><p>
+Sie sind aus CT3 zweimal Senden des Stroms an emonCMS - einmal unter dem Namen Irms3, und noch einmal unter dem Namen Irms4.</p>
+<p>Es Muss sein:</p>
+<pre>
+    Irms3 = emon3.calcIrms(1480);
+    Irms4 = emon4.calcIrms(1480);
+</pre><p>
+Beachten Sie, dass wir denken, dass ein besserer Wert für die Anzahl der Proben ist 1662. Dies ist wegen der kleinen Verbesserungen in emonLib.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35523"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8929.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="aDm1N&#039;s picture" title="aDm1N&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Probleme mit Arduino und 4 CT Sensoren</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8929.html" title="View user profile.">aDm1N</a> on Fri, 30/10/2015 - 17:58.</div>
+    <div class="content">
+     <p>Vielen dank.</p>
+<p>&nbsp;</p>
+<p>ist mir nicht aufgefallen. jetzt funktioniert es, nur noch etwas ungenau. gibt es eine deutsche anleitung zum calibrieren? durch die englische bin ich noch nicht ganz durchgestiegen.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35528"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Probleme mit Arduino und 4 CT Sensoren</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 30/10/2015 - 20:16.</div>
+    <div class="content">
+     <p>Es tut mir leid, es gibt keine Fassung der Kalibrierungsanweisungen auf Deutsch. Wenn Sie eine genaue Amperemeter hat, ändern Sie die Zahl 111,1, damit der Wert von Irms, um die genauen Wert, dass Ihre Amperemeter liest.</p>
+<p>Auch ändern sie<br />
+ const int volt = 230;<br />
+dass es der durchschnittliche Wert Ihrer Spannung ist.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11499"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-KhfJtoIyZYYQfB07JlW8RklqzpMaWOgCVZtNvaqt6xQ" value="form-KhfJtoIyZYYQfB07JlW8RklqzpMaWOgCVZtNvaqt6xQ"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11499 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:13:53 GMT -->
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5997 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:01:30 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Securing a system with SSL certificates - https security | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Securing a system with SSL certificates - https security</h3>
+        <span class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 26/10/2014 - 20:35</span>
+        <div class="content"><p><img alt="" src="../sites/default/files/sslimage.jpg" style="float:right; height:160px; width:160px" />For anyone who&#39;s interested, this is the process I took to enable https access for my Raspberry Pi and protect emoncms.</p>
+<p><strong>SSL Certficates</strong><br />
+SSL certificates can be quite expensive, but <a href="https://www.startssl.com/">StartSSL</a>&nbsp;offer class 1 certificates free, and which on most browsers do not flag up the &#39;untrusted site&#39; warning. However, I found their website wizard quite difficult to follow, and <a href="https://konklone.com/post/switch-to-https-now-for-free">this guide</a> helped me sort it out<br />
+NOTE:&nbsp;ensure that you download the <a href="https://www.startssl.com/certs/class1/sha2/pem/sub.class1.server.sha2.ca.pem">sha256 intermediate certificate</a>, and not the <a href="https://www.startssl.com/certs/sub.class1.server.ca.pem">sha1 intermediate certificate</a> as prompted in the StartCom toolbox. (see <a href="http://googleonlinesecurity.blogspot.co.uk/2014/09/gradually-sunsetting-sha-1.html">this article</a>).</p>
+<p><strong>Port forwarding</strong><br />
+Ensure that port 443 is open in your router</p>
+<p><strong>Configuration</strong><br />
+Once you have your certificates, edit your SSL Virtual Host file;</p>
+<pre>
+sudo nano&nbsp;/etc/apache2/sites-available/default-ssl</pre><p>In the section &lt;VirtualHost _default_:443&gt;&nbsp;&nbsp;add &#39;ServerName yourdomain.co.uk&#39; just under &#39;ServerAdmin&#39;.<br />
+In the section&nbsp;&lt;Directory /&gt; change &#39;AllowOverride&nbsp;None&#39; to &#39;AllowOverride All&#39;<br />
+In section&nbsp;&lt;Directory /var/www/&gt; change&nbsp;&#39;AllowOverride&nbsp;None&#39; to &#39;AllowOverride All&#39;<br />
+Further down, enter the name of your 3 certificates against the proposed locations,&nbsp;un-commenting&nbsp;&nbsp;#SSLCertificateChainFile&nbsp;(the&nbsp;SSLCertificateChainFile&nbsp;is the&nbsp;sub.class1.server.ca.pem certificate that is downloaded from StartSSL).<br />
+Save the file, and then copy the respective certificates to the locations specified in the default-ssl file, and chmod&nbsp;both your SSLCertificateFile&nbsp;&amp;&nbsp;SSLCertificateKeyFile&nbsp;to 400 to ensure that they are secure.</p>
+<p>So far, none of the changes will be evident to the system because the default-ssl file is not loaded and SSL has not been activated, so to do so;</p>
+<pre>
+sudo a2ensite default-ssl
+sudo a2enmod ssl
+sudo /etc/init.d/apache2 restart</pre><p>Now navigate to <a href="https://yourdomain.co.uk/" title="https://yourdomain.co.uk">https://yourdomain.co.uk</a> and hopefully you should have https access!</p>
+<p>If however, you want to return things back to how they were before the changes above;</p>
+<pre>
+sudo a2dissite default-ssl
+sudo a2dismod ssl
+sudo /etc/init.d/apache2 restart</pre><p><strong>emoncms&nbsp;&amp; emonhub</strong><br />
+Emoncms and emonhub should work under https without any changes to the system, however if you have any pre-existing dashboards with graphs, they will have been saved to the dashboard using the absolute URL that you used when saving the graph (http not https), so you have two options;<br />
+Either, edit the graph within the dashboard and save it back (it will then use the https URL), or as I did edit your MYSQL dashboard column, adding a &#39;s&#39; to any http URL&#39;s.</p>
+<p><strong>Restricting site to https only</strong></p>
+<pre>
+sudo&nbsp;nano&nbsp;/etc/apache2/sites-available/default</pre><p>Add a Rewrite&nbsp;rule within the section&nbsp;&lt;VirtualHost *:80&gt; and underneath &#39;DocumentRoot&#39;,&nbsp;add:</p>
+<pre>
+RewriteEngine on
+RewriteCond %{SERVER_PORT} !^443$
+RewriteCond %{REMOTE_ADDR} !127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}
+RewriteRule ^(.*) https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]</pre><p>..to redirect port 80 requests to https, and yet allow emonhub to communicate via localhost&nbsp;.</p>
+<p>Save the &#39;default&#39; file and restart apache&nbsp;as per above command.</p>
+<p>No guarantees! this is my learning curve of adding an extra layer of security to my raspberry pi, if anyone has any suggestions how to improve/add to this, then please add it below or PM me.</p>
+<p>Paul</p>
+<p><img alt="" src="../sites/default/files/ssl.png" style="height:392px; width:700px" /></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2523.html" class="topic-previous" title="Go to previous forum topic">‹ Notifications of replies to posts</a>
+              <a href="246.html" class="topic-next" title="Go to next forum topic">240v power direction ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-24823"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Securing a system with SSL certificates - https security</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Mon, 27/10/2014 - 03:03.</div>
+    <div class="content">
+     <p>Another option to stop access to :80 is to just disable this in your router - won&#39;t auto-redirect like you current config does, but this works for me.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24824"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Securing a system with SSL certificates - https security</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Mon, 27/10/2014 - 03:05.</div>
+    <div class="content">
+     <p>BTW - thanks for the notes on how you got this working - I spent most of last night trawling Google and have managed to setup SSL certs for my Apache server. All working pretty well - the only issue now is the blank graphs - so I need to get into those MySQL tables and update the paths...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24829"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Securing a system with SSL certificates - https security</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 27/10/2014 - 10:55.</div>
+    <div class="content">
+     <p>Thanks for the guide Paul, very helpful indeed.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24925"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Securing a system with SSL certificates - https security</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 02/11/2014 - 22:51.</div>
+    <div class="content">
+     <p>I ran a site SSL security check using <a href="https://www.ssllabs.com/ssltest/index.html">Qualys&nbsp;SSL Labs online scan</a> facility on the above changes, and sadly, only received a &#39;C&#39; rating, however by disabling SSLv3&nbsp;on my server,&nbsp;thereby&nbsp;removed the &#39;Poodle&#39; exploit weakness, my assessment improved to&nbsp;&#39;A-&#39;. &nbsp;<a href="https://www.ssllabs.com/ssltest/analyze.html?d=digitalnut.co.uk&amp;hideResults=on">See this link.</a></p>
+<p>This is probably the highest grade that can be achieved using Apache 2.2, as Apache 2.4 is required to introduce &#39;forward secrecy, which is not currently available for Wheezy.</p>
+<p>To disable SSLv3;</p>
+<pre>
+sudo nano&nbsp;/etc/apache2/sites-available/default-ssl</pre><p>​and add</p>
+<pre>
+SSLProtocol All -SSLv2 -SSLv3</pre><p>..just beneath the SSL certificate locations.</p>
+<pre>
+$ sudo service apache2 restart</pre><p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24927"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Securing a system with SSL certificates - https security</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 02/11/2014 - 23:21.</div>
+    <div class="content">
+     <p>There's a lot of information about securing both servers and browsers against POODLE <a href="https://zmap.io/sslv3/">here</a>.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25101"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Securing a system with SSL certificates - https security</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Wed, 12/11/2014 - 23:14.</div>
+    <div class="content">
+     <p>Added information to main post above regarding&nbsp;using sha256&nbsp;intermediate certificate in preference to the depreciated sha1 certificate, to improve site&nbsp;security.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5997"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-hv6e75tn8ONeVGYrrF-OBYQPKwPrdOqa3pgkFRnX4Iw" value="form-hv6e75tn8ONeVGYrrF-OBYQPKwPrdOqa3pgkFRnX4Iw"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5997 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:01:30 GMT -->
+</html>

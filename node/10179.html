@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10179 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:56:58 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>HOW does the offset code work in emon  library  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">HOW does the offset code work in emon  library </h3>
+        <span class="submitted">Submitted by <a href="../user/7663.html" title="View user profile.">Sabirmgd</a> on Mon, 16/02/2015 - 04:08</span>
+        <div class="content"><p>hi guys: I am using emon library to measure the RMS current.<br />
+this library has a function is to calculate the current RMS , it allows the user to define the number of the samples taken to calculate the RMS value&nbsp;</p>
+<p>&nbsp;</p>
+<p>double EnergyMonitor::calcIrms(unsigned int Number_of_Samples)</p>
+<p>&nbsp;</p>
+<p>{</p>
+<p>#if defined emonTxV3 int SupplyVoltage=3300;</p>
+<p>#else int SupplyVoltage = readVcc();</p>
+<p>#endif</p>
+<p>for (unsigned int n = 0; n &lt; Number_of_Samples; n++)</p>
+<p>{</p>
+<p>sampleI = analogRead(inPinI);</p>
+<p>// Digital low pass filter extracts the 2.5 V or 1.65 V dc offset, // then subtract this - signal is now centered on 0 counts.</p>
+<p>offsetI = (offsetI + (sampleI-offsetI)/1024);</p>
+<p>filteredI = sampleI - offsetI;</p>
+<p>// Root-mean-square method current // 1) square current values</p>
+<p>sqI = filteredI * filteredI;</p>
+<p>// 2) sum</p>
+<p>sumI += sqI;</p>
+<p>&nbsp;</p>
+<p>}</p>
+<p>double I_RATIO = ICAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));</p>
+<p>Irms = I_RATIO * sqrt(sumI / Number_of_Samples);</p>
+<p>//Reset accumulators</p>
+<p>sumI = 0;</p>
+<p>//--------------------------------------------------------------------------------------</p>
+<p>return Irms;</p>
+<p>}</p>
+<p>&nbsp;my problem is the with the OFFSET VALUE, as I understand the offset is supposed to be 2.5 volt when the voltage is 5 volt which is 512 (10 adc ) or 1.65 volt when the voltage is 3.3 volt .</p>
+<p>but here in this library, the offset is constantly changing as in this line of code :</p>
+<p>&nbsp;&nbsp;&nbsp; offsetI = (offsetI + (sampleI-offsetI)/1024);</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; filteredI = sampleI - offsetI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>&nbsp;</p>
+<p>the initial value of the offset is 512 (2.5 volt )<br />
+but it keeps changing, I couldn&rsquo;t find any explanation for this although the results are accurate.</p>
+<p>Does anybody have an explanation for this ?</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11148.html" class="topic-previous" title="Go to previous forum topic">‹ Im willing to translate  the entire Emoncms to spanish however...</a>
+              <a href="5335.html" class="topic-next" title="Go to next forum topic">Blank realtime graph when not logged in ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-27767"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: HOW does the offset code work in emon  library </h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 16/02/2015 - 11:38.</div>
+    <div class="content">
+     <p>Who said the offset itself is constant? Read up on filters of the digital kind.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27852"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7663.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7663.jpg" alt="Sabirmgd&#039;s picture" title="Sabirmgd&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: HOW does the offset code work in emon  library </h3>
+
+    <div class="submitted">Submitted by <a href="../user/7663.html" title="View user profile.">Sabirmgd</a> on Wed, 18/02/2015 - 05:43.</div>
+    <div class="content">
+     <p>thanks Robert, yeah that explained a lot&nbsp;</p>
+<p>here is the link in case someone needs to refer to.<br />
+<a href="https://learn.openenergymonitor.org/?redirect=digital-filters-for-offset-removal" title="http://openenergymonitor.org/emon/buildingblocks/digital-filters-for-offset-removal">http://openenergymonitor.org/emon/buildingblocks/digital-filters-for-off...</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33441"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7546.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="humphrey&#039;s picture" title="humphrey&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: HOW does the offset code work in emon  library </h3>
+
+    <div class="submitted">Submitted by <a href="../user/7546.html" title="View user profile.">humphrey</a> on Wed, 19/08/2015 - 11:28.</div>
+    <div class="content">
+     <p><hints id="hah_hints">I was reading that article &#39;Digital filters for offset removal&#39; but it could use some &#39;why&#39; explanation. (</hints>Why don&#39;t we just substract 512 from the read values?)</p>
+<p>As Robert Wall suggested it is probably because the offset of 512 is not always at 512. But what causes it to shift? Does it significantly shift during use? Or are we using it mainly to avoid calibration for the deviation in the components of our PCB?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33456"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: HOW does the offset code work in emon  library </h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 19/08/2015 - 16:17.</div>
+    <div class="content">
+     <p>Yes, I did write that it is not always 512. The resistors that fix the midpoint voltage are 1% tolerance devices, so if one is high and the other low, the midpoint will be shifted, which will falsely increase the reading if the software cannot follow it. It will also move due to temperature effects, and possibly due to component ageing.</p>
+<p>Why fix it and add to the calibration procedure (which some users don't want to or don't have the necessary equipment to follow) and decrease the accuracy, particularly at low currents, if a few simple lines of code solve the problem for everybody for ever?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33457"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7546.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="humphrey&#039;s picture" title="humphrey&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: HOW does the offset code work in emon  library </h3>
+
+    <div class="submitted">Submitted by <a href="../user/7546.html" title="View user profile.">humphrey</a> on Wed, 19/08/2015 - 16:50.</div>
+    <div class="content">
+     <p><hints id="hah_hints">Good to have that confirmed, thanks.</hints></p>
+<p>I think this solution with the digital filter is quite brilliant, but when I first read the referenced article I was unsure why they did such a complex calculation for a simple offset.</p>
+<p>Do you also happen to know: is the most recent firmware working with high-pass or low-pass filter?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33458"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: HOW does the offset code work in emon  library </h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 19/08/2015 - 16:58.</div>
+    <div class="content">
+     <p>The low-pass should have replaced the high pass in all versions - it can be initialised very easily so negates the need to make dummy readings to allow the filter to settle.<br />
+It's quite easy to check which you have - just look at the source code, the low pass <u>won't</u> have a constant like 0.995 (I think it was) in the filter maths.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33466"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7663.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7663.jpg" alt="Sabirmgd&#039;s picture" title="Sabirmgd&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: HOW does the offset code work in emon  library </h3>
+
+    <div class="submitted">Submitted by <a href="../user/7663.html" title="View user profile.">Sabirmgd</a> on Wed, 19/08/2015 - 22:46.</div>
+    <div class="content">
+     <p>I am just wondering what this LOW PASS filter exactly filters? For the high pass filter I can understand that a high-pass filter with a cut-off frequency of less than 50 Hz will filter out all the frequency components below 50 Hz including the DC offset which is 0 Hz component. But for the low pass filter , what does exactly it filter out? </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33468"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: HOW does the offset code work in emon  library </h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 20/08/2015 - 00:16.</div>
+    <div class="content">
+     <p>It filters out the standing offset - which is subsequently subtracted (and if you look at the code, you&#39;ll see that).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33479"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: HOW does the offset code work in emon  library </h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Thu, 20/08/2015 - 16:29.</div>
+    <div class="content">
+     <p><em>the offset of 512 is not always at 512. But what causes it to shift? Does it significantly shift during use?</em></p>
+<p>Yes, it does.&nbsp; The offset value is continuously drifting up and down to accommodate changes in the shape of the waveform that is being monitored.&nbsp; With the &#39;half-power&#39; waveform for current shown below, where power is only consumed for one half of each mains cycle, the offset will settle to the &#39;true&#39; mid-point rather than the 0V point.&nbsp; The filtered waveform for current can be seen to be correctly &#39;balanced&#39; around the 0V point.</p>
+<p><img alt="" src="../sites/default/files/BoschWaveformAtHalfHeat.jpg" style="width: 647px; height: 316px;" /></p>
+<p>Note also the slope on the &#39;flat&#39; sections.&nbsp; This nicely demonstrates how the LPF is always drifting towards its goal.&nbsp; This effect is not apparent when continuous waveforms are present.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33484"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: HOW does the offset code work in emon  library </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 20/08/2015 - 21:13.</div>
+    <div class="content">
+     <p><em>The offset value is continuously drifting up and down to accommodate changes in the shape of the waveform that is being monitored.</em></p>
+<p>I think that&#39;s more an unfortunate&nbsp;consequence of the filter, rather than a desired outcome(*). &nbsp; In an ideal world you&#39;d subtract out exactly what you added in (the mid-rail offset)&nbsp;and leave the original signal unmolested. &nbsp;In the real world&nbsp;the filter used to track the&nbsp;mid-rail offset (and even before that,&nbsp;the CT itself)&nbsp;removes any DC from the signal. &nbsp; Whether or not that matters depends on what you&#39;re trying to measure. &nbsp;It has pretty much no impact on Real&nbsp;Power but will give you the wrong answer for Irms.</p>
+<p>(*) To the extent that you might argue: I&#39;m not interested in anything below 50Hz and am deliberately filtering it out to increase my dynamic range, I guess you could claim it&#39;s a desired outcome. &nbsp;I have one Fluke meter that deliberately filters out anything below 45Hz and another that deliberately goes all the way to DC. &nbsp;You need to know which one you&#39;re using to know how to interpret the AC amps reading.</p>
+<p>In the attached scope trace you can see the three different readings (green trace). &nbsp;Note that 3.18<sup>2&nbsp;</sup>+ 2.83<sup>2&nbsp;</sup>= 4.26<sup>2</sup>. &nbsp;By the time time the signal has been molested by the CT (pink trace) any attempt to calculate Irms will only reveal 3.18A as the DC component has been lost forever.</p>
+<p><img alt="" src="../sites/default/files/scope_11.png" style="height: 314px; width: 600px;" />&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33549"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: HOW does the offset code work in emon  library </h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sat, 22/08/2015 - 22:14.</div>
+    <div class="content">
+     <p><em>dBC: I think that&#39;s more an unfortunate&nbsp;consequence of the filter ... It has pretty much no impact on Real&nbsp;Power but will give you the wrong answer for Irms.</em></p>
+<p>My ASCII plots of the raw sample values, and your &#39;scope traces, serve to show the floating nature of the CT.&nbsp; No filters have been applied at this stage.&nbsp; It&#39;s the sensor hardware itself which is drifting, always to minimise the DC content with reference to the mid-rail reference voltage.</p>
+<p>For non-symmetrical waveforms, it&#39;s not obvious where the software should regard the mid-point as being.&nbsp; One option may be to measure the quiescent offset and then subtract this value from all subsequent readings.</p>
+<p>Another possible approach which I posted a while back is to regard the mid-point of the waveform for <em>current </em>to occur at the same moment as when the waveform for <em>voltage </em>is at its own mid point.&nbsp; This will only be true when Power Factor is unity.&nbsp; This work is recorded in my Summary Page as follows:</p>
+<p><em>temporalAlignment_dev.ino&nbsp;&nbsp; This demonstrates an alternative way of tracking the true zero point of the current waveform.&nbsp; With non-sinusoidal waveforms, such as half-rectified AC, this works much better than the standard HP filter.&nbsp; Could be useful for applications where Power Factor is required.&nbsp; Originally posted on 20/12/12 at <a href="1705.html" title="http://openenergymonitor.org/emon/node/1705">http://openenergymonitor.org/emon/node/1705</a>, this code is available at<br />
+http://openenergymonitor.org/emon/sites/default/files/temporalAlignment_...</em></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10179"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Zbq2T2woKnp6UtZ530Cz6dtPhyrofoeyU-iFrs1bYVU" value="form-Zbq2T2woKnp6UtZ530Cz6dtPhyrofoeyU-iFrs1bYVU"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10179 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:56:59 GMT -->
+</html>

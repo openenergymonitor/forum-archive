@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/329 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:08:40 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>NanodeRF adjust onboard time from server reply | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">NanodeRF adjust onboard time from server reply</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 01/01/2012 - 17:32</span>
+        <div class="content"><p>I have just added to github a new NanodeRF example that at the same time as sending sensor data to a server gets the server time from the reply and adjusts a software realtime clock accordingly. Saves needing a real time clock onboard.&nbsp;</p>
+<p>For a quick overview of how it works, here is the main bit of code that decodes the time string from the reply and adjusts the software rtc.</p>
+<p>The software RTC library is another of Jean-Claude Wippler's great pieces of work and can be downloaded <a href="https://github.com/jcw/rtclib">here</a></p>
+<pre><div>static void my_callback (byte status, word off, word len)</div><div>{</div><div>&nbsp; get_header_line(2,off); &nbsp; &nbsp; &nbsp;// Get the date and time line from the header (line 2)</div><div>&nbsp; Serial.println(line_buf); &nbsp; &nbsp;// Print out the date and time</div>
+<div>&nbsp; // Decode date time string to get integers for hour, min, sec, day</div><div>&nbsp; // Search for the date time characters and hope they are in the right place</div><div>&nbsp; char val[1];</div><div>&nbsp; val[0] = line_buf[23]; val[1] = line_buf[24];</div><div>&nbsp; int hour = atoi(val);</div><div>&nbsp; val[0] = line_buf[26]; val[1] = line_buf[27];</div><div>&nbsp; int mins = atoi(val);</div><div>&nbsp; val[0] = line_buf[29]; val[1] = line_buf[30];</div><div>&nbsp; int sec = atoi(val);</div><div>&nbsp; val[0] = line_buf[11]; val[1] = line_buf[12];</div><div>&nbsp; int day = atoi(val);</div>
+<div>&nbsp; // Set the RTC</div><div>&nbsp; RTC.adjust(DateTime(2012, 1, day, hour, mins, sec));</div><div>&nbsp; DateTime now = RTC.now();</div>
+<div>&nbsp; // Print the date and time</div><div>&nbsp; showDate(&quot;now&quot;, now);</div>
+<div>&nbsp;&nbsp;</div></pre><p>The full example can be found here:</p>
+<p><a href="https://github.com/openenergymonitor/NanodeRF/tree/master/NanodeRF_singleCT_rtc">https://github.com/openenergymonitor/NanodeRF/tree/master/NanodeRF_singleCT_rtc</a></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="323.html" class="topic-previous" title="Go to previous forum topic">‹ How to connect emontx to nanode5 using rmf12</a>
+              <a href="314.html" class="topic-next" title="Go to next forum topic">FTDI cable ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/329 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:08:40 GMT -->
+</html>

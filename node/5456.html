@@ -1,0 +1,479 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5456 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:54:33 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Remove spike from feed | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Remove spike from feed</h3>
+        <span class="submitted">Submitted by <a href="../user/6437.html" title="View user profile.">Charly86</a> on Sun, 27/07/2014 - 16:20</span>
+        <div class="content"><p>Hi all,</p>
+<p>Is there a script to be able to remove spike from data collected ? since I can remove data point for mysql feed using my sql query (which was also working from gui using vis edit realtime data) but for phpfiwa&nbsp;I did not suceeded to remove any data point (even from the GUI)</p>
+<p>Ideally a little script called with feed number and date/time with new data value would really be fine, or even just to delete the bad one without assign a new value.</p>
+<p>I know reading some other posts that I&#39;m not the only one with this need, when developing some custom node &nbsp;to collect data sometime during test the data we send to emoncms is bad (due to testing mode of our work) and the possibility to remove it from graph and storage would be very helpfull even if it is some script and not in the GUI. If the feature is implemented to manipulate some data into phpfiwa&nbsp;we could also then do some scripting to remove spike automatically each day for example</p>
+<p>Any other method will also be fine, it&#39;s just an idea.</p>
+<p>Thanks everyone for your help.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12089.html" class="topic-previous" title="Go to previous forum topic">‹ Emon TXv3 - has gone inactive</a>
+              <a href="12355.html" class="topic-next" title="Go to next forum topic">Max Padding Exceeded ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-22719"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remove spike from feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 27/07/2014 - 17:55.</div>
+    <div class="content">
+     <p>Hello Charly86</p>
+<p>I wrote a script for this just a couple of hours ago for use with phpfiwa feeds. It works through the phpfiwa data files searching for values that are larger or smaller than the limits, when it find one it sets it to NAN which means its ignored in the graph.</p>
+<p>If you copy the following into a file called say: removespikes.php. Then run with sudo php removespikes.php it should do what you want. I would recommend making a backup before you run it just in case.</p>
+<p>&nbsp;</p>
+<p>&lt;?php</p>
+<p>$dir = &quot;/var/lib/phpfiwa/&quot;;</p>
+<p>$id = 0;</p>
+<p>for ($n=0; $n&lt;4; $n++)<br />
+	{<br />
+	&nbsp;&nbsp;&nbsp; if (file_exists($dir.$id.&quot;_$n.dat&quot;))<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $npoints = floor(filesize($dir.$id.&quot;_$n.dat&quot;) / 4.0);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $fh = fopen($dir.$id.&quot;_$n.dat&quot;,&quot;c+&quot;);</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for ($i=0; $i&lt;$npoints; $i++)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $tmp = unpack(&quot;f&quot;,fread($fh,4));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $val = $tmp[1];<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!is_nan($val))<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($val&gt;1000000)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo $val.&quot;\n&quot;;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fseek($fh,$i*4);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fwrite($fh,pack(&quot;f&quot;,NAN));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($val&lt;-1000000)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo $val.&quot;\n&quot;;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fseek($fh,$i*4);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fwrite($fh,pack(&quot;f&quot;,NAN));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fclose($fh);<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	}</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22725"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6437.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6437.jpg" alt="Charly86&#039;s picture" title="Charly86&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remove spike from feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6437.html" title="View user profile.">Charly86</a> on Mon, 28/07/2014 - 10:46.</div>
+    <div class="content">
+     <p>Tristan,</p>
+<p>thanks for your quick reply, just tweaked for the values I needed to remove, this is working fine on the first time.</p>
+<p>Great job, I think this script could be placed into useful&nbsp;scripts folder, because it is really a excellent one, I will try to change it to have set of parameters to be as kind as &quot;universal&quot; spike remover.</p>
+<p>I will consider also to have this script to try to analyze spikes (looking values before and after a point) as soon as I will have some time.</p>
+<p>Thanks again for your great job</p>
+<p>Charles</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22755"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remove spike from feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Wed, 30/07/2014 - 08:36.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Very interesting script until the edit-realtime feature is not back.</p>
+<p>It would be great to be able to run this script with our own feeds stored on emoncms.org.</p>
+<p>One should also be able to spikes in histgraph.</p>
+<p>Eric</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22796"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6437.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6437.jpg" alt="Charly86&#039;s picture" title="Charly86&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remove spike from feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6437.html" title="View user profile.">Charly86</a> on Thu, 31/07/2014 - 21:56.</div>
+    <div class="content">
+     <p>Ok guys, I changed the script to be able to get values from command line, assuming you named the script remove_spike.php the launch command is now</p>
+<p>sudo&nbsp;php remove_spike.php -i FeedId -n MinValue -x MaxValue</p>
+<p>for example to remove value above 5.5V and below 1V (battery feed in V for example) on feed 22 the syntax is</p>
+<p>sudo php remove_spike.php -i 22 -n 1&nbsp;-x 5.5</p>
+<p>Here is the new script</p>
+<p>&lt;?php</p>
+<p>$dir = &quot;/var/lib/phpfiwa/&quot;;</p>
+<p>function usage($scriptname)<br />
+	{<br />
+	&nbsp; print $scriptname .&quot; usage: \n&quot;;<br />
+	&nbsp; print $scriptname .&quot; -i feedid -n minvalue -x maxvalue\n&quot;;<br />
+	}</p>
+<p>// arguments parameters<br />
+	$opts = getopt(&quot;i:n:x:&quot;);</p>
+<p>// Handle command line arguments<br />
+	foreach (array_keys($opts) as $opt)<br />
+	&nbsp; switch ($opt)<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; // feed id<br />
+	&nbsp;&nbsp;&nbsp; case &#39;i&#39;: $id = $opts[&#39;i&#39;];&nbsp; break;<br />
+	&nbsp;&nbsp;&nbsp; // min value<br />
+	&nbsp;&nbsp;&nbsp; case &#39;n&#39;: $min = $opts[&#39;n&#39;]; break;<br />
+	&nbsp;&nbsp;&nbsp; // max value<br />
+	&nbsp;&nbsp;&nbsp; case &#39;x&#39;: $max = $opts[&#39;x&#39;]; break;<br />
+	&nbsp; }</p>
+<p>// check all parameters are good<br />
+	if (isset($id) &amp;&amp; isset($max) &amp;&amp; isset($min))<br />
+	{<br />
+	&nbsp; print &quot;Feed ID&nbsp;&nbsp; : &quot;.$id&nbsp; .&quot;\n&quot;;<br />
+	&nbsp; print &quot;Min value : &quot;.$min .&quot;\n&quot;;<br />
+	&nbsp; print &quot;Max value : &quot;.$max .&quot;\n&quot;;<br />
+	}<br />
+	// Error display usage<br />
+	else<br />
+	{<br />
+	&nbsp; usage($argv[0]);<br />
+	&nbsp; exit(1);<br />
+	}</p>
+<p>for ($n=0; $n&lt;4; $n++)<br />
+	{<br />
+	&nbsp;&nbsp;&nbsp; if (file_exists($dir.$id.&quot;_$n.dat&quot;))<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $npoints = floor(filesize($dir.$id.&quot;_$n.dat&quot;) / 4.0);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $fh = fopen($dir.$id.&quot;_$n.dat&quot;,&quot;c+&quot;);</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for ($i=0; $i&lt;$npoints; $i++)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $tmp = unpack(&quot;f&quot;,fread($fh,4));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $val = $tmp[1];</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!is_nan($val))<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($val&gt;$max)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo $val.&quot; &gt; &quot;.$max .&quot;\n&quot;;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fseek($fh,$i*4);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fwrite($fh,pack(&quot;f&quot;,NAN));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($val&lt;$min)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo $val.&quot; &lt; &quot;.$min . &quot;\n&quot;;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fseek($fh,$i*4);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fwrite($fh,pack(&quot;f&quot;,NAN));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fclose($fh);<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	}</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23799"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remove spike from feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Sun, 14/09/2014 - 11:18.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>Is there a version of this script to correct phptimeseries&nbsp;which have to be used for daily data?</p>
+<p>I have ended up with a negative entry due to an emontx&nbsp;reboot.</p>
+<p><a href="http://79.78.250.151/emoncms/ianeagland&amp;id=4" title="http://79.78.250.151/emoncms/ianeagland&amp;id=4">http://79.78.250.151/emoncms/ianeagland&amp;id=4</a></p>
+<p>Regards</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23801"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remove spike from feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 14/09/2014 - 19:27.</div>
+    <div class="content">
+     <p>That&#39;s a handy little script to remove data glitches, such as the errors made whilst setting up emoncms&nbsp;inputs/feeds, and works without issue.</p>
+<p>Charles, your further development of Trystan&#39;s script makes it a very flexible tool, and I agree, it would be a great addition to the useful scripts Git folder.</p>
+<p>Paul</p>
+<p><em>Edit - I&#39;ve wrtten it up and submitted a git pull for consideration</em></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23812"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remove spike from feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 15/09/2014 - 11:16.</div>
+    <div class="content">
+     <p>Thanks a lot Paul, just merged it</p>
+<p><a href="https://github.com/emoncms/usefulscripts/blob/master/removespike/remove_spike.php" title="https://github.com/emoncms/usefulscripts/blob/master/removespike/remove_spike.php">https://github.com/emoncms/usefulscripts/blob/master/removespike/remove_...</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24263"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3464.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3464.jpg" alt="Bra1n&#039;s picture" title="Bra1n&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remove spike from feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3464.html" title="View user profile.">Bra1n</a> on Fri, 03/10/2014 - 09:46.</div>
+    <div class="content">
+     <p>I&#39;ve attempted to edit the script to use with phpfina but although it appears to work the values come back again, I&#39;m guessing there&#39;s some other storage location and/or process going on which reinserts the data, my modified version below</p>
+<p>&lt;?php</p>
+<p>$dir = &quot;/var/lib/phpfina/&quot;;</p>
+<p>function usage($scriptname)<br />
+	{<br />
+	&nbsp; print $scriptname .&quot; usage: \n&quot;;<br />
+	&nbsp; print $scriptname .&quot; -i feedid -n minvalue -x maxvalue\n&quot;;<br />
+	}</p>
+<p>// arguments parameters<br />
+	$opts = getopt(&quot;i:n:x:&quot;);</p>
+<p>// Handle command line arguments<br />
+	foreach (array_keys($opts) as $opt)<br />
+	&nbsp; switch ($opt)<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; // feed id<br />
+	&nbsp;&nbsp;&nbsp; case &#39;i&#39;: $id = $opts[&#39;i&#39;];&nbsp; break;<br />
+	&nbsp;&nbsp;&nbsp; // min value<br />
+	&nbsp;&nbsp;&nbsp; case &#39;n&#39;: $min = $opts[&#39;n&#39;]; break;<br />
+	&nbsp;&nbsp;&nbsp; // max value<br />
+	&nbsp;&nbsp;&nbsp; case &#39;x&#39;: $max = $opts[&#39;x&#39;]; break;<br />
+	&nbsp; }</p>
+<p>// check all parameters are good<br />
+	if (isset($id) &amp;&amp; isset($max) &amp;&amp; isset($min))<br />
+	{<br />
+	&nbsp; print &quot;Feed ID&nbsp;&nbsp; : &quot;.$id&nbsp; .&quot;\n&quot;;<br />
+	&nbsp; print &quot;Min value : &quot;.$min .&quot;\n&quot;;<br />
+	&nbsp; print &quot;Max value : &quot;.$max .&quot;\n&quot;;<br />
+	}<br />
+	// Error display usage<br />
+	else<br />
+	{<br />
+	&nbsp; usage($argv[0]);<br />
+	&nbsp; exit(1);<br />
+	}</p>
+<p>for ($n=0; $n&lt;4; $n++)<br />
+	{<br />
+	&nbsp;&nbsp;&nbsp; if (file_exists($dir.$id.&quot;.dat&quot;))<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $npoints = floor(filesize($dir.$id.&quot;.dat&quot;) / 4.0);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $fh = fopen($dir.$id.&quot;.dat&quot;,&quot;c+&quot;);</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for ($i=0; $i&lt;$npoints; $i++)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $tmp = unpack(&quot;f&quot;,fread($fh,4));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $val = $tmp[1];</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!is_nan($val))<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($val&gt;$max)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo $val.&quot; &gt; &quot;.$max .&quot;\n&quot;;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fseek($fh,$i*4);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fwrite($fh,pack(&quot;f&quot;,NAN));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($val&lt;$min)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo $val.&quot; &lt; &quot;.$min . &quot;\n&quot;;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fseek($fh,$i*4);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fwrite($fh,pack(&quot;f&quot;,NAN));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fclose($fh);<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	}</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31881"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7021.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="gluino&#039;s picture" title="gluino&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remove spike from feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7021.html" title="View user profile.">gluino</a> on Fri, 03/07/2015 - 09:13.</div>
+    <div class="content">
+     <p>Hi all,</p>
+<p>How can&nbsp;I deal&nbsp;with a spike on <em>hosted</em> emoncms.org?</p>
+<p>I just got a huge spike in my temperature/humidity data, that is squishing the good data due to the chart auto-scaling. Alternatively, if only there was a way to manually set the chart vertical scale, then I can leave the glitches&nbsp;alone. This is the first huge spike after charting about 15 units of EmonTH&#39;s for about half a year.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34886"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8424.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JBlackham&#039;s picture" title="JBlackham&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remove spike from feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8424.html" title="View user profile.">JBlackham</a> on Mon, 12/10/2015 - 22:49.</div>
+    <div class="content">
+     <p>Stuck in same situation.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40514"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9664.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="andrea.rimo&#039;s picture" title="andrea.rimo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remove spike from feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9664.html" title="View user profile.">andrea.rimo</a> on Tue, 22/03/2016 - 08:51.</div>
+    <div class="content">
+     <p>I have the same issue... spikes on the battery voltage reading are messing up the scale of the graph making it impossible to see small variation (the spike is 600V for 2 AA battery it&#39;s just flattening the whole plot)</p>
+<p>I tried the EditRealTime but it doesn&#39;t work. there are posts that it has been disabled because of a bug.</p>
+<p>Any news on this?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40524"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remove spike from feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Tue, 22/03/2016 - 19:46.</div>
+    <div class="content">
+     <p>I have a similar issue with&nbsp;EditRealTime. &nbsp;I tried to delete a spike from&nbsp;July 15, 2015 at 2:54:50 PM CDT and it did not work. &nbsp;When I looked at the graph, the EditRealTime ended up changing a value on&nbsp;March 18, 2016 at 10:21:59 PM CDT. &nbsp;This is the time I was doing the editing. &nbsp;(Now I have two spikes to fix)</p>
+<p>emonPi image emonSD-20Feb16&nbsp;and&nbsp;low-write 9.4 | 2016.03.15</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5456"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-_jodoD035Zm0Wx0NxLDYIWsmE0RiH_JP3qoIz46ZvP8" value="form-_jodoD035Zm0Wx0NxLDYIWsmE0RiH_JP3qoIz46ZvP8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5456 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:54:33 GMT -->
+</html>

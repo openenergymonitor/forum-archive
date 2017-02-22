@@ -1,0 +1,522 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2540 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:30:05 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>CT offset problem with opamp bias. | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">CT offset problem with opamp bias.</h3>
+        <span class="submitted">Submitted by <a href="../user/3651.html" title="View user profile.">nubble</a> on Thu, 04/07/2013 - 10:51</span>
+        <div class="content"><p>Hi,</p>
+<p>I am implementing emon&nbsp;but require 14 CTs with single voltage using mega 2560. So i built the sensor board in stripboard, with 9V AC for voltage and CT1 being 1V/1A&nbsp;and CT2 and CT3 [other CTs to follow later] being the SCT 1V/1A ones. I am running into offset accuracy issues and have redone a new stripboard, then redone it on breadboard using Aurduino Uno Rev3 as well.&nbsp;</p>
+<p>All the same nasty results!!!</p>
+<p>I have a LM358 opamp for the CT biasing to 2.5V [running at 5V] and aim to have all the CTs biased from here. The voltage input &nbsp;[VAC] I had on the first stripboard to the opamp&nbsp;2.5V bias but since have given it its own resistor divider. This does not help. &nbsp;</p>
+<p>A0=VAC; A1=CT1; A2=CT2; etc.</p>
+<p>When the CT and VAC is not connected I get about 0.3 Amps. When the VAC is connected and the CT isnt I get 0.6Amps. When I connect the CT the measured value is offset by 0.6Amps. this is the case for all 3 sensor bards I&#39;ve developed so far.&nbsp;</p>
+<p>Ive seen some forum posts on ADC charge pumps from VAC to CT, but wonder if the 0.6Amps Im getting can be caused by this?&nbsp;</p>
+<p>Please help!! I have lost 3 nights rebuilding and retrying things. At first I thought mega, then stripboard, then cables, then sketch. And still nothing concrete to solve this problem.</p>
+<p>Heres snippits from my sketch:</p>
+<p>//A0 for VAC&nbsp;<br />
+&nbsp; ct1.voltage(0,227.602222,1.7); //calibration and phase shift - maybe 1.28 (not 1.7)phase shift as per theory?<br />
+&nbsp; //ct2.voltage(0,227.602222,1.7); //calibration and phase shift - maybe 1.28 (not 1.7)phase shift as per theory?<br />
+&nbsp; //ct3.voltage(0,227.602222,1.7); //calibration and phase shift - maybe 1.28 (not 1.7)phase shift as per theory?<br />
+&nbsp; //A1 for CT1<br />
+&nbsp; ct1.current(1,42.5); // CT channel 1, calibration. Custom calibration<br />
+&nbsp;&nbsp; //A2 for CT2<br />
+&nbsp; //ct2.current(2,30); // CT channel 2, calibration.&nbsp; built in burden resistor. therefore 30A gives 1V and constant = 30/1=30<br />
+&nbsp; //A3 for CT3<br />
+&nbsp; //ct3.current(4,30); // CT channel 3, calibration.&nbsp; built in burden resistor. therefore 30A gives 1V and constant = 30/1=30</p>
+<p>and</p>
+<p>//if(CT1){<br />
+&nbsp;&nbsp;&nbsp; //ct1.calcVI(20,2000);&nbsp;<br />
+&nbsp;&nbsp;&nbsp; //Serial3.println(ct1.Vrms);<br />
+&nbsp;&nbsp;&nbsp; Serial3.println(ct1.calcIrms(1480));<br />
+&nbsp;&nbsp;&nbsp; //ctPrint(&quot;ct1&quot;,ct1);<br />
+&nbsp;&nbsp;&nbsp; //Serial3.print(ct1.Irms);<br />
+&nbsp;&nbsp;&nbsp; //Serial3.print(&quot;&nbsp;&nbsp; &quot;);&nbsp;<br />
+&nbsp;&nbsp;&nbsp; //Serial3.println(ct1.Vrms);</p>
+<p>Here is the stripboard design:</p>
+<p>
+<img alt="" src="../sites/default/files/part1.jpg" /></p>
+<p><img alt="" src="../sites/default/files/part2.jpg" /></p>
+<p>&nbsp;</p>
+<p><em>Edit - resized images - BT</em></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11152.html" class="topic-previous" title="Go to previous forum topic">‹ Emontx V3 showing pulse reading</a>
+              <a href="11163.html" class="topic-next" title="Go to next forum topic">Voltage and Current reading varies alot[Arduino] ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-13392"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 04/07/2013 - 13:22.</div>
+    <div class="content">
+     <p>Your circuit is wrong - the 100 A c.t. <strong>MUST </strong>have a burden resistor - 4.4 M&Omega; is not correct. You also do not show a decoupling capacitor for the v.t. midpoint bias - you must have one; although its absence should not affect the current inputs, the voltage calibration is likely to be wrong.</p>
+<p>I can&#39;t work out from what you&#39;ve posted what the overall arrangement is and how you are connecting to the processor ADC inputs. The 0.6 A of &#39;phantom&#39; current is almost certainly due to noise pickup somewhere, but from where I cannot tell. It may be from current circulating in the common connection to the analogue earth, it could be digital noise from the processor itself on the AV<sub>cc</sub> reference, it could be from your op.amp and it could be your 5 V supply.</p>
+<p>Your starting point is, does it go away with the extension stripboard disconnected? If not, your 5 V supply is the first suspect.</p>
+<p>It might help to have a small decoupling capacitor on the op.amp output. I&#39;d try about 10 nF - 100 nF.</p>
+<p>After that, you should work backwards through the calibration maths and find out how much voltage at the ADC input 0.6 A represents, then look at where that sort of voltage might be coming from.</p>
+<p>The op. amp. should minimise the charge pump effect from one input to the next. In any case, that effect should account for nowhere near 0.6 A of apparent current.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13396"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3651.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3651.png" alt="nubble&#039;s picture" title="nubble&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3651.html" title="View user profile.">nubble</a> on Thu, 04/07/2013 - 14:50.</div>
+    <div class="content">
+     <p>Hi Robert,</p>
+<p>Thanks for the reply. The 100A ct has an internal burden presenting 1v output for every measured amp. The 100k-4.4M is a voltage dividor to get the ct voltage output down to arduino level. is this still wrong then?</p>
+<p>yip you&#39;re right. I&#39;ll add the decoupling cap to the vt input.&nbsp;</p>
+<p>The 10 way cable connects directly to processor adc inputs as well as the 5v and Gnd taken from the arduino board.&nbsp;</p>
+<p>Ill try a smaller opamp decoupling cap and post results from there. I&#39;ll measure the 5v and opamp output as well. Thanks</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13398"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3651.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3651.png" alt="nubble&#039;s picture" title="nubble&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3651.html" title="View user profile.">nubble</a> on Thu, 04/07/2013 - 15:31.</div>
+    <div class="content">
+     <p>Hi Here are the prints from the different options measuring Amps on the CT1 input [AI1]:</p>
+<p>Mega with no stripboard connected:</p>
+<p><img alt="" src="../sites/default/files/mega-noStripboard.png" style="width: 519px; height: 667px;" /></p>
+<p>Mega with stripboard but no CT or VT connected:</p>
+<p><img alt="" src="../sites/default/files/mega-Stripboard-No%20VT-No%20CT.png" style="width: 519px; height: 389px;" /></p>
+<p>Mega- stripboard &nbsp;with VT connected but no CT:</p>
+<p><img alt="" src="../sites/default/files/mega-Stripboard-VT-No%20CT.png" style="width: 519px; height: 439px;" /></p>
+<p>Mega- stripboard&nbsp; with VT connected and &nbsp;CT connected [actual measure about 1.2Amps] :</p>
+<p><img alt="" src="../sites/default/files/mega-Stripboard-VT-%20CT.png" style="width: 519px; height: 401px;" /></p>
+<p>Mega- stripboard&nbsp; with no VT and&nbsp; CT connected:</p>
+<p><img alt="" src="../sites/default/files/mega-Stripboard-No%20VT-CT.png" style="width: 519px; height: 389px;" /></p>
+<p>Mega- stripboard&nbsp; with no VT and &nbsp;no CT - wired in Vref&nbsp;and opamp out onto analog pins through stripboard - done 100 analog reads [Vref - first column &nbsp;Opamp out = second column] :</p>
+<p><img alt="" src="../sites/default/files/Vref%20-%20OpampOut%20Continuous%20analogread.png" style="width: 519px; height: 673px;" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13400"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 04/07/2013 - 15:48.</div>
+    <div class="content">
+     <p><em>&quot;The 100A ct has an internal burden presenting 1v output for every measured amp.</em>&quot;</p>
+<p>I don&#39;t believe that for one minute. It implies 100 V output at full load. A current transformer does what it says - it drives a current into a burden resistor. For any reasonably sized c.t. the current would have to be uselessly small (about 1 mA per 100 A, i.e. with 100,000 turns on the secondary) to give you 100 V before it overloaded. I think you misread the data sheet for the c.t. Can you post a link to the data sheet? It&#39;s much more likely that it is 1 V at full load.</p>
+<p><em>&quot;Ill try a smaller opamp decoupling cap&quot;</em>&nbsp; No, you keep what you have on the voltage divider at the non-inverting input, I wrote &quot;on the OUTPUT&quot; - this is in case the op.amp is unstable and introducing h.f. noise.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13404"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 04/07/2013 - 16:33.</div>
+    <div class="content">
+     <p>You posted while I was typing. Your V<sub>cc</sub> and V<sub>cc</sub>/2 appear to be relatively stable to within about 10 mV (2 counts - I hope those are raw figures and there&#39;s no averaging), yet assuming your calibration gives you 100 A for 5 V p-p in, the noise/pickup amounts to about 75 mV p-p equivalent sine wave. The high input impedance of the ADC input shows a high level of pickup that seems to indicate that most of it is coming from the digital circuits inside the processor itself. Can you try a 100 nF or so from the ADC input pin to ground?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13408"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3651.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3651.png" alt="nubble&#039;s picture" title="nubble&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3651.html" title="View user profile.">nubble</a> on Thu, 04/07/2013 - 18:23.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Its actually a 200A&nbsp;CT. Here is a snap and the datasheet.</p>
+<p><img alt="" src="../sites/default/files/photo_6.jpg" style="width: 200px;" /></p>
+<p><a href="../sites/default/files/High%20Res%20CT%20Datasheet.pdf">http://openenergymonitor.org/emon/sites/default/files/High Res CT Datasheet.pdf</a></p>
+<p>I have a 60 Amp breaker on my meter so I assumed that I should never get more than 100A&nbsp;[rounded up from 60A :)] on the main CT line. Hence the reference to 100A. The voltage divider on the CT curcuit&nbsp;therefore has a ratio of 100:2.5.</p>
+<p>Yip the Vcc and Vcc/2 are raw values using serial.print(analogRead(3)).</p>
+<p>&nbsp;</p>
+<p>Busy building the other requested circuits now. Watch this space....&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13409"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Thu, 04/07/2013 - 19:09.</div>
+    <div class="content">
+     <p>Are you sure that CT isn&#39;t 1A a/c (max)&nbsp;= 1V a/c ? The data sheet doesn&#39;t seem to show a 200A part in the M1.UB range.</p>
+<p>edited to say, maybe I&#39;m misreading the datasheet but I would have thought that if they have parts specified as 200A/2Vac and 200A/10Vac then your part should be marked 200A/200Vac? Which, as Robert says, is an unlikely part.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13410"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 04/07/2013 - 19:19.</div>
+    <div class="content">
+     <p>Indeed, that&#39;s the conclusion I&#39;ve just come to as well. The bad news is you have a 1 A c.t. You&#39;ll measure up to 1 A accurately, then probably at about 1.2 A it will start to saturate and you&#39;ll get nothing much above 1.5 V out with a horribly distorted waveform, no matter how much more current you have flowing.</p>
+<p>If you want one of this series, it&#39;s the M246 - 50 A, 2 V a.c version that you need, which should be good to about 44 A - that&#39;s 10 kW&nbsp; before the ADC input clips.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13413"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3651.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3651.png" alt="nubble&#039;s picture" title="nubble&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3651.html" title="View user profile.">nubble</a> on Thu, 04/07/2013 - 19:49.</div>
+    <div class="content">
+     <p>Hi, I made the following changes to the stripboard extension:</p>
+<p>- VAC now has 10uf&nbsp;decoupling capacitor for the v.t. midpoint bias</p>
+<p>- 100nf between opamp output and Gnd.</p>
+<p>&nbsp;</p>
+<p>I wasnt sure what you meant when you said &quot;Can you try a 100 nF or so from the ADC input pin to ground?&quot;</p>
+<p>Did you meant with the stripboard extension disconnected directly onto mega? Or with stripboard and no VT or CT inputs?</p>
+<p>Heres the Irms for stripboard disconnected with 100nf between ADC and GND:</p>
+<p>0.10<br />
+	0.10<br />
+	0.08<br />
+	0.10<br />
+	0.10<br />
+	0.08<br />
+	0.10<br />
+	0.10<br />
+	0.08<br />
+	0.10<br />
+	0.10<br />
+	0.09<br />
+	0.11<br />
+	0.07<br />
+	0.10<br />
+	0.10<br />
+	0.08<br />
+	0.11<br />
+	0.06<br />
+	0.09<br />
+	0.09<br />
+	0.09<br />
+	0.10<br />
+	0.08</p>
+<p>&nbsp;</p>
+<p>Heres the same with stripboard connected:</p>
+<p>0.13<br />
+	0.12<br />
+	0.12<br />
+	0.14<br />
+	0.14<br />
+	0.12<br />
+	0.12<br />
+	0.12<br />
+	0.12<br />
+	0.12<br />
+	0.11<br />
+	0.10<br />
+	0.08<br />
+	0.12<br />
+	0.12<br />
+	0.12<br />
+	0.12<br />
+	0.11<br />
+	0.12<br />
+	0.13<br />
+	0.13</p>
+<p>I modded as above stripboard.</p>
+<p>And just to make things a bit weirder, I get very different readings when the stripboard is suspended in air from the cable:</p>
+<p>0.41<br />
+	0.41<br />
+	0.41<br />
+	0.41<br />
+	0.42<br />
+	0.41<br />
+	0.41<br />
+	0.45<br />
+	0.43<br />
+	0.40<br />
+	0.44<br />
+	0.44<br />
+	0.44<br />
+	0.45<br />
+	0.45<br />
+	0.46<br />
+	0.44</p>
+<p><img alt="" src="../sites/default/files/photo%20(2)_1.jpg" style="width: 320px; height: 240px;" /></p>
+<p>And these are when I place the stripboard on a cardboard box:</p>
+<p>0.13<br />
+	0.12<br />
+	0.12<br />
+	0.12<br />
+	0.12<br />
+	0.13<br />
+	0.12<br />
+	0.12<br />
+	0.12<br />
+	0.12<br />
+	0.13<br />
+	0.12<br />
+	0.12<br />
+	0.13<br />
+	0.13<br />
+	0.13<br />
+	0.12<br />
+	0.12<br />
+	0.13<br />
+	0.12<br />
+	0.14</p>
+<p><img alt="" src="../sites/default/files/photo%20(1)_3.jpg" style="width: 320px; height: 240px;" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13415"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Thu, 04/07/2013 - 20:32.</div>
+    <div class="content">
+     <p>The second sketch on my <a href="1757.html">Summary Page</a> is called MinMaxAndRangeChecker.&nbsp; When run on an Arduino or emonTx, it displays the basic data that&#39;s recorded by the first four of the analog inputs.&nbsp; If your hardware is set up correctly, you should see a value of around 512 for each channel that is being actively held at the mid-rail point.&nbsp; When AC signals are applied, you can verify that the sample values change as expected.</p>
+<p>This sketch will allow you to check the operation of your input circuits in isolation from any other aspects.&nbsp;&nbsp; Many problems with complex schemes have been found to be caused by basic setup faults of the input circuits.&nbsp;</p>
+<p>As you&#39;re able to measure AC Voltage too, why not try my RawSamplesTool (the next one down the page).&nbsp; If your sensor is set up correctly, this will display a sinusoid on the Serial Monitor.</p>
+<p>Hope this helps.&nbsp;&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13421"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 04/07/2013 - 21:25.</div>
+    <div class="content">
+     <p>Now I&#39;ve had time to think about it, the basic problem is nubble thought he&#39;d got a 100 A c.t. when he has a 1 A one with a 1 V output, he is dividing the output down by 45:1 and feeding it into a 5 V ADC input, with a current calibration constant of 42.5.</p>
+<p>The current calibration ought to be 1 for that c.t, so with no current and only noise for the input, he&#39;s actually indicating current 42.5 times what he should have. But he&#39;s dividing the real current by 45 before it gets to the ADC input, so that&#39;s actually reading about right.&nbsp; So if I&#39;ve done my sums correctly, his input noise is equivalent to about 33 mA (or 8 W) were he using a standard SCT-013-000 c.t which is on the good side of what we expect.</p>
+<p>So I think there&#39;s really nothing wrong with his input circuitry or build at all - it&#39;s all down to the wrong choice of c.t. and calibration due to a misunderstanding.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13428"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3651.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3651.png" alt="nubble&#039;s picture" title="nubble&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3651.html" title="View user profile.">nubble</a> on Fri, 05/07/2013 - 06:17.</div>
+    <div class="content">
+     <p>Hi,&nbsp;</p>
+<p>Thanks for the information and sheddling some light on this. I would gladly have bought you all a round of beers for this when I had my head in my hands fretting about this input noise. Robert Wall, thanks for taking the time to think about this.</p>
+<p>&nbsp;</p>
+<p>Ok, Im now convinced after your posts and re-reading the datasheet that this is a 1A&nbsp;ct. In saying that when I was prototyping on breadboard, I was able to measure up to a little over 4kW or 22 Amps with that ct. And I clearly recall measuring the AC voltage with the CT connected and values over 10V AC come to mind. Whether theyre accurate [and not ct&nbsp;saturating] is another question. The data sheet does say &quot;overload most of the time without consequence&quot; and the CT does have a intermediate transformer as below:</p>
+<p><img alt="" src="../sites/default/files/highresCt.png" style="width: 600px; height: 312px; " /></p>
+<p>For info here is my emoncms dashboard with that ct:</p>
+<p><img alt="" src="../sites/default/files/emoncms-2.png" style="width: 802px; height: 517px; " /></p>
+<p>Now to the online shop for a 100A CT. I have a few SCT-013-030 which I could use for now based on the above load profile.&nbsp;</p>
+<p>Calypso-Rae, I donwloaded your&nbsp;RawSamplesTool yesterday but never got around to trying it out. Now I see your Summary page and WOW!!! This is awesome and exactly the type of tools needed for debugging and analytics. Already bookmarked!</p>
+<p>Robert Wall, Thanks for all the help again.</p>
+<p>&nbsp;</p>
+<p>Much appreciated.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13434"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Fri, 05/07/2013 - 09:26.</div>
+    <div class="content">
+     <p><em>nubble: Calypso-Rae, I donwloaded your&nbsp;RawSamplesTool yesterday but never got around to trying it out. Now I see your Summary page and WOW!!! This is awesome and exactly the type of tools needed for debugging and analytics. Already bookmarked!</em></p>
+<p>Glad you approve :)</p>
+<p>My Summary Page has been awarded &#39;sticky&#39; status so can always be found at the top of the General section of the forum.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13438"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 05/07/2013 - 12:00.</div>
+    <div class="content">
+     <p>For what it&#39;s worth, I <em>believe</em> - I don&#39;t know for certain - that the 100 A c.t. and the 30 A c.t are the same beast, the difference being the 30 A one has an inbuilt burden and the 100 A one has a pair of zener diodes for overvoltage protection but no burden resistor. It&#39;s quite easy to take the c.t. apart and change the burden resistor(s) (sometimes they put two in series to calibrate to the correct voltage), or indeed you can put a pair of zeners there instead and use a burden on your stripboard. I have to repeat my regular warning here: <strong>NEVER</strong> open-circuit the secondary of a c.t.&nbsp; You can get very high voltages out that might damage the secondary winding, even if they don&#39;t get your fingers. If you&#39;re contemplating this, read the test report on the 100 A c.t. first. If you&#39;re removing the internal burden and having an external one, you don&#39;t need 22 V zeners - any value you have to hand 6.8 V or above should be good enough.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33555"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7891.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="kosmonooit&#039;s picture" title="kosmonooit&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7891.html" title="View user profile.">kosmonooit</a> on Sun, 23/08/2015 - 08:43.</div>
+    <div class="content">
+     <p>Just a quick question in regards to building&nbsp; your own CT measuring circuits as above, I am going the Op Amp route for biasing as well (did that one the AC Voltage), I have an accurate source for 5V.&nbsp;</p>
+<p>Does each CT have to have its own bias source or can one connect multiple CT to the same output of the Op Amp as above? On the EmonTxShield V2.5 schematic, each CT has its own biasing (via resister Voltage Divider), so using an Op Amp means one op amp output can bias all the CT&#39;s?</p>
+<p>Or should I have an Op Amp Bias for each CT?</p>
+<p>Thanks.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33563"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: CT offset problem with opamp bias.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 24/08/2015 - 00:08.</div>
+    <div class="content">
+     <p>You can use the same op-amp for all inputs - the voltage and all the CTs.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2540"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-hQkXwPANsbkzQI9Mb-2ES4-L5Ctxsrc-GvPY7i91BSQ" value="form-hQkXwPANsbkzQI9Mb-2ES4-L5Ctxsrc-GvPY7i91BSQ"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2540 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:30:18 GMT -->
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/4014 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:23:21 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Remote Control Relay with emoncms.org and Arduino | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Remote Control Relay with emoncms.org and Arduino</h3>
+        <span class="submitted">Submitted by <a href="../user/4423.html" title="View user profile.">aicanduit</a> on Wed, 05/03/2014 - 13:58</span>
+        <div class="content"><p>I wish to control a relay through emoncms.org from a web page located on my Android mobile phone.<br />
+	To do this, I had thought of creating a feed. So, I can update the value of the feed through the website or web page located in my phone or in a PC. In my house, an Arduino with Ethernet module must be able to read the feed and depending on the values ​​received, switch on or off the relay.<br />
+	I have created the input and the corresponding feed. From a browser I can give values to the feed. But the problem is that I don&#39;t know how Arduino can read the last value of that feed.&nbsp;</p>
+<p>I know that sentence is like: <a href="http://emoncms.org/feed/value.json?id=32427&amp;apikey=xxxxxxxxxxx" title="http://emoncms.org/feed/value.json?id=32427&amp;apikey=xxxxxxxxxxx">http://emoncms.org/feed/value.json?id=32427&amp;apikey=xxxxxxxxxxx</a></p>
+<p>But how to transfer this into the arduino with the GET method?</p>
+<p>I&#39;ve tried this (Arduino web client sample modification):</p>
+<p>&nbsp;</p>
+<p>#include &lt;SPI.h&gt;<br />
+	#include &lt;Ethernet.h&gt;</p>
+<p>// Enter a MAC address for your controller below.<br />
+	// Newer Ethernet shields have a MAC address printed on a sticker on the shield<br />
+	byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };<br />
+	// if you don&#39;t want to use DNS (and reduce your sketch size)<br />
+	// use the numeric IP instead of the name for the server:</p>
+<p>	char server[] = &quot;www.emoncms.org&quot;;&nbsp;&nbsp;&nbsp; // name address for Google (using DNS)<br />
+	char apikey[] = &quot;myapikey&quot;;</p>
+<p>// Set the static IP address to use if the DHCP fails to assign<br />
+	IPAddress ip(192,168,0,177);</p>
+<p>// Initialize the Ethernet client library<br />
+	// with the IP address and port of the server<br />
+	// that you want to connect to (port 80 is default for HTTP):<br />
+	EthernetClient client;</p>
+<p>void setup() {<br />
+	// Open serial communications and wait for port to open:<br />
+	&nbsp; Serial.begin(9600);<br />
+	&nbsp;&nbsp; while (!Serial) {<br />
+	&nbsp;&nbsp;&nbsp; ; // wait for serial port to connect. Needed for Leonardo only<br />
+	&nbsp; }</p>
+<p>&nbsp; // start the Ethernet connection:<br />
+	&nbsp; if (Ethernet.begin(mac) == 0) {<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(&quot;Failed to configure Ethernet using DHCP&quot;);<br />
+	&nbsp;&nbsp;&nbsp; // no point in carrying on, so do nothing forevermore:<br />
+	&nbsp;&nbsp;&nbsp; // try to congifure using IP address instead of DHCP:<br />
+	&nbsp;&nbsp;&nbsp; Ethernet.begin(mac, ip);<br />
+	&nbsp; }<br />
+	&nbsp; // give the Ethernet shield a second to initialize:<br />
+	&nbsp; delay(1000);<br />
+	&nbsp; Serial.println(&quot;connecting...&quot;);</p>
+<p>&nbsp; // if you get a connection, report back via serial:<br />
+	&nbsp; if (client.connect(server, 80)) {<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(&quot;connected&quot;);<br />
+	&nbsp;&nbsp;&nbsp; // Make a HTTP request:<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;GET /feed/value.json?apikey=&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(apikey);<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;?id=32427&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.println(&quot; HTTP/1.1&quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; client.println(&quot;Host:emoncms.org&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.println(&quot;User-Agent: Arduino-ethernet&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.println(&quot;Connection: close&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.println();<br />
+	&nbsp; }<br />
+	&nbsp; }<br />
+	&nbsp; else {<br />
+	&nbsp;&nbsp;&nbsp; // kf you didn&#39;t get a connection to the server:<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(&quot;connection failed&quot;);<br />
+	&nbsp; }<br />
+	}</p>
+<p>void loop()<br />
+	{<br />
+	&nbsp; // if there are incoming bytes available<br />
+	&nbsp; // from the server, read them and print them:<br />
+	&nbsp; if (client.available()) {<br />
+	&nbsp;&nbsp;&nbsp; char c = client.read();<br />
+	&nbsp;&nbsp;&nbsp; Serial.print(c);<br />
+	&nbsp; }</p>
+<p>&nbsp; // if the server&#39;s disconnected, stop the client:<br />
+	&nbsp; if (!client.connected()) {<br />
+	&nbsp;&nbsp;&nbsp; Serial.println();<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(&quot;disconnecting.&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.stop();</p>
+<p>&nbsp;&nbsp;&nbsp; // do nothing forevermore:<br />
+	&nbsp;&nbsp;&nbsp; while(true);<br />
+	&nbsp; }<br />
+	}</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>But the response is:</p>
+<p>connecting...<br />
+	connected<br />
+	HTTP/1.1 200 OK<br />
+	Date: Tue, 04 Mar 2014 21:37:29 GMT<br />
+	Server: Apache/2.2.22 (Ubuntu)<br />
+	X-Powered-By: PHP/5.3.10-1ubuntu3.9<br />
+	Vary: Accept-Encoding<br />
+	Content-Length: 49<br />
+	Connection: close<br />
+	Content-Type: text/html</p>
+<p>{&quot;success&quot;:false,&quot;message&quot;:&quot;Feed does not exist&quot;}<br />
+	disconnecting.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>I&acute;ve tried with another id feed and is the same return...</p>
+<p>Can anyone help me ?</p>
+<p>Thanks.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="4027.html" class="topic-previous" title="Go to previous forum topic">‹ Sending SSL-email via Event module?</a>
+              <a href="4021.html" class="topic-next" title="Go to next forum topic">Zero crossing detection ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-19002"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5190.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remote Control Relay with emoncms.org and Arduino</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5190.html" title="View user profile.">Schism</a> on Wed, 05/03/2014 - 14:24.</div>
+    <div class="content">
+     <p>To make life easier for yourself, you can just do the request to emonCMS&nbsp;manually in the browser until it works :)</p>
+<p>I think your problem is likely to be this:</p>
+<p>client.print(&quot;GET /feed/value.json?apikey=&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(apikey);<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;?id=32427&quot;);</p>
+<p>separate URL parameters with &quot;&amp;&quot; ...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-19030"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4423.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="aicanduit&#039;s picture" title="aicanduit&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remote Control Relay with emoncms.org and Arduino</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4423.html" title="View user profile.">aicanduit</a> on Thu, 06/03/2014 - 07:41.</div>
+    <div class="content">
+     <p>&nbsp;</p>
+<p>Aaaaaargh !</p>
+<p>Thank you very much ! Problem solved !</p>
+<p>before:</p>
+<p>&nbsp;&nbsp; client.print(&quot;?id=32427&quot;);</p>
+<p>after:</p>
+<p>&nbsp;&nbsp; client.print(&quot;&amp;id=32427&quot;);</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-19098"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3852.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3852.jpg" alt="arwed&#039;s picture" title="arwed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Remote Control Relay with emoncms.org and Arduino</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3852.html" title="View user profile.">arwed</a> on Fri, 07/03/2014 - 21:24.</div>
+    <div class="content">
+     <p>Hi, I also want to do something like this. I tried another approach: From a webpage I send an update to a specific input according the Input API helper via e.g.</p>
+<p>http://emoncms/emoncms/input/post.json?node=30&amp;json={setStatus:1,setpoint1:1000,setpoint2:550,setpoint3:400}</p>
+<p>to modify setpoint inputs in my local emoncms installation. These inputs are processed into feeds as usual.</p>
+<p>Then I did a little hacking in the paketgen_module.php so that I can define variables there to grap a diven feed value and broadcast it to all nodes that are interested in. This sounds a little bit cumbersome but it gives a bit more flexibility by getting different ways to modify setpoints: 1) via API call as above 2) from a room thermostat like node that has up and down buttons to modify setpoint inputs and feeds via the RFM12 payload.</p>
+<p>Another node, receiving the setpoint values from emoncms, than controls the heater. With that way you don&#39;t need network capabilities on your arduino, only a simple emontx node with RFM12.</p>
+<p>I hope my description is understandable.</p>
+<p>A.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/4014"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-YLt98-1Z9wegHpTB4tzv51JBgOC7HGaq2vnribwAlqY" value="form-YLt98-1Z9wegHpTB4tzv51JBgOC7HGaq2vnribwAlqY"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/4014 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:23:21 GMT -->
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2579 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:39:37 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Two Emontx’s for simultaneous V &amp; I measurement | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Two Emontx’s for simultaneous V &amp; I measurement</h3>
+        <span class="submitted">Submitted by <a href="../user/3240.html" title="View user profile.">john.b</a> on Sat, 13/07/2013 - 11:04</span>
+        <div class="content"><p>I am interested to understand the feasibility of using two Emontx&rsquo;s to measure voltage and current simultaneously and hopefully also increase the sampling frequency.</p>
+<p>
+	The idea I am sure is not new and has probably been discussed before, but I could not find anything here, although seeing <a href="1170.html">Martin Robert&rsquo;s Full-fat 3-phase monitor</a> certainly inspired this post.</p>
+<p>Martin&rsquo;s monitor shows that in principle, it can be done; however, I&rsquo;d be interested in any thoughts on the likely maximum sampling frequency and will the communication between emontx&rsquo;s be a bottleneck?</p>
+<p>
+	Would an interrupt approach work and perhaps could it even correct for the relative phase error of the sensors?</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2578.html" class="topic-previous" title="Go to previous forum topic">‹ Arduino UNO + emonTx Shield + Raspberry Pi</a>
+              <a href="2587.html" class="topic-next" title="Go to next forum topic">RFM12Pi on Raspberry not work  ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-13605"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Two Emontx’s for simultaneous V & I measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 13/07/2013 - 12:30.</div>
+    <div class="content">
+     <p>If I&#39;m reading you correctly, you will have one emonTx as the master reading voltage (say), and a second one reading current. You want to synchronise the two to read at the same instant?</p>
+<p>The delay between consecutive readings (V &amp; I) using both the standard library and interrupts is only one third of the phase shift problem. The other two thirds are phase shifts within the transducers, and unfortunately those vary with voltage and current respectively. Eliminating the delay won&#39;t necessarily improve things, because with a suitable combination of voltage and current, the difference can come very close to the time delay between readings, and then you&#39;d need no correction at all.<br />
+	Ideally, you should have a 2-dimensional lookup table and apply a correction based on the expected combined phase error at the voltage and current that you&#39;re measuring.</p>
+<p>Fortunately, phase errors make little difference to the measurements at &#39;normal&#39; power factors, and only become critical as the power factor gets small with highly reactive loads.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13606"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3240.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="john.b&#039;s picture" title="john.b&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Two Emontx’s for simultaneous V & I measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3240.html" title="View user profile.">john.b</a> on Sat, 13/07/2013 - 13:53.</div>
+    <div class="content">
+     <p>Robert, Yes two Emontx&#39;s one measuring voltage and one measuring current, synchronised either measuring at the same time or timed to correct for the relative phase shift in the sensors.</p>
+<p>The objective would be two fold; firstly and hopefully to double sample frequency; secondly have better control of the timing of V &amp; I samples.&nbsp; I understand your points about phase shifts within the transducers and my thinking was that as you say with a look up table or function suitable timing could be determined such that V &amp; I pairs are corrected for relative transducer phase shift.</p>
+<p>I&#39;m really only interested in a more accurate real power / energy measurement here and although I haven&#39;t quantified it, sampling V and I at different points in time will lead to an error.</p>
+<p>I&#39;ve built a breadboard version of the <a href="http://www.atmel.com/Images/doc2566.pdf">AVR465</a> variable gain current front end connected with an emontx to measure voltage.&nbsp; This works well and I was about to build this as a strip board circuit, when it occurred to me to go a step further and add another processor.</p>
+<p>Before making too big a step I thought I&#39;d investigate using two connected Emontx&#39;s one measuring voltage and the other with conventional current front end to prove the concept.</p>
+<p><strong>edit</strong> I&#39;m not using any of the OEM library calculation methods, but am using my own continuous integration method to calculate energy directly.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13607"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Two Emontx’s for simultaneous V & I measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 13/07/2013 - 14:36.</div>
+    <div class="content">
+     <p>Thanks for clarifying. (I mentioned the library purely as a common point of reference).</p>
+<p>By far the biggest source of errors we see is digital noise coming from the processor itself, which of course makes little difference at full power but unfortunately many people expect 5% accuracy with one or two counts of current at the input! The variable gain front end should help quite a lot there, provided the noise gets in where I think, which is via AVref.</p>
+<p>Before going too far down your path, I&#39;d sit down and work out just how much phase error you can tolerate, given the power factor of your load - under worst case conditions, obviously.</p>
+<p>You do stand to double the number of samples, up to about 100 per cycle, which should capture the 49th harmonic. I think there might not be much power up there. (I have churned out a fair bit of power at the 23rd and 25th with a 12/24 pulse thyristor drive, but there aren&#39;t many of those around now.) I believe your meter only needs to include up to the 20th in its measurements.</p>
+<p>I&#39;ll be interested to see how this turns out, especially if you are able do a parallel comparison between your rig and a standard emonTx (using Martin&#39;s code to give continuous energy measurement).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13642"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3240.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="john.b&#039;s picture" title="john.b&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Two Emontx’s for simultaneous V & I measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3240.html" title="View user profile.">john.b</a> on Tue, 16/07/2013 - 08:45.</div>
+    <div class="content">
+     <p><em>By far the biggest source of errors we see is digital noise coming from the processor itself</em></p>
+<p>I made the assumption the noise is a constant offset and corrected for it with my calibration method.&nbsp; Instead of using just a coefficient for calibration I have y=ax+b type calibration.&nbsp; This enables a zero reading when there is no load and also improves the accuracy throughout the range.</p>
+<p>I obtained the calibration coefficient and offset using linear regression, first measuring current for a number of loads, then doing the same for power.&nbsp; The fit is much better using a y=ax+b function than for the emonlib method of y=ax .</p>
+<p>It&#39;s a fudge, but seems to improve accuracy and can remove the annoying power reading when there is none.&nbsp; Is there a reason why this approach has not been used in the emonlib?</p>
+<p>I note the AVR465 just removes values below a certain level, but I don&#39;t agree with this approach.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13645"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Two Emontx’s for simultaneous V & I measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 16/07/2013 - 11:19.</div>
+    <div class="content">
+     <p><em>I note the AVR465 just removes values below a certain level, but I don&#39;t agree with this approach.</em></p>
+<p>I doubt that has - primarily - much to do with noise (though it sweeps it under the carpet). I&#39;ve not checked the numbers, but wouldn&#39;t it be emulating the friction (anti-creep) found in a mechanical meter?</p>
+<p>I&#39;ve no idea why your algorithm hasn&#39;t been used. If the noise is relatively constant, then it&#39;s a valid approximation for power and energy. It won&#39;t work in detail because the noise &#39;current&#39; appears to have a variable phase so power and apparent power are affected differently.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13646"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3240.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="john.b&#039;s picture" title="john.b&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Two Emontx’s for simultaneous V & I measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3240.html" title="View user profile.">john.b</a> on Tue, 16/07/2013 - 12:11.</div>
+    <div class="content">
+     <p>I think the main problem with what I&#39;m doing is that it is a correction after the High Pass Filter.&nbsp; The HPF should in theory remove any DC offset including the noise if it were indeed a constant.&nbsp; However we are dealing with a 10 bit ADC and at low current levels there inevitably is an offset. So my calibration effectively removes this offset.&nbsp; At this point you could argue its not noise but a lack of resolution.</p>
+<p>It seems to achieve more accurate results for real power and apparent power; therefore PF as well :-)</p>
+<p>I don&#39;t really understand what you mean by &#39;<em>It won&#39;t work in detail because the noise &#39;current&#39; appears to have a variable phase so power and apparent power are affected differently.&#39;</em></p>
+<p>To clarify I&#39;m only calibrating current and voltage with a coefficient and an offset.&nbsp; However since I can only apply different loads thus varying the current, I calibrate that directly then calibrate power indirectly with a voltage coefficient and an offset.</p>
+<p><strong>edit</strong>: I do appreciate as I said it is a fudge, and ideally noise or errors should be removed at source or as close as possible.&nbsp; But I have not yet found a better way and can&#39;t see why any subsequent calculation should be incorrect; its just a more refined calibration.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13650"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Two Emontx’s for simultaneous V & I measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 16/07/2013 - 16:10.</div>
+    <div class="content">
+     <p>We&#39;re talking about different things then. I really meant digital noise - high frequency signals emanating from the digital part of the processor, and as such it goes straight through the H.P. filter. So when it gets rectified by the rms calculation, it appears as a randomly varying current that is not related to the voltage input, hence (and this is where it gets difficult to explain) it appears to have an indeterminate and varying phase angle that depends on where the higher random samples line up against the voltage wave. But when you multiply the current samples by the voltage samples to get power, the rectification effect disappears.</p>
+<p>Now we pick up your argument and what I think you&#39;re saying that after you have calculated energy over the sample period and turned it into power, the averaging process has turned the noise into a sensibly constant standing power that you can legitimately regard as an offset. I&#39;m not disagreeing there. What I was saying is the apparent noise power is significantly greater than the real noise power (&#39;apparent&#39; and &#39;real&#39; in the sense of the phasor diagram) because the noise current is not correlated with the voltage. Therefore you need different rules for power, apparent power and current.</p>
+<p>And not forgetting that where the midpoint bias sits in relation to ADC steps can be significant.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13655"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3240.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="john.b&#039;s picture" title="john.b&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Two Emontx’s for simultaneous V & I measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3240.html" title="View user profile.">john.b</a> on Tue, 16/07/2013 - 16:51.</div>
+    <div class="content">
+     <p>Ok I understand your point.</p>
+<p>I think the difference in apparent noise power to real noise power is there with either the emonlib calibration method or my method.&nbsp; I guess the argument is whether I&#39;m making it worse or better.</p>
+<p>My belief before I understood your point was that I was improving the calibration and that would improve the real and apparent power accuracy.&nbsp; I need to check my results and think about it some more.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2579"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-CduJ-f4OVeEiZRsCMB8noNDoDRKI5Thlxg67t_10RiA" value="form-CduJ-f4OVeEiZRsCMB8noNDoDRKI5Thlxg67t_10RiA"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2579 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:39:37 GMT -->
+</html>

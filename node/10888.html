@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10888 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:54:30 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Node to Feed mapping - idea to save space | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Node to Feed mapping - idea to save space</h3>
+        <span class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Tue, 23/06/2015 - 18:50</span>
+        <div class="content"><p>So currently we have the notion of: Node, Input and Feed.</p>
+<p>With this relationships:</p>
+<ul>
+<li><strong>Node</strong> to <strong>Input </strong>(1-&gt;Many)</li>
+<li><strong>Input </strong>has a processor that writes to multiple <strong>Feed </strong>(1-&gt;Many)</li>
+</ul>
+<p>Assumptions:</p>
+<ul>
+<li>Node data came from a bulk json post with all the node inputs values at the same timestamp</li>
+<li>Inputs have processors running saving to multiple Feeds at the same timestamp.</li>
+<li>Feed data is saved individually by engine with an associated timestamp (can be realtime, average, or aggregated).</li>
+</ul>
+<p>What i&#39;m thinking of is, if we could have the node notion context on the processor, we could have the same node context at the feed level for the same node.<br />
+Since the processors would be running on the node context it could see all nodes inputs data at the same timestamp, and a new feed object (lets call it) NodeFeed could be used with a shared timestamp for all its inputs that are based on the same time resolution.</p>
+<p>We could have different&nbsp;NodeFeed objects with different time resolution coming from the same node processor.</p>
+<p>The savings in data size are that for each node input data on the same time resolution would only require a unique timestamp.</p>
+<p>In sql this can be translated as a NodeFeed table with a timestamp column and multiple columns for each of the nodes input data.</p>
+<p>For example if you have a node publishing a bulk message to the server at regular interval with 1 voltage + 8 CT sensors + 1 Frequency + 8 power factor, currently we require 18 feeds data + timestamps =<strong> 36 </strong>&#39;size unit&#39; to save each sensor data to a feed. With this NodeFeed object we just require <strong>19 </strong>&#39;size units&#39;, a 47.22% saving.</p>
+<p>What do you think about this idea?</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10929.html" class="topic-previous" title="Go to previous forum topic">‹ EmonCMS inputs not updating</a>
+              <a href="10972.html" class="topic-next" title="Go to next forum topic">Adding a trace_mode to rfm2pi firmware ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-31661"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Node to Feed mapping - idea to save space</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 24/06/2015 - 13:03.</div>
+    <div class="content">
+     <blockquote><p><em>&quot;Node data came from a bulk json post with all the node inputs values at the same timestamp&quot;</em></p>
+</blockquote>
+<p>This isn&#39;t necessarily true as it has always been possible always post to named inputs using urls like&nbsp;http://emoncms.org/input/post.json?node=10&amp;json={power:200,voltage:24000} etc but this method isn&#39;t compatible with bulk upload so the bulk upload was changed to accept missing data place holders so sending a bulk upload like [[100<strong>,,</strong>300,400],[<strong>,</strong>200,300,400],[100,200<strong>,,</strong>400]] would result in inputs 1 thru 3 being updated once only each&nbsp;and input 4, 3 times. I didn&#39;t include all the node ids and timestamps&nbsp;but these frames would normally each have a different timestamp so inputs 1,2&amp;3 would all show different update times.</p>
+<p>This was implemented among other reasons to allow MQTT&nbsp;to not force the use of a different&nbsp;input for each sensor, especially with the current 32 max. and individual values posted with the same timestamp would get processed the same way as a single complete frame.</p>
+<p>Only the PHPtimeseries actually records a timestamp the phpfina&nbsp;feed is only the size of the data, the data&#39;s position in the file denotes it&#39;s timestamp relative to when the&nbsp;file was created, which is recorded in the metadata. So a table to replace&nbsp;a number of&nbsp;phpfina feeds would actually increase the size by adding an unused timestamp and where a fixed interval feed may only update once per hour or per day the all in one table would allocate space for that feed value at every update.</p>
+<p>I do however think the concept of recording <u>unprocessed input</u> data in a table as you describe could have a massive benefit in that you could effectively &quot;replay time&quot; if down the line you find yourself thinking &quot;I wish I had set up a feed that does xyz&quot;, perhaps because a new processor or feed engine gets developed you could actually build that feed from when you started collecting data to the present day. You could rebuild lost or corrupt feeds etc. This would only work with a table because as inputs get added a table can get horizontally bigger where as the feed files&nbsp;cannot, even a group feed per node won&#39;t work because of adding or altering individual inputs.</p>
+<p>If using input data from a table, in SQL you can effectively do many calculations and graphs on the fly so keeping feeds is less important, And I did propose a change to Trystan some time ago that I would like to share, that was to include the processing chain in the feed.dat file so that in normal running a feed would be &quot;triggered&quot; directly either by&nbsp;data coming in on a particular input (phptimeseries) or every n seconds (phpfina or phpfiwa) and it would then use&nbsp;the current input data held in RAM to do whatever processing was defined to calculate and arrive at the value to be retained.</p>
+<p>Creating a feed could be as easy as selecting a type of feed,&nbsp;not engine but type with processing included eg &quot;export&quot; would be allow negative x -1 append to feed. but with an SQL enabled emoncms you could also select a start time and date to &quot;replay time&quot; from the input table and voila a new &quot;historical&quot; feed. so the feeds could still be used to speed up SQL.</p>
+<p>To accomadate the trend to move away from SQL to flat files,&nbsp;emoncms&nbsp;&quot;lowwrite&quot; could also just save all the input data to a csv file that <em>could</em> be opened in SQL if a situation demanded rather than a SQL table, making the low write version less dependent on SQL as currently the SQL tables are the link between inputs and feeds.</p>
+<p>This could be a step towards a single emoncms&nbsp;version for all, sorry to hijack your thread but it would be really good to see the various&nbsp;emoncms&#39;s converge and since the mandatory&nbsp;use of SQL is contrary to Trystans&nbsp;lowwrite direction and the lack of SQL functionality is the main reason many of us don&#39;t use the low write version, including both as optional so that one or the other or both&nbsp;could be enabled in the settings would be a good way to go.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31669"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Node to Feed mapping - idea to save space</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Wed, 24/06/2015 - 18:43.</div>
+    <div class="content">
+     <p>Your ideas are interesting.</p>
+<p>I&#39;m running only on sql engine not only for historic reasons, but also convenience of data manipulation. Space and performance are no issues on my hosting. So have less knowledge of the other engines.</p>
+<p>My criteria is the need to correlate different inputs for the same timestamp.</p>
+<p>I want to add gps coordinates as an input, and the ideia of having 2 feeds for lon and lat is not the best. Dont want to use json nor strings in engine. In sql this are two columns. I may end up using a new input module for it, but would be good if the current input module supported it somehow out of the box.</p>
+<p>Regarding post processing original data, i have the ideia of virtual feeds that apply logic in realtime to existing feeds data. Configurable like the input processor list but for each virtual feed, where the end value is not saved to anywhere but returned to the client requesting the virtual feed data.<br />
+From the consumer side virtual feeds are like any other existing feed.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31696"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Node to Feed mapping - idea to save space</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 25/06/2015 - 12:26.</div>
+    <div class="content">
+     <p>Generally I think many users with databasing experience&nbsp;would be more comfortable with SQL if they already know it, only less tech savvy newcomers and those technical enough to embrace an application specific data storage solution would willingly give it up, given a choice.</p>
+<p>I would like the best of both worlds (don&#39;t we all?) the power of SQL and the option to run from an sd card, but when forced to choose I think SQL wins as I can add a hdd at which point space is no longer an issue either.</p>
+<p>I think we are thinking along the same lines but in different terms.</p>
+<p>Your &quot;single table for all feeds&quot; idea I like but believe it should be unprocessed input values&nbsp;rather than feed values, which sort of ties in with your virtual feed&nbsp;idea&#39;s to not save processed&nbsp;data.</p>
+<p>My idea of defining a feeds processing chain in it&#39;s feed.dat fits with your virtual feed<span style="line-height: 20.7999992370605px;">&nbsp;</span><span style="line-height: 20.7999992370605px;">configurations, although you don&#39;t want persistent data and I say make it optional, don&#39;t save &#39;one of&#39; queries or log unnecessary&nbsp;calculated data on a powerful machine but do persist frequently used data on Pi&#39;s and busy servers etc.</span></p>
+<p><span style="line-height: 20.7999992370605px;">So all the raw input values and the calculated &quot;feed&quot;&nbsp;values would be held&nbsp;in RAM and only written to disk if configured to do so on a per feed basis for feeds or a &quot;sql vs no sql&quot; basis for input values. obviously if the input value table isn&#39;t&nbsp;retained (ie non-sql mode)&nbsp;then on the fly calculations are restricted to using the feed values that have been&nbsp;retained, but each user can choose what to retain and even&nbsp;if SQL isn&#39;t enabled on a SD card install, a CSV file can be written to every few minutes and if feeds need to be created down the line&nbsp;simply start sql create the&nbsp;feed(s) from the csv and shut it down again.</span></p>
+<p><em><span style="line-height: 20.7999992370605px;">&quot;I may end up using a new input module for it&quot; </span></em><span style="line-height: 20.7999992370605px;">maybe that is the better way to go but rather than a new <u>inputs</u> module a new feeds or processing module? I believe inputs are just that &quot;inputs&quot; they should just receive the data, full stop, job done! inputs can be named, allocated units etc but&nbsp;each of the &quot;collection of processes that defines a feed value&quot; files (needs a better name I think) should be managed separately to the inputs as a &quot;virtual feed&quot;&nbsp;with or without a persistent feed attached.</span></p>
+<p><span style="line-height: 20.7999992370605px;">Interesting stuff!!</span></p>
+<p><span style="line-height: 20.7999992370605px;">Paul</span></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31732"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Node to Feed mapping - idea to save space</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Fri, 26/06/2015 - 17:25.</div>
+    <div class="content">
+     <p>So i&#39;m looking at emoncms code and it&#39;s doable to use the same code of process list edit of input module on the feeds module. For that i&#39;ve started to modularize the processlist stuff on a new module called process.<br />
+Will report soon my tests ideas.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31736"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Node to Feed mapping - idea to save space</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 26/06/2015 - 18:30.</div>
+    <div class="content">
+     <p>I&#39;m looking forward to seeing what you have.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32126"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Node to Feed mapping - idea to save space</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Sat, 11/07/2015 - 22:42.</div>
+    <div class="content">
+     <p>I opted to abandon the initial idea of processing full node inputs as a whole, because would only benefit sql engine, in favor of virtual feed concept. Feeds that acts as a regular feed but data is calculated in realtime from existing feeds data.</p>
+<p>See : <a href="10977.html" title="http://openenergymonitor.org/emon/node/10977">http://openenergymonitor.org/emon/node/10977</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10888"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-HMelDU2clbG_QtxzISQZfRNy5tPb1_vsM-pSEaOF6aI" value="form-HMelDU2clbG_QtxzISQZfRNy5tPb1_vsM-pSEaOF6aI"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10888 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:54:30 GMT -->
+</html>

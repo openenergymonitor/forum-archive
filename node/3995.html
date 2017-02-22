@@ -1,0 +1,385 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3995 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:49:52 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Development: Calculating Wh totals on the emontx | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Development: Calculating Wh totals on the emontx</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 03/03/2014 - 19:32</span>
+        <div class="content"><p><em>I started writing this post a while back before I started working on the idea, please excuse the change of &#39;tense&#39; from prospective feature to mostly implemented feature.</em></p>
+<p>I&#39;ve been thinking about the way the OEM system should calculate energy: watt hours, kWh or totals, total pulse count, total litres of water consumed or m3 of gas and how to improve the systems measurement reliability for these measurements. I came to analyse my monitoring data earlier in January and realised there was quite a discrepancy between my billing meter and my emoncms data which was caused by a series of rfm12b lock ups due to old firmware and my ongoing live development on my home system.</p>
+<p>The current approach is to calculate power on the emontx and send that to emoncms which then via the power_to_kwhd input processor calculates daily kwh figures, or more recently kwh per day can be calculated from the daily average power as calculated with the timestore averaging approach.</p>
+<p>The problem is that any gap in the data can cause large errors and there are quite a few links in the system where something could go wrong: the radio link, the internet link if its a remote server, emoncms development stability.</p>
+<p>The thought occurred to me that it might be better to calculate energy on the emontx rather than in emoncms (Robert Wall asked this question a long time back here: <a href="1602.html" title="http://openenergymonitor.org/emon/node/1602">http://openenergymonitor.org/emon/node/1602</a>)</p>
+<p>The emontx could calculate the total accumulated wh since it started monitoring in much the same way as a normal billing meter does.</p>
+<p>The total accumulated watt hours could then be sent to emoncms and logged as an ever accumulating watt hour feed stored using the fixed interval feed engine approach which would then make picking out the total all time kwh value at the end of each day and subtracting it from the day before sufficiently efficient and fast, you could also pick out hourly totals in this way or any other time division, monthly, annual and timezones can be corrected by just shifting the query intervals by the required hours. This may also offer a way to do time of day billing.</p>
+<p><img alt="" src="../sites/default/files/SAM_0411.jpg" style="width: 500px; height: 341px;" /></p>
+<p>The reason fixed interval storage engines make this approach fast enough to be useful is that: say the wh total is updated every 10 seconds then to extract daily values you just need to seek every 8640 datapoints in the data file starting from a datapoint corresponding to midnight on the first day. Seeking to a specific file location like this is really fast.</p>
+<p>This is a big change to the way the system has worked to date but I think its worth it for the additional measurement reliability/accuracy. It involves changes to emontx firmware and large changes to emoncms. There&#39;s also an interesting topic about saving kwh total data to emontx EEPROM which I will come back too later to which Robin Emley has given me a lot of help.</p>
+<p>&nbsp;</p>
+<p><strong>Emoncms development</strong></p>
+<p>This is behind a lot of the recent development to emoncms including the nodes interface that allows the sending of the long datatype to emoncms, emoncms needs to be able to receive variables with the long datatype via the raspberrypi interface to allow watt hour values greater than 32,767. The PHPFiwa feed engine was designed to make the above approach of daily kwh data calculation possible.</p>
+<p><strong>Emoncms</strong> <strong>development</strong> <strong>forum</strong> <strong>post</strong></p>
+<p><a href="3868.html" title="http://openenergymonitor.org/emon/node/3868">http://openenergymonitor.org/emon/node/3868</a></p>
+<p><strong>Emoncms rework development branch</strong></p>
+<p><a href="https://github.com/emoncms/emoncms/tree/rework" title="https://github.com/emoncms/emoncms/tree/rework">https://github.com/emoncms/emoncms/tree/rework</a></p>
+<p><strong>EmonTx</strong> <strong>Firmware development</strong></p>
+<p>I&#39;ve also added a new firmware example based on Robin Emley&#39;s continuous sampling emontx firmware that include wh total calculation.</p>
+<p><a href="https://github.com/openenergymonitor/emonTxFirmware/blob/master/emonTxV3/RFM12B/Examples/emonTxV3_continuous_kwhtotals_noeeprom/emonTxV3_continuous_kwhtotals_noeeprom.ino" title="https://github.com/openenergymonitor/emonTxFirmware/blob/master/emonTxV3/RFM12B/Examples/emonTxV3_continuous_kwhtotals_noeeprom/emonTxV3_continuous_kwhtotals_noeeprom.ino">https://github.com/openenergymonitor/emonTxFirmware/blob/master/emonTxV3...</a></p>
+<p>&nbsp;</p>
+<p>It still needs a bit of work to complete, its now at the final polishing and testing stage, A fair bit of documentation work is also needed, but its getting there.</p>
+<p>I now have my home system running with the above firmware and the emoncms rework development branch. The new version of emoncms also comes with a mobile friendly dashboard that gets its kwh/d data in the way described above.</p>
+<p><img alt="" src="../sites/default/files/SAM_0408.jpg" style="width: 500px; height: 375px;" /></p>
+<p>Im really pleased with this, its both nice having the information on the mobile and I like the peace of mind of knowing that brief outages to the raspberrypi wont effect my long term kwh measurements.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5343.html" class="topic-previous" title="Go to previous forum topic">‹ Local EmonCMS server died (old version) Upgrade to new help</a>
+              <a href="10387.html" class="topic-next" title="Go to next forum topic">Data lost ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-18940"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 04/03/2014 - 08:28.</div>
+    <div class="content">
+     <p>This means that the total kWh has to be stored in EmonTx Eeprom. What happens if the Emontx hardware needs to be replaced?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18943"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5190.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5190.html" title="View user profile.">Schism</a> on Tue, 04/03/2014 - 09:01.</div>
+    <div class="content">
+     <p>An alternative or complimentary approach would be to make the transport layer more robust.</p>
+<p>My gas counter emonTH&nbsp;submits the number of pulses since it last received an ACK from the Pi. This means I can take the Pi offline for maintenance for a few hours, and when I plug it back in it receives a packet from the emonTH&nbsp;with the full count of gas used in that time.</p>
+<p>If the Pi loses internet connectivity it won&#39;t be able to deliver any packets received during that period, however. In my setup these are just lost. If we had&nbsp;a reliable way to queue the transmissions if the Pi can&#39;t connect to the remote server, and then submit them at a later date, it would close off this weakness.</p>
+<p>The emonTX could calculate the energy used between transmissions, but reset the count on a successful submission to the Pi.</p>
+<p>It doesn&#39;t address the issue of &quot;emonCMS&nbsp;stability&quot; per se, but I think if that&#39;s important then the upgrade path on a Pi would be to bring emonCMS&nbsp;out of service in a controlled way (the Pi will then start queuing the packets received as described above) then when you bring emonCMS back up, it will process the queue.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18945"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 04/03/2014 - 09:20.</div>
+    <div class="content">
+     <p>JBecker, Paul Allen added an input processor to emoncms a while back that if the emontx is reset , let's say we're not using eeprom, or changing hardware and totals are reset, then emoncms will continue from the last value, it just works out the difference between total pulse counts and rebuilds its own accumulated value, it's not clear yet that the eeprom idea will work so this might need to be the approach.</p>
+<p>Schism, I agree we should add in these kind of checks where we can and certainly buffering on the pi. </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18946"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 04/03/2014 - 09:26.</div>
+    <div class="content">
+     <p>OK.</p>
+<p>Is there a problem with storing the data in EEPROM?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18947"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 04/03/2014 - 09:33.</div>
+    <div class="content">
+     <p>Schism: to add, thats really cool that you&#39;ve added an ACK from the PI to the emonTH, its&nbsp; I wonder if there is an advantage to adding this in addition to sending an ever accumulating pulse count? I guess sending an ever accumulating pulse count and having emoncms deal with resets (Paul Allen&#39;s solution) allows for packet loss on the raspberrypi.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18951"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 04/03/2014 - 10:32.</div>
+    <div class="content">
+     <p>JBecker, Yes to elaborate on saving to EEPROM, Im sure you know all of this as you where involved in the previous discussion on this, so this is more for everyone&#39;s benefit,</p>
+<p>The appealing benefit of storing the total since installed (or last manually reset -via EEPROM erase) in the EEPROM is that you have that total accumulated watt hour value that is easily compared with your billing meter. Its also a little more robust than not storing in EEPROM as in the admittedly not that likely situation where your raspberrypi is down and the emontx resets once, counts say 10 kWh of energy use then resets again (maybe a second power cut) without having had coms with the pi in the mean time. Without storage in EEPROM that 10 kWh measurement would be lost. Its an unlikely case though.</p>
+<p>The problem with storing accumulated watt hours, pulse counts etc in EEPROM is that EEPROM has a limited number of writes (100,000 <a href="http://arduino.cc/en/Reference/EEPROMWrite" title="http://arduino.cc/en/Reference/EEPROMWrite">http://arduino.cc/en/Reference/EEPROMWrite</a>) if the designed lifetime is 25 years the number of writes per day to the same &#39;cell&#39; would need to be just below 11 or one write every 2 hours and 10 mins.</p>
+<p>The other problem is that there is a possibility of data corruption if a write does not complete, if the power fails half way through a write, this then leaves you with garbled wh values which would mess up all your readings.</p>
+<p>Looking back through the OEM forum posts I came across the discussion I linked above involving Robert Wall, MartinR, JBecker and Fluppie on this topic of calculating kwh data on the emontx and saving to EEPROM <a href="1602.html">http://openenergymonitor.org/emon/node/1602</a></p>
+<p>MartinR outlines a neat idea for detecting the loss of AC Power to the emontx and saving the elapsed kWh to EEPROM in the short time that is available after AC power is lost and there&#39;s still enough power in the capacitors., this would be one approach to getting around the limited number of writes problem.</p>
+<p>The other approach would be to implement wear leveling This article mentions that it could be possible to implement wear leveling to improve the max number of writes by a factor of 100 <a href="http://www.mosaic-industries.com/embedded-systems/sbc-single-board-computers/freescale-hcs12-9s12-c-language/instrument-control/eeprom-lifetime-reliability-wear-leveling">http://www.mosaic-industries.com/embedded-systems/sbc-single-board-computers/freescale-hcs12-9s12-c-language/instrument-control/eeprom-lifetime-reliability-wear-leveling</a></p>
+<p>
+	<strong>Investigating the possibility of writing to EEPROM on power failure.</strong></p>
+<p>Here&#39;s a similar Digital Oscilloscope capture to MartinR&#39;s of what happens when the emontx v3 loses power supplied by the ACAC Adapter. There is about 56ms available with the current hardware.</p>
+<p><a href="../sites/default/files/AC_Detection_DO.png"><img alt="" src="../sites/default/files/AC_Detection_DO.png" style="width: 500px; height: 300px;" /></a></p>
+<p>A couple of weeks ago I discussed this idea with Robin Emley as it would be good if the base for the emonTxFirmware is his continuous monitoring firmware for its higher accuracy. Robin very kindly looked into how it would be possible to add AC Failure detection to his continuous monitoring code and created example code of AC Failure detection working, the example can be found here:</p>
+<p><a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3/RFM12B/Examples/voltageFailureDetector">https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3/RFM12B/Examples/voltageFailureDetector</a></p>
+<p>I then merged the AC Failure code with Robin&#39;s Continuous Sampling code and added in calculation of watt hours elapsed and EEPROM saving.</p>
+<p><a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3/RFM12B/Examples/emonTxV3_continuous_kwhtotals_eeprom" title="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3/RFM12B/Examples/emonTxV3_continuous_kwhtotals_eeprom">https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3...</a></p>
+<p>Thats about as far as we got, it would save the first and sometimes the second watt hour total out of four for all four CT&#39;s. If the AC detection takes around 10ms (half a cycle) then that would leave us with 46ms, if each byte takes 3.3ms and a long uses 4 bytes then we should be able to save 3.4 long values so it seems that there&#39;s not enough for all 4 values anyway without maybe a larger capacitor on the emotx to give us more time.. or Glyn suggested the possibility of turning the ADC off to save power which could be something to look into.</p>
+<p>Id say this approach needs a fair bit more work, maybe a good long term development question to investigate but Im leaning towards just sending watt hour accumulated since last reset with Paul Allen&#39;s solution that detects a reset in emoncms, correcting for it there in the short term.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18952"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5022.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="cybergibbons&#039;s picture" title="cybergibbons&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5022.html" title="View user profile.">cybergibbons</a> on Tue, 04/03/2014 - 10:34.</div>
+    <div class="content">
+     <p>I often think it would be an idea to look at the structure of the packets and what is in them. I realise that keeping the packets short is important for battery life, but would adding a couple more bytes (for sequence number, and probably packet type) make a huge difference? The packet is already 9 bytes of RF12&nbsp;overhead + 4 bytes (temp, temp, humidity, battery).&nbsp;</p>
+<p>If you added a field that contained node/packet type and sensors, you could reduce the size even:</p>
+<p>9 bytes overhead + 1 byte type + 1 byte temp (for a normal DS18B20&nbsp;node)</p>
+<p>then you could skip the external sensor and humidity, and also only send the battery periodically (you don&#39;t need to send this each and every time really?), by using another type:</p>
+<p>9 bytes overhead + 1 byte type + 1 byte temp + 1 byte battery</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18953"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 04/03/2014 - 11:00.</div>
+    <div class="content">
+     <p>Cybergibbons, this topic could go off in many directions, it might be best if we discuss significant changes to packet structure in an other thread, I think the new nodes interface with the standard node decoders for the different emontx sketches goes a long way to solving the problem of not knowing what the inputs where but yes this is a large topic.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18954"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 04/03/2014 - 11:25.</div>
+    <div class="content">
+     <p><em>Im sure you know all of this as you where involved</em>.....</p>
+<p>Sorry, forgot about it ( I&#39;m getting old..).</p>
+<p>The power failure detection is a good idea, but as it might need hardware mods, possibly not the best solution.</p>
+<p>Are there any drawbacks with Pauls method you mentioned?</p>
+<p>If you have 4 longs to save, this means 16 bytes. The easiest way to provide a sort of&nbsp; wear leveling is to store these 16 bytes in a circular buffer with e.g. 256 bytes. This means that the number of writes is increased by a factor of 16. To be able to find the last data written before a reset, the &#39;next&#39; buffer position has to be erased (completely). I am not sure if this counts as an extra &#39;write&#39; cycle. If yes, then this would reduce the number of writes gained to a factor of 8. Taking your calculations above, this would mean that new data could be written every ~15 minutes (with a 25 year design lifetime).</p>
+<p>Another idea would be to store only integer kWh readings. Means a new value is saved when one complete kWh is accumulated. In the worst case you would then &#39;loose&#39; 3 kWh on a reset. Number of writes would then be ~10-20/day for a normal household.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18966"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5190.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5190.html" title="View user profile.">Schism</a> on Tue, 04/03/2014 - 19:02.</div>
+    <div class="content">
+     <p>That&#39;s a great idea. A simple way to tolerate power cuts is then suggested: when the emonTX boots, it looks for the highest value in the extended buffer which is 1 more than the next highest value. It&#39;s unlikely that a corrupt write would result in writing +1kWh (indeed, by definition that wouldn&#39;t be corrupt), and any other value of an individual buffer element will not be selected by this algorithm.&nbsp;</p>
+<p>The emonTX now starts summing energy use using this value as a start point.</p>
+<p>Doing this for time-based recording to EEPROM has no guarantees, but per-kWh recording puts a top limit of 1kWh on a reset loss.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18969"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 04/03/2014 - 19:42.</div>
+    <div class="content">
+     <p><em>That&#39;s a great idea.</em></p>
+<p>:-) &#39;GREAT&#39; is a bit too much.</p>
+<p>I have some products where the ATmega is also doing the RTC functionality. There I save the &#39;hour&#39; information in EEPROM every full hour (means 1 write operation every hour). The minutes and seconds are only held in RAM, but in the &#39;no-init&#39; section (means that they are not initialized after reset). The &#39;hour&#39; variable is also in this section.</p>
+<p>After a reset (which can be a watchdog reset or a brown out reset or a power-on reset or whatever), I compare the &#39;hour&#39; information with the last value stored in EEPROM. If they are equal, the probability is high, that the &#39;minute&#39; and &#39;second&#39; information was also &#39;preserved&#39; during this reset and I just keep on working with these values (if the values are in the normal range). If the &#39;hour&#39; information is not equal, I reset the minute and second to zero only if they are not in the &#39;allowed&#39; range (after a complete power down they should be either 0 or 0xFF).&nbsp; Does this make sense?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18988"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Wed, 05/03/2014 - 10:51.</div>
+    <div class="content">
+     <p>I like the idea of the counter reset after the ACK (but what happens if the ACK is sent but not received ? we expect a reset counter but it is not).</p>
+<p>I didn&#39;t get the time to pay a look at Paul&#39;s implementation, but in <a href="https://github.com/Jerome-github/emoncms_emoncms/commit/5284124bf9295364dfb05e4b587e62dddefc9c65">the one I committed</a> after a discussion with Robert, the post processing function detects if the counter has wrapped around or was reset. This need a hardcoded parameter depending on the expected energy rate (i.e. depending on the meter). And this is not absolutely safe: if the counter is reset just as it was about to wrap around, there is no way to know. The ACK way is nice because it makes sure we&#39;re always far from wrapping around.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18990"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5190.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5190.html" title="View user profile.">Schism</a> on Wed, 05/03/2014 - 11:04.</div>
+    <div class="content">
+     <p><em>(but what happens if the ACK is sent but not received ? we expect a reset counter but it is not)</em></p>
+<p>In this case the node will retry a certain number of times. The emonBase&nbsp;should be set up to ACK, but then discard, duplicate packets. On my to do list.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-20676"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="ngbod&#039;s picture" title="ngbod&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3824.html" title="View user profile.">ngbod</a> on Thu, 10/04/2014 - 12:05.</div>
+    <div class="content">
+     <p>Submitted by TrystanLea on Tue, 04/03/2014 - 09:20.<br />
+	JBecker, Paul Allen added an input processor to emoncms a while back that if the emontx is reset , let&#39;s say we&#39;re not using eeprom, or changing hardware and totals are reset, then emoncms will continue from the last value, it just works out the difference between total pulse counts and rebuilds its own accumulated value, it&#39;s not clear yet that the eeprom idea will work so this might need to be the approach.</p>
+<p>Which input processor is that? Is it total pulse count to pulse increment, accumulator, or something else?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29054"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Development: Calculating Wh totals on the emontx</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Thu, 26/03/2015 - 22:05.</div>
+    <div class="content">
+     <p>Independent of calculating Wh totals on the emontx, keep old processors available.</p>
+<p>I suspect that posting accumulative data at different intervals (due to network down) may need testing on the visualization side because as i remember current php code expects data to be equaly spaced.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3995"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-K9KR2RRqcgRq9Mkem0JlORiUKg_oB460PpyopHhi1vA" value="form-K9KR2RRqcgRq9Mkem0JlORiUKg_oB460PpyopHhi1vA"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3995 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:49:55 GMT -->
+</html>

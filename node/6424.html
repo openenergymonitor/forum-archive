@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6424 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:46:59 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>calcIrms - initialising sampleI | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">calcIrms - initialising sampleI</h3>
+        <span class="submitted">Submitted by <a href="../user/3735.html" title="View user profile.">chacal</a> on Sun, 04/01/2015 - 17:24</span>
+        <div class="content"><p>Just hoping someone would have the time to explain me something concerning the calcIrms function which I am pasting below for reference.</p>
+<blockquote><p>double EnergyMonitor::calcIrms(int NUMBER_OF_SAMPLES)<br />
+{<br />
+&nbsp;<br />
+int SUPPLYVOLTAGE = readVcc();</p>
+<p>&nbsp;<br />
+&nbsp; for (int n = 0; n &lt; NUMBER_OF_SAMPLES; n++)<br />
+&nbsp; {<br />
+&nbsp;&nbsp;&nbsp; lastSampleI = sampleI;<br />
+&nbsp;&nbsp;&nbsp; sampleI = analogRead(inPinI);<br />
+&nbsp;&nbsp;&nbsp; lastFilteredI = filteredI;<br />
+&nbsp;&nbsp;&nbsp; filteredI = 0.996*(lastFilteredI+sampleI-lastSampleI);</p>
+<p>&nbsp;&nbsp;&nbsp; // Root-mean-square method current<br />
+&nbsp;&nbsp;&nbsp; // 1) square current values<br />
+&nbsp;&nbsp;&nbsp; sqI = filteredI * filteredI;<br />
+&nbsp;&nbsp;&nbsp; // 2) sum<br />
+&nbsp;&nbsp;&nbsp; sumI += sqI;<br />
+&nbsp; }</p>
+<p>&nbsp; double I_RATIO = ICAL *((SUPPLYVOLTAGE/1000.0) / 1023.0);<br />
+&nbsp; Irms = I_RATIO * sqrt(sumI / NUMBER_OF_SAMPLES);</p>
+<p>&nbsp; //Reset accumulators<br />
+&nbsp; sumI = 0;<br />
+//--------------------------------------------------------------------------------------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp; return Irms;<br />
+}</p>
+</blockquote>
+<p>&nbsp;</p>
+<p>The variable <strong>sampleI</strong> does not seem to be initialised. Therefore I believe it holds value 0 when&nbsp; the function is called. If no CT is plugged in then the value read by analogRead() should be approx 512 which means that the high pass filter will see a jump of 512 steps from the first reading. Over more than a thousand sample that might be really small but still inducing a small error.</p>
+<p>Testing with my own hardware I found that results were much better if I initialised the sampleI variable first at the start of the function with an analogRead. With no CT plugged returned value is much closer to 0.</p>
+<p>Or maybe I must be missing something and this variable is initialised somewhere else.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="6422.html" class="topic-previous" title="Go to previous forum topic">‹ Daily graphs not displaying correct date</a>
+              <a href="6415.html" class="topic-next" title="Go to next forum topic">error: expected &#039;,&#039; or &#039;...&#039; before numeric constant (FIXED) ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-26443"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: calcIrms - initialising sampleI</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 04/01/2015 - 18:56.</div>
+    <div class="content">
+     <p>This is a problem that was recognised a while ago. A change to emonLib was made a few days ago, but the change produced wholly inaccurate values and on analysis it proved to be based on a totally invalid assumption. It turns out that to initialise the high pass filter is not the trivial operation that you suggest. I sent to Glyn Hudson a few days ago a new emonLib, which correctly initialises the filter and thus completely removes the error, and I imagine he will release it to GitHub when he is satisfied that it is correct. </p>
+<p>In the meantime, you can get reasonably accurate results by running the filter for a few thousand iterations - 5 time constants, or 1250 iterations, should be enough - in setup( ) and of course discard the result, before entering loop( ).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26464"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: calcIrms - initialising sampleI</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 05/01/2015 - 09:54.</div>
+    <div class="content">
+     <p>See the 'sticky' post at the top of this forum. There's a new emonLib available for testing, which I think fixes the problem that Jack Kelly's change attempted to solve.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/6424"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-qDwbQ--TtxqbYEMK5RsHSCke7aXKr4-dTDeabPfy9cw" value="form-qDwbQ--TtxqbYEMK5RsHSCke7aXKr4-dTDeabPfy9cw"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6424 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:46:59 GMT -->
+</html>

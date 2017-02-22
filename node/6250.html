@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6250 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:42:49 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Serial input to emoncms fails | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Serial input to emoncms fails</h3>
+        <span class="submitted">Submitted by <a href="../user/6325.html" title="View user profile.">haden</a> on Sun, 07/12/2014 - 16:07</span>
+        <div class="content"><p>Hi</p>
+<p>I have attached an arduino directly to the PI&#39;s serial port and want to show the data in Emoncms, but something is not working correctly.Using the current PI image 8.2.8</p>
+<p>In&nbsp;minicom&nbsp;I get the following input on the PI:</p>
+<p>10 39 20 3435<br />
+10 39 20 3435<br />
+10 39 20 3445</p>
+<p>but in the log &nbsp;tail -f /var/log/emonhub/emonhub.log it complains</p>
+<p>2014-12-07 16:05:17,907 WARNING 62 RX data length: 3 is not valid for datacode h</p>
+<p>I&nbsp;was reading that&nbsp;the input format was NodeID value1 value2 value3, but apperently there is something wrong.</p>
+<p>What I&#39;m I missing?</p>
+<p>Thanks</p>
+<p>Kim</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="6134.html" class="topic-previous" title="Go to previous forum topic">‹  problem with connecting to localhost/emoncms</a>
+              <a href="4826.html" class="topic-next" title="Go to next forum topic">XY scatter chart ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-25674"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Serial input to emoncms fails</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 07/12/2014 - 19:31.</div>
+    <div class="content">
+     <p>The core of the problem is that emonHub is expecting an even number of values (excluding node id) because it is expecting only integers in &quot;byte pairs&quot;.</p>
+<p>I can&#39;t tell if you have set any datacode(s) settings in emonhub.conf, but I would hazard a guess that you may still be using the [[RFM2Pi]]&nbsp;intefacer&nbsp;which defaults to expecting ints because of the established standard.</p>
+<p>If that is the case you can resolve it by either changing the interfacer &quot;Type&quot; to EmonHubSerialInterfacer&nbsp;(and remove the &quot;rfm settings&quot;), create a new serial interfacer instead&nbsp;or by simply specifying &quot;datacode = 0&quot; in either the [[RFM2Pi]][[[runtimesettings]]] or the [nodes][[10]]. The datatype of a &quot;Serial&quot;&nbsp;interfacer is 0 by default so will not need to be specified if you change Types.</p>
+<p>See&nbsp;<a href="6048.html">Serial link RPI&lt;-&gt;EMonTX using Emonhub (emonSD-13-08-14.img)</a>&nbsp;&amp;&nbsp;<a href="6167.html">Emon v3 Direct Serial</a>&nbsp;for more info.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25695"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6325.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="haden&#039;s picture" title="haden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Serial input to emoncms fails</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6325.html" title="View user profile.">haden</a> on Mon, 08/12/2014 - 18:54.</div>
+    <div class="content">
+     <p>I haven&#39;t changed anything in the config file other than change to debug.</p>
+<p>the current settings are:&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>datacode = h<br />
+datacodes = l, h, h, h,<br />
+So what is h and stand for?</p>
+<p>I can see in the other links you provided that the config file is different. so based on this settings what should&nbsp;I put in?</p>
+<p>Kim</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25701"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Serial input to emoncms fails</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 08/12/2014 - 22:55.</div>
+    <div class="content">
+     <p>Hi Kim</p>
+<p>The &quot;out of the box&quot; emonHub settings are intended for the RFM2Pi rather than an alternative serial device, the &quot;RFM2Pi&quot; interfacer can be used by changing some settings etc or the &quot;proper&quot; way to do it would be to add the required settings to create a &quot;Serial&quot; interfacer that doesn&#39;t have all the RF settings. adding&nbsp;these details</p>
+<p>&nbsp; &nbsp;&nbsp;<em>[[SerialDirect]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;Type = EmonHubSerialInterfacer<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;[[[init_settings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;com_port = /dev/ttyAMA0<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;com_baud = 9600<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;[[[runtimesettings]]]</em></p>
+<p>To the [interfacers] section in emonhub.conf and adding a &quot;#&quot; to the &quot;Type&quot; line of the [[RFM2Pi]] interfacer like this &quot;&nbsp;#&nbsp;Type = EmonHubJeeInterfacer&nbsp;&quot; to disable it,&nbsp;will get you up and running.</p>
+<p>You shouldn&#39;t need to set any&nbsp;datacodes as the serial interfacer passes data as is, no decoding etc.</p>
+<p style="font-size: 12.7272720336914px; line-height: 18.9090900421143px;">For a&nbsp;explanation of the&nbsp;datacode(s)&nbsp;see the&nbsp;<a href="5289.html">emonHub&nbsp;development - increase in scope of values over rfm network&nbsp;</a>&nbsp;thread, the [nodes][[99]] settings in emonhub.conf are just an example (hence the out of range node id 99) &quot;datacode&nbsp;= h&quot; tells&nbsp;emonhub&nbsp;to expect an&nbsp;unspecified&nbsp;number of&nbsp;signed&nbsp;ints&nbsp;from node 99, so as long as the number of (data) bytes is even&nbsp;emonhub&nbsp;will decode&nbsp;the incoming payload&nbsp;as a string of&nbsp;ints,&nbsp;where as&nbsp;&quot;datacodes&nbsp;=&nbsp;l,&nbsp;h, h, h&quot; defines a fixed payload structure of&nbsp;1long&nbsp;and&nbsp;3ints&nbsp;so&nbsp;emonhub&nbsp;will only process the payload if it is&nbsp;10bytes&nbsp;(4 + 3*2). Normally only&nbsp;datacode&nbsp;or&nbsp;datacodes&nbsp;would be specified but&nbsp;datacode&nbsp;will be ignored if&nbsp;datacodes&nbsp;is present.</p>
+<p style="font-size: 12.7272720336914px; line-height: 18.9090900421143px;">Until recently all OEM RF sketches only used&nbsp;ints&nbsp;so&nbsp;the &quot;RFM2Pi&quot;&nbsp;interfacer&nbsp;uses a default&nbsp;datacode&nbsp;of&nbsp;&quot;h&quot; for&nbsp;compatibility.</p>
+<p style="font-size: 12.7272720336914px; line-height: 18.9090900421143px;">Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/6250"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-yCWCI6gYP7k-7ifXK0udRdS2xQsrOJWNYqgd_t4XzSQ" value="form-yCWCI6gYP7k-7ifXK0udRdS2xQsrOJWNYqgd_t4XzSQ"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6250 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:42:49 GMT -->
+</html>

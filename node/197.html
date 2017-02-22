@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/197 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:21:50 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Wireless energy monitor | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><p class="rtecenter">&nbsp;&nbsp;</p>
+<h1 class="rtecenter">Wireless energy monitor</h1>
+<p class="rtecenter">I have developed the below monitor, based upon the code and designs discussed elsewhere on this site.&nbsp;</p>
+<p class="rtecenter">Notable variations from the basic design are:&nbsp;</p>
+<ul>
+<li>Programmable Gain Amp on the current input. Since the current can vary so massively (wheras voltabe is reasonably constant), it can be hard to get good resolution from the ADC all the wave from 1-60A. Using an <a href="http://ww1.microchip.com/downloads/en/DeviceDoc/21117a.pdf">MCP6S21</a>, controlled via SPI by the microcontroller, the gain can be varied as the current changes, to ensure full use is made of the ADC.&nbsp;</li>
+<li><a href="http://www.maplin.co.uk/chassis-mounting-mains-transformers-46757">230vAC &lt;&gt; 2 9v AC</a> secondary coil transformer is used both to power the circuit, and to provide a voltage waveform to sample. This introduces some small harmonic distortion, but also makes for a compact design with only a single plug socket used up.&nbsp;</li>
+<li class="rtecenter"><a href="http://www.ciseco.co.uk/content/?p=1738">XRF</a> (cheap alternative to zigbee, woth identical pinouts) used to send serial data wirelessly - although current version also has a <a href="http://datasheets.maxim-ic.com/en/ds/MAX220-MAX249.pdf">max233</a> serial driver on board for a wired connection if needed.&nbsp;</li>
+<li class="rtecenter">I used a dual rail2rail opamp, configured as a unity buffer, &nbsp;both to provide a low output impedance for the voltage input to the ADC (because the ADC is muxed, and I want the input to settle as quickly as possible to avoid interference between current and voltage readings). Since the opamp had 2 amps in the package, I used the second to provide a low impedance 2.5v offset voltage. Not really needed, but can't do any harm.&nbsp;</li>
+<li class="rtecenter">As many others here have done, I used an efergy current clamp, terminating in a mono 3.5mm jack<img alt="" src="../../../farm7.static.flickr.com/6017/5944178130_92dd092c69.jpg" /></li>
+</ul>
+<p class="rtecenter">...and at the other end of the wireless link:&nbsp;</p>
+<p class="rtecenter"><img alt="" src="../../../farm7.static.flickr.com/6027/5994717053_b4a79a7378.jpg" /></p>
+<p class="rtecenter">The modified code samples the current, sets the gain, calculates the output data, outputs as XML over the UART, and then repeats - dumping data to the serial line about every 2 seconds. Currently, I feed this into serial&lt;&gt;ethernet converter, which itself is then scraped by an external server. A php script parses the XML thus obtained, which is logged to a mySQL database and used to create the output here:&nbsp;</p>
+<p class="rtecenter"><a href="http://energy.bbarker.co.uk/">http://energy.bbarker.co.uk&nbsp;</a></p>
+<p class="rtecenter">I hope to rebuild on a proper PCB, so far smaller, if I have time, as well as socumenting the circuit properly.&nbsp;</p>
+<p class="rtecenter">In the meantime, below is the circuit schematic:</p>
+<p class="rtecenter"><img width="100%" alt="" src="../../../bbarker.co.uk/energy/circuit.html" /></p>
+<hr />
+<p class="rtecenter">The sketch used to control the above is available <a href="http://bbarker.co.uk/energy/sketch.zip">here</a>. It is based heavily on some old eMon code - with a few additions, such as the ability to control the PGA</p>
+<p class="rtecenter">The below php is used to read data from my serial&lt;&gt;ethernet conevrter every 10 seconds (port forwarding set up to my home router), parse the data and insert it into a database for display</p>
+<pre>
+&lt;?&nbsp;
+header (&quot;content-type: text/xml&quot;);
+putenv(&quot;TZ=GMT&quot;); //my electricity supplier uses GMT, so I&nbsp;might as well also...
+$now = date (&quot;Y-m-d H:i:s&quot;);
+
+$port=80;
+$host=&quot;ip_address&quot;;
+
+set_time_limit(0);
+$socket = socket_create(AF_INET, SOCK_STREAM, 0) or die(&quot;Unable to create socket\n&quot;);
+$client = socket_connect($socket,$host,$port) or die(&quot;Unable to connect socket\n&quot;);
+$data=socket_read($socket,550000,PHP_NORMAL_READ);
+echo $data;
+
+
+preg_match_all('/&lt;V&gt;(.*)&lt;\/V&gt;&lt;A&gt;(.*)&lt;\/A&gt;&lt;VA&gt;(.*)&lt;\/VA&gt;&lt;W&gt;(.*)&lt;\/W&gt;&lt;PF&gt;(.*)&lt;\/PF&gt;
+&lt;F&gt;(.*)&lt;\/F&gt;&lt;GAIN&gt;(.*)&lt;\/GAIN&gt;&lt;PLOT_T&gt;(.*)&lt;\/PLOT_T&gt;&lt;ADC_I&gt;(.*)&lt;\/ADC_I&gt;&lt;ADC_V&gt;
+(.*)&lt;\/ADC_V&gt;&lt;IPLOT&gt;(.*)&lt;\/IPLOT&gt;&lt;VPLOT&gt;(.*)&lt;\/VPLOT&gt;/',$data,$results);
+
+$volts=$results[1][0];
+$amps=$results[2][0];
+$va=$results[3][0];
+$pow=$results[4][0];
+$pf=$results[5][0];
+$freq=$results[6][0];
+$gain=$results[7][0];
+$plotTime=$results[8][0];
+$iPer=$results[9][0];
+$vPer=$results[10][0];
+$iPlot=$results[11][0];
+$vPlot=$results[12][0];
+
+$v=explode(&quot;,&quot;,$vPlot);
+
+$peak=0;
+foreach($v as $value){
+	if($value&gt;$peak)
+		$peak=$value;
+}
+$p2p=2*$peak;
+
+$host = &quot;localhost&quot;;
+$uname = &quot;username&quot;;
+$pwd = &quot;passw&quot;;
+$db = &quot;database&quot;;
+
+$con = mysql_connect($host,$uname,$pwd);
+if (!$con)
+  {
+  die('Could not connect: ' . mysql_error());
+  }
+
+mysql_select_db($db, $con);
+$qry=&quot;INSERT INTO consumption (volts, p2p, amps, apparent, power, freq, pf,
+gain, iPer, vPer,timeLog) VALUES ($volts, $p2p,$amps, $va, $pow, $freq, $pf, 
+$gain, $iPer , $vPer, '$now')&quot;;
+echo $qry.&quot;&lt;br&gt;&quot;;
+mysql_query($qry);
+	
+$qry=&quot;UPDATE latestPlot SET timeLog='&quot;.$now.&quot;', plotTime=&quot;.$plotTime.&quot;, 
+vPlot='&quot;.$vPlot.&quot;', 
+iPlot='&quot;.$iPlot.&quot;'&quot;;
+	
+mysql_query($qry);
+
+mysql_close($con);
+?&gt;&nbsp;</pre><p>&nbsp;</p>
+<hr />
+<p class="rtecenter">&nbsp;</p>
+<p class="rtecenter">Any questions - ben at bbarker dot co dot uk</p>
+</div>
+    
+    
+      </div>
+<div id="comments">
+  <a id="comment-1955"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 20/07/2011 - 09:38.</div>
+    <div class="content">
+     <p>Great work! thanks for posting your work up here, really interesting addition of the programmable gain and using the same transformer. I see you say your transformer is 2x 9V secondary. Are you using a <span class="hilite6">dual</span> polarity <span class="hilite3">full</span>-<span class="hilite4">wave</span> center tap <span class="hilite5">rectifier configuration like the one half way down this page: http://www.allaboutcircuits.com/vol_3/chpt_3/4.html</span>, its meant to reduce total harmonic distortion compared with a bridge rectifier configuration right? I looked into it a while back and did some LTspice simulations but never built the circuit.</p>
+<p>Love the way you can see the waveform in the webpage!</p>
+<p>Thanks for sharing. Trystan</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1958"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ben&#039;s picture" title="Ben&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless energy monitor</h3>
+
+    <div class="submitted">Submitted by Ben (not verified) on Wed, 20/07/2011 - 21:12.</div>
+    <div class="content">
+     <p>I did try using a centre-tapped transformer, but found that since they were not isolated from each other I got some very strange results. </p>
+<p>The transformer I ended up using has two independent secondaries. Generally these are designed to be used either in the USA, or the EU - by wiring them either in parallel or series you can get (roughly) the same secondary voltage whether your primary is 110 or 230. I just left them entirely separate though, and then ran one of them through a diode ring and voltage regulator.  </p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1961"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Wireless energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 21/07/2011 - 11:04.</div>
+    <div class="content">
+     <p>What a good idea, that keeps both functions nice and isolated and it wont matter that the supply from the diode ring is floating, exellent! for some reason I did not think of that.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div></div></div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/197 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:21:52 GMT -->
+</html>

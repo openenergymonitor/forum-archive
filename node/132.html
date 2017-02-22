@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Bee monitor - Post processing MATLAB code  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h3><em>Applies lowpass filter and correctly formats date-stamp.&nbsp; </em></h3>
+<p>&nbsp;</p>
+<p><em>First load in CVS file into MATALB this&nbsp;</em><em>creates a 'data' and 'textdata' array </em></p>
+<p>&nbsp;</p>
+<pre>
+//split up data array into individual sensor readings </pre><pre><em>T1=data(:,1);</em>
+
+<em>T2=data(:,2);</em>
+
+<em>T3=data(:,3);</em>
+
+<em>T4=data(:,4);</em>
+
+<em>H1=data(:,5);</em>
+
+<em>H2=data(:,6);</em>
+
+<em>H3=data(:,7);   </em>
+
+<em>//filter data</em>
+
+<em>windowsSize=100;</em>
+
+<em>T1_filtered=filter(ones(1,windowsSize)/windowsSize,1,T1);</em>
+
+<em>T2_filtered=filter(ones(1,windowsSize)/windowsSize,1,T2);</em>
+
+<em>T3_filtered=filter(ones(1,windowsSize)/windowsSize,1,T3);</em>
+
+<em>T4_filtered=filter(ones(1,windowsSize)/windowsSize,1,T4);</em>
+
+<em>H1_filtered=filter(ones(1,windowsSize)/windowsSize,1,H1);</em>
+
+<em>H2_filtered=filter(ones(1,windowsSize)/windowsSize,1,H2);</em>
+
+<em>H3_filtered=filter(ones(1,windowsSize)/windowsSize,1,H3);   </em>
+
+<em>//save filtered data back into 'data' array</em>
+
+<em>filtered_data(:,1)=T1_filtered;</em>
+
+<em>filtered_</em><em>data(:,2)=T2_filtered;</em></pre><pre><em>filtered_</em><em>data(:,3)=T3_filtered;</em></pre><pre><em>filtered_</em><em>data(:,4)=T4_filtered;</em></pre><pre><em>filtered_</em><em>data(:,5)=H1_filtered;</em></pre><pre><em>filtered_</em><em>data(:,6)=H2_filtered;</em></pre><pre><em>filtered_</em><em>data(:,7)=H3_filtered;   </em></pre><pre><em>//convert '.' date seperator to '/' </em>
+
+<em>TimeStamp=textdata(:,1)           //extract dateand time </em><br />TimeStamp(1,:)=[];                //delete first header row of timestamp
+
+<em>DateNumberArray = datenum(TimeStamp, 'dd.mm.yyyy HH:MM:SS'); //create matlab date array</em>
+
+<em>DateString = datestr(DateNumberArray, 'dd/mm/yyyy HH:MM');  //output date in correct format (with '/' instread of '.')</em></pre><p>DateString_cell=cellstr(DateString);</p>
+<p>cell2csv('DateString.csv',DateString_cell); //<a href="http://www.mathworks.com/matlabcentral/fileexchange/4400-cell-array-to-csv-file-cell2csv-m">&nbsp;http://www.mathworks.com/matlabcentral/fileexchange/4400-cell-array-to-csv-file-cell2csv-m</a></p>
+<p>&nbsp;</p>
+<p>newdata(:,1)=T1_filtered;<br />
+newdata(:,2)=T2_filtered;<br />
+newdata(:,3)=T3_filtered;</p>
+<p>&nbsp;</p>
+<p>newdata(:,4)=T4_filtered;<br />
+newdata(:,5)=H1_filtered;<br />
+newdata(:,6)=H2_filtered;<br />
+newdata(:,7)=H3_filtered;</p>
+<p>&nbsp;</p>
+<p>newdata_cell=num2cell(newdata);</p>
+<p>cell2csv('newdata.csv',newdata_cell);</p>
+<pre>
+ </pre><p>&nbsp;</p>
+</div>
+    
+    
+      </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

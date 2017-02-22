@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6348 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:57:15 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>[SOLVED] Raspberry b+, emonSD-13-08-14 and rfm12pi v2.6: Unable to communicate with rfm12pi | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">[SOLVED] Raspberry b+, emonSD-13-08-14 and rfm12pi v2.6: Unable to communicate with rfm12pi</h3>
+        <span class="submitted">Submitted by Guest on Thu, 25/12/2014 - 23:06</span>
+        <div class="content"><p>Hi,</p>
+<p>I recently received a OEM bundle (emonTXv3; emonTH; raspberry B+ and the rfm12pi card), downloaded emonSD-13-08-14 and installed it to a SD card following <a href="https://github.com/emoncms/emoncms/blob/bufferedwrite/docs/setup.md">this. </a></p>
+<p>&nbsp;</p>
+<p>The OS is working fine, I enabled local emoncms and configured my /boot/emonhub.conf as explained on your documentation pages, and it is currently looking like this:</p>
+<pre>
+$ sed -e &#39;s/#.*$//&#39; -e &#39;/^$/d&#39; /boot/emonhub.conf
+
+[hub]
+loglevel = DEBUG
+[reporters]
+[[emonCMS]]
+    Type = EmonHubEmoncmsReporter
+    [[[init_settings]]]
+    [[[runtimesettings]]]
+        url = <a href="http://192.168.1.169/emoncms" title="http://192.168.1.169/emoncms">http://192.168.1.169/emoncms</a>
+        apikey = b53ec1abe610c66009b207d6207f2c9e
+[interfacers]
+[[RFM2Pi]]
+    Type = EmonHubJeeInterfacer
+    [[[init_settings]]]
+        com_port = /dev/ttyAMA0
+    [[[runtimesettings]]]
+        group = 210
+        frequency = 433
+        baseid = 15
+[nodes]
+[[99]]
+    datacode = h
+    datacodes = l, h, h, h,
+
+</pre><p>When started, the log seems OK:</p>
+<pre>
+2014-12-25 23:44:15,427 INFO EmonHub Pre-Release Development Version (rc1.0)
+2014-12-25 23:44:15,431 INFO Opening hub...
+2014-12-25 23:44:15,435 INFO Logging level set to DEBUG
+2014-12-25 23:44:15,439 INFO Creating EmonHubEmoncmsReporter &#39;emonCMS&#39;
+2014-12-25 23:44:15,454 INFO Set up reporter &#39;emonCMS&#39; (buffer: memory | size: 1000)
+2014-12-25 23:44:15,460 DEBUG Setting emonCMS url: <a href="http://192.168.1.169/emoncms" title="http://192.168.1.169/emoncms">http://192.168.1.169/emoncms</a>
+2014-12-25 23:44:15,464 INFO Creating EmonHubJeeInterfacer &#39;RFM2Pi&#39;
+2014-12-25 23:44:15,469 DEBUG Opening serial port: /dev/ttyAMA0
+2014-12-25 23:44:15,477 INFO Opened serial port: /dev/ttyAMA0 9600 bits/s
+2014-12-25 23:44:15,481 DEBUG Setting RFM2Pi frequency: 433 (4b)
+2014-12-25 23:44:16,486 DEBUG Setting RFM2Pi group: 210 (210g)
+2014-12-25 23:44:17,491 DEBUG Setting RFM2Pi baseid: 15 (15i)
+
+All seems to be fine (doesn&#39;t it ?), but when logging into emoncms, I noticed that no inputs where detected (the docs I read about the pre-configured modules suggest that it&#39;s automatic once the remote mods are detected).</pre><p>Again as suggested, I closed emonhub, and launched minicom:</p>
+<pre>
+# minicom -b9600 -D/dev/ttyAMA0</pre><p>but I&#39;m not able to send anything, and the only output looks strange:</p>
+<pre>
+Welcome to minicom 2.6.1
+
+OPTIONS: I18n
+Compiled on Apr 28 2012, 19:24:31.
+Port /dev/ttyAMA0
+
+Press CTRL-A Z for help on special keys
+
+CCG&Atilde;&Atilde;GSA&Atilde;CCE&yuml;</pre><p>the actual output line just continues to increment, and after say a minute, would look like this:</p>
+<pre>
+CCG&Atilde;&Atilde;GSA&Atilde;CCE&yuml;C&Ntilde;&ntilde;C&Ntilde;&otilde;CQ&ntilde;CCGCW&Atilde;&Atilde;&Atilde;CECQ&otilde;C&Aacute;&times;AGCCGQA&yuml;CC&Atilde;CC&Atilde;GS&Ccedil;GG&otilde;CGGGW&Atilde;&Ccedil;C&Atilde;ASU&otilde;CEG&Ntilde;SGCCGCC&otilde;CG&Atilde;C&Ccedil;GSCCW&Ccedil;&Ntilde;&otilde;CQ&otilde;CQ&otilde;CGCCC&Atilde;CG&Atilde;CCU&otilde;CCUCC&Atilde;EC&Ccedil;GCSA&yuml;C&Ccedil;CCC&Ccedil;&Ccedil;ACC&Ccedil;S&otilde;CQ&otilde;C&yuml;</pre><p>As the many posts on forums and the documentation suggest, I checked the inittab and cmdline files, who are looking good (as far as I understand !)</p>
+<pre>
+# cat /boot/cmdline.txt
+
+dwc_otg.lpm_enable=0 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait
+
+# grep AMA /etc/inittab
+#T0:23:respawn:/sbin/getty -L ttyAM</pre><p>also rpi-serial-console seems to say all is ok:</p>
+<pre>
+# rpi-serial-console status
+Serial console on /dev/ttyAMA0 is disabled
+
+</pre><p>So, at this point I&#39;m not to sure what&#39;s going on, as my knoledge about all my new tools are still quite limited !</p>
+<p>Is there anything I have missed ? Has anyone else faced this issue ?</p>
+<p>Any help / orientation is welcome :)</p>
+<p>&nbsp;</p>
+<p>EDIT:</p>
+<p>
+I forgot to talk about the led on the rfm12pi.</p>
+<p>At boot, turns on for a few secs, then blinks from time to time (as if it was detecting the data sent by the TX and TH mods.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="6278.html" class="topic-previous" title="Go to previous forum topic">‹ EmonTx V2 - Basic trouble shooting steps</a>
+              <a href="6353.html" class="topic-next" title="Go to next forum topic">Emoncms input calculations and usage? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-26132"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6952.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="bond79&#039;s picture" title="bond79&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: [SOLVED] Raspberry b+, emonSD-13-08-14 and rfm12pi v2.6: Unable to communicate with rfm12pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6952.html" title="View user profile.">bond79</a> on Fri, 26/12/2014 - 10:53.</div>
+    <div class="content">
+     <p>I am not sure, what&#39;s the default baud rate for the rfm12pi, but the garbled output is probably due to wrong baud rate.</p>
+<p>Test different baud rates with minicom (I would first try 57600) and then put the one that works&nbsp; in emonhub.conf with &quot;com_baud = 57600&quot; in the init_settings below com_port.</p>
+<p>I think there is also a newer version of emonhub, that tests automatically for different baud rate at launch.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26133"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="etal&#039;s picture" title="etal&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: [SOLVED] Raspberry b+, emonSD-13-08-14 and rfm12pi v2.6: Unable to communicate with rfm12pi</h3>
+
+    <div class="submitted">Submitted by etal (not verified) on Fri, 26/12/2014 - 11:32.</div>
+    <div class="content">
+     <p>Hello M. Bond</p>
+<p>Flat on ! 57600bps seems to be the exact ehange rate. I&#39;m now able to receive the data from both my modules.</p>
+<p>I tested a few last night, but gave up before reaching 57600bps.</p>
+<p>Thanks very much.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26134"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: [SOLVED] Raspberry b+, emonSD-13-08-14 and rfm12pi v2.6: Unable to communicate with rfm12pi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 26/12/2014 - 12:07.</div>
+    <div class="content">
+     <p>Hi etal,</p>
+<p>Successfully&nbsp;connecting to the rfm2pi&nbsp;@ 57600 means it is one of the latest &quot;rf69&quot; equipped rfm2pi&#39;s. Manually setting the baud in emonhub.conf will work perfectly well but you may want to read &nbsp;the&nbsp;<a href="6244.html">&quot;RFM12Pi&nbsp;with RFM69CW&quot;</a> thread, The baud has since been changed in production and you may wish to update yours to keep inline with the current&nbsp;&quot;standard&quot; specifications. (<span style="font-size: 12.7272720336914px; line-height: 18.9090900421143px;">recommended but</span><span style="font-size: 12.7272720336914px; line-height: 18.9090900421143px;">&nbsp;</span><span style="font-size: 13px; line-height: 1.6;">not </span><span style="font-size: 13px; line-height: 1.6;">essential, however&nbsp;you should at least be aware)</span></p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26171"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="etal&#039;s picture" title="etal&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: [SOLVED] Raspberry b+, emonSD-13-08-14 and rfm12pi v2.6: Unable to communicate with rfm12pi</h3>
+
+    <div class="submitted">Submitted by etal (not verified) on Sat, 27/12/2014 - 15:39.</div>
+    <div class="content">
+     <p>Hello Paul,</p>
+<p>&nbsp;</p>
+<p>Thankyou for the clarification. I didn&#39;t pay attention to the board type.</p>
+<p>All working fine now, I&#39;m happily monitoring my home installation :)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/6348"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-NZ-3Mr02Lc4IvezsxIzDZb34FlcAlYaLx9zb4stQXS8" value="form-NZ-3Mr02Lc4IvezsxIzDZb34FlcAlYaLx9zb4stQXS8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6348 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:57:15 GMT -->
+</html>

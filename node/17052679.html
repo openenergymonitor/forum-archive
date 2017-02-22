@@ -1,0 +1,1575 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Tracking DC-offset using lobe timing instead of HPF | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/4">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Tracking DC-offset using lobe timing instead of HPF</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Wed, 19/12/2012 - 21:46</span>
+        <div class="content"><h3>
+	The problem</h3>
+<p>EmonLib uses a high pass filter (HPF) to remove the DC-offset from current and voltage readings. One problem with this approach is that the HPF will produce the wrong answer if measuring loads with asymmetrical current waveforms (i.e. waveforms where the integral of the positive lobes are not equal and opposite to the integral of the negative lobes). For example, my wife&#39;s hair dryer has two speeds: slow and fast. The &quot;slow&quot; setting simply inserts a diode in series with the heater, hence the heater only draws power for half of every mains cycle. The emonTX&#39;s HPF wants to give the filtered signal a mean of zero but this is not the desired behavior for asymmetric loads.</p>
+<p>(Thanks loads to Robert, MartinR and Robin for very illuminating discussions on this issue elsewhere)</p>
+<p>Here&#39;s the output of the emonTX&#39;s HPF when measuring the current waveform of my wife&#39;s hair dryer on slow (the emonTX is taking 45 samples per cycle):</p>
+<p><img src="http://xlk.org.uk/ext/hairdryer_low.png" /></p>
+<p>&quot;0&quot; is far too high.</p>
+<p>The end result is that the emonTX&nbsp; under estimates the RMS amps calculation for the hair dryer on &quot;low&quot; (my reference meter is a <a href="https://www.wattsupmeters.com/secure/products.php?pn=0&amp;wai=0&amp;spec=1">Watts Up Pro .NET</a>)</p>
+<table border="1" cellpadding="1" cellspacing="1" style="width: 500px;">
+<tbody>
+<tr>
+<td>
+				&nbsp;</td>
+<td>
+				WattsUp</td>
+<td>
+				emonTX</td>
+</tr>
+<tr>
+<td>
+				RMS amps</td>
+<td>
+				3.62 A</td>
+<td>
+				<span style="color:red">2.82 A</span></td>
+</tr>
+<tr>
+<td>
+				real power</td>
+<td>
+				623 W</td>
+<td>
+				612 W</td>
+</tr>
+<tr>
+<td>
+				apparent power</td>
+<td>
+				870 VA</td>
+<td>
+				<span style="color:red">680 VA</span></td>
+</tr>
+<tr>
+<td>
+				power factor</td>
+<td>
+				0.70</td>
+<td>
+				<span style="color:red">0.90</span></td>
+</tr>
+</tbody>
+</table>
+<h3>
+	A possible solution</h3>
+<p>This post describes an alternative algorithm which replaces the HPF and uses the symmetry (or lack thereof) of alternate lobe durations to determine the DC offset. (I couldn&#39;t sleep last night. This is why!)</p>
+<h4>
+	The basic idea</h4>
+<p>Consider the diagram below of a sine wave with three horizontal lines drawn through it.</p>
+<p><a href="http://www.flickr.com/photos/37816297@N06/8289154850/"><img height="166" src="http://farm9.staticflickr.com/8363/8289154850_019f9cfae4.jpg" width="500" /></a></p>
+<p>First look at the middle line: the points at which the middle line cross the sine wave are equally spaced.</p>
+<p>But now consider the top line: the first two crossing points are close together but the second and third cross points are far apart. This gives us a clue that the top and bottom lines are not the correct &quot;zero offsets&quot; for the sine wave.</p>
+<h4>
+	The algorithm</h4>
+<ul>
+<li>
+		At start-up, set <span style="font-family:monospace">zero_offset</span> to be the mean of 1 second&#39;s worth of samples.</li>
+<li>
+		In the sampling loop:</p>
+<ul>
+<li>
+				In place of the HPF, &quot;filter&quot; every sample like this: <span style="font-family:monospace">filtered = sample - zero_offset</span></li>
+<li>
+				For every raw sample, check if we&#39;ve just crossed <span style="font-family:monospace">zero_offset</span>. If we have then record the length of time that has passed since last crossing the <span style="font-family:monospace">zero_offset</span> (i.e. the duration for the previous lobe). Compare the duration of the previous lobe with the duration of the penultimate lobe. If they are approximately equal then don&#39;t modify <span style="font-family:monospace">zero_offset</span>. If they are not equal then add or subtract 0.1 from zero_offset (depending on whether the last lobe was larger than the penultimate lobe and depending on which lobe was positive and which was negative).</li>
+</ul>
+</li>
+</ul>
+<p>The end result is that we update <span style="font-family:monospace">zero_offset</span> twice every cycle.</p>
+<h3>
+	Results</h3>
+<p>Here&#39;s the output from the &quot;lobe timing asymmetry detection&quot; (LTAD) algorithm when measuring the hair dryer on low:</p>
+<p><img src="http://xlk.org.uk/ext/hairdryer_lobe.png" /></p>
+<p>I don&#39;t have a &#39;scope so I can&#39;t be sure but that looks like the correct position for zero!</p>
+<p>Below are comparison of RMS current calculations for several different appliances.&nbsp; The &quot;emonTX slow&quot; and &quot;emonTX fast&quot; columns are using EmonLib&#39;s HPF.&nbsp; The &quot;LTAD&quot; column is the &quot;lobe timing asymmetry detection&quot; algorithm.&nbsp; &quot;WattsUp&quot; is my reference meter.</p>
+<table border="1" cellpadding="1" cellspacing="1" style="width: 600px;">
+<tbody>
+<tr>
+<td>
+				&nbsp;</td>
+<td>
+				WattsUp</td>
+<td>
+				emonTX slow (17 s/c)</td>
+<td>
+				emonTX fast (45 s/c)</td>
+<td>
+				LTAD (28 s/c)</td>
+</tr>
+<tr>
+<td>
+				hair dryer (slow) (PF=0.70)</td>
+<td>
+				&nbsp;3.62 A</td>
+<td>
+				<span style="color:red">&nbsp;2.82 A</span></td>
+<td>
+				<span style="color:red">&nbsp;2.85 A</span></td>
+<td>
+				&nbsp;3.61 A</td>
+</tr>
+<tr>
+<td>
+				hair dryer (fast) (PF=1.00)</td>
+<td>
+				&nbsp;6.72 A</td>
+<td>
+				&nbsp;6.73 A</td>
+<td>
+				&nbsp;6.81 A</td>
+<td>
+				&nbsp;6.79 A</td>
+</tr>
+<tr>
+<td>
+				75 watt incandescent lamp (not on dimmer) (PF=0.95)</td>
+<td>
+				&nbsp;0.35 A</td>
+<td>
+				&nbsp;0.31 A</td>
+<td>
+				&nbsp;0.32 A</td>
+<td>
+				&nbsp;0.31 A</td>
+</tr>
+<tr>
+<td>
+				1.5kW toaster (PF=1.00)</td>
+<td>
+				&nbsp;6.50 A</td>
+<td>
+				&nbsp;6.51 A</td>
+<td>
+				&nbsp;6.52 A</td>
+<td>
+				&nbsp;6.56 A</td>
+</tr>
+<tr>
+<td>
+				soldering iron (temperature controlled) (PF=0.71)</td>
+<td>
+				&nbsp;0.33 A</td>
+<td>
+				&nbsp;0.31 A</td>
+<td>
+				&nbsp;0.30 A</td>
+<td>
+				&nbsp;0.32 A</td>
+</tr>
+<tr>
+<td>
+				75 watt incandescent dimmed to ~50% (PF=0.44)</td>
+<td>
+				&nbsp;0.34 A</td>
+<td>
+				<span style="color:red">&nbsp;0.28 A</span></td>
+<td>
+				<span style="color:red">&nbsp;0.27 A</span></td>
+<td>
+				<span style="color:red">&nbsp;0.28 A</span></td>
+</tr>
+<tr>
+<td>
+				hoover (speed 1/6) (PF=0.29)</td>
+<td>
+				&nbsp;3.90 A</td>
+<td>
+				&nbsp;3.80 A</td>
+<td>
+				&nbsp;3.70 A</td>
+<td>
+				&nbsp;3.91 A</td>
+</tr>
+<tr>
+<td>
+				hoover (speed 4/6) (PF=0.52)</td>
+<td>
+				&nbsp;6.25 A</td>
+<td>
+				&nbsp;6.12 A</td>
+<td>
+				&nbsp;5.97 A</td>
+<td>
+				&nbsp;6.25 A</td>
+</tr>
+<tr>
+<td>
+				hoover (speed 6/6) (PF=0.95)</td>
+<td>
+				&nbsp;8.70 A</td>
+<td>
+				&nbsp;8.70 A</td>
+<td>
+				&nbsp;8.66 A</td>
+<td>
+				&nbsp;8.74 A</td>
+</tr>
+</tbody>
+</table>
+<p>power factors reported by WattsUp.</p>
+<p>The WattsUp and emonTX are reporting RMS amps once every second.</p>
+<p>The algorithm appears to report the correct answer for the hair dryer and for all other tested appliances, EXCEPT the incandescent lamp dimmed to ~50% with a PF=0.44. To investigate what&#39;s going wrong with the dimmed lamp, here are two traces:</p>
+<p>Dimmed lamp raw analogRead() samples:</p>
+<p><img src="http://xlk.org.uk/ext/lamp_raw.png" /></p>
+<p>Two things jump out of the graph above: firstly, we&#39;re using a tiny fraction of the ADC&#39;s dynamic range. Secondly, the second, third and fourth negative lobes include a spike down to 508 but the first and last negative lobes do not: perhaps we&#39;re not sampling fast enough to reliably capture this brief spike?</p>
+<p>Here&#39;s the LTAD output for the dimmed lamp:</p>
+<p><img src="http://xlk.org.uk/ext/lamp_ltad.png" /></p>
+<p>So LTAD appears to be successfully locating the zero-offset. In order to get a better reading for the dimmed lamp, we&#39;d probably need to sample faster and/or use a smaller current CT clamp and/or use a switched-gain op-amp between the CT and ADC.</p>
+<h3>
+	Improvements that could be made to LTAD</h3>
+<p>The above algorithm is far from optimal. Some possible improvements in the algo and implementation:</p>
+<ul>
+<li>
+		In the algorithm above, we filter lobe <span style="font-family:monospace">n</span> using a <span style="font-family:monospace">zero_offset</span> which was last updated using data from lobe <span style="font-family:monospace">n-1</span> hence it can&#39;t react to very quick changes. It might be better to record the raw samples for an entire lobe (perhaps using timer IRQs and a circular buffer as suggested by Arvid and MartinR), then calculate the <span style="font-family:monospace">zero_offset</span> <em>for that lobe</em> and then filter the samples <em>for that lobe</em> using the new <span style="font-family:monospace">zero_offset</span></li>
+<li>
+		If the algorithm above finds the last and penultimate lobes are unequal (and hence <span style="font-family:monospace">zero_offset</span> must be updated) then it only nudges <span style="font-family:monospace">zero_offset</span> by 0.1 each loop, no matter how unequal the durations of the last and penultimate lobes are. It may be better to alter <span style="font-family:monospace">zero_offset</span> by a value proportional to the difference between the durations of the previous and penultimate lobes.</li>
+<li>
+		Convert maths to integer maths to increase processing speed as per Robin&#39;s excellent work! I haven&#39;t looked into it but I suspect this algorithm is ripe for &quot;integerising&quot; (not least because the &quot;filter&quot; step is just a simple subtraction)</li>
+<li>
+		Interpolate to locate zero-crossing events with sub-sample accuracy</li>
+<li>
+		I need to investigate further how LTAD behaves with the dimmed lamp.&nbsp; I&#39;m not entirely sure how it&#39;s producing the right answer!&nbsp; Might be fluke ;)</li>
+<li>
+		Looking again at the first graph under the &quot;Results&quot; heading (i.e. the graph of LTAD&#39;s output for the half-wave hair dryer)... what would happen if the DC-offset started at, say, -5 on that graph?&nbsp; LTAD, as it stands at the moment, would have no mechanism to rescue the DC-offset because there are no zero crossings at -5.</li>
+</ul>
+<h3>
+	The code</h3>
+<p>The <a href="https://github.com/JackKelly/emontx/">code is available on github</a> but PLEASE NOTE that it&#39;s a bloody mess at the moment as I&#39;ve been tinkering a lot. The code will hopefully settle down over the next few days. (I&#39;m not even sure if I&#39;ll stick with the OOP design I&#39;m currently using; the EmonLib code might include some code duplication but it probably reads more easily.) The LTAD algorithm is mostly implemented in just two functions: <span style="font-family:monospace">Waveform::update_zero_offset()</span> and <span style="font-family:monospace">Waveform::just_crossed_zero()</span></p>
+<h3>
+	Update: Some background to what my ultimate aims are</h3>
+<p>For my project, I&#39;m trying to collect the best data set I can for computer science research into &quot;<a href="http://en.wikipedia.org/wiki/Nonintrusive_load_monitoring">non-intrusive load monitoring</a>&quot; AKA &quot;NILM&quot; AKA &quot;smart meter disaggregation&quot;.&nbsp; The aim of the game is to produce an open-source software system capable of producing an appliance-by-appliance, itemised electricity bill using just the data from a smart meter (or emonTX or whatever you happen to have connected to your mains supply).&nbsp; There&#39;s good evidence that people are best able to reduce their energy consumption when they have appliance-by-appliance information (&quot;your fridge used &pound;25 worth of electricity this quarter&quot;) compared to whole-house consumption data alone (&quot;your house used &pound;150 this quarter&quot;).&nbsp; In order to recognise &quot;signatures&quot; of different appliances in the aggregate signal, we have to extract as much useful information from the mains supply as possible.&nbsp; As such, it&#39;s really important to have accurate measurements of both real power and reactive power (because some appliances can be identified on the basis of their power factor) as well as high-resolution readings of step-changes in power consumption (but that&#39;s a topic for<a href="http://openenergymonitor.org/emon/node/1680"> another thread</a>).&nbsp; In my specific case, I&#39;m trying to accurately (and cheaply) mimic what a &quot;smart-meter&quot; will record, not what a &quot;spinning-disk&quot; meter reads. The UK spec for smart meters hasn&#39;t been finalised yet but the draft spec suggests that smart meters will provide data on both real power and reactive power once every 5 seconds to the &quot;home area network&quot;.</p>
+<p>Specifically, I will be running an MSc group project next term.&nbsp; 6 MSc students will install meters in their houses/flats.&nbsp; So all the hardware has to be easy to install.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/754" class="topic-previous" title="Go to previous forum topic">‹ RESOLVED - GLCD on V1.4 - low contrast &amp; fading screen?</a>
+              <a href="/emon/node/1683" class="topic-next" title="Go to next forum topic">Trying to make the emontx shield working... ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-8433"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Wed, 19/12/2012 - 22:01.</div>
+    <div class="content">
+     <p>I&#39;m not convinced that the point of equidistant crossing IS the correct zero.</p>
+<p>Consider this thought example: When looking for the zero point we want the area under the graph to be the same for each part of the cycle (don&#39;t we?). Now, go back to your hand drawn picture of a sine wave and trim the top of it off, so that the positive lobes are clipped to just above your zero line.&nbsp;</p>
+<p>Your algorithm will keep zero in the same place, but there will be drastically more area under the zero line than above it.</p>
+<p>Can you see what I mean, so shall I add pictures?</p>
+<p>I&#39;m not saying that what&#39;ve you&#39;ve done isn&#39;t better than what we already have, I&#39;m just questioning whether the point where the samples are equidistant is really the correct place for zero.</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8434"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Wed, 19/12/2012 - 22:19.</div>
+    <div class="content">
+     <blockquote><p><em>I&#39;m just questioning whether the point where the samples are equidistant is really the correct place for zero.</em></p>
+</blockquote>
+<p>Yes, this is the most crucial question about the LTAD algorithm (crap name, I know... but I don&#39;t feel comfortable calling it &quot;my&quot; algo as I&#39;m sure it&#39;s not original)!&nbsp; Unfortunately I simply don&#39;t know enough about power electronics to know the answer.&nbsp; All I know is that the LTAD algorithm appears to do a decent job in empirical testing.&nbsp; And my guess is that the voltage waveform will always have equal duration negative and positive lobes so the current waveform should too, although the current waveform might be out of phase with the voltage waveform.</p>
+<blockquote><p><em>When looking for the zero point we want the area under the graph to be the same for each part of the cycle (don&#39;t we?)... Can you see what I mean, so shall I add pictures?</em></p>
+</blockquote>
+<p>I think I see what you mean but I&#39;m a bit confused... aren&#39;t you describing a situation similar (but less extreme) to the hair dryer on &quot;low&quot;? i.e. the hair dryer chops off the entire &quot;negative lobe&quot; but we do in fact want the zero-offset to respect this &quot;missing lobe&quot; and not try to compensate for it.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8436"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Wed, 19/12/2012 - 22:37.</div>
+    <div class="content">
+     <p>I suppose that what we really need is to sample neutral. On the &#39;other&#39; side of the transformer it&#39;s easy - when Live is above neutral then we&#39;re in the +ve part of the waveform, and when it&#39;s below neutral we&#39;re in the -ve half. But the transformer (and indeed the DC bias) adds a floating element to things.</p>
+<p>Maybe going back to a couple of high-value resistors rather than using a transformer is the way forward, despite the risks. No distortion. No added phase lag. No saturation problems. But no galvanic isolation, either...</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8439"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Wed, 19/12/2012 - 22:46.</div>
+    <div class="content">
+     <blockquote><p><em>Maybe going back to a couple of high-value resistors rather than using a transformer is the way forward</em></p>
+</blockquote>
+<p>My laptop still has PTSD from <a href="http://jack-kelly.com/blew_up_my_laptop_sniffing_spi_bus_of_iam">its last run-in with no galvanic isolation</a> ;)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8441"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 19/12/2012 - 22:56.</div>
+    <div class="content">
+     <p>Jack, I too have long been troubled by the idea of the DC offset being &#39;wrong&#39; when the current is not a true sinusoid.&nbsp; For my Mk2 PV Router, the &#39;zero&#39; DC point was determined just once, using a LPF on the voltage stream.&nbsp; This value was then subtracted from both sets of raw samples.&nbsp;</p>
+<p>Having realised that the &#39;zero point&#39; of the CT&#39;s output would drift when the waveform is no longer sinusoidal, I decided to reinstate the standard arrangement of twin HPFs, one on each sample stream.&nbsp; By that means, each stream would have the best chance of finding its own level.&nbsp;</p>
+<p>In the case of your (wife&#39;s) hair-drier, or my (very own!) hot-air gun, the current taken by these appliances at half power is indeed extreme.&nbsp; In each case, the CT&#39;s output will shift until the waveform is sitting as symmetrically as it can around the 2.5V reference point.&nbsp; A simple sketch of the voltage and current profiles shows that the power calculation is quite complex.</p>
+<p>For most of the active half of each mains cycle, the instantaneous power values will be low because the current waveform is offset.&nbsp; Similarly, for the inactive half of each cycle, some power will be seen when none is actually being drawn.&nbsp; Close to each zero-crossing point, there will be a short period when the voltage and current have opposite polarites, so the contributions from such sample pairs (instP) will reduce rather than increase the overall sum (sumP).</p>
+<p>A good way to study this kind of topics is with a spreadsheet.&nbsp; But an easier way is to use the code that I recently posted for my Mk2a PV Router.&nbsp; Its TALLYMODE mode is ideal for this kind of investigation :D</p>
+<p>Using limits of 0W and 2000W, I did a 10-second run on each power setting.&nbsp; Each set of data was transferred to a spreadsheet and displayed as a scatterplot, as attached.&nbsp; The full power graph is straightforward enough, with similar amounts of power in both halves of the mains cycle, but the half-power one looks very odd.&nbsp; Each half of the cycle contains power, with one half having around 30% more power than the other.&nbsp;</p>
+<p>The real point of this investigation, however, is to ascertain whether the standard power/energy calculations that we make using our non-invasive sensors are significantly different than the <em>actual</em> power that&#39;s being consumed by the load, which is what our utility meters will be measuring.&nbsp; The graphs that I&#39;m seeing suggest that our calculated values will actually provide a surprisingly good match.</p>
+<p>Simulations with sinusoidal waveforms have shown that a DC offset has very little effect until the lop-sidedness becomes really extreme.&nbsp; By this I mean once the offset exceeds the peak voltage!&nbsp;&nbsp; Whichever direction of offset is added relative to the true mid-point, the calculated current always increases.&nbsp; But because the true mid-point is at a minimum of the energy curve, small offsets in either direction cause very little increase.&nbsp;</p>
+<p>Similarly, the overall error that is caused by (the CT&#39;s representation of) our wacky half-wave appliances being able to drift to their own &#39;incorrect&#39; DC point, and thereby show power in both halves of the cycle, is actually pretty minimal.&nbsp; Micropence, some may say!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8442"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Wed, 19/12/2012 - 23:01.</div>
+    <div class="content">
+     <p>Thanks loads for the detailed reply!</p>
+<blockquote><p>&nbsp;</p>
+<p><em>Simulations with sinusoidal waveforms have shown that a DC offset has very little effect until the lop-sidedness becomes really extreme.&nbsp;&nbsp;&nbsp;</em></p>
+</blockquote>
+<p>Yes, I expect that&#39;s right (and you can see evidence for this statement in the table of appliances I measured: emonTX&#39;s standard HPF does a great job for all appliances except the hair dryer).</p>
+<p>I should&#39;ve mentioned my motivation: my ultimate aim is to gather a data set for doing non-intrusive load monitoring (NILM) computer science research.&nbsp; Having accurate readings for <em>real</em> versus <em>reactive</em> power is quite important for this research.&nbsp; So I was quite frightened by the really wacky &quot;apparent&quot; power value the emonTX gave for the hair dryer and wanted to find if there was anything to be done in software.&nbsp; I think I will stick with my algorithm, especially if I can adapt it to use the integer arithmetic wizardry you&#39;ve pioneered ;)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8443"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 19/12/2012 - 23:19.</div>
+    <div class="content">
+     <p>One way to compensate for the drift - if it were necessary or helpful to do so - would be to note the moment when the <em>voltage</em> waveform crosses its zero point.&nbsp; This could be done fairly easily by interpolating between the nearest samples on either side.&nbsp; Then, transfer this temporal information to the <em>current</em> stream and calculate the equivalent value of the raw current stream at that same moment.&nbsp; Having applied the appropriate phaseCal correction, the two streams are effectively being sampled at the same instants.</p>
+<p>Whenever the voltage is crossing its zero point, it seems fair to assume that the current will be zero too.&nbsp; So, just note the raw value of current at that moment, and subtract it from all subsequent raw current samples.&nbsp; In practice, some kind of accumulator would be maintained that holds the calculated &#39;zero point&#39; for the current stream.&nbsp; At every z/c point of the voltage waveform, the accumulator&nbsp; would be updated according to the actual value of current at that point.&nbsp; By this means, the &#39;correct&#39; zero point (aka mains Neutral) could be ascertained for calculation purposes despite the current being absent for half of the cycle.</p>
+<p>Given that a solution of this kind should be technically feasible, it&#39;s tempting to come up with some super-efficient algorithm that performs this function.&nbsp; But if the benefit would really be very little, then maybe there are more worthwhile things to be done.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8444"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 19/12/2012 - 23:33.</div>
+    <div class="content">
+     <p>Here&#39;s another spreadsheet which shows the effect of lop-sidedness on calculated power.&nbsp; I can&#39;t now remember why I did this one, but maybe it will be of some use to someone!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8446"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Wed, 19/12/2012 - 23:50.</div>
+    <div class="content">
+     <p><em>One way to compensate for the drift - if it were necessary or helpful to do so - would be to note the moment when the voltage waveform crosses its zero point.</em></p>
+<p>But is that even possible? We don&#39;t have an accurate zero reference on the secondary side of the transformer, especially once we&#39;ve applied the DC bias. We could just assume that zero is the middle of the waveform, but V can be almost as wonky as I.</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8448"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Thu, 20/12/2012 - 00:02.</div>
+    <div class="content">
+     <p><em>&quot;Whenever the voltage is crossing its zero point, it seems fair to assume that the current will be zero too</em>&quot;</p>
+<p>Not true when there is a reactive component in the load. Connect a pure capacitor or a pure inductor and the current zero aligns exactly with the voltage peak.</p>
+<p>&nbsp;</p>
+<p><em>&quot;but V can be almost as wonky as I.</em>&quot;</p>
+<p>But mercifully it usually isn&#39;t.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8450"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Thu, 20/12/2012 - 08:22.</div>
+    <div class="content">
+     <p>I really like this idea Jack, a bit of genuine original thought - well done!</p>
+<p>It will clearly work for a pure sine wave, the half-wave case, or any symmetrical, monotonic&nbsp;waveform that&nbsp;has a slope at the zero crossings.</p>
+<p>Obviously it wouldn&#39;t work for the extreme case of a square wave so it&#39;s just a matter of whether there&#39;s any real-world waveforms that would confuse it.</p>
+<p>There&#39;s also the difficulty of accurately measuring the half periods with limited sampling (I haven&#39;t looked at your code yet to see how you&#39;ve done this).</p>
+<p>Regardless to any problems though this is a clever idea and was worth your restless night even as a theoretical solution to the half-wave problem.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8457"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Thu, 20/12/2012 - 10:52.</div>
+    <div class="content">
+     <blockquote><p><em>I really like this idea Jack, a bit of genuine original thought - well done!</em></p>
+</blockquote>
+<p>Really glad you like it ;)</p>
+<blockquote><p><em>There&#39;s also the difficulty of accurately measuring the half periods with limited sampling (I haven&#39;t looked at your code yet to see how you&#39;ve done this).</em></p>
+</blockquote>
+<p>Absolutely.&nbsp; At the moment, the code does <em>no</em> interpolation.&nbsp; The code really is just a messy proof-of-concept at the moment (I wanted to test the basic idea before tweaking it).&nbsp; There&#39;s a heck of a lot of polishing to do.</p>
+<p>On the plus side, this &quot;LTAD&quot; algorithm gives me a good excuse to try to push the sample rate up as high as possible (because the algorithm requires accurate zero-crossing detection) using all the great ideas developed by you and Robin and others (integer maths, IRQ-driven non-blocking sampling, circular buffers etc).&nbsp; Not sure if I&#39;ll get time to do this before Christmas though...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8458"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1958" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1958.png" alt="fluppie007&#039;s picture" title="fluppie007&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1958" title="View user profile.">fluppie007</a> on Thu, 20/12/2012 - 11:22.</div>
+    <div class="content">
+     <p>What about using high quality ADC&#39;s to do this calculations, so the main CPU has some extra processing power?<br />
+	I mean IC&#39;s like:<br />
+	<a href="http://www.analog.com/en/analog-to-digital-converters/energy-measurement/products/index.html">http://www.analog.com/en/analog-to-digital-converters/energy-measurement/products/index.html</a><br />
+	<a href="http://www.microchip.com/ParamChartSearch/chart.aspx?branchID=11029&amp;mid=11&amp;lang=en&amp;pageId=79">http://www.microchip.com/ParamChartSearch/chart.aspx?branchID=11029&amp;mid=11&amp;lang=en&amp;pageId=79</a></p>
+<p>	I like this last one, it&#39;s made for accurate 3-phase metering (6 ADC&#39;s):<br />
+	<a href="http://www.microchip.com/wwwproducts/Devices.aspx?dDocName=en554558">http://www.microchip.com/wwwproducts/Devices.aspx?dDocName=en554558</a></p>
+<p>&nbsp;What do you guys think about this?</p>
+<p>&nbsp;EDIT: Or this one <a href="http://www.ti.com/tool/msp430-energy-library" title="http://www.ti.com/tool/msp430-energy-library">http://www.ti.com/tool/msp430-energy-library</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8459"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Thu, 20/12/2012 - 11:09.</div>
+    <div class="content">
+     <blockquote><p><em>What about using high quality ADC&#39;s to do this calculation...</em></p>
+</blockquote>
+<p>24-bit ADC resolution certainly sounds tasty.&nbsp; (ADC resolution is <a href="http://openenergymonitor.org/emon/node/1680#comment-8455">bugging me too</a>).</p>
+<blockquote><p><em>so the main CPU has some extra processing power?</em></p>
+</blockquote>
+<p>I&#39;m not sure exactly what you mean?&nbsp; The ATMEGA&#39;s ADC doesn&#39;t really sap any processing power (at least, not if you use it in non-blocking mode instead of using the analogRead() Arduino function).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8464"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1958" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1958.png" alt="fluppie007&#039;s picture" title="fluppie007&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1958" title="View user profile.">fluppie007</a> on Thu, 20/12/2012 - 11:24.</div>
+    <div class="content">
+     <blockquote><p><em>I&#39;m not sure exactly what you mean?&nbsp; The ATMEGA&#39;s ADC doesn&#39;t really sap any processing power (at least, not if you use it in non-blocking mode instead of using the analogRead() Arduino function).</em></p>
+</blockquote>
+<p>Aha, didn&#39;t know about that non-blocking mode. The few times I played around with the ADC&#39;s was with AnalogRead :-).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8471"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Thu, 20/12/2012 - 12:01.</div>
+    <div class="content">
+     <blockquote><p><em>Aha, didn&#39;t know about that non-blocking mode</em></p>
+</blockquote>
+<p>I should clarify a bit: I perhaps slightly mis-represented the situation by calling it a &quot;non-blocking <strong>mode</strong>&quot;.&nbsp; Basically, analogRead does three things: it tells the ADC to start conversion, it then busy-waits in a while loop waiting for the ADC to finish, and it then reads the ADC&#39;s output.&nbsp; If you use the low-level commands to tell the ADC to start in your own code (instead of calling analogRead()) then you can do useful work while waiting for the ADC to finish (but you&#39;ll need to keep checking if the conversion has completed).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8473"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Thu, 20/12/2012 - 12:16.</div>
+    <div class="content">
+     <p>...or better still use the ADC interrupt so you don&#39;t have to keep checking</p>
+<p>I like that 3-phase metering chip BTW fluppie007.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8475"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Thu, 20/12/2012 - 12:35.</div>
+    <div class="content">
+     <blockquote><p><em>or better still use the ADC interrupt so you don&#39;t have to keep checking</em></p>
+</blockquote>
+<p>The ADC fires an IRQ when it finishes?&nbsp; Brilliant!&nbsp; This just keeps getting better ;)&nbsp; So we really can keep the ADC running flat-out (as long as we can process data fast enough)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8478"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Thu, 20/12/2012 - 12:28.</div>
+    <div class="content">
+     <p><em>RE: One way to compensate for the drift - if it were necessary or helpful to do so - would be to note the moment when the voltage waveform crosses its zero point.</em></p>
+<p><em>PO: But is that even possible? We don&#39;t have an accurate zero reference on the secondary side of the transformer, especially once we&#39;ve applied the DC bias. We could just assume that zero is the middle of the waveform, but V can be almost as wonky as I.</em></p>
+<p>If a HP filter is used on the voltage stream, then the DC mid-point is being repeatedly being pulled this way and that.&nbsp; If you compare the filtered and raw samples, there&#39;s quite a difference around the zero-crossing points.&nbsp; When the raw samples cross the 512 point, the filtered values are significantly different on the +ve and -ve going directions, maybe +/- 30 steps.&nbsp; This effect is caused by the 0.996 factor in the algorithm.&nbsp; Although this looks rather worrying in micro terms, the macro effect of the HPF is essentially just to advance the phase of the waveform slightly.&nbsp; By having a similar HPF on each sample stream, their effects balance out nicely.</p>
+<p>For the scheme I&#39;m suggesting, it would be better to use a LP filter on the voltage waveform only.&nbsp; By updating this only one per mains cycle, as per my Mk2 design, the contributions from individual voltage samples are mostly pre-cancelled before the LP filter is updated.&nbsp; By this means, ripple on the output is virtually eliminated.&nbsp;</p>
+<p>We now have a stable DC point, expressed in ADC samples, which corresponds to the mid-point of the voltage waveform.&nbsp; This point will never change much.&nbsp; The profile of the voltage waveform is surely an order of magnitude or two more predictable than that of the current.&nbsp; For our practical purposes, whenever the voltage is at this point, the current will always be close to zero.&nbsp;&nbsp; Correct use of the phaseCal algorithm helps to achieve this situation, by drawing the Power Factor value towards unity.</p>
+<p>Each second, this &#39;zero&#39; level will be crossed 100 times by the voltage stream.&nbsp; On each occasion, the samples on either side of this point can be examined.&nbsp; By interpolation at some appropriate resolution, the zero-crossing point can then be accurately determined.&nbsp; When using integer maths, it may be sufficient to split each sample interval into sixteenths, then the calculation would take minimal time.&nbsp;</p>
+<p>Having ascertained that the voltage waveform crossed the zc point, say 3/16 of the way between samples N and N+1, we can then determine the equivalent raw sample value for the current at that same instant, i.e. 3/16 of the way between its sample N and N+1. &nbsp; This calculated value can then be regarded as the zero point for the current stream at that moment.&nbsp; Each individual result could be used to update a suitably damped longer-term value thereby allowing the true zero point for the raw current waveform to be tracked.</p>
+<p>By subtracting the calculated zero point from each current sample, and then using these values for our calculations, power would correctly only appear in the active part of each mains cycle.&nbsp; Although this would be a nice way to go from a purist&#39;s point of view, I doubt whether there would be any real benefit on the micro-pence scale.&nbsp; It&#39;s probably better to keep our general calculations simple and fast, thereby leaving more time for other activities to be included within the processor&#39;s busy schedule.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8480"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Thu, 20/12/2012 - 12:40.</div>
+    <div class="content">
+     <p><em>The ADC fires an IRQ when it finishes?</em></p>
+<p>Yes Jack, I use it in my code on this thread if you want an example..</p>
+<p><a href="http://openenergymonitor.org/emon/node/1535">http://openenergymonitor.org/emon/node/1535</a></p>
+<p>Robin, Robert has already explained to you that voltage and current aren&#39;t in phase for reactive loads.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8481"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Thu, 20/12/2012 - 12:40.</div>
+    <div class="content">
+     <blockquote><p><em>Having ascertained that the voltage waveform crossed the zc point, say 3/16 of the way between samples N and N+1, we can then determine the equivalent raw sample value for the current at that same instant, i.e. 3/16 of the way between its sample N and N+1. &nbsp; This calculated value can then be regarded as the zero point for the current stream at that moment.</em></p>
+</blockquote>
+<p>This sounds tempting but, as Robert pointed out above, surely this would only work for purely resistive loads (where voltage and current are perfectly in-phase)?&nbsp; Loads with some reactive component appear to be the norm rather than the exception (even my 75W incandescent lamp has a PF of 0.95 for some odd reason).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8488"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1958" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1958.png" alt="fluppie007&#039;s picture" title="fluppie007&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1958" title="View user profile.">fluppie007</a> on Thu, 20/12/2012 - 13:39.</div>
+    <div class="content">
+     <blockquote><p><em>I like that 3-phase metering chip BTW fluppie007.</em></p>
+</blockquote>
+<p>Then&nbsp;you&nbsp;can&nbsp;check out the MCP3903 eval. board manual: <a href="http://ww1.microchip.com/downloads/en/DeviceDoc/51994A.pdf">http://ww1.microchip.com/downloads/en/DeviceDoc/51994A.pdf</a><br />
+	I see that Farnell has the chip and evaluation board.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8497"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Thu, 20/12/2012 - 15:56.</div>
+    <div class="content">
+     <p><em>Robin, Robert has already explained to you that voltage and current aren&#39;t in phase for reactive loads.</em></p>
+<p>Yes, Martin, I do appreciate that.&nbsp; Our dump loads, however, are generally resistive ;)</p>
+<p>Over the past few months, much effort has been spent in analysing the OEM&#39;s PHASECAL mechanism whereby any phase-shift between the measured voltage and current streams can be accommodated.&nbsp; Our measurement systems need to be able to record a resistive load as just that: a resistive load, where the power factor is unity.&nbsp; I have done a lot work on this, much of which can be found in the PHASECAL thread that I started in July.&nbsp;&nbsp; A tool that I&#39;ve posted for automatically determining the correct PHASECAL value for any rig is mentioned in the Mk2a code that I&#39;ve just released.</p>
+<p>The point about the CT&#39;s output, surely, is that it is inherently floating.&nbsp; If a half-wave appliance is measured, the CT&#39;s output will drift until the DC balance-point is regained.&nbsp; This skews our measurements of power in a way that does not appear to be retrievable.&nbsp; RW said as much a few days ago.</p>
+<p>I&#39;m simply pointing out that this obstacle is not actually quite as fundamental as it may appear.&nbsp; Yes, the CT&#39;s output will drift, but the temporal alignment between the V and I waveforms <span style="font-style: italic;">for</span><em> resistive loads</em> can be usefully employed to correct for this.</p>
+<p>I hope to produce a proof-of-concept build which will show how this idea behaves in practice.&nbsp; By this means, all the power from Jack&#39;s hair-drier, or my heat-gun, should be seen to be in just one half of the waveform.&nbsp; That&#39;s how the utility meter sees it, and it would surely be advantageous if our rigs could perform their power calculations in a similar manner.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8498"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Thu, 20/12/2012 - 16:12.</div>
+    <div class="content">
+     <blockquote><p><em>The point about the CT&#39;s output, surely, is that it is inherently floating.&nbsp; If a half-wave appliance is measured, the CT&#39;s output will drift until the DC balance-point is regained.&nbsp; This skews our measurements of power in a way that does not appear to be retrievable.&nbsp;</em></p>
+</blockquote>
+<p>That&#39;s the entire point of the LTAD* algorithm!&nbsp; It attempts to retrieve the DC offset no matter if the load is a half-wave appliance, or full-wave resistive or partially reactive load (without resorting to dangerous connections to the mains wiring).&nbsp; And, so far, real-world testing appears to suggest that the LTAD algorithm does what it sets out to do (take a look at the data presented at the top of this thread if you haven&#39;t already).</p>
+<p>*(feel free to come up with a better name!)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8499"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Thu, 20/12/2012 - 16:22.</div>
+    <div class="content">
+     <p>Let&#39;s take a step back....&nbsp;</p>
+<p>Ideally we need to sample neutral, so that we know where the zero point is. But we can&#39;t because we&#39;re using a transformer which is floating.</p>
+<p>A resistor divider could also be used, but there&#39;s an inherent danger because that doesn&#39;t provide galvanic isolation, should something nasty appear on the mains, or should a malfunction occur.</p>
+<p>HOWEVER.... what about if we just tied the mains neutral to one side of the secondary. Or even earth (which ought to be pretty much the same as neutral). Or even a sodding great stake in the ground, if need be. Wouldn&#39;t that then allow is to have our proper zero reference point, without compromising safety?</p>
+<p>P. (still think resistors are the best option, for all kinds of reasons!)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8501"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Thu, 20/12/2012 - 16:53.</div>
+    <div class="content">
+     <p>Paul, connecting to neutral is still dangerous. The neutral is considered a LIVE wire and must be treated as such. Even though most of the time it is close to earth potential, that does not have to be so and it is then that the danger arises. My Institution has been in existence since 1871 and over that time we&#39;ve accumulated a fair bit of knowledge about electricity and electrical safety. We don&#39;t want to miss your contributions because you&#39;ve killed yourself.</p>
+<p>If you earth one side of the secondary, what good does that do you? Think back to how transformers work: Secondary emf is proportional to the <em>rate of change</em> of flux. You&#39;ve lost your d.c. coupling. End of story.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8502"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Thu, 20/12/2012 - 17:02.</div>
+    <div class="content">
+     <p>calypso-rae wrote: <em>&quot;This skews our measurements of power in a way that does not appear to be retrievable&quot;</em></p>
+<p>
+	That&#39;s exactly what this thread is about. Jack has proposed a novel solution to the problem that appears to work. Did you not appreciate that?</p>
+<p>
+	Your dump loads may be nearly purely resistive but we are talking about whole-house loads here and they can be very reactive.</p>
+<p>This has nothing to do with PHASECAL, that&#39;s purely to compensate for the phase error caused by the transformers. We don&#39;t want to remove the phase difference caused by reactive loads.</p>
+<p>
+	Paul - the use of a resistive divider has been proposed for voltage measurement, I don&#39;t think anyone has suggested it for current?. I suppose you could measure the voltage drop in the neutral cable to determine the current via a high value resistor (for safety, not as a divider).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8503"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Thu, 20/12/2012 - 17:46.</div>
+    <div class="content">
+     <p>The problems with using a shunt are (a) safety and (b) power loss.&nbsp; To keep the voltage drop acceptable, you need amplification, which needs to be d.c. coupled (or you&#39;re back where you started), and you still have the dynamic range problems. If you have a 100 A shunt giving you (say) 75 mV, you potentially have 7.5 W of power being lost, and exactly the same dynamic range problems as with the c.t. &nbsp; At maximum current, you need an amplifier with a minimum gain of about 13 times. Assuming you want switched gain to improve the low level performance, you need a maximum gain of about 800 to give you 16-bit ADC performance, that is not easy whilst retaining d.c. stability.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8513"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Thu, 20/12/2012 - 21:44.</div>
+    <div class="content">
+     <p>OK guys, here&#39;s a sketch which works very nicely in the manner that I&#39;ve been trying to convey.&nbsp; There are also two graphs, each showing the performance of my Bosch hot air gun at half-power.&nbsp;</p>
+<p>One run was taken with my new Mk2a code.&nbsp; That sketch is super-fast, uses integer maths, but suffers from the inherent feature that it can&#39;t detect when the DC offset from the current sensor drifts.&nbsp; Consequently, although current is only flowing during one half of the mains cycle, power is calculated to exist in both lobes.</p>
+<p>The second run was taken with my new proof-of-concept code, called temporalAlignment.ino.&nbsp; This works just as I&#39;ve been saying recently, the key part of the code being:</p>
+<pre>
+ // The DC-offset for the current sensor is updated every half-cycle,
+// immediately after every zero-crossing point:
+//
+// first, locate the moment when the voltage was zero
+float T_fraction = lastSampleVminusDC / (float)(lastSampleVminusDC - sampleVminusDC);
+
+ //  then, calculate the raw current value at the moment when the voltage was zero
+float I_zero = lastSampleI + (T_fraction * (sampleI - lastSampleI));
+
+ // and finally, update the DC offset value for current
+float oldOffset_I = DCoffset_I;
+DCoffset_I = oldOffset_I + (0.01 * (I_zero - oldOffset_I));    </pre><p>In the second graph, virtually all of the power is now seen to be in one half of the cycle, just as it should be.&nbsp; Bingo!</p>
+<p>----</p>
+<p><em>MartinR: That&#39;s exactly what this thread is about. Jack has proposed a novel solution to the problem that appears to work. Did you not appreciate that?</em></p>
+<p>Martin, I trust you will appreciate that there is often more that one way to tackle a problem.&nbsp; Here is an alternative solution that will hopefully meet with Jack&#39;s approval, and maybe even yours.&nbsp;</p>
+<p>Robin</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8515"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Thu, 20/12/2012 - 22:54.</div>
+    <div class="content">
+     <p>It&#39;s not that we don&#39;t understand what you&#39;re proposing Robin, it&#39;s a pretty simple concept. I even suggested it before you did in the &quot;smaller current CT?&quot; thread yesterday, but only as an interesting idea since it won&#39;t work with reactive loads and therefore isn&#39;t a solution.</p>
+<p>
+	I don&#39;t think I&#39;m the one that&#39;s having trouble appreciating that there is more than one way to tackle a problem - that made me chuckle!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8527"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Fri, 21/12/2012 - 10:02.</div>
+    <div class="content">
+     <p><em>It&#39;s not that we don&#39;t understand what you&#39;re proposing Robin, it&#39;s a pretty simple concept. I even suggested it before you did in the &quot;smaller current CT?&quot; thread yesterday, but only as an interesting idea since it won&#39;t work with reactive loads and therefore isn&#39;t a solution.</em></p>
+<p>I&#39;m always pleased to hear that people can understand something that I propose.&nbsp; In this case, I&#39;ve gone a bit further than just proposing something.&nbsp; I&#39;ve delivered a working solution to the underlying problem that this thread appears to be about.</p>
+<p>I&#39;d not spotted the &quot;small current thread&quot; until you brought it to my attention.&nbsp; There does appear to be to some crossover of ideas between these two threads.&nbsp;&nbsp;</p>
+<p>DC has to be removed from each stream of raw samples by some means or other.&nbsp; Although twin HPFs do the job OK, my preference has always been to subtract an appropriate DC value.&nbsp; What my latest build does is to derive the optimum DC offset value for each waveform independently.&nbsp; By this means, our calculations of power are no longer affected by any DC drift that&#39;s introduced by the CT.&nbsp; I can now feel confident that half-speed use of my hot-air gun will not adversely affect the performance of my rig for diverting surplus PV.</p>
+<p>PHASECAL provides a convenient way of realigning the voltage and current waveforms if they are found to be out of step.&nbsp; Our sampling process, and the effect of our non-invasive sensors, will always introduce some degree of phase shift, so it&#39;s helpful to be able to remove this.&nbsp; When measuring a resistive load, the Power Factor will then be unity.&nbsp; For a non-invasive energy monitor, is this not the best arrangement to aim for?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8529"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Fri, 21/12/2012 - 10:29.</div>
+    <div class="content">
+     <p>[Not aimed at anyone in particular]</p>
+<p>Folks,&nbsp;</p>
+<p>C&#39;mon, play nicely!&nbsp;</p>
+<p>Bouncing ideas of each other is great. Getting snarky with each other isn&#39;t.</p>
+<p>Posting up new code and ideas is great. Trashing other peoples&#39; ideas just because they are different to yours isn&#39;t.</p>
+<p>Lots of people here have made excellent contributions. And projects like this work best when the main input is from a team, rather than an individual.</p>
+<p>And for those of us that don&#39;t contribute as much, it&#39;s much nicer to see people working together, rather than playing intellectual battleships.</p>
+<p>There - I&#39;ve said it!</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8531"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Fri, 21/12/2012 - 11:53.</div>
+    <div class="content">
+     <p>I agree, it is always good to have multiple options (with the possible exception being types of shampoo in the supermarket.&nbsp; Then it&#39;s definitely good to have a small set of options rather than the trillion which seem to exist at our local supermarket!&nbsp; &quot;<em>Ah, I see &quot;shampoo&quot; on the shopping list. Shampoo?!&nbsp; WHICH shampoo?</em>&quot;&nbsp; Anyway, I digress....)</p>
+<p>What would be really, really nice is to have a common, shared testing dataset of, say, 10 different types of load.&nbsp; This dataset could be produced by setting an emonTX to save as many raw analogRead() I and V samples as will fit into 2k of ram and then spit these out over the serial port (or, even better, use an SD card shield to save several minutes&#39; worth of data in one go).</p>
+<p>Then we could compare performance of different algorithms against that single shared appliance dataset (and we&#39;d also have to agree on a common set of performance metrics)</p>
+<p>Having said all this, I doubt I&#39;ll get time to do this any time soon.&nbsp; Already way behind schedule...</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8534"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Fri, 21/12/2012 - 12:27.</div>
+    <div class="content">
+     <p><em>What would be really, really nice is to have a common, shared testing dataset of, say, 10 different types of load.</em></p>
+<p>One of these loads would, presumably, be one that is purely resistive.&nbsp; In that case, you would want your system to see V and I as being perfectly in phase with a Power Factor of unity.&nbsp; Your measurement system could then provide a reliable means for measuring less your conventional loads.</p>
+<p>It is the provision of an accurate, non-invasive, energy measurement system which is of prime interest to me.&nbsp; Then I can feel confident that my PV Router will monitor and divert power as effectively as it can.&nbsp; Unless I&#39;m arc-welding or whatever at the same time, my system should always divert any surplus power properly. (Not that there would be much in that case!)</p>
+<p><em>This dataset could be produced by setting an emonTX to save as many raw analogRead() I and V samples as will fit into 2k of ram and then spit these out over the serial port&nbsp; </em></p>
+<p>Some weeks ago, I was working on a version of my RawSamplesTool which operated in just this way.&nbsp; Rather than displaying the V &amp; I waveforms in low-res form using &quot;ASCII Art&quot;, the tool would store all raw samples for up to three mains cycles and then send them out to the Serial port.&nbsp; If this is of interest to anyone, just let me know and I&#39;ll make sure it works.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8535"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Fri, 21/12/2012 - 13:59.</div>
+    <div class="content">
+     <p>Here is the tool that I mentioned earlier.&nbsp; After waiting for a few seconds, it records all the raw data for 3 mains cycles and then sends it to the serial port.&nbsp;</p>
+<p>The graph of the current taken by my half-cycle hot air gun shows how quickly the CT moves to adjust its &#39;zero&#39; position.&nbsp; This effect is not so evident with a full wave load, but it must still be there.&nbsp; I think its macro effect is just to advance the phase.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8551"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Fri, 21/12/2012 - 17:03.</div>
+    <div class="content">
+     <p>PaulOckenden wrote: <em>&quot;Trashing other peoples&#39; ideas just because they are different to yours isn&#39;t.&quot;</em></p>
+<p>I realise you didn&#39;t name names Paul but it&#39;s clear you include me in that comment and to be honest I&#39;m a bit offended. I don&#39;t believe I, or anyone else here, has done anything childish like that. In this particular case the &quot;idea&quot; was mine too so it makes no sense anyway.&nbsp;Also pointing out problems with an idea is completely different from trashing it for no valid reason.</p>
+<p>I&#39;m not sure why Robin and I seem to rub up against one another. From my point of view it seems that if I point out a problem with something Robin has said he becomes very defensive and it becomes a long drawn out process to get the point over and maybe I do become a bit short of patience. I certainly don&#39;t intend or take any offense over it and I hope Robin doesn&#39;t either.</p>
+<p>Anyway, getting back to the issue, and perhaps to get my point over with a picture instead of a 1000 words, here&#39;s an example of a load which I think will give the wrong result with the &quot;0 volts - 0 current&quot; idea but will be ok with LTAD algorithm..</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/TEK0013.png" style="width: 320px; height: 240px;" /></p>
+<p>It&#39;s a desk fan (hence the very low current) but it has a clear phase shift between voltage (yellow) and current (blue) of 2.6ms. As you can see the current at 0 voltage is closer to the peak current than it is to 0.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8552"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Fri, 21/12/2012 - 17:09.</div>
+    <div class="content">
+     <p><em>it&#39;s clear you include me in that comment and to be honest I&#39;m a bit offended.</em></p>
+<p>It wasn&#39;t aimed at any one person. Or any one side.&nbsp;</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8553"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Fri, 21/12/2012 - 17:13.</div>
+    <div class="content">
+     <p><em>&quot;The graph of the current taken by my half-cycle hot air gun shows how quickly the CT moves to adjust its &#39;zero&#39; position.&nbsp; This effect is not so evident with a full wave load, but it must still be there.&nbsp; I think its macro effect is just to advance the phase.&quot;</em></p>
+<p>Indeed. I did not test the frequency response of the YHDC c.t. below 50 Hz, but it will be behaving more or less the same as any high pass filter, with the corresponding amplitude and phase response.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8554"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Fri, 21/12/2012 - 17:26.</div>
+    <div class="content">
+     <p><em>It wasn&#39;t aimed at any one person. Or any one side</em>.</p>
+<p>Well that doesn&#39;t exactly<strong> exclude </strong>me does it!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8556"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Fri, 21/12/2012 - 17:35.</div>
+    <div class="content">
+     <p>Gents,</p>
+<p>It&#39;s Christmas, the season of goodwill to all men. Can we keep this argument to the technical issues, please?</p>
+<p>&nbsp;</p>
+<p>MartinR:</p>
+<p>Your load is clearly one of those nasty little motors that are renowned for having an abysmal power factor - 0.68, about what I&#39;d expect. Fortunately, most of the time the effect will be swamped by other loads, but it will still be there. But I think you&#39;re wrong about it giving the wrong answer. If I&#39;ve understood Robin&#39;s code correctly, it will (using your picture as the example), give a positive spike on the negative-going crossing, and a negative spike on the positive-going. But the values are fed into a software filter so, even if there is some ripple remaining, the resulting value will be well smoothed. No doubt Robin will correct me if I&#39;m wrong.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8558"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Fri, 21/12/2012 - 18:10.</div>
+    <div class="content">
+     <p>I think you&#39;re right Robert that the positive and negative errors will cancel in the filter if they are equal - unless Jack&#39;s wife is drying her hair at the same time :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8559"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Fri, 21/12/2012 - 18:11.</div>
+    <div class="content">
+     <p> incidentally, what is a typical power factor for the aggregate,  whole house load? (i know this is a bit like asking how long a piece of string is) </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8567"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Fri, 21/12/2012 - 20:53.</div>
+    <div class="content">
+     <p>You&#39;ll need to ask someone who works or has worked for one of the Electricity Companies to get that.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8568"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1775" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1775.jpg" alt="Brian D&#039;s picture" title="Brian D&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1775" title="View user profile.">Brian D</a> on Fri, 21/12/2012 - 21:54.</div>
+    <div class="content">
+     <p>Time to air my original thought which I kept to myself because as it&#39;s so simple there must be something wrong with it.</p>
+<p>Put a sensitive Hall effect sensor near the mains cable and sense the magnetic (not electric) field. This way you could measure DC current if required and DC restoration becomes unnecessary.</p>
+<p>OK there must be something wrong with it :)</p>
+<p>Brian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8569"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sat, 22/12/2012 - 10:18.</div>
+    <div class="content">
+     <p>Here&#39;s a couple of spreadsheets to show how I think the power in Martin&#39;s desk fan would be measured.&nbsp;</p>
+<p>The first shows the situation when V and I are in perfect alignment.&nbsp; The voltage line can&#39;t be seen because it&#39;s hidden by the current.&nbsp; The power is a perfect sinusoid of double the frequency.&nbsp; As the cycle progresses, there is a small cyclical error between the sum of the energy slices that we measure and the trig value.&nbsp; But by the end of the cycle, everything has evened itself out.</p>
+<p>In the second sheet, the current is now 45 degrees ahead of the voltage. &nbsp; This amount of phase shift causes the calculated power to be reduced to just 0.765 of what it was before.&nbsp; The cumulative difference between the measured and trig powers now looks massive, but I&#39;m not sure what we should read into this.</p>
+<p>My understanding is that a supply meter only records &quot;real power&quot;.&nbsp; So the meter would record this fan as only consuming 0.765 of what it&#39;s really taking.&nbsp; At this stage, we need to be clear about what results we are trying to obtain.&nbsp;</p>
+<p>From my own point of view, my interest is solely to mimic the supply meter.&nbsp; Thankfully, this seems to be just what our monitor would do in this case.&nbsp; If one wanted to measure the Power Factor of the fan, then some further processing would presumably be needed.&nbsp; I think this can be done using the standard calculations in emonLib.&nbsp;</p>
+<p>If this fan were to be measured using an Arduino. I think the proof-of-concept code I posted yesterday would work just as well as any other method.&nbsp; At each moment when the voltage passes through its zero level, the current at that same instant is derived.&nbsp; Because of the large phase shift between V and I, these points where the current is nominally zero would alternately be some way above and then below the centre line.&nbsp; A small fraction (1%) of each of these individual &#39;deltas&#39; is used to update a master DCoffset_I value.&nbsp; In this case, the &#39;master&#39; DCoffset_I value would move up and down each half cycle very slightly which would in turn affect the magnitude of the power reading very slightly.&nbsp;</p>
+<p>A useful refinement of the algorithm might be to pre-combine each pair of adjacent &#39;deltas&#39; so that the master value is updated only once per mains cycle.&nbsp;&nbsp;&nbsp; This is exactly how the LPF in my Mk2 Router worked.&nbsp; There would then be no ripple, and no side-effects that a conventional HPF would introduce.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8571"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Fri, 21/12/2012 - 22:45.</div>
+    <div class="content">
+     <p>Brian D,</p>
+<p>Yes, there is something wrong with it - not in principle, but practice. I was looking into this only yesterday. Hall effect split core current sensors are indeed available commercially, but they appear to require +/-12 V supply, and the price is well into 3 figures (GBP).</p>
+<p>I did a quick sum on a readily available Hall effect sensor. The sensitivity is 2.5 mV/G, and if I&#39;ve got my magnetics right, the field 1 cm from the centre of a straight conductor carrying 1 amp is 0.2 G.&nbsp; I make that 0.5 mV per amp, and we need about 1 V rms for a 3.3 V p-p emonTx input (more for a 5 V Arduino). That means it requires a drift-free d.c coupled amplifier with a gain of 20 to equal the sensitivity of the standard c.t., and a gain of over 1000 to approach the likely performance of the SMT emonTx.</p>
+<p>Clearly, a ferromagnetic core is used in the commercial offering to reduce the amount of gain needed, but from the price I suspect they still find it necessary to employ a chopper-stabilised amplifier to manage the drift.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8572"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Fri, 21/12/2012 - 22:52.</div>
+    <div class="content">
+     <p>Robin:</p>
+<p><em>&quot;My understanding is that a supply meter only records &quot;real power&quot;.&nbsp; So the meter would record this fan as only consuming 0.765 of what it&#39;s really taking.&nbsp; At this stage, we need to be clear about what results we are trying to obtain. &quot;</em></p>
+<p>Half-right. The meter does indeed record (i.e. charge for) real power, but the current is 1/0.765 higher than it would be with a unity power factor. The excess, quadrature, current oscillates backwards and forwards returning in each half-cycle the power it extracted in the previous one. So it consumes exactly the same amount of power as would a d.c. motor shifting the same amount of air.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8576"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Fri, 21/12/2012 - 23:47.</div>
+    <div class="content">
+     <p>Sorry, this is slightly off-topic, but would it be possible to gain extra energy per &pound; by devising some way of offsetting the power factor?&nbsp;</p>
+<p>When running our tumble drier, it would seem very nice if the current through its resistive element could be 1/0.765 times greater than our supply meter records.&nbsp; Free quadrature current sounds like it should dry our clothes to perfection!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8578"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Sat, 22/12/2012 - 01:06.</div>
+    <div class="content">
+     <p>There&#39;s only one problem with free quadrature current - as it&#39;s on the imaginary axis you only get imaginary power!&nbsp; But it does actually cost you, because although you get no nett energy out of it, it still drops voltage in your cables and that&#39;s real energy that you pay for. So it&#39;s actually better for you to run as close to unity power factor as you can.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8581"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1775" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1775.jpg" alt="Brian D&#039;s picture" title="Brian D&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1775" title="View user profile.">Brian D</a> on Sat, 22/12/2012 - 08:50.</div>
+    <div class="content">
+     <p>Robert</p>
+<p>Thank you for your input. I was expecting a purely technical rejection of the idea so let us deal with the commercial point first.</p>
+<p>A 60A device such as the Tamura L01Z050S05 is available for &pound;12.95 from Mouser Electronics.</p>
+<p>The required operating Voltage is 5V and the full scale rating of 60A is the same as the CT&#39;s I am using on my rig so I am not convinced that we have grounds to reject the idea yet.</p>
+<p>Maybe someone will come up with a technical reason why this won&#39;t work?</p>
+<p>Brian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8585"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Sat, 22/12/2012 - 10:35.</div>
+    <div class="content">
+     <blockquote><p>Brian wrote:</p>
+<p><em>Put a sensitive Hall effect sensor near the mains cable and sense the magnetic (not electric) field. This way you could measure DC current if required and DC restoration becomes unnecessary.</em></p>
+</blockquote>
+<p>That does sound very intriguing!</p>
+<blockquote><p><em>A 60A device such as the Tamura L01Z050S05 is available for &pound;12.95 from Mouser Electronics.</em></p>
+</blockquote>
+<p>Unfortunately that&#39;s not a split-core device, which rules it out for my project (and, probably, most people&#39;s projects).&nbsp; Of course, it&#39;s not actually that technically difficult to turn off your mains supply, disconnect one end of a meter tail, feed the tail through the Tamura device, reconnect the meter tail and turn the power back on but I suspect most people won&#39;t be happy doing that, not least because I&#39;m 99% sure that, strictly speaking, it would be illegal to do that work if you&#39;re not <a href="http://www.planningportal.gov.uk/buildingregulations/approveddocuments/partp/">part-P</a> registered.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8587"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Sat, 22/12/2012 - 12:13.</div>
+    <div class="content">
+     <blockquote><p>Robin wrote:</p>
+</blockquote>
+<div class="content">
+<blockquote><p><em>Here&#39;s a couple of spreadsheets to show how I think the power in Martin&#39;s desk fan would be measured.&nbsp;</em></p>
+</blockquote>
+<p>Please can you try attaching your spreadsheets again ;)&nbsp; They appear to have been lost in the ether.</p>
+<blockquote><p><em>...we need to be clear about what results we are trying to obtain...</em></p>
+</blockquote>
+<p>Absolutely.&nbsp; For my project, I&#39;m trying to collect the best data set I can for computer science research into &quot;non-intrusive load monitoring&quot; AKA &quot;NILM&quot; AKA &quot;smart meter disaggregation&quot;.&nbsp; The aim of the game is to produce an open-source software system capable of producing an appliance-by-appliance, itemised electricity bill using just the data from a smart meter (or emonTX or whatever you happen to have connected to your mains supply).&nbsp; There&#39;s good evidence that people are best able to reduce their energy consumption when they have appliance-by-appliance information (&quot;your fridge used &pound;25 worth of electricity this quarter&quot;) compared to whole-house consumption data alone (&quot;your house used &pound;150 this quarter&quot;).&nbsp; In order to recognise &quot;signatures&quot; of different appliances in the aggregate signal, we have to extract as much useful information from the mains supply as possible.&nbsp; As such, it&#39;s really important to have accurate measurements of both real power and reactive power (because some appliances can be identified on the basis of their power factor) as well as high-resolution readings of step-changes in power consumption (but that&#39;s a topic for<a href="http://openenergymonitor.org/emon/node/1680"> another thread</a>).&nbsp; In my specific case, I&#39;m trying to accurately (and cheaply) mimic what a &quot;smart-meter&quot; will record, not what a &quot;spinning-disk&quot; meter reads. The UK spec for smart meters hasn&#39;t been finalised yet but the draft spec suggests that smart meters will provide data on both real power and reactive power once every 5 seconds to the &quot;home area network&quot;.</p>
+<p><em>(edit: in the comment below this one, Brian suggested that I should mention my NILM work in the original post at the top of this thread so I have copied the above paragraph to the original post)</em></p>
+<p>Robin, I am really intrigued by your algorithm; and I need to decide quite soon whether to use your algorithm or LTAD in my system.&nbsp; If possible, please could you quantify how well your algorithm would measure both real power and power factor for low-PF loads compared to a hard-wired meter?&nbsp; Your previous posts have basically done this but it&#39;d be really good to get some concrete numbers.&nbsp; I&#39;m guessing this information is already in the spreadsheet you kindly put together for us.</p>
+<p>Finally, and I say this from an entirely objective view point... given that you&#39;ve suggested an alternative to the LTAD algorithm, that implies that, perhaps, you have found a flaw in the LTAD algorithm.&nbsp; If so, please could you describe that flaw (because I&#39;m planning to spend some time further developing the LTAD algorithm in the new year so please let me know now if you - or anyone else - has good reason to think it&#39;s not a viable solution!).&nbsp; Like I say, I really don&#39;t have any strong emotional connections to the LTAD algorithm so feel free to point out any flaws you can see in it!&nbsp; Just trying to build something which can, as accurately as possible, measure real and reactive power for all loads (including half-wave loads and low-PF loads).</p>
+</div>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8595"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1775" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1775.jpg" alt="Brian D&#039;s picture" title="Brian D&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1775" title="View user profile.">Brian D</a> on Sat, 22/12/2012 - 11:31.</div>
+    <div class="content">
+     <p>Hi Jack</p>
+<p>	I asked for a technical reason why this won&#39;t work. Your personal reasons for rejecting it are no doubt valid but I would genuinely like to know if my proposal will overcome the original problem that you have identified. Your original post did not qualify the acceptability requirements for proposed solutions therefore I still consider this a valid proposal worthy of technical appraisal.</p>
+<p>	I have noticed that on a subsequent post you have mentioned non-intrusive load monitoring - maybe you should add this to the initial post.</p>
+<p>	If there are technical reasons why this won&#39;t work (and I suspect there are) then the practical implementation issues will not need to be considered.</p>
+<p>	You have identified the fitting of the Tamura device as requiring the involvement of part-P registered personnel. This is a wise precaution but when I checked the reg&#39;s I could not find the statement that makes this mandatory - maybe you can point me to it.</p>
+<p>	If there are no <u>technical</u> reasons to reject the HAll effect current sensor then it will be worthwhile investigating other products to see if split core versions are available. Right now I don&#39;t see why this will not work.</p>
+<p>	Brian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8596"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Sat, 22/12/2012 - 12:48.</div>
+    <div class="content">
+     <blockquote><p><em>You have identified the fitting of the Tamura device as requiring the involvement of part-P registered personnel. This is a wise precaution but when I checked the reg&#39;s I could not find the statement that makes this mandatory - maybe you can point me to it.</em></p>
+</blockquote>
+<p>I&#39;m afraid I&#39;m no expert in the regs but I was under the impression that mere mortals aren&#39;t allowed to fiddle with the consumer box (as<a href="http://www.mybuilder.com/questions/v/1388/can-any-one-change-a-consumer-unit-i-currently-have-rewireable-fuses-and-would-like-to-10way-split-load-board"> confirmed by this forum thread</a>), and my (quite possibly invalid) assumption is that we&#39;re not allowed to fiddle with any wiring upstream of the consumer box.&nbsp; If I remember correctly, the utility meter is the utility company&#39;s property, so they might not like us fiddling with it.&nbsp; But, like I say, I&#39;m really no expert so maybe it is fine to just disconnect and reconnect a meter tail.&nbsp; It would be great to get clarification on this issue.</p>
+<blockquote><p><em>I have noticed that on a subsequent post you have mentioned non-intrusive load monitoring - maybe you should add this to the initial post</em>.</p>
+</blockquote>
+<p>Good idea.&nbsp; I will do that now.&nbsp; Also, while we&#39;re on the topic, just to further clarify my own aims:&nbsp; For my specific project, all the hardware has to be easy to install by computer science (not EE!) students because I will be running an MSc group project next term on &quot;<a href="http://www.doc.ic.ac.uk/~dk3810/VADEEC_proposal.html">Visualistion and Analysis of Domestic Electrical Energy Consumption</a>&quot; where&nbsp; 6 MSc students will install meters&nbsp; in their houses/flats.</p>
+<p>But that&#39;s just my own project.&nbsp; I&#39;m sure plenty of other people will be interested in alternative solutions, even if the hardware is a little harder to install.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8597"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sat, 22/12/2012 - 13:14.</div>
+    <div class="content">
+     <p>Sorry, Jack, I forgot to tick the &#39;List&#39; box.&nbsp; That spreadsheet file should be there now.</p>
+<p>	The various algorithms which measure power are fairly similar.&nbsp; In all cases, energy is accumulated by summing individual contributions of energy (power/time).</p>
+<p>	Samples of voltage and current are obtained alternately from the Arduino&#39;s ADC.&nbsp; Because V &amp; I are not sampled at identical moments, that effectively introduces a phase shift between them.&nbsp; Each of the floating sensors also introduces some phase shift, so there is always likely to be some residual phase difference between corresponding V and I samples.&nbsp; This effect can be usefully removed by the phaseCal algorithm which acts on the voltage stream to bring it in line with the current.&nbsp; By this means, a resistive load will be correctly seen to have a power factor of unity.</p>
+<p>	In all cases, DC has to be removed from both sample streams.&nbsp; DC is introduced by the Arduino&#39;s ADC because the output range is always positive (0-1023), rather than +/-.&nbsp; There are two easy ways of dealing with this.</p>
+<p>	The first is to insert a standard HPF into each input stream.&nbsp; This works fine but has associated side-effects such as introducing a small amount of additional phase-shift, and other distortion.&nbsp; All of the standard OEM sketches use HPFs.</p>
+<p>	The second approach, as I used in my Mk2 code, is to ascertain the DC content of the voltage waveform by using a LPF, and then subtract this amount of DC offset from the raw sample stream.&nbsp; Because my setup only uses one Vref supply (2.5V), I reasoned that there could only be one DC offset.&nbsp; I therefore subtracted the output of the LPF from both sets of raw samples.&nbsp;</p>
+<p>	This arrangement seems to work OK but does not cope well with half-wave appliances where the inherent drift of the CT is not tracked.&nbsp; Energy is then seen to be in both halves of the waveform rather than just one.&nbsp; Whether or not that makes any difference in terms of &pound;&pound;&pound;s is another matter.&nbsp; Incidentally, the HPF approach is no different with half-wave loads.</p>
+<p>	My latest approach is to determine the equivalent &#39;zero&#39; value of the raw current stream whenever the voltage stream crosses its zero level.&nbsp;&nbsp; The &#39;correct&#39; DC offset can then be subtracted from all raw current samples.&nbsp; This approach allows the true zero point of the current waveform to be tracked under all conditions, and it should always be better than subtracting a &#39;non-tracked&#39; value.&nbsp; Whether subtracting a DC offset is a better idea per se than applying a HPF is a moot point.</p>
+<p>	Personally, I favour subtracting the DCoffset.&nbsp; There&#39;s no <em>requirement</em> to apply a HP filter.&nbsp; The DC has been introduced by our measurement system; we just need to remove it.</p>
+<p>	So, to clarify my preferred algorithm for removing the DC.&nbsp; In both cases, there is a master value which is subtracted from each sample in the relevant stream (<em>DCoffset_V</em> and <em>DCoffset_I</em>).&nbsp; Each of these are updated once per cycle by adding one hundredth of the accumulated deltas that have been recorded during the previous cycle.</p>
+<p>	In the case of voltage, each individual delta is the difference between the raw sample value and the DCoffset_V value.&nbsp; Over the course of a full mains cycle, these values cancel each other out almost completely.&nbsp; Periodically adding in one hundredth of their accumulated sum will cause minimal ripple to the DCoffset_V value.</p>
+<p>	In the case of current, there are only two individual deltas per mains cycle.&nbsp; Once the system has settled, these two contributions will be equal and opposite so their difference will be very small.&nbsp; Periodically adding in one hundredth of this value will again cause minimal ripple to the DCoffset_I value.</p>
+<p>	OK, so we now have a stream of instP values which are summed each cycle as sumP.&nbsp; This then gives realEnergy which is what is added to my Power Router&#39;s energy bucket.&nbsp; Real energy is what the supply meter measures.</p>
+<p>	To obtain power factor values, additional per-loop calculations need to be done.&nbsp; This is as set out in the calcVI() routine in emonLib().&nbsp; Although not required for my basic power router needs, I copied these calculations into a calibration tool that I wrote for phaseCal.&nbsp;&nbsp; I recall discussing this algorithm with RW at the time, and it transpired that some further adjustment of amplitude was needed.&nbsp;</p>
+<p>	I therefore believe the Power Factor calculations in my PhasecalChecker tool, as attached, to be correct.&nbsp; Robert will hopefully be able to confirm this.<br />
+	&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8609"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Sat, 22/12/2012 - 14:34.</div>
+    <div class="content">
+     <p>Robin, thank you for such a detailed reply.</p>
+<p>Do you, by any chance, have any empirical real-world performance data for your new DC-offset-tracking algorithm?&nbsp; I&#39;m very eager to see how it performs on data from a number of different types of load.&nbsp; In particular how well it can measure both real power and power factor.&nbsp; That will help me to decide whether I should use LTAD or your zero-offset-tracking algo in my metering setup.</p>
+<p>I took a look at your spreadsheet and it is very useful but I couldn&#39;t see an implementation of your DC-offset-tracking algo in the spreadsheet?&nbsp; (If such a thing is even possible in Excel!)&nbsp; Perhaps&nbsp; I missed it?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8616"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sat, 22/12/2012 - 15:45.</div>
+    <div class="content">
+     <p><em>I took a look at your spreadsheet and it is very useful but I couldn&#39;t see an implementation of your DC-offset-tracking algo in the spreadsheet?&nbsp; (If such a thing is even possible in Excel!)&nbsp; Perhaps&nbsp; I missed it?</em></p>
+<p>No, that&#39;s because it&#39;s only in the code :D</p>
+<p>Can you remind me what LTAD stands for?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8618"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Sat, 22/12/2012 - 17:02.</div>
+    <div class="content">
+     <blockquote><p><em>Can you remind me what LTAD stands for?</em></p>
+</blockquote>
+<p>It&#39;s a shockingly bad acronym, isn&#39;t it.&nbsp; It&#39;s &quot;lobe timing asynchrony detector&quot;.&nbsp; It&#39;s the algorithm I proposed at the top of this thread for replacing the HPF.&nbsp; It removes the DC offset created by our measuring hardware and attempts to determine the correct DC offset for our floating sensors, no matter if the load is a half-wave load, a low-PF load or a normal resistive load.&nbsp; The data performance data at the top of this thread suggests it performs reasonably well, although it&#39;s certainly not perfect.</p>
+<p>(incidentally, from now until the new year I won&#39;t be able to check the OEM forum often, if at all I&#39;m afraid.&nbsp; Combination of young kids and Christmas and all that.&nbsp; Oh, and MERRY CHRISTMAS to everyone!&nbsp; OEM really is an amazing project with an amazing community; thanks so much for everyone&#39;s help... ok... see you in the new year...)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8619"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Sat, 22/12/2012 - 16:15.</div>
+    <div class="content">
+     <p>Brian D</p>
+<p>Tamura L01Z050S05</p>
+<p>I didn&#39;t spot that because I was considering only split-core devices; as others have pointed out above, there are problems with fitting a solid-core device. Your main fuse, neutral link, any Henley Blocks and meter terminal cover should all be sealed by your electricity company, and breaking the seals is likely to lead to a degree of unpleasantness from them. I would only break those seals if there was immediate danger to person or property (and then I&#39;d pull rank and argue if they tried to be unpleasant) but otherwise they are sacrosanct. I wouldn&#39;t want to disconnect the line tail from the main switch given that the only protection is a 100 A fuse, and the neutral wouldn&#39;t be much better.</p>
+<p>But it does look as if this device would be worthy of serious consideration. Unless you follow it up with a variable gain amplifier, you still have the problem of the resolution of the 10-bit ADC however, limiting the measurement range to &gt; 0.5 A or thereabouts for reasonable accuracy.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8623"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Sat, 22/12/2012 - 17:12.</div>
+    <div class="content">
+     <p><em>&quot;Energy is then seen to be in both halves of the waveform rather than just one.&nbsp; Whether or not that makes any difference in terms of &pound;&pound;&pound;s is another matter.&quot;</em></p>
+<p>Yes, it will make a difference to the <em>&pound;&pound;&pound;s</em> because the rms value is wrong (it will be reading low - remember the &#39;squared&#39; bit in rms).</p>
+<p>&quot;I recall discussing this algorithm with RW at the time, and it transpired that some further adjustment of amplitude was needed. &quot;</p>
+<p>The Phasecal algorithm is explained <a href="http://openenergymonitor.org/emon/buildingblocks/explanation-of-the-phase-correction-algorithm">here in Building Blocks</a>. After applying it, there may need to be a small once-only adjustment to the voltage calibration in order to correct the measured voltage - this is apparent in the illustration. Note it doesn&#39;t <em>actually</em> correct for phase, but does a time shift instead. The voltage wave is close enough to a pure sine wave (when these two are effectively the same thing) for this not to be important in practice. If there are significant harmonics present, then the error increases (and this can in fact be seen on the flattened crest of the voltage wave).</p>
+<p>The algorithm interpolates or extrapolates using the present and last values. For minimum amplitude distortion, the value of PHASECAL should be kept between 0 and 1 (interpolating) and depending on the phase errors of the sensors used, it may be possible to achieve this by swapping the order of reading voltage and current.<br />
+	[And yes, I do realise that the &#39;nominal&#39; value when using the shop components works out at 1.7, and yes, that could be corrected back to 0.7 by swapping the order in emonLib, but that raises backwards-compatibility issues].</p>
+<p>Robin&#39;s PhasecalChecker.ino sketch <strong>won&#39;t</strong> give you the correct value if you are using the calcVI( ) method in emonLib because the order of reading V and I is reversed. I haven&#39;t run it on a test rig with known phase shifts to verify the numbers, but it looks OK.</p>
+<p>This is probably a good place to point out that phase angle and power factor are not the same. Phase angle applies only to a pure sine wave. Power factor is the relationship between real power and apparent power. p.f. = cos(phi) is true only for a pure sine wave.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8639"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sun, 23/12/2012 - 10:36.</div>
+    <div class="content">
+     <p>Jack, thanks for the &quot;LTAD&quot; reminder.&nbsp; (Sorry, I should have spotted that!)</p>
+<p>LTAD appears to rely on at least one of the current lobes being fairly intact.&nbsp; In certain circuits, this won&#39;t be the case.&nbsp; I&#39;m thinking of a lightly-loaded DC regulator that uses a half-wave rectified AC source.&nbsp; This will pull current at only one of the mains peaks.&nbsp; In this case, the output from the CT will be relatively flat for most of each 20mS period, so the LTAD algorithm will struggle to find a DC level where the two lobes have equal baselines.&nbsp; It would presumably end up locating the short baseline of each peak which is not actually the level that you&#39;re looking for.</p>
+<p>My alternative approach is similar to the extent that a LPF will most likely come up with much the same level as your LTAD monitor would do.&nbsp; But only for conventional waveforms.&nbsp; Once the current waveform starts doing strange things, that&#39;s when our results could differ.&nbsp;</p>
+<p>My approach is always to monitor the voltage waveform to establish its DC level.&nbsp; All schemes are probably equally good for this: HPF, LPF, LTAD, whatever.&nbsp; Having found the &quot;centre-line&quot; of the voltage waveform, I can then locate each individual zero-crossing point and map these across onto the current waveform.&nbsp; This provides a &quot;temporal alignment&quot; between the two waveforms that other approaches do not.</p>
+<p>Your requirement to charaterise appliances by their power signatures sounds very much more demanding than simply identifying and diverting surplus power - which is all that I&#39;ve ever been interested in doing.&nbsp; For a start, your V and I waveforms will need to be perfectly aligned for a resistive load otherwise your Power Factor values will be out.&nbsp; As I understand it, the standard PF calculation does not care which waveform is ahead of the other, but you may wish to record this separately.&nbsp;</p>
+<p>Finding an effective and efficient means of processing all this data in a meaningful way, with limited processing power and memory, will certainly be &quot;interesting&quot;.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8651"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2484" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-2484.jpg" alt="jack_kelly&#039;s picture" title="jack_kelly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2484" title="View user profile.">jack_kelly</a> on Sun, 23/12/2012 - 14:43.</div>
+    <div class="content">
+     <blockquote><p><em>LTAD appears to rely on at least one of the current lobes being fairly intact.&nbsp; In certain circuits, this won&#39;t be the case.&nbsp; I&#39;m thinking of a lightly-loaded DC regulator that uses a half-wave rectified AC source.&nbsp;</em></p>
+</blockquote>
+<p>You&#39;re right.&nbsp; It is curious that LTAD appears to work correctly for the dimmed lamp; I would have thought that this waveform would have tripped it up and I honestly don&#39;t know why LTAD is giving the right answer for the dimmed lamp.&nbsp; But yet, I agree, when measuring a single appliance, a cheap dimmer or a DC regulator, LTAD should get confused.&nbsp; But I&#39;ll be using my algorithm to measure whole-house aggregate loads so the current waveform should be vaguely recognisable as a sine wave, I assume ;)</p>
+<blockquote><p><em>Finding an effective and efficient means of processing all this data in a meaningful way, with limited processing power and memory, will certainly be &quot;interesting&quot;.</em></p>
+</blockquote>
+<p>Absolutely right.&nbsp; Which is another reason why<a href="http://openenergymonitor.org/emon/node/1680?page=1#comment-8650"> I&#39;m thinking of &quot;cheating&quot; and using an Raspberry Pi with a sound card to replace the emonTX</a>.&nbsp; With the RPi&#39;s processing firepower, we could do something like this to find the DC-offset:</p>
+<p>For each cycle, calculate a rough estimate of the DC offset&nbsp; using Robin&#39;s algorithm or LTAD or a HPF or just average the samples.&nbsp; Also try to find the peak amplitude of the measured I wave and measure the period of one voltage cycle.&nbsp; Use these parameters to synthesise a true sign wave.&nbsp; Then interactively try to fit this true sine wave to the measured waveform (using the initial guess as a starting point for the search).&nbsp; One potentially fitting algorithm would be &quot;<a href="http://en.wikipedia.org/wiki/Least_squares">least mean squares</a>&quot;.&nbsp; For a given candidate sine wave, and for each point in time, calculate the difference between the &quot;true&quot; sine wave and the measured waveform.&nbsp; Square this and add it to an accumulator.&nbsp; Then, when we&#39;ve been through every time point, divide the accumulator by the number of time points.&nbsp; This gives us a &quot;cost&quot; for the fit between the true sign wave and the measured waveform.&nbsp; The lower the &quot;cost&quot;, the better the fit.&nbsp; Keep trying different parameters for the sine wave (trying, where possible, to move in the direction of the differential of the cost function: this is &quot;gradient descent&quot;) until we find a good fit.</p>
+<p>&nbsp; Of course, the reconstructed sine wave will never fit the measured waveform perfectly.&nbsp; But it should be possible to find a single set of parameters where the true sine wave fits the measured waveform<em> as well as possible</em>.&nbsp; The zero-line of our best-fit true sine wave should be an accurate estimate of the true zero point for the measured sine wave (I think).</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8658"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Sun, 23/12/2012 - 17:26.</div>
+    <div class="content">
+     <p>Jack,</p>
+<p>You need to do some research on recent developments regarding the fast Fourier transform. <a href="http://web.mit.edu/newsoffice/2012/faster-fourier-transforms-0118.html" title="http://web.mit.edu/newsoffice/2012/faster-fourier-transforms-0118.html">http://web.mit.edu/newsoffice/2012/faster-fourier-transforms-0118.html</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8666"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sun, 23/12/2012 - 18:23.</div>
+    <div class="content">
+     <p><em>It is curious that LTAD appears to work correctly for the dimmed lamp; I would have thought that this waveform would have tripped it up and I honestly don&#39;t know why LTAD is giving the right answer for the dimmed lamp.</em></p>
+<p>A standard dimmer provides a short burst of power at the end of each half cycle, so is inherently symmetrical.&nbsp; Your LTAD algorithm is looking for a 50:50 situation.&nbsp;</p>
+<p>Although the centre-line may not meet your criterion precisely, anything above or below this line would be way off the mark.&nbsp; So LTAD will sit there, angrily muttering to itself as it tries each direction in turn.&nbsp;&nbsp; My &#39;temporal alignment&#39; algorithm will behave in a similar manner when V and I are well out of phase.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8674"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sat, 29/12/2012 - 10:39.</div>
+    <div class="content">
+     <p>Jack, the phasecal calculations in the tool that I posted yesterday are indeed OK.&nbsp; There is just one change from the equivalent calculations in emonLib.&nbsp; Deep breath ...</p>
+<p>Power Factor is the ratio of real power / apparent power.&nbsp;&nbsp; Real power is phase-shifted voltage * current.&nbsp;&nbsp; Apparent power is Vrms * I rms.&nbsp; For PF to be calculated correctly, the same magnitude of voltage needs to be used in both halves of the equation.&nbsp;</p>
+<p>The phase-shifted voltage value is obtained by linear interpolation between the most recent pair of voltage samples.&nbsp; This process has a small effect on the magnitude which needs to be taken into account.&nbsp; (For PHASECAL values between 0 and 1, the magnitude gets smaller; outside this range, it gets larger.</p>
+<p>As written, the emonLib code uses the non-shifted voltage (squared) for calculating Vrms.&nbsp; To get the right value for PF, you need to use the phase-shifted value (squared) instead.</p>
+<p>From calcVI() in emonLib.cpp:</p>
+<p><em>&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+	&nbsp;&nbsp;&nbsp; // C) Root-mean-square method voltage<br />
+	&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------&nbsp;<br />
+	&nbsp;<strong>&nbsp;&nbsp;</strong> sqV= <strong>filteredV * filteredV;&nbsp;</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //1) square voltage values<br />
+	&nbsp;&nbsp;&nbsp; sumV += sqV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //2) sum<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+	&nbsp;&nbsp;&nbsp; // D) Root-mean-square method current<br />
+	&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; sqI = filteredI * filteredI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //1) square current values<br />
+	&nbsp;&nbsp;&nbsp; sumI += sqI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //2) sum<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+	&nbsp;&nbsp;&nbsp; // E) Phase calibration<br />
+	&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+	&nbsp;&nbsp;&nbsp; phaseShiftedV = lastFilteredV + PHASECAL * (filteredV - lastFilteredV);<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+	&nbsp;&nbsp;&nbsp; // F) Instantaneous power calc<br />
+	&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; instP = <strong>phaseShiftedV </strong>* filteredI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Instantaneous Power<br />
+	&nbsp;&nbsp;&nbsp; sumP +=instP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Sum&nbsp; </em></p>
+<p>	corrected version in my phaseCal tool:</p>
+<p><em>&nbsp; float&nbsp; sampleIminusDC = sampleI - DCoffset;<br />
+	&nbsp; float&nbsp; phaseShiftedVminusDC =<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastSampleVminusDC + PHASECAL * (sampleVminusDC - lastSampleVminusDC);&nbsp;&nbsp;<br />
+	&nbsp; float instP = <strong>phaseShiftedVminusDC</strong> * sampleIminusDC; //&nbsp; power contribution for this pair of V&amp;I samples<br />
+	&nbsp; sumP +=instP;&nbsp;&nbsp;&nbsp;&nbsp; // cumulative power values for this mains cycle</p>
+<p>	&nbsp; cumVdeltasThisCycle += (sampleV - DCoffset); // for use with LP filter</p>
+<p>	&nbsp; // Additional items to support power factor calculation<br />
+	&nbsp; sumP_forPF += instP;<br />
+	&nbsp; float sqV = <strong>phaseShiftedVminusDC</strong> * <strong>phaseShiftedVminusDC</strong>;<br />
+	&nbsp; sumV_forPF += sqV;<br />
+	&nbsp; float sqI = sampleIminusDC * sampleIminusDC;<br />
+	&nbsp; sumI_forPF += sqI;</em></p>
+<p>Phew!<br />
+	&nbsp;</p>
+<p>Update:&nbsp; Just to clarify what&#39;s meant here by &quot;phase shifted voltage&quot;:&nbsp; The PHASECAL algorithm is routinely applied to the voltage stream so as to align this waveform with that of the current <u>when a resistive load is being measured</u>.&nbsp; This mechanism allows an individual rig to be configured correctly so that the measured Power Factor of a resistive load is one.&nbsp;</p>
+<p>If a reactive or inductive load were then to be measured, the current waveform would no longer be in alignment with the voltage and the calculated value of Power Factor would become less than unity.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8733"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Tracking DC-offset using lobe timing instead of HPF</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Fri, 28/12/2012 - 21:55.</div>
+    <div class="content">
+     <p>Sorry Jack, this may not be of relevance to anyone who needs to measure Power Factor and/or Irms.</p>
+<p>If the only thing that&#39;s needed is Real Power, it turns out that there is no need to pre-process the raw current samples at all.&nbsp; Any DC offset is automatically removed by the standard calculation for RP, I&#39;d just not realised it before.</p>
+<p>Even better than having a super-quick integer maths HPF is to have no filter at all!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/1705?page=1"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-pVyKcjlQ-Pmp_mFyMM1ETr6Gj9rAmjvj18wN8q1jNvE" value="form-pVyKcjlQ-Pmp_mFyMM1ETr6Gj9rAmjvj18wN8q1jNvE"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

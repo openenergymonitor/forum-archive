@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10536 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:28:42 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>How to connect the Aurora Power One inverter to EmonCMS | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">How to connect the Aurora Power One inverter to EmonCMS</h3>
+        <span class="submitted">Submitted by <a href="../user/7762.html" title="View user profile.">nbremond</a> on Tue, 28/04/2015 - 11:47</span>
+        <div class="content"><p>Hello,</p>
+<p>I&#39;d like to share with you the way I did connect my Aurora inverter to EmonCMS...</p>
+<p>Connecting the Aurora Power One inverter used to convert the DC energy of my photo voltaic panel was quite easy, once the Aurora inverter has been connected to my Linux server using a simple RS485 cable, and a cheap RS485 to USB converter bought on ebay.</p>
+<p>Here is how I have proceeded:</p>
+<ul>
+<li>A CRON job launch a bash script every 5min</li>
+<li>This script get the data from the Aurora inverter using the Aurora driver available in the Linux depots, on downloadable here:&nbsp;http://www.curtronics.com/Solar/AuroraData.html</li>
+<li>Finally, this script use AWK to format the data and build a JSON command that is sent to EMonCMS over IP.</li>
+</ul>
+<p>That&rsquo;s it ! And it works great.</p>
+<p>The Bash script &ldquo;getAuroraData.sh&rdquo; is given here (you may have to adjust some parameters to fit your needs):</p>
+<pre>
+#/bin/bash
+URL=$(aurora -a 2 -e /dev/ttyUSB0 -Y15 -d0 -c | awk -f powerOneAurora.awk)
+echo $URL
+curl $URL
+​
+</pre><p>&nbsp;</p>
+<p>
+The AWK script &ldquo;powerOneAurora.awk&rdquo; is given here:</p>
+<pre>
+BEGIN { printf &quot;http://192.168.0.xx/emoncms/input/post.json?json={alive:22.2222&quot;} 
+# To be updated to fit your needs
+{
+printf &quot;, Input 1 Voltage:%f&quot;, $1
+printf &quot;, Input 1 Current:%f&quot;, $2
+printf &quot;, Input 1 Power:%f&quot;, $3
+
+printf &ldquo;, Input 2 Voltage:%f&rdquo;, $4
+printf &ldquo;, Input 2 Current:%f&rdquo;, $5
+printf &ldquo;, Input 2 Power:%f&rdquo;, $6
+
+printf &ldquo;, Grid Voltage Reading:%f&rdquo;, $7
+printf &ldquo;, Grid Current Reading:%f&rdquo;, $8
+printf &ldquo;, Grid Power Reading:%f&rdquo;, $9
+printf &ldquo;, Frequency Reading:%f&rdquo;, $10
+
+printf &ldquo;, DC/AC Conversion Efficiency:%f&rdquo;, $11
+printf &ldquo;, Inverter Temperature:%f&rdquo;, $12
+printf &ldquo;, Booster Temperature:%f&rdquo;, $13
+
+printf &ldquo;, Daily Energy:%f&rdquo;, $14
+printf &ldquo;, Weekly Energy:%f&rdquo;, $15
+printf &ldquo;, Monthly Energy:%f&rdquo;, $16
+printf &ldquo;, Yearly Energy:%f&rdquo;, $17
+printf &ldquo;, Total Energy:%f&rdquo;, $18
+printf &ldquo;, Partial Energy:%f&rdquo;, $19;
+
+}
+END { printf &ldquo;}&amp;apikey=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&amp;node=PowerOne&rdquo; } 
+# To be updated to your needs.</pre><p>And then, the CRON tab used to run the script every 5min:</p>
+<pre>
+# BR This command is run every 5min
+*/5 * * * * root getAuroraData.sh</pre><p>Hope this helps...</p>
+<p>You can find the same page on my website here:</p>
+<p><a href="http://wordpress.nbremond.net/category/projets/amelioration-habitat/">http://wordpress.nbremond.net/category/projets/amelioration-habitat/</a></p>
+<p>PS: I have attached a screen dump of what I get in my EmonCMS&nbsp;web site.</p>
+<p>&nbsp;</p>
+<p><em>Edit - wrapped long lines - BT</em></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10538.html" class="topic-previous" title="Go to previous forum topic">‹ Feeds not updating after upgrade [Solved]</a>
+              <a href="10527.html" class="topic-next" title="Go to next forum topic">EMONCMS Key and Name update via the Input API ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-29971"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to connect the Aurora Power One inverter to EmonCMS</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 28/04/2015 - 13:14.</div>
+    <div class="content">
+     <p>Thanks for sharing this nbremond, Il have to try this, we have an aurora power one here :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29978"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7762.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="nbremond&#039;s picture" title="nbremond&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to connect the Aurora Power One inverter to EmonCMS</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7762.html" title="View user profile.">nbremond</a> on Tue, 28/04/2015 - 14:01.</div>
+    <div class="content">
+     <p>Hello,</p>
+<p>Thanks for the fast reply.&nbsp;Let me know if it works for you, or if you need more detail/explaination, because the post I have written does not include a lot of step by step procedure...</p>
+<p>Have a good day,</p>
+<p>Bernard R&eacute;mond.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10536"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-1JHBpApmWw8O3lSq0GOFK63PiDK3YwCvjG3tICXGbo4" value="form-1JHBpApmWw8O3lSq0GOFK63PiDK3YwCvjG3tICXGbo4"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10536 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:28:42 GMT -->
+</html>

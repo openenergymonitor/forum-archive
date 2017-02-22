@@ -1,0 +1,827 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2455 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:04:41 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Sampling frequency in the energy monitor | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Sampling frequency in the energy monitor</h3>
+        <span class="submitted">Submitted by <a href="../user/3870.html" title="View user profile.">arnoldh</a> on Mon, 10/06/2013 - 15:37</span>
+        <div class="content"><p>I am developing an energy monitor based on the designs on this great web site, but using a Microchip PIC24EP256MC202 MCU. I&#39;m using the PIC mainly because I&#39;m reasonably familiar with it and not with&nbsp;Arduinos, but also because the ADC can sample the voltage and current simultaneously so I don&#39;t need to worry about compensating for phase difference.</p>
+<p>I&#39;ve a question about the software filter and the frequency of sampling in the calcVI() routine in EmonLib. As far as I can see, this routine is sampling in a tight loop, so the time taken per sample is dependent on the ADC in the Arduino and the Arduino clock speed. I don&#39;t know the speed of these, so can&#39;t estimate the sampling frequency used. The PIC will be running at 48MHz, so it probably doesn&#39;t need to run flat out and I will probably need to choose the sampling frequency.</p>
+<p>What I&#39;m not sure about is how often calcVI is sampling per 50Hz cycle. The <a href="https://learn.openenergymonitor.org/?redirect=digital-filters-for-offset-removal">Digital filters for offset removal article</a> talks about 250 sample periods. When I tried this number of sample periods per waveform in a spreadsheet some of the filter results were 10% out. With 50 samples per cycle, the results were much more acceptable.</p>
+<p>What is a reasonable sampling frequency to use?</p>
+<p>Thanks.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2437.html" class="topic-previous" title="Go to previous forum topic">‹ 3D printed case available!</a>
+              <a href="2456.html" class="topic-next" title="Go to next forum topic">Measuring fuel tank level ›</a>
+      </div>
+</div>
+      </div>
+    
+      </div>
+<div id="comments">
+  <a id="comment-12825"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3829.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JSHarris&#039;s picture" title="JSHarris&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3829.html" title="View user profile.">JSHarris</a> on Mon, 10/06/2013 - 15:54.</div>
+    <div class="content">
+     <p>Nyquist gives twice the frequency of the highest frequency component in the signal, which for UK mains is taken to be about 20 times the fundamental, I believe.&nbsp; This gives reasonably good resolution when the waveform is distorted.&nbsp; The result is a highest frequency component of 1kHz and a minimum acceptable sampling rate of 2kHz to satisfy the Nyquist criterion.</p>
+<p>250 Hz seems far too low to me, and will almost certainly generate sampling artefacts if the waveform is a bit distorted, as it often seems to be.</p>
+<p>There needs to be an adequate low pass filter in front of the A/D in order to prevent any high frequency signals (coming from mains-borne signalling or data transmission) from getting in and causing sampling errors, too.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12827"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 10/06/2013 - 16:14.</div>
+    <div class="content">
+     <p>The standard emonLib does as you say call the ADC repeatedly and as fast as it will go with those particular read commands. It works out, when you have the rest of the code in place, to around 50 sample pairs per cycle, or 2500 sample pairs per second. (A sample pair is voltage and current.) The normal use of the library is to sample over a period of around 20 cycles and then repeat this for a second and third c.t., then report by radio and sleep for 5 s.</p>
+<p>However, if the ADC in the Atmel is allowed to free run independently and report into the main program using interrupts as in Calypso_rae&#39;s Mk2i sketches, much better performance is seen. Or as MartinR&#39;s sketch <a href="1535.html" title="http://openenergymonitor.org/emon/node/1535">http://openenergymonitor.org/emon/node/1535</a> demonstrates, voltage and two c.t&#39;s can be sampled at exactly 50 sets of samples per cycle with plenty of time to read a temperature and send the results by radio. In both cases, the readings are taken continuously without pausing.</p>
+<p>The sample rate is of course determined by Nyquist and the highest frequency you are interested in (or vice versa).</p>
+<p>The filter is there to remove the d.c. offset, which is required because the ADC input needs to be biassed midway between 0 and Vcc. Its corner frequency needs to be low enough to not introduce a significant phase shift at the lowest frequency of interest - 50 Hz in our case. You wrote: <em>&quot;The <a href="https://learn.openenergymonitor.org/?redirect=digital-filters-for-offset-removal">Digital filters for offset removal article</a> talks about 250 sample periods. When I tried this number of sample periods per waveform in a spreadsheet some of the filter results were 10% out.&quot;</em>&nbsp; I think you misread that paragraph.</p>
+<p>Unfortunately, you will need to correct for phase difference because the input transducers, voltage and current transformers, each introduce phase shifts that are not equal, and worse, they vary with the measured quantity.</p>
+<p>&nbsp;</p>
+<p>JSHarris:</p>
+<p><em>&quot;Nyquist gives twice the frequency of the highest frequency component in the signal, which for UK mains is taken to be about 20 times the fundamental, I believe. </em>&quot;</p>
+<p>I think you&#39;re trying to say that the tariff meter is accurate up to the 20th harmonic, which I believe is the case.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12828"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 10/06/2013 - 16:48.</div>
+    <div class="content">
+     <p>Here are some actual numbers for 1 call to emonLib. Time is in microseconds</p>
+<p>Num Samples = 518 Time = 202128<br />
+	Num Samples = 517 Time = 201856<br />
+	Num Samples = 518 Time = 202888<br />
+	Num Samples = 518 Time = 202312<br />
+	Num Samples = 518 Time = 201192<br />
+	Num Samples = 518 Time = 209912<br />
+	Num Samples = 518 Time = 210536</p>
+<p>As you can see, the number of samples in a nominal 10 cycles can vary slightly, as there is no attempt to synchonise exactly.<br />
+	&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12829"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3829.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JSHarris&#039;s picture" title="JSHarris&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3829.html" title="View user profile.">JSHarris</a> on Mon, 10/06/2013 - 17:06.</div>
+    <div class="content">
+     <p>Yes, the spec for tariff meters is for them to be accurate when the waveform is distorted to the point where the 20th harmonic is just detectable, as this is considered to be the upper bound for waveform distortion due to things like phase angle controllers or switch mode power supplies.&nbsp; A look at the mains on a spectrum analyser shows that there is often a fair bit of energy up to around the 5th harmonic or so, with not much really beyond that as a rule.&nbsp;</p>
+<p>If the lower accuracy is acceptable, then sampling at around 500Hz (twice the 5th harmonic) should be reasonably accurate.&nbsp; Sampling any lower than this will introduce sampling artefacts, with their magnitude being non-linearly proportional to the amplitude of the harmonic causing the artefact.</p>
+<p>I&#39;ve just had a look at the mains here on the spectrum analyser and the 4th harmonic is fairly prominent (maybe 2 to 3% of the fundamental amplitude) but the 6th harmonic is barely detectable, which makes a reasonable case for only needing to sample at around 500 Hz to get reasonably OK data.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12830"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Mon, 10/06/2013 - 17:42.</div>
+    <div class="content">
+     <p><em>It works out, when you have the rest of the code in place, to around 50 sample pairs per cycle, or 250 sample pairs per second</em></p>
+<p>I think you lost a 0 there Robert! 50 x 50 =2,500 so we&#39;re sampling at about 2.5kHz.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12833"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3870.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arnoldh&#039;s picture" title="arnoldh&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3870.html" title="View user profile.">arnoldh</a> on Mon, 10/06/2013 - 18:11.</div>
+    <div class="content">
+     <p>Robert,<br />
+	Thank you for the responses. I will start with about 50 sample pairs per cycle. I&#39;m planning to interrupt after every 8 ADC conversions and I don&#39;t expect to have enough to do to keep the PIC busy.</p>
+<p>Robert and JSHarris - very off topic<br />
+	Since I noticed on another thread you both confessed to having used a PDP-11, I will also hold up my hand here - I was a developer of one of the RSX&nbsp;PDP-11&nbsp;operating systems. I too used an acoustic coupler to run programs, and worked with someone who was taking her program in person for its daily run on the CDC 6600 in London, and managed to drop the program (hundreds of punched cards) in the middle of Waterloo station in the rush hour. Those were the days!</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12834"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 10/06/2013 - 18:11.</div>
+    <div class="content">
+     <p>50 x 50 != 250&nbsp;&nbsp;&nbsp; <img alt="" src="../../../s.codeproject.com/script/Forums/Images/smiley_doh.html" /></p>
+<p>For the record, I&#39;ve corrected it.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12836"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3829.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JSHarris&#039;s picture" title="JSHarris&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3829.html" title="View user profile.">JSHarris</a> on Mon, 10/06/2013 - 18:30.</div>
+    <div class="content">
+     <p>2.5 KHz is fine, good enough to meet the tariff meter basic spec, i think.&nbsp;&nbsp; The A/D will need a low pass anti-alias filter in front of it though, set to remove everything above the sampling rate / 2, with negligible phase shift in the pass band.&nbsp; Without an anti alias filter there&#39;s a risk of getting sampling-created artefacts.</p>
+<p>Many years ago, when we switched from using FM instrumentation tape recorders to digital data loggers we ran into hosts of problems with aliasing errors, as we were pushing things by only sampling at the Nyquist rate (because the technology&nbsp; of the day didn&#39;t allow really fast 16 bit sampling and conversion) and we&#39;d neglected&nbsp; to fit good LPFs on the front end.</p>
+<p>Another tip is to make sure that the sampling frequency is NOT a multiple of the fundamental.&nbsp; Offset or randomise the sampling rate a bit, so there&#39;s less chance of an alias creeping in and mucking up the measured data.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12838"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 11/06/2013 - 00:32.</div>
+    <div class="content">
+     <p>There&#39;s a small but worthwhile improvement in sampling rate to be obtained with a small change to EmonLib.&nbsp; In the inside loop, there are two conversions from integer to float where one would suffice:</p>
+<p class="rteindent1">&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+	&nbsp;&nbsp;&nbsp; // B) Apply digital high pass filters to remove 2.5V DC offset (centered on 0V).<br />
+	&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+	&nbsp;&nbsp;&nbsp; filteredV = 0.996*(lastFilteredV+<strong>(</strong>sampleV-lastSampleV<strong>)</strong>);<br />
+	&nbsp;&nbsp;&nbsp; filteredI = 0.996*(lastFilteredI+<strong>(</strong>sampleI-lastSampleI<strong>)</strong>);</p>
+<p>Inserting a 2 pairs of brackets (bold)&nbsp; forces sample and lastSample to be subtracted as integers before the result is converted to float.</p>
+<p>It was Robin Emley who was the first to point this out, it increases the sample rate to about 56 sample pairs per cycle. I thought it had been included in the library some while ago, but apparently not.<br />
+	&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12840"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 11/06/2013 - 06:54.</div>
+    <div class="content">
+     <p>Robert,</p>
+<p>I had sent the following to Trystan in a PM in August 2012, but I think he decided not to &#39;change a winning team&#39; :-) ,which I fully understand:</p>
+<p>&quot; .....</p>
+<p>I have now made some experiments with your original sketch &#39;emonTx_CT123_Voltage&#39;. I found that the period for measuring one voltage sensor and one CT is around 394us. This is jittering by +/-10us due to different calculation times from one loop to the other.&nbsp;</p>
+<p>Then I tried to speed this up. One small change brings the periode down to 364us, an improvement of ~8%. This is by just changing the line:</p>
+<p><strong>&nbsp;filteredV = 0.996*(lastFilteredV+sampleV-lastSampleV);</strong></p>
+<p>to:</p>
+<p><strong>&nbsp; filteredV = 0.996*(lastFilteredV+(sampleV-lastSampleV));</strong></p>
+<p>(same for the current calculation). The calculation (sampleX-lasSampleX) is done in integer now and this is much faster than in float. The result is exactly the same.</p>
+<p>&nbsp;</p>
+<p>Then I wanted to use the time when the processor is waiting for an adc conversion to complete. For this I have to cancel the call to analogRead() and just inline the same code. The time while the controller is waiting for the end of conversion can now be used for calculating the desired measurment variables.</p>
+<p>I put the code snippet here because I do not know how to attach something:</p>
+<p>//*************************************************************************</p>
+<p><strong>&nbsp; </strong>while ((crossCount &lt; crossings) &amp;&amp; ((millis()-start)&lt;timeout))<br />
+	&nbsp; {<br />
+	&nbsp;digitalWrite(TESTpin, HIGH);<br />
+	//&nbsp;&nbsp;&nbsp; sampleV = analogRead(inPinV);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Read in raw voltage signal<br />
+	&nbsp;&nbsp;&nbsp; ADMUX = 0x40+inPinV;<br />
+	&nbsp;&nbsp;&nbsp; ADCSRA |= (1&lt;&lt;ADSC);<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; numberOfSamples++;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Count number of times looped.<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastSampleV=sampleV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for digital high pass filter<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastSampleI=sampleI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for digital high pass filter<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastFilteredV = filteredV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for offset removal<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastFilteredI = filteredI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for offset removal<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; while (bit_is_set(ADCSRA,ADSC));<br />
+	&nbsp;&nbsp;&nbsp; sampleV = ADC;</p>
+<p>//&nbsp;&nbsp;&nbsp; sampleI = analogRead(inPinI);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Read in raw current signal<br />
+	&nbsp;&nbsp;&nbsp; ADMUX = 0x40+inPinI;<br />
+	&nbsp;&nbsp;&nbsp; ADCSRA |= (1&lt;&lt;ADSC);<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; filteredV = 0.996*(lastFilteredV+(sampleV-lastSampleV));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sqV= filteredV * filteredV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //1) square voltage values<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sumV += sqV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //2) sum<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; phaseShiftedV = lastFilteredV + PHASECAL * (filteredV - lastFilteredV);<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; while (bit_is_set(ADCSRA,ADSC));<br />
+	&nbsp;&nbsp;&nbsp; sampleI = ADC;<br />
+	&nbsp;digitalWrite(TESTpin, LOW);</p>
+<p>&nbsp;&nbsp;&nbsp; filteredI = 0.996*(lastFilteredI+(sampleI-lastSampleI));<br />
+	&nbsp;&nbsp;&nbsp; sqI = filteredI * filteredI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //1) square current values<br />
+	&nbsp;&nbsp;&nbsp; sumI += sqI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //2) sum</p>
+<p>&nbsp;&nbsp;&nbsp; instP = phaseShiftedV * filteredI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Instantaneous Power<br />
+	&nbsp;&nbsp;&nbsp; sumP +=instP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Sum</p>
+<p>&nbsp;&nbsp;&nbsp; lastVCross = checkVCross;<br />
+	&nbsp;&nbsp;&nbsp; if (sampleV &gt; startV) checkVCross = true;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else checkVCross = false;<br />
+	&nbsp;&nbsp;&nbsp; if (numberOfSamples==1) lastVCross = checkVCross;</p>
+<p>&nbsp;&nbsp;&nbsp; if (lastVCross != checkVCross) crossCount++;<br />
+	&nbsp; } //*************************************************************************</p>
+<p>I think you will see from where I cut this. This code does now run in 296us. This gives a ~25% higher sampling rate. As it is &#39;buried&#39; in a library, it can possibly be looked upon as having a &#39;high enough&#39; abstraction level although it does not use analogRead().</p>
+<p>Just an idea. Regards, J&ouml;rg.</p>
+<p>....&quot;</p>
+<p>&nbsp;</p>
+<p>The second change is &#39;unrolling&#39; and &#39;inlining&#39; the anaologRead() function to be able to use the conversion time for calculations. Improves sampling rate by another ~25%.</p>
+<p>But I also think that an interrupt version of the lib should be the final goal.</p>
+<p>BR, J&ouml;rg.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12845"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3870.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arnoldh&#039;s picture" title="arnoldh&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3870.html" title="View user profile.">arnoldh</a> on Tue, 11/06/2013 - 09:11.</div>
+    <div class="content">
+     <p><a href="2455.html#comment-form">Digital filters for offset removal</a>&nbsp;was very helpful to someone like me with no prior knowledge of filters, but I couldn&#39;t understand one line in the code.</p>
+<p>The basic algorithm is<br />
+	&nbsp; filtered_value = 0.996 * (filtered_value + sample - last_sample);</p>
+<p>This is then converted to integer arithmetic to remove the floating point multiplication. To improve accuracy, before dividing a quantity by 256, 128 is added to give the correct rounding. Also, to improve resolution, the intermediate calculations are done in quantities 256 times the final result needed. These quantities are called &#39;shifted&#39; units.</p>
+<p>The code which replaces the above line is then</p>
+<p>&nbsp; long shiftedFCL = shifted_filter + (long)((sample-last_sample)&lt;&lt;8);<br />
+	&nbsp; shifted_filter = shiftedFCL - (shiftedFCL&gt;&gt;8);<br />
+	&nbsp; long filtered_value = (shifted_filter+128)&gt;&gt;8;</p>
+<p>The first two lines work in &#39;shifted&#39; quantities, i.e. multiplied by 256. The third line then divides by 256 to get the required filtered value. This third line includes 128 for rounding, but I don&#39;t understand why. It would be correct to round if the intermediate calculation had been done in the final units, but not in shifted units. If you then add 128 to shifted filter then divide by 256, you are just adding a constant offset of about 0.5 to the final filtered value. I think the third line should be:</p>
+<p>&nbsp; long filtered_value = shifted_filter&gt;&gt;8;</p>
+<p>Am I misunderstanding something?</p>
+<p>Also, the code in EmonLib appears to use the floating point calculation, not the integer calculation suggested in the digital filters article. Does integer calculation not actually make a lot of difference to the execution time of the code in the Arduino?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12846"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 11/06/2013 - 09:42.</div>
+    <div class="content">
+     <p><em>If you then add 128 to shifted filter then divide by 256, you are just adding a constant offset of about 0.5 to the final filtered value.</em></p>
+<p>If you want rounding then adding the 0.5 temporarily (!) before the division is necessary as the result is integer again. It just gives the &#39;best fitting&#39; result for the operation. But maybe I misunderstand you.</p>
+<p><em>Does integer calculation not actually make a lot of difference to the execution time of the code in the Arduino?</em></p>
+<p>It makes a big difference! FP calculations add a lot of overhead (not only) because they always have to handle 4 byte values.</p>
+<p>If you look at the example given earlier in this thread, changing the simple calculation (sample-last_sample) from fp to integer saved ~30us run time!&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12851"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 11/06/2013 - 11:01.</div>
+    <div class="content">
+     <p>Sorry, J&ouml;rg, I thought it was you who originally proposed the change, but I couldn&#39;t find it. Robin&#39;s post was December so yours predates his by a long way.</p>
+<p>To add to the &quot;0.5&quot; explanation, conversion from float to integer is normally by truncation. Therefore <em>on average</em> the resulting values will be 0.5 less than they should be. So adding 0.5 to the float before truncation means that the resulting integer will always be in error by a maximum of 0.5, rather than 1 as it might otherwise have been.</p>
+<p>To answer Arnold&#39;s implied question, my explanation for why integer maths isn&#39;t used in emonLib is because the concept and operation of a digital filter is hard enough to explain to someone who hasn&#39;t met one before, and one where parallel quantities are scaled differently, with bit shifts and the like, well... !</p>
+<p>The digital filters article was added only recently, emonLib predates it by a long way. The original integer maths is I think in Atmels App note AVR465.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12852"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3870.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arnoldh&#039;s picture" title="arnoldh&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3870.html" title="View user profile.">arnoldh</a> on Tue, 11/06/2013 - 11:25.</div>
+    <div class="content">
+     <p><em>If you want rounding then adding the 0.5 temporarily (!) before the division is necessary as the result is integer again. It just gives the &#39;best fitting&#39; result for the operation. But maybe I misunderstand you.</em></p>
+<p>If you&#39;re working of units of 256, then&nbsp;shifted_filter=n*256 say.</p>
+<p>So (shifted_filter+128)&gt;&gt;8 = (n*256+128)/256 = n+0.5</p>
+<p>The filtered_value should be n but is 0.5 too high.</p>
+<p>The attached spreadsheet shows the three steps of the above calculation for a constant DC level of 100. The filtered value without 128 settles to 0, filtered value with 128 settles to 0.5.</p>
+<p><em>To answer Arnold&#39;s implied question, my explanation for why integer maths isn&#39;t used in emonLib is because the concept and operation of a digital filter is hard enough to explain to someone who hasn&#39;t met one before, and one where parallel quantities are scaled differently, with bit shifts and the like, well...</em></p>
+<p>I agree with Roberts comment. It took me some time to understand the integer code above.</p>
+<p>Arnold</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12853"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3870.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arnoldh&#039;s picture" title="arnoldh&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3870.html" title="View user profile.">arnoldh</a> on Tue, 11/06/2013 - 11:28.</div>
+    <div class="content">
+     <p>The attached&nbsp;spreadsheet didn&#39;t get attached. I&#39;ll try again</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12854"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3870.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arnoldh&#039;s picture" title="arnoldh&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3870.html" title="View user profile.">arnoldh</a> on Tue, 11/06/2013 - 11:32.</div>
+    <div class="content">
+     <p>To attach the spreadsheet, I clicked File Attachments, selected the file, clicked Attach, then Save to post the reply. The attachment doesn&#39;t appear to be there. What am I doing wrong?</p>
+<p>[Edited by RW:&nbsp; You need to tick &#39;List&#39; - I&#39;ve done it for you]</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12855"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 11/06/2013 - 11:59.</div>
+    <div class="content">
+     <p><em>So (shifted_filter+128)&gt;&gt;8 = (n*256+128)/256 = n+0.5</em></p>
+<p><em>The filtered_value should be n but is 0.5 too high.</em></p>
+<p>No, because n+0.5 = n as the result is an integer value (long in the example above). As Robert tried to explain, the error is +/- 0.5 after rounding instead of -1..0 without rounding.</p>
+<p>&nbsp;</p>
+<p><em>Sorry, J&ouml;rg, I thought it was you who originally proposed the change,</em>...</p>
+<p>This was not the reason why I made the comment :-) I just wanted to give the additional hints to further improve the sampling rate for which I originally was to shy to do it publicly (only PMed to Trystan).</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12858"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3870.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arnoldh&#039;s picture" title="arnoldh&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3870.html" title="View user profile.">arnoldh</a> on Tue, 11/06/2013 - 12:22.</div>
+    <div class="content">
+     <p><em>No, because n+0.5 = n as the result is an integer value (long in the example above).</em></p>
+<p>You&#39;re correct. The spreadsheet I couldn&#39;t attach calculated the final result as floating point. Both results would have been 0 if they were integer.</p>
+<p>As the filtered value stays in long integer, adding the 128 has no effect. So I was wrong - the code in the article works OK. On the other hand if adding 128 has no effect it&#39;s unnecessary and possibly confusing to have it in the code.</p>
+<p>I wish I could figure out how to attach a file. After your comment, there&#39;s no need to attach this spreadsheet, but I may need some help when I start building&nbsp;this Energy Monitor, and I may want to attach a file in the future.</p>
+<p>Arnold</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12859"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 11/06/2013 - 12:34.</div>
+    <div class="content">
+     <p>Arnold - see your post above that I&#39;ve edited.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12860"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3870.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arnoldh&#039;s picture" title="arnoldh&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3870.html" title="View user profile.">arnoldh</a> on Tue, 11/06/2013 - 12:43.</div>
+    <div class="content">
+     <p><em>Arnold - see your post above that I&#39;ve edited.</em></p>
+<p>Thanks</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12861"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Tue, 11/06/2013 - 12:49.</div>
+    <div class="content">
+     <p><em>On the other hand if adding 128 has no effect it&#39;s unnecessary and possibly confusing to have it in the code</em>.</p>
+<p>You still don&rsquo;t get it do you Arnold?</p>
+<p>
+	Let me have a go at explaining....</p>
+<p>
+	255/256 = 0.996</p>
+<p>
+	If you just do integer division without adding 128 first you will get 0, clearly not the closest integer value to 0.996.</p>
+<p>
+	Now if you add 128 first (255+128)/256 = 383/256 which for integer division = 1, the closest integer to 0.996</p>
+<p>If you are having so much trouble with this simple concept are you sure you want to design your own system using a PIC chip? I&rsquo;m sure it would be a lot easier to learn the Arduino environment.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12864"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 11/06/2013 - 15:26.</div>
+    <div class="content">
+     <p>Arnold,</p>
+<p>I have modified your spreadsheet with two columns showing the integer values of the results. I think you can clearly see that it makes a difference to add 128.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12867"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 11/06/2013 - 15:23.</div>
+    <div class="content">
+     <p>Arnold, you&#39;ll have to believe us. It is probably as old as computers - and I don&#39;t mean electronic ones! I have a very vague recollection that I read somewhere that Charles Babbage (who else?) had incorporated this mechanically in his Difference Engine, by offsetting by half a cog.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12869"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3870.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arnoldh&#039;s picture" title="arnoldh&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3870.html" title="View user profile.">arnoldh</a> on Tue, 11/06/2013 - 16:19.</div>
+    <div class="content">
+     <p>J&ouml;rg,</p>
+<p>Thanks for the updated spreadsheet and for your patience. I was getting confused because originally I&#39;d been thinking the filter values would be used as floating point numbers, which is why I wasn&#39;t rounding them. Obviously it makes more sense to keep them as long integers and do the subsequent V*V sums etc in integer arithmetic.</p>
+<p>&nbsp;</p>
+<p><em>If you are having so much trouble with this simple concept are you sure you want to design your own system using a PIC chip? I&rsquo;m sure it would be a lot easier to learn the Arduino environment.</em></p>
+<p>Martin</p>
+<p>In spite of appearances to the contrary I am well aware of the simple concept of rounding integers. As a new user of this site, I didn&#39;t find your response particularly helpful.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12872"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Tue, 11/06/2013 - 16:56.</div>
+    <div class="content">
+     <p>Well it was good advice. The Arduino tools are incredibly easy to use, there&#39;s lots of help and useful libraries available, all the ground work has been done and there are very cheap circuit boards available. I&#39;m sure it would be a faster path for you than trying to convert everything to PIC.</p>
+<p>In your first post you implied that the main reason you wanted to use a PIC chip was so that you wouldn&#39;t have to do phase correction but as Robert explained, that isn&#39;t the case.</p>
+<p>Anyway, good luck, I&#39;ll be interested to see how you get on but I won&#39;t try and help again.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12873"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3829.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JSHarris&#039;s picture" title="JSHarris&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3829.html" title="View user profile.">JSHarris</a> on Tue, 11/06/2013 - 17:29.</div>
+    <div class="content">
+     <p>Personally, I think the Arduino stuff is incredibly hard to pick up, and I&#39;ve got around 40 years experience with writing code from CORAL, through FORTRAN to assembler for the early 8 bit micros and thence to various control languages, and the odd bit of PASCAL.&nbsp; I know that the Arduino has an ardent fan base, and that it&#39;s partially supported via some indecipherable open source geek sites, but it is far from being well documented and easy to get to grips with.&nbsp; Whatever documentation there is seems fragmented, poorly supported, full of errors and inconsistencies and any reliable information is buried in places that only those in the know can find and written in a form of English that I personally can&#39;t decipher.</p>
+<p>I do like the idea of a reasonably fast microcontroller like the ATmega range running compiled code with floating point math, but the key for me has to be rock-solid and reliable manufacturer support and documentation, including the critical stuff about the hardware interface specs and performance.&nbsp;</p>
+<p>The PIC range are very well supported in this regard, with excellent documentation and a wealth of easy to use compilers, very cheap programming (including in-circuit options) or even integrated interpreters in the case of the Picaxe range.&nbsp; PICs are inherently a bit easier to use for some hardware interface jobs, it seems, if less easy to use, in some cases, for complex mathematics and things like interfacing to Ethernet.&nbsp; For example, I have a dsPIC running a vector controlled 3 phase brushless motor.&nbsp; It&#39;s far faster (and also a lot cheaper) than an Arduino, in fact an Arduino just couldn&#39;t manage the hardware interface, or do the vector calculations, anywhere near fast enough to allow the motor to run at more than a few tens of rpm.</p>
+<p>To some extent it&#39;s horses for courses.&nbsp; If it were better documented and easier to get to grips with then I might well look at using an Arduino for a complex automation hub application, where the good support for things like Ethernet connectivity and interfacing with graphics displays easily etc would be an advantage.&nbsp; For a sensor interface then a PIC beats it hands down, though, at a fraction of the cost, too.</p>
+<p>I just wish that the Arduino crowd would get their act together and produce some easy to understand and accurate documentation, all in one place, with a well-written and easy to follow beginners guide, as that seems to me to be the Achilles heel of the thing at the moment&nbsp; (together with the relatively high price).</p>
+<p>Sorry for drifting off-topic..................</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12874"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3870.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arnoldh&#039;s picture" title="arnoldh&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3870.html" title="View user profile.">arnoldh</a> on Tue, 11/06/2013 - 17:53.</div>
+    <div class="content">
+     <p><em>Well it was good advice. The Arduino tools are incredibly easy to use, there&#39;s lots of help and useful libraries available, all the ground work has been done and there are very cheap circuit boards available.</em></p>
+<p>Martin</p>
+<p>
+	I&#39;m sure you&#39;re right. I suspect PICs have a higher learning curve than Arduinos. As I said in my first post though, I&#39;m familiar with PICs and that&#39;s the main reason I&#39;m using them for this. It&#39;s a pity I&#39;ll still have to do some phase correction, but that&#39;s not a big deal.</p>
+<p>I may be wrong, but I don&#39;t think it will be too different to convert everything to a PIC. The majority of the code should be the same (C, but that converts easily from C++), the ADC will be a bit different on a PIC but I&#39;ve used that before, I&#39;ll use a different RF solution to communicate with my PC application, but again I&#39;ve done that before. The main stuff I&#39;m not familiar with is current and voltage sensing and filtering, but neither of these are Arduino specific and there&#39;s a great deal of helpful information about these on this web site, and hopefully I can get further help from this forum if I need it.</p>
+<p>I ought to check out Arduino some time. It&#39;s just a bit of an effort when you&#39;re familar with another platform.</p>
+<p>P.S. Just read the previous post as I was about to post this. One thing I do like about Microchip is that the documentation is reasonably central. Also I just use the individual MCUs not development boards, so it only costs me &pound;1 to &pound;3&nbsp;for a processor that will do what I want. The wide variety of sensors and interfaces is a plus, but this can be a double edged sword, because it&#39;s easy to get overwhelmed&nbsp;with the number&nbsp;of processors to choose from. Anyway, this is a bit off topic, and I&#39;m sure I&#39;ll be back when I get the energy monitor underway.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12876"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Tue, 11/06/2013 - 18:34.</div>
+    <div class="content">
+     <p>I think we may be comparing apples and oranges here.</p>
+<p>As you know, PICs are a range of microprocessors from Microchip which I agree are cheap, easy to use, well documented and well supported. There is also a range of microprocessors from Atmel which are equally easy to use, well documented and well supported. Just like Microchip, Atmel provide a range of free development tools which are excellent. Their chips may be slightly more expensive than PICs but the ATmega328 used in the OpenEnergyMonitor project is also only &pound;2-3.</p>
+<p>Arduino on the other hand is something completely different. It is an open-source development environment specifically designed to introduce beginners to microprocessor development. It has no direct connection with any manufacturer, they happen to have chosen Atmel for their first boards but it could equally well have been Microchip and there is no reason why the environment couldn&rsquo;t be ported to use PICs in the future.</p>
+<p>I&rsquo;m really surprised you found the Arduino concept hard to pick up Jeremy as it&rsquo;s really aimed at beginners, with your experience it should be a doddle. I assume you&rsquo;ve looked at the <a href="http://arduino.cc/en/Guide/HomePage">Arduino</a> and <a href="http://www.atmel.com/products/microcontrollers/default.aspx">Atmel</a> home pages?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12877"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3829.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JSHarris&#039;s picture" title="JSHarris&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3829.html" title="View user profile.">JSHarris</a> on Tue, 11/06/2013 - 19:14.</div>
+    <div class="content">
+     <p>I did look at the Arduino when it first sort of started evolving, but it was clear right from the off that it was aimed at geeks who didn&#39;t want to get to grips with the nitty-gritty details of real-world hardware interfacing, but wanted to to be able to do geeky stuff from a PC.&nbsp;&nbsp;</p>
+<p>I&#39;m a fan of the concept of open source, in fact I&#39;ve freely shared everything I&#39;ve ever developed, but it has a major flaw, a flaw so vast as to make it seriously difficult to use for anything that needs reliability and long term supportability.&nbsp; That flaw is testing and reliability.&nbsp; No one is responsible for anything in an open source system, so no one needs to do thorough testing or take responsibility for any flaws.&nbsp; The result is anarchy, with the proliferation of dodgy and untested code libraries that then get relied upon by those developing new applications.&nbsp; IMHO, this is breeding complacency with some programmers who aren&#39;t bothering to check whether they are incorporating SOUP into their code via untested and verified libraries.&nbsp;</p>
+<p>I have to say my other main problem is with c++ in this case.&nbsp; I&#39;ve never been comfortable with the bizarre lack of structure and odd syntax.&nbsp; As a language it doesn&#39;t seem best suited to control and instrumentation (which is my background).&nbsp; Given its heritage this isn&#39;t surprising, but it&#39;s an odd choice for a control-based open source development system.</p>
+<p>Cost is the other problem.&nbsp; I can buy a PIC for &pound;1 or so that can be incorporated directly in a project as is.&nbsp; Even some of the pre-progammed (but far less capable) PIC variants, like the very cheap little Picaxe 08M2 that I&#39;ve used in my PV power diverter only costs &pound;1.50, and needs no programmer, no purchased compiler and has comprehensive and free documentation with a very high degree of reliability and accurately known performance.&nbsp; Not a bad price for a 32MHz microcontroller that does all the stuff needed to run a PV diverter, and better value by far than an Arduino for applications like this that are primarily control based.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12885"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Tue, 11/06/2013 - 21:11.</div>
+    <div class="content">
+     <p>Just for the record, even those fully wedded to the Arduino environment can quite easily and cheaply go the &quot;stick a cpu on your pcb&quot; route too. &nbsp;For about $5:</p>
+<p><a href="http://hwstartup.wordpress.com/2013/03/06/how-to-build-a-5-arduino-clone/" title="http://hwstartup.wordpress.com/2013/03/06/how-to-build-a-5-arduino-clone/">http://hwstartup.wordpress.com/2013/03/06/how-to-build-a-5-arduino-clone/</a></p>
+<p>You still need a programmer to get the bootloader&nbsp;in, but they can be built out of an Arduino (even a $5 Arduino). &nbsp;You&#39;d need to borrow an Arduino or ISP to solve the very first chicken-n-egg problem.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12887"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3829.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JSHarris&#039;s picture" title="JSHarris&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3829.html" title="View user profile.">JSHarris</a> on Wed, 12/06/2013 - 06:46.</div>
+    <div class="content">
+     <p>I think it&#39;s really a case of picking the right solution for any particular application, rather than one being better than another.&nbsp; For example, I have a monitoring system in this house where I measure temperature, humidity and CO2 at various locations (including the roof space, outside and the deep ground temperature).&nbsp; It made sense to make the combined temperature and humidity sensors semi-intelligent and do the basic processing to get real numbers, then have them transmit data back to a central display and data logger.</p>
+<p>Using something like an Arduino on every remote sensor, just to do some simple conversion and output a data stream to a 433MHz TX or send serial data down a cable, would have been an expensive overkill.&nbsp; On the other hand, adding a &pound;1.50 Picaxe (which has a built in bootloader and interpreter, so is in circuit programmable directly from a PC) to each sensor was a better solution, as it was small, cheap and plenty powerful enough for such a limited task.</p>
+<p>However, for the central hub, where the data is received, displayed and stored, it would have made sense to use something like an Arduino, just because it would have been better able to handle multiple tasks, drive complex displays, talk to the LAN, store to SD card etc.</p>
+<p>There is a fair bit of merit in looking at a distributed processing topology for home monitoring, as when you split off the measurement and data acquisition parts to sensors with their own own initial processing the task of the central unit becomes a lot simpler to implement.&nbsp; It also makes testing and calibration simpler, especially if sensors can be individually calibrated by just reloading some new constants to their own on-board controller.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12890"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Wed, 12/06/2013 - 07:27.</div>
+    <div class="content">
+     <p><em>However, for the central hub, where the data is received, displayed and stored, it would have made sense to use something like an Arduino, just because it would have been better able to handle multiple tasks, drive complex displays, talk to the LAN, store to SD card etc.</em></p>
+<p>Geeze.... grab a Raspberry Pi for that! &nbsp;;-)</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12891"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3829.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JSHarris&#039;s picture" title="JSHarris&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3829.html" title="View user profile.">JSHarris</a> on Wed, 12/06/2013 - 08:11.</div>
+    <div class="content">
+     <p>I&#39;ll admit to having been tempted by the various small computers, like the Pi and the host of others that are broadly similar.&nbsp; for our new house I may well use one as the central hub for information display and recording, but not for control.</p>
+<p>One thing I&#39;ve learned during development and planning of our new passive house and the controls it needs to perform properly, is that there is a big problem with many of the commercial offerings.&nbsp; Houses last a long time, so any control system needs to be not only reliable but also supportable for at least 20 years, preferably longer.&nbsp; There are hosts of home automation systems out there running on things like tablets, using apps as the core means of control for things like lighting, heating, entertainment systems or even door locks and alarms.&nbsp; What on earth happens when, in two or three years time new tablets have lost the ability to run legacy apps and the original supplier has gone the way of the DoDo?</p>
+<p>I made a firm decision to use a distributed measurement and control topology based largely on the need to be able to either keep things repairable through life, or allow any node to be replaced in the future with something that can be made compatible.&nbsp; The weak point in my solution is the reliance on medium speed serial protocols being retained for the next 20 years or so, but other than that I think it should be fairly future-proof.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12899"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Wed, 12/06/2013 - 13:31.</div>
+    <div class="content">
+     <p>This thread is now offtopic and will leave to no good.</p>
+<p>Comparing atmel, microchip and compilers is not ever a good thing to do. All are good for what they are designed to do.</p>
+<p>As a note, Arduino GUI is a nice package that hides many complex work from working with the hardware itself.</p>
+<p>But behind the curtain it uses gcc, the industry standard&nbsp; open source C/C++ compiler that is also used by AVR Studio and all linux world anyway. Meaning, if you can learn from the basic needs from arduino ide that simplifies the usage of C/C++ language on atmel itself, you have the knowledge to program for any platform in the world from x86 to PICs.</p>
+<p>You need to start with simple things in C or else you will dismotivate yourself looking at pointers and C++ structures that will not made any sense if dont know the bases of C.</p>
+<p>PICaxe is a commercial product with Basic language syntax, started as a didactic learning tool for 15 years old students.&nbsp; May be simple but if you don&#39;t know anything else you are locked to it an will have difficulties to understand anything else like you seem to have. If you start to learn C then will see how much limited you are with that basic proprietary solution you have now.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12905"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3829.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JSHarris&#039;s picture" title="JSHarris&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3829.html" title="View user profile.">JSHarris</a> on Wed, 12/06/2013 - 13:28.</div>
+    <div class="content">
+     <p>Well, I guess that&#39;s me told then.&nbsp; I must be a real beginner to deserve such a dressing down.&nbsp; Pity I&#39;ve been designing, building and testing measurement and control systems for only 40 odd years, so probably have more experience with a larger number of programming languages than you&#39;ve had hot dinners.</p>
+<p>Still, I get the message, and shall not return.</p>
+<p>This forum seems to be&nbsp; misnamed -&nbsp; I thought it had the word &quot;open&quot;, as in having an open mind, as the first word in it&#39;s title, how silly of me to have misunderstood.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12908"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Wed, 12/06/2013 - 13:41.</div>
+    <div class="content">
+     <p>JSHarris are you marketing picaxe and got mad by being turn down with a logical explanation of why arduino opensource platform is better?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12911"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3829.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JSHarris&#039;s picture" title="JSHarris&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3829.html" title="View user profile.">JSHarris</a> on Wed, 12/06/2013 - 14:03.</div>
+    <div class="content">
+     <p>Open your eyes and read how many times I&#39;ve mentioned each brand of microcontroller.&nbsp;</p>
+<p>It might stop you putting your foot in your mouth and being so offensively rude when you realise that I&#39;ve used the word &quot;picaxe&quot; ONCE on here, yet have referred to the Arduino, PIC and others many times.</p>
+<p>Anyway, this my last post here, I shall carry on with my project without sharing it here, as it&#39;s clear that this forum seems to find discussion on an open and freely shared basis something to be critical of.&nbsp; You might consider renaming the forum &quot;ClosedEnergyMonitor&quot; if one mention of one other possible solution gives rise to such offensive rudeness.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12912"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 12/06/2013 - 14:05.</div>
+    <div class="content">
+     <p><a href="../user/3695.html" title="View user profile.">chaveiro</a></p>
+<p>Please do not make personal attacks aimed at other forum members. Mr Harris is entitled to his opinions, as you are to yours. You may disagree with one another, but if you must disagree in a public forum, be prepared to produce evidence, not opinions, to support your claims and don&#39;t make comments like your last one.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12922"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Wed, 12/06/2013 - 15:44.</div>
+    <div class="content">
+     <p>Huh?</p>
+<p>A don&#39;t meant to be rude nor ofensive to anybody. I made a technical post about two concurrent but similar technologies and got a strange emotional comment about not comming here again by disagreeing.&nbsp; I must say i had seen similar behaviour on marketing campaigns on other foruns that was discovered by ip tracking by the administrator. So i politely asked if that was the case.</p>
+<p><a href="../user/3829.html" title="View user profile.">JSHarris</a> said:&nbsp; &quot;Personally, I think the Arduino stuff is incredibly hard to pick up, and I&#39;ve got around 40 years experience&quot;</p>
+<p>I responded to that with a simple advise: &quot;If you start to learn C then will see how much limited you are with that basic proprietary solution you have now.&quot;</p>
+<p>I don&#39;t care for bad humor, neither mean to be rude and&nbsp; wont comment more on this thread that at similar foruns should already have been locked when went offtopic.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-12923"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sampling frequency in the energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 12/06/2013 - 15:48.</div>
+    <div class="content">
+     <p>I realise English might not be your first language, but <strong><em>I</em></strong> read your posts leading up to this as being opinionated - as were Jeremy Harris&#39;s, and <strong><em>I</em></strong> read your post of 14:41 as a personal attack. To a native English speaker, the way you wrote it was confrontational. If you really wanted to question whether Jeremy Harris was marketing the PIC. then maybe you should have chosen gentler words. My opinion is, if you believed he was marketing the PIC, you should not have commented at all, but raised the matter with the administrators. I don&#39;t see any evidence to suggest that might be true, I think it is very simply the case that he is happy with what he is familiar with, in exactly the same way that you are.</p>
+<p>Perhaps you can both agree on something I&#39;ve known for a long time: &quot;Most likely, the best system to solve any problem is the one you are familiar with.&quot;</p>
+<p>I agree the post has gone off-topic, if you wish to continue this discussion, please PM me.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2455"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-v8RF0DEqx3rItyun8qMR6_UN0j_38czV8fiqUCxTo70" value="form-v8RF0DEqx3rItyun8qMR6_UN0j_38czV8fiqUCxTo70"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2455 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:04:42 GMT -->
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11987 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:48:50 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Publish to MQTT and Emoncms.org from a HTTP feed input [SOLVED] | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Publish to MQTT and Emoncms.org from a HTTP feed input [SOLVED]</h3>
+        <span class="submitted">Submitted by <a href="../user/7376.html" title="View user profile.">allmac</a> on Wed, 13/01/2016 - 16:00</span>
+        <div class="content"><p>I&#39;d like to send all my &quot;INPUT&quot; data to EMONCMS.ORG and via MQTT.</p>
+<p>My problem is the reverse than here:&nbsp;<a href="11937.html">http://openenergymonitor.org/emon/node/11937</a><br />
+** I am able to send MQTT&nbsp;received&nbsp;data, but not HTTP received data.</p>
+<p>I have 3&nbsp;different&nbsp;nodes&nbsp;(5, 10, 11)&nbsp;in my Emonhub&#39;s INPUT. Each node from a different device.&nbsp;Node 5 comes via Serial&nbsp;(MQTT), and nodes 10/11 from HTTP access.</p>
+<blockquote><p><strong>LOG&nbsp;EMONCMS:</strong><br />
+<em>Received&nbsp;mqtt&nbsp;message:&nbsp;emonhub/rx/5/values 165,6,35,103,125,33<br />
+MAIN&nbsp;INFO input() received time=1452698657, value=-1<br />
+MAIN INFO input() received time=1452698657, value=40<br />
+MAIN INFO input() received time=1452698657, value=108<br />
+MAIN INFO input() received time=1452698657, value=124<br />
+MAIN INFO input() received time=1452698657, value=33</em></p>
+</blockquote>
+<p>Received&nbsp;MQTT&nbsp;data for Node 5&nbsp;is send&nbsp;via MQTT:</p>
+<blockquote><p><strong>LOG&nbsp;EMONHUB:</strong><br />
+<em>SerialDirect&nbsp;Publishing:&nbsp;emonhub/rx/5/values 159,6,29,100,123,33</em></p>
+</blockquote>
+<p>Configuration as following:</p>
+<blockquote><p>[[MQTT]]<br />
+&nbsp; &nbsp; Type =&nbsp;EmonHubMqttInterfacer<br />
+&nbsp; &nbsp; [[[init_settings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;mqtt_host =&nbsp;localhost<br />
+&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;mqtt_port = 1883<br />
+&nbsp; &nbsp; [[[runtimesettings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;pubchannels&nbsp;=&nbsp;ToRFM12,<br />
+&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;subchannels&nbsp;=&nbsp;ToEmonCMS,<br />
+&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;basetopic&nbsp;=&nbsp;emonhub/</p>
+<p>[[SerialDirect]]<br />
+&nbsp; &nbsp; &nbsp;Type =&nbsp;EmonHubSerialInterfacer<br />
+&nbsp; &nbsp; &nbsp;&nbsp;[[[init_settings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;com_port = /dev/ttyACM0&nbsp;#USB<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;com_baud&nbsp;= 9600<br />
+&nbsp; &nbsp; &nbsp; [[[runtimesettings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;pubchannels&nbsp;=&nbsp;ToEmonCMS,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;subchannels&nbsp;=&nbsp;ToRFM12<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;calibration =&nbsp;110V&nbsp;#(UK/EU:&nbsp;230V, US:&nbsp;110V)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;baseid&nbsp;= 5 #(emonPi&nbsp;default:5)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;quiet = false&nbsp;#(default:true)</p>
+</blockquote>
+<p>And&nbsp;Node 5 data is send to LOCALHOST and&nbsp;EMONCMS.ORG:<br />
+**&nbsp;(Is there any fail? Is not data being duplicated many times?)</p>
+<blockquote><p><strong>LOG&nbsp;EMONHUB:</strong><br />
+S-LOCAL&nbsp; &nbsp; sending: http://localhost/emoncms/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&amp;data=[[1452698904,5,161,5,34,109,124,33],[1452698907,5,159,7,44,99,124,33],[1452698909,5,157,5,45,102,124,33],[1452698912,5,157,3,44,105,123,33],[1452698915,5,160,5,44,104,124,33],[1452698918,5,161,6,36,105,124,33],[1452698921,5,162,4,35,107,124,33],[1452698923,5,159,6,35,103,124,33],[1452698926,5,161,-2,38,112,124,33],[1452698929,5,160,5,38,102,124,33]]&amp;sentat=1452698930</p>
+<p>S-REMOTO &nbsp; sending: http://emoncms.org/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&amp;data=[[1452698904,5,161,5,34,109,124,33],[1452698907,5,159,7,44,99,124,33],[1452698909,5,157,5,45,102,124,33],[1452698912,5,157,3,44,105,123,33],[1452698915,5,160,5,44,104,124,33],[1452698918,5,161,6,36,105,124,33],[1452698921,5,162,4,35,107,124,33],[1452698923,5,159,6,35,103,124,33],[1452698926,5,161,-2,38,112,124,33],[1452698929,5,160,5,38,102,124,33]]&amp;sentat=1452698931</p>
+</blockquote>
+<p>Configuration as following:</p>
+<blockquote><p>[[S-REMOTO]]<br />
+&nbsp; &nbsp; Type = EmonHubEmoncmsHTTPInterfacer<br />
+&nbsp; &nbsp; [[[init_settings]]]<br />
+&nbsp; &nbsp; [[[runtimesettings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; pubchannels = ToRFM12,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; subchannels = ToEmonCMS,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; url = <a href="http://emoncms.org/" title="http://emoncms.org">http://emoncms.org</a><br />
+&nbsp; &nbsp; &nbsp; &nbsp; apikey = xxxxx<br />
+&nbsp; &nbsp; &nbsp; &nbsp; senddata = 1<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sendstatus = 1</p>
+<p>[[S-LOCAL]]<br />
+&nbsp; &nbsp; Type = EmonHubEmoncmsHTTPInterfacer<br />
+&nbsp; &nbsp; [[[init_settings]]]<br />
+&nbsp; &nbsp; [[[runtimesettings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; pubchannels = ToRFM12,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; subchannels = ToEmonCMS,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; url = <a href="http://localhost/emoncms" title="http://localhost/emoncms">http://localhost/emoncms</a><br />
+&nbsp; &nbsp; &nbsp; &nbsp; apikey = xxxxx<br />
+&nbsp; &nbsp; &nbsp; &nbsp; node = 10<br />
+&nbsp; &nbsp; &nbsp; &nbsp; senddata = 1<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sendstatus = 1</p>
+</blockquote>
+<p>It works fine... NO PROBLEM.</p>
+<p>But I am not able to do the same for nodes 10 and 11.&nbsp;How could I configure Emonhub to send all nodes data&nbsp;to EMONCMS.ORG and via MQTT?</p>
+<blockquote><p>pi@emonpi /var/log $ ps aux | grep phpmqtt<br />
+pi&nbsp; &nbsp; &nbsp; &nbsp; 8891&nbsp; 0.0&nbsp; 0.4 &nbsp; 3548&nbsp; 1796 pts/2&nbsp; &nbsp; S+ &nbsp; 14:10 &nbsp; 0:00 grep --color=auto phpmqtt<br />
+root &nbsp; &nbsp; 24763&nbsp; 0.0&nbsp; 0.5 &nbsp; 4592&nbsp; 2620 pts/2&nbsp; &nbsp; S&nbsp; &nbsp; 12:48 &nbsp; 0:00 sudo php&nbsp;/var/www/emoncms/scripts/phpmqtt_input.php<br />
+root &nbsp; &nbsp; 24766 10.1&nbsp; 3.3&nbsp; 37840 14724 pts/2&nbsp; &nbsp; R&nbsp; &nbsp; 12:48 &nbsp; 8:19 php /var/www/emoncms/scripts/phpmqtt_input.php</p>
+</blockquote>
+<p>Thanx...</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12036.html" class="topic-previous" title="Go to previous forum topic">‹ Upgrade 8.3.6 on Wheezy from Emoncms SD image to v9.3</a>
+              <a href="5307.html" class="topic-next" title="Go to next forum topic">square root in the input process? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-38223"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3464.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3464.jpg" alt="Bra1n&#039;s picture" title="Bra1n&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Publish to MQTT and Emoncms.org from a HTTP feed input [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3464.html" title="View user profile.">Bra1n</a> on Wed, 13/01/2016 - 16:55.</div>
+    <div class="content">
+     <p>What version of Emoncms are you running ?<br />
+My version (9 RC2) has a &#39;Publish to MQTT&#39; process available from the process list&nbsp;which is what I use although this doesn&#39;t work on MQTT received data without the changes mentioned in the other thread you quoted</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38226"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7376.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7376.jpg" alt="allmac&#039;s picture" title="allmac&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Publish to MQTT and Emoncms.org from a HTTP feed input [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7376.html" title="View user profile.">allmac</a> on Thu, 14/01/2016 - 02:56.</div>
+    <div class="content">
+     <p>Thanx&nbsp;Bra1n!&nbsp;I&nbsp;found it...</p>
+<p>I did added &quot;emoncms/rx/11/values&quot;, but it appears only a &quot;0&quot;:</p>
+<blockquote><p>#$ mosquitto_sub -h MY_IP&nbsp;-v -t &quot;#&quot;</p>
+<p>emoncms/rx/5/values 164,3,41,100,126,33<br />
+emoncms/rx/5/rssi 0<br />
+0 133<br />
+emoncms/rx/5/values 164,7,39,100,126,33<br />
+emoncms/rx/5/rssi 0</p>
+</blockquote>
+<p>Emonhub configuration file:</p>
+<blockquote><p>[[SerialDirect]]<br />
+&nbsp; &nbsp; &nbsp;Type = EmonHubSerialInterfacer<br />
+&nbsp; &nbsp; &nbsp; [[[init_settings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;com_port = /dev/ttyACM0 #USB<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;com_baud = 9600<br />
+&nbsp; &nbsp; &nbsp; [[[runtimesettings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;pubchannels = ToEmonCMS,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;subchannels = ToRFM12<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;calibration = 110V #(UK/EU: 230V, US: 110V)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;baseid = 5 #(emonPi default:5)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;quiet = false #(default:true)</p>
+</blockquote>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38230"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3464.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3464.jpg" alt="Bra1n&#039;s picture" title="Bra1n&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Publish to MQTT and Emoncms.org from a HTTP feed input [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3464.html" title="View user profile.">Bra1n</a> on Wed, 13/01/2016 - 20:40.</div>
+    <div class="content">
+     <p>If I recall correctly from looking at the code you can only publish down one level so something like emoncms/11 would work but not emoncms/rx/11 etc</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38238"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7376.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7376.jpg" alt="allmac&#039;s picture" title="allmac&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Publish to MQTT and Emoncms.org from a HTTP feed input [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7376.html" title="View user profile.">allmac</a> on Thu, 14/01/2016 - 02:36.</div>
+    <div class="content">
+     <p>It still changing to 0... &quot;emonhub/11&quot;, &quot;emonhub&quot;, anything else numbers. If I put &quot;11&quot; it works.</p>
+<p>Also... items for each &quot;topic&quot; are not together?</p>
+<p>...<br />
+emonhub/rx/5/rssi 0<br />
+11 149<br />
+11 285<br />
+11 0<br />
+emonhub/rx/5/values 288,102,67,110,125,33<br />
+...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38618"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7376.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7376.jpg" alt="allmac&#039;s picture" title="allmac&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Publish to MQTT and Emoncms.org from a HTTP feed input [SOLVED]</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7376.html" title="View user profile.">allmac</a> on Fri, 22/01/2016 - 13:16.</div>
+    <div class="content">
+     <p>To solve what I want,&nbsp;I did a &quot;hacked&quot; EmonHubMqttInterfacer...</p>
+<p>Now I have Arduino&#39;s&nbsp;OpenEnergy&nbsp;Shield connected to my Raspberry&#39;s Emoncms via SERIAL only (USB cable), than I can also power up Arduino.</p>
+<p>Power&nbsp;data&nbsp;(from&nbsp;Arduino)&nbsp;is received into NODES, than sent&nbsp;to INPUT using&nbsp;EmonHubEmoncmsHTTPInterfacer&nbsp;and to&nbsp;Mqtt-broker (to use also in another Raspberry and Openhab) using hacked&nbsp;EmonHubMqttInterfacer.</p>
+<p>And hacked EmonHubMqttInterfacer&nbsp;also get all other&nbsp;Mqtt-broker&nbsp;data (from others equipments) and send them to INPUT.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11987"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-8sP9nNpQbaOCNm7Zjs7_2F-CCo1Ju60bQlGd8n4sjBA" value="form-8sP9nNpQbaOCNm7Zjs7_2F-CCo1Ju60bQlGd8n4sjBA"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11987 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:48:50 GMT -->
+</html>

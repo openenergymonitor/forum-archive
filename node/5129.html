@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5129 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:28:47 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Seeking guidance. Pulse-counting data calibration/verification (setup: emonTh + TSL257 + local pi emonCMS) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Seeking guidance. Pulse-counting data calibration/verification (setup: emonTh + TSL257 + local pi emonCMS)</h3>
+        <span class="submitted">Submitted by <a href="../user/6085.html" title="View user profile.">tofurobot</a> on Sat, 03/05/2014 - 02:02</span>
+        <div class="content"><p>Hi everyone,</p>
+<p>Recap: I&#39;m based in the US and am a newcomer to OpenEnergyMonitor (and many of the concepts surround these projects). My goal is to monitor and record the electric usage of a commercial building. I was initially going to use CT clamps, but then discovered that the building uses 3-phase power and the clamps required would blow my budget. Thankfully, our meter has an IR pulse LED that we can utilize and keep the project moving... I hope.</p>
+<p>So, since we are just counting pulse and not using CTs, I decided to use an emonTh with a TSL257 optical sensor rather than the emonTx with all its bells and whistles. After some messy, inefficient, and potentially misguided alterations to the existing emonTh example code, I found I was able to get the pulse count reliably into emonCMS (hosted locally on a raspberry pi). I have the emonTh powered from a wall adapter, with the TSL257 connected to +5V, GND, and DIG2IRQ0. (Happy to share the messy code I used in a separate post if anyone wants to take a peek/criticize/utilize it, but it doesn&#39;t pertain to the subject at hand so I will refrain from pasting it here.)</p>
+<p>Here&#39;s what has me scratching my head, wondering what to do next. I don&#39;t know of a good way to verify the value of each pulse. Our meter works indirectly by utilizing CTs of its own. Massively large CTs that I couldn&#39;t hope to acquire similar versions of. There are three &quot;pages&quot; of information on the LCD screen on our meter that are shown for about 5 seconds each (and then proceed to loop). They are as follows:</p>
+<p>[Note: I&#39;m sorry if I get my units / terminology wrong. Please feel free to set me straight if you notice a lack of proper use and/or understanding.)</p>
+<p>1) As the units for this screen are kWh, this must be cumulative electric consumption, right? I think the default assumption is that 1 pulse = 1 kWh, however this is not what I have observed. Over a 44 hour period, this kWh number on the meter only increased by 8. The pulse count was ~4025 over this period. This would be simple math, but I expect the actual usage was <em>much</em> higher than 8kWh. The average kWh per day in December (per our service provier&#39;s bill) was 375.2 kWh. Yes, this is a different season, but it makes me believe that the meter-observed 8 kWh change over two days is not what it appears to be.</p>
+<p><a href="../../../i.imgur.com/udwSbjD.png"><img alt="" src="../../../i.imgur.com/udwSbjD.png" style="width: 350px; height: 111px;" /></a></p>
+<p>&nbsp;</p>
+<p>2) This is in kW, so I&#39;m going with &quot;instantaneous power&quot;, although this number doesn&#39;t seem to change much - if at all - over several minutes of observation. Even with our AC condensers cycling on/off during the observation period. Right now it&#39;s at 0.59 and has been the same for every reading this past week.</p>
+<p><a href="../../../i.imgur.com/4RNaUQK.png"><img alt="" src="../../../i.imgur.com/4RNaUQK.png" style="width: 350px; height: 104px;" /></a></p>
+<p>&nbsp;</p>
+<p>3) I do not know what this is. There are no units. After reading up on quasi-related material across the internet, it stuck in my head that this could be something called &quot;power factor&quot;. Not... that I know what that would mean, regardless. It doesn&#39;t often change. It&#39;s been at 0.927 for the past week.</p>
+<p><a href="../../../i.imgur.com/shNWZVl.png"><img alt="" src="../../../i.imgur.com/shNWZVl.png" style="width: 350px; height: 110px;" /></a></p>
+<p>&nbsp;</p>
+<p>So calibration of what a pulse actually is something I would really like to do. It&#39;s possible that the meter display doesnt represent the data we&#39;re looking for. These meters <em>can</em> be programmed (by the provider) to display certain types of information depending on the specific method of electric delivery.&nbsp;</p>
+<p>&nbsp;</p>
+<p>Here are some screens from the emonCMS installation that show the inputs and feeds:</p>
+<p>Inputs received from the emonTh:<br />
+	<a href="../../../i.imgur.com/PN4argS.png"><img alt="" src="../../../i.imgur.com/PN4argS.png" style="width: 350px; height: 93px;" /></a></p>
+<p>&nbsp;</p>
+<p>Input config for feed &quot;power&quot;:</p>
+<p><a href="../../../i.imgur.com/BwBxjKF.png"><img alt="" src="../../../i.imgur.com/BwBxjKF.png" style="width: 350px; height: 112px;" /></a></p>
+<p>&nbsp;</p>
+<p>Input config for feed &quot;pulses&quot;:</p>
+<p><a href="../../../i.imgur.com/8tZHoQM.png"><img alt="" src="../../../i.imgur.com/8tZHoQM.png" style="width: 350px; height: 63px;" /></a></p>
+<p>&nbsp;</p>
+<p>Feeds:</p>
+<p><a href="../../../i.imgur.com/w6e98Pn.png"><img alt="" src="../../../i.imgur.com/w6e98Pn.png" style="width: 350px; height: 80px;" /></a></p>
+<p>&nbsp;</p>
+<p>The <em>relationship </em>between the values seem to make sense when viewing the visualizations.</p>
+<p>The power seems to be higher during the day:</p>
+<p><a href="../../../i.imgur.com/mdKIcZn.png"><img alt="" src="../../../i.imgur.com/mdKIcZn.png" style="width: 215px; height: 385px;" /></a></p>
+<p>&nbsp;</p>
+<p>The total pulse count rises at a faster rate during periods of increased usage (eg. during the day):</p>
+<p><a href="../../../i.imgur.com/AWcVDuo.png"><img alt="" src="../../../i.imgur.com/AWcVDuo.png" style="width: 350px; height: 183px;" /></a></p>
+<p>&nbsp;</p>
+<p>Likewise, the kWh rises faster during the day (although there&#39;s a weird drop in the graph that I cannot explain. I expected this number to only be able to increase, since it&#39;s essentially an accumulation of energy used. I don&#39;t think I should focus on this odd observation at this time...)</p>
+<p><a href="../../../i.imgur.com/FIdicsA.png"><img alt="" src="../../../i.imgur.com/FIdicsA.png" style="width: 350px; height: 243px;" /></a></p>
+<p>&nbsp;</p>
+<p>This brings us to where I currently stand. I seem to be successfully collecting data, albeit data of questionable value. Does anyone have any insight into how I might validate my findings? Perhaps I may also lean on your collective experience and ask if the values I&#39;ve shared here even make real-world sense.</p>
+<p>Once I&#39;m confident in the accuracy of the information I can collect here, my next goal will be to figure out how people use the collected information <em>outside</em> of emonCMS. (Such as, if I want to use my own database that houses emon data produced from multiple physical sites, where should I start? Does one &quot;push&quot; the data from emonCMS to an external database, or do you command the external database to &quot;pull&quot; information from the various emonCMS installations? Questions like these are in my future...)</p>
+<p>Thanks, everyone. These projects are fun and insightful. Please forgive my lack of experience with some of the inner workings / building blocks. I <em>do</em> have the ability to learn, and have been taking steps to acquire (well, googling) as much of the fundamentals as I can. What I seek now from this awesome community is guidance on ways to move forward from here. This data ambiguity is proving to be a formidable roadblock. Once I establish my next concrete goal, or better yet, a clearly defined roadmap, I know I&#39;ll be able to press onward.</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5167.html" class="topic-previous" title="Go to previous forum topic">‹ Build EmonTH with SCT-013-030 -- Problems</a>
+              <a href="5158.html" class="topic-next" title="Go to next forum topic">Where would be the best place to post some Code I have written for a windows PC? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-21199"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Seeking guidance. Pulse-counting data calibration/verification (setup: emonTh + TSL257 + local pi emonCMS)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 03/05/2014 - 13:33.</div>
+    <div class="content">
+     <p>I&#39;ve just found your later posts on the other thread (somehow, I missed these a month ago).</p>
+<p>First, a misconception to be dispelled. There is <strong>no</strong> inherent current limit for the emonTx - it depends solely on the CT you use to drive it and the burden. So if you have a 1000: 50 mA CT and the in-built burden, it will read 1000 A with the appropriate scaling in the software.</p>
+<p>Now to this problem. You need to find out what your meter LED flash represents. There are principally two ways that I can think of, experiment or paper-chase. The experimental way is to wait until your plant is shut down overnight or for a holiday, then put a known load on and count and time the flashes. The paper-chase is to find out what the meter characteristics are, what those meter displays actually mean, what the ratio of those big CTs are, and work through the sums. The energy bill might have some information that helps. Even better if you can talk to a friendly engineer at your electricity company. I&#39;ve no idea whether you will be able to find out everything that&#39;s necessary, so the experimental way might be the only practical way.</p>
+<p>Certainly, the top picture <em>says</em> it&#39;s kWh, but they might have forgotten to scale it for the CTs, so it&#39;s 8 x (the CT ratio), which, if the CT is 200 : 5 say, makes much more sense of your 8 kWh ( x 40 = 320 kWh). That&#39;s just a theory, so treat it with caution.</p>
+<p>The 0.48 / 0.59 kW display:&nbsp; If it doesn&#39;t change when the load is cycling, could it be maximum demand - again scaled by the CT ratio?&nbsp; Some suppliers charge a penalty if the maximum demand goes above an agreed limit within a specified time frame, usually half an hour. You might find this resets periodically.</p>
+<p>The 0.919 could indeed be power factor. This is the ratio of real power - the power that a resistor (heater) dissipates, compared to the power that you calculate when you measure voltage and current and multiply the two numbers. For a resistor, the value is always 1 (by definition!). For a reactive load, like your compressor motors, it will be less than 1, and 0.92 is good. For a very small induction motor, it can be down to 0.6 or so. A poor power factor is bad because it means you have to have fatter cables to deliver a higher current for the same amount of power. Some suppliers charge extra if you have a poor power factor.</p>
+<p>It took me about 5 s with Google to locate a manual for your meter:<br />
+	site.ge-energy.com%2Fprod_serv%2Fproducts%2Fmetering%2Fen%2Fdownloads%2Fkv2ci_oi.pdf<br />
+	I think you need to study that. I haven&#39;t done so.</p>
+<p>That should tell you what your meter is displaying. I mentioned in the other thread about putting your own CT on the meter CT secondary side. Is that possible, or can you get a clamp ammeter on there? If you could, that might help to resolve what the meter scaling is. Let&#39;s assume those big CTs are 200:5&nbsp; Then if the current into the meter correlates with the meter kWh incrementing, and the LED flashes (which I guess might actually be more like 1 Wh but again scaled by the CT ratio) then all you need to know is the metering CT ratio.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21200"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Seeking guidance. Pulse-counting data calibration/verification (setup: emonTh + TSL257 + local pi emonCMS)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 03/05/2014 - 14:28.</div>
+    <div class="content">
+     <p>Having quickly looked at the manual, you also need to know k<sub>t</sub>. It should be underneath the paper label on the front of your meter - see Fig. 1-1 of the manual. It would be useful to know anything else under there too.</p>
+<p>The manual says the meter defaults to 1 pulse = 1 Wh, as I guessed. But that doesn&#39;t necessarily mean yours is set to the default.</p>
+<p>Also available is a comprehensive data extraction kit: <a href="http://wattmetrics.com/products/supportedpowermeters/GEkV2c.aspx" title="http://wattmetrics.com/products/supportedpowermeters/GEkV2c.aspx">http://wattmetrics.com/products/supportedpowermeters/GEkV2c.aspx</a> is the first I noticed.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21309"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6085.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6085.jpg" alt="tofurobot&#039;s picture" title="tofurobot&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Seeking guidance. Pulse-counting data calibration/verification (setup: emonTh + TSL257 + local pi emonCMS)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6085.html" title="View user profile.">tofurobot</a> on Sat, 10/05/2014 - 01:37.</div>
+    <div class="content">
+     <p>Ah, thanks for your input, Robert! (and sorry for the delay - honestly I&#39;m not sure if I set up the email notification on this forum correctly.)</p>
+<p>Okay, I have some new information to share with everyone based on Robert Wall&#39;s feedback.</p>
+<p>So experimental vs paper-chase. This is a great way to organize the information-seeking process. I think there may a few things holding me back from being successful with either tactic. I could be wrong and these issues might be inconsequential.&nbsp;</p>
+<p>Experimental</p>
+<ul>
+<li>
+		Even at night, I can&#39;t totally cut off every load in the building. Alarms, monitors, aquarium, etc. Even during the night hours, our building is &quot;on&quot;.</li>
+<li>
+		I might not have a clamp meter large enough to go around the main cables. If I did, I still might have an issue getting inside the &quot;sealed&quot; exterior box that houses the monster CTs. (These boxes have tamper-evident clips on the doors, but I was able to obtain a a few photos by prying it open ever so slightly.</li>
+<li>
+		I&#39;m not opposed to calling up the utility company and attempting to track down an engineer (or anyone beyond tier 1 support staff). I will look into this - great suggestion.</li>
+</ul>
+<p>Paper-chase</p>
+<ul>
+<li>
+		Gathering data about the hardware in use in order to figure out what they might be telling us.</li>
+<li>
+		This is the (quite spooky) inside area of the box that contains the 3 CTs.</p>
+<ul>
+<li>
+				<a href="../../../i.imgur.com/qZQTl3Z.jpg"><img alt="" src="../../../i.imgur.com/qZQTl3Z.jpg" style="width: 350px; height: 318px;" /></a></li>
+</ul>
+</li>
+<li>
+		I was able to get a close-up of one of the metal plates on the CT. This might be a critical piece of the puzzle, allowing us to no longer make certain assumptions.</p>
+<ul>
+<li>
+				<a href="../../../i.imgur.com/qhas2BE.jpg"><img alt="" src="../../../i.imgur.com/qhas2BE.jpg" style="width: 350px; height: 180px;" /></a></li>
+</ul>
+</li>
+<li>
+		Another required piece of information from your look at the manual. The value of&nbsp;k<sub>t</sub>&nbsp;on the meter sticker is 1.8. (It was hard to make out in the photo I snapped, so I typed over it.)</p>
+<ul>
+<li>
+				<a href="../../../i.imgur.com/KN0y8vy.jpg"><img alt="" src="../../../i.imgur.com/KN0y8vy.jpg" style="width: 350px; height: 83px;" /></a></li>
+</ul>
+</li>
+<li>
+		For good measure, here is a representation of the electric supply found on the building&#39;s exterior</p>
+<ul>
+<li>
+				<a href="../../../i.imgur.com/PHuZytX.jpg"><img alt="" src="../../../i.imgur.com/PHuZytX.jpg" style="width: 350px; height: 436px;" /></a></li>
+</ul>
+</li>
+<li>
+		Also, a copy of the interior layout (from a previous post)</p>
+<ul>
+<li>
+				<a href="../../../i.imgur.com/bjbsZBq.jpg"><img alt="" src="../../../i.imgur.com/bjbsZBq.jpg" style="width: 350px; height: 202px;" /></a></li>
+</ul>
+</li>
+</ul>
+<p>I had taken a look at the meter manual as well and was discouraged when I read that they could all be programmed differently. I believe this is the reason they do not have an index of meter screen numbers (05, 07, 18 from the original post) coupled with their relevant descriptions.</p>
+<p>I have looked into a similar data extraction kit, but there doesn&#39;t seem to be any that I can purchase outright. Unfortunately, the WattMetrics&nbsp;system has <a href="http://www.wattmetrics.com/about/salesdiscontinued.aspx">discontinued sales</a>.</p>
+<p>Does any of the provided information reduce the number of variables we have to work with, or otherwise shed some light on the situation?</p>
+<p>Thank you for your insight!</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-21371"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Seeking guidance. Pulse-counting data calibration/verification (setup: emonTh + TSL257 + local pi emonCMS)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 14/05/2014 - 12:01.</div>
+    <div class="content">
+     <p>That does indeed help.</p>
+<p>There&#39;s absolutely no reason why you can&#39;t put your own 5 A c.t. on the secondary wire out of the meter c.t.&nbsp; But it must of course be a split-core one! You must never open-circuit a c.t. under load. If your c.t. is a 5 A : 50 mA (say, to give you a standard emonTx input and burden resistor value), then you have effectively got a 400 A : 50 mA one - you get 50 mA out of yours for 400 A through theirs. Knowing their CT ratio has removed all doubt about the calibration at that end.</p>
+<p><em>&quot;The value of kt on the meter sticker is 1.8. (It was hard to make out in the photo I snapped, so I typed over it.)</em>&quot; It was impossible in the original photo because there was another sticker over the top of it! Now that we know Kt also helps, it says you get 1 flash every 1.8 Wh. Therefore 4025 flashes = 7.245 kWh on the meter (that correlates with your increment of 8)&nbsp; x 80 (for the CT ratio) = 579.6 kWh consumed. That&#39;s way above your daily average so that apparently is not correct, but you have more information that should allow you to check - a good source would be old bills and meter readings, assuming they have been recorded.</p>
+<p>&nbsp;</p>
+<p>[Starting a new thread after your first post here <a href="4895%c2%a0.html" title="http://openenergymonitor.org/emon/node/4895 ">http://openenergymonitor.org/emon/node/4895 </a> is a pain because it means I&#39;ve got to go and find it each time - please don&#39;t open yet another thread on this topic!]</p>
+<p>And as far as I know, email notifications have been broken for some time.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5129"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-pqt798krZ0JiBFg9h4gU0wV2kM6HRfv9CGGSxkFbGcc" value="form-pqt798krZ0JiBFg9h4gU0wV2kM6HRfv9CGGSxkFbGcc"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5129 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:29:19 GMT -->
+</html>

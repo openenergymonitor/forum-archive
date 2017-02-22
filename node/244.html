@@ -1,0 +1,415 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/244 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:42:19 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>naNode web configuration sketch | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">naNode web configuration sketch</h3>
+        <span class="submitted">Submitted by <a href="../user/380.html" title="View user profile.">mharizanov</a> on Wed, 21/09/2011 - 20:24</span>
+        <div class="content"><p>Hi,</p>
+<p>&nbsp;</p>
+<p>I did a small web configuration sketch (network and API) &nbsp;that saves settings to EEPROM.</p>
+<p>&nbsp;</p>
+<p>Give it a try.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>#include &lt;EtherCard.h&gt;</p>
+<p>//#include &lt;Ports.h&gt;</p>
+<p>#include &lt;avr/eeprom.h&gt;</p>
+<p>&nbsp;</p>
+<p>#define DEBUG &nbsp; 1 &nbsp; // set to 1 to display free RAM on web page</p>
+<p>#define SERIAL &nbsp;1 &nbsp; // set to 1 to show incoming requests on serial port</p>
+<p>&nbsp;</p>
+<p>#define CONFIG_EEPROM_ADDR ((byte*) 0x10)</p>
+<p>&nbsp;</p>
+<p>// configuration, as stored in EEPROM</p>
+<p>struct Config {</p>
+<p>&nbsp; // ethernet interface mac address - must be unique on your network</p>
+<p>byte usedhcp;</p>
+<p>byte mymac[6] ;</p>
+<p>byte ip[4];</p>
+<p>byte mask[4];</p>
+<p>byte gateway[4];</p>
+<p>byte dns[4];</p>
+<p>char domain[32];</p>
+<p>char api[64];</p>
+<p>byte valid; // keep this as last byte</p>
+<p>} config</p>
+<p>= {</p>
+<p>&nbsp; // The default values</p>
+<p>&nbsp; 1,</p>
+<p>&nbsp; { 0x74,0x69,0x69,0x2D,0x30,0x31 },</p>
+<p>&nbsp; {192,168,2,2},</p>
+<p>&nbsp; {255,255,255,0},</p>
+<p>&nbsp; {192,168,2,1},</p>
+<p>&nbsp; {192,168,2,1},</p>
+<p>&nbsp; &quot;yourdomain.com&quot;,</p>
+<p>&nbsp; &quot;/~hariabql/sql_datalog.php?action=insert&amp;uid=777&amp;&quot;,</p>
+<p>&nbsp; 253</p>
+<p>};</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>static BufferFiller bfill; &nbsp;// used as cursor while filling the buffer</p>
+<p>&nbsp;</p>
+<p>byte mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };</p>
+<p>&nbsp;</p>
+<p>byte Ethernet::buffer[1000]; &nbsp; // tcp/ip send and receive buffer</p>
+<p>&nbsp;</p>
+<p>static void loadConfig() {</p>
+<p>&nbsp; &nbsp; for (byte i = 0; i &lt; sizeof config; ++i)</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; ((byte*) &amp;config)[i] = eeprom_read_byte(CONFIG_EEPROM_ADDR + i);</p>
+<p>&nbsp; &nbsp; if (config.valid != 253) {</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; config.valid = 253;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; config.mymac[1] = 0x74; //{ 0x74,0x69,0x69,0x2D,0x30,0x31 };</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; config.mymac[2] = 0x69;</p>
+<p>&nbsp; &nbsp; }</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>static void saveConfig() {</p>
+<p>&nbsp; &nbsp; for (byte i = 0; i &lt; sizeof config; ++i)</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; eeprom_write_byte(CONFIG_EEPROM_ADDR + i, ((byte*) &amp;config)[i]);</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>#if DEBUG</p>
+<p>static int freeRam () {</p>
+<p>&nbsp; extern int __heap_start, *__brkval;&nbsp;</p>
+<p>&nbsp; int v;&nbsp;</p>
+<p>&nbsp; return (int) &amp;v - (__brkval == 0 ? (int) &amp;__heap_start : (int) __brkval);&nbsp;</p>
+<p>}</p>
+<p>#endif</p>
+<p>&nbsp;</p>
+<p>static void gotPinged(byte* ptr) {</p>
+<p>&nbsp; &nbsp; ether.printIp(&quot;&gt;&gt;&gt; ping from: &quot;,ptr);</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>void setup(){</p>
+<p>#if SERIAL</p>
+<p>&nbsp; &nbsp; Serial.begin(9600);</p>
+<p>&nbsp; &nbsp; Serial.println(&quot;\n[etherNode]&quot;);</p>
+<p>#endif</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; loadConfig();</p>
+<p>&nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; if (ether.begin(sizeof Ethernet::buffer, mymac) == 0)&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; Serial.println( &quot;Failed to access Ethernet controller&quot;);</p>
+<p>&nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; if (false) {</p>
+<p>&nbsp; &nbsp; if (!ether.dhcpSetup())</p>
+<p>&nbsp; &nbsp; &nbsp; Serial.println(&quot;DHCP failed&quot;);</p>
+<p>&nbsp; &nbsp; }</p>
+<p>&nbsp; &nbsp; else</p>
+<p>&nbsp; &nbsp; if (!ether.staticSetup(config.ip,config.gateway,config.dns))</p>
+<p>&nbsp; &nbsp; &nbsp; Serial.println(&quot;Static IP failed&quot;);</p>
+<p>&nbsp; &nbsp; &nbsp;</p>
+<p>&nbsp; &nbsp;</p>
+<p>#if SERIAL</p>
+<p>&nbsp; &nbsp; ether.printIp(&quot;My IP: &quot;, ether.myip);</p>
+<p>// &nbsp; &nbsp;ether.printIp(&quot;Netmask: &quot;, ether.mymask);</p>
+<p>&nbsp; &nbsp; ether.printIp(&quot;GW IP: &quot;, ether.gwip);</p>
+<p>&nbsp; &nbsp; ether.printIp(&quot;DNS IP: &quot;, ether.dnsip); &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>#endif</p>
+<p>&nbsp;</p>
+<p>/*</p>
+<p>&nbsp; &nbsp; if (!ether.dnsLookup(config.domain))</p>
+<p>&nbsp; &nbsp; &nbsp; Serial.println(&quot;DNS lookup of host failed&quot;);</p>
+<p>#if SERIAL</p>
+<p>&nbsp; &nbsp; ether.printIp(&quot;Server IP: &quot;, ether.hisip);</p>
+<p>#endif</p>
+<p>//ether.parseIp(ether.hisip,&quot;192.168.1.200&quot;</p>
+<p>&nbsp;</p>
+<p>*/</p>
+<p>&nbsp; &nbsp; ether.registerPingCallback(gotPinged);</p>
+<p>&nbsp;</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>char okHeader[] PROGMEM =&nbsp;</p>
+<p>&nbsp; &nbsp; &quot;HTTP/1.0 200 OK\r\n&quot;</p>
+<p>&nbsp; &nbsp; &quot;Content-Type: text/html\r\n&quot;</p>
+<p>&nbsp; &nbsp; &quot;Pragma: no-cache\r\n&quot;</p>
+<p>;</p>
+<p>&nbsp;</p>
+<p>static void homePage(BufferFiller&amp; buf) {</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; buf.emit_p(PSTR(&quot;$F\r\n&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;meta http-equiv='refresh' content='5'/&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;title&gt;Nanode home page&lt;/title&gt;&quot;&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &quot;naNode configuration page &quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;- &lt;a href='c'&gt;network&lt;/a&gt; - &lt;a href='a'&gt;API&lt;/a&gt;&quot;), okHeader);</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; long t = millis() / 1000;</p>
+<p>&nbsp; &nbsp; word h = t / 3600;</p>
+<p>&nbsp; &nbsp; byte m = (t / 60) % 60;</p>
+<p>&nbsp; &nbsp; byte s = t % 60;</p>
+<p>&nbsp; &nbsp; buf.emit_p(PSTR(</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;/pre&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;br&gt;Uptime is $D$D:$D$D:$D$D&quot;), h/10, h%10, m/10, m%10, s/10, s%10);</p>
+<p>#if DEBUG</p>
+<p>&nbsp; &nbsp; buf.emit_p(PSTR(&quot; ($D bytes free)&quot;), freeRam());</p>
+<p>#endif</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>static int getIntArg(const char* data, const char* key, int value =-1) {</p>
+<p>&nbsp; &nbsp; char temp[10];</p>
+<p>&nbsp; &nbsp; if (ether.findKeyVal(data + 7, temp, sizeof temp, key) &gt; 0)</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; value = atoi(temp);</p>
+<p>&nbsp; &nbsp; return value;</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>static char* getArg(const char* data, const char* key, int value =-1) {</p>
+<p>&nbsp; &nbsp; char temp[64];</p>
+<p>&nbsp; &nbsp; if (ether.findKeyVal(data + 7, temp, sizeof temp, key) &gt; 0)</p>
+<p>&nbsp; &nbsp; return temp;</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>static void configPage(const char* data, BufferFiller&amp; buf) {</p>
+<p>&nbsp; &nbsp; // pick up submitted data, if present</p>
+<p>&nbsp; &nbsp; if (data[6] == '?') {</p>
+<p>&nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; //IP</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; byte i1 = getIntArg(data, &quot;i1&quot;);</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; byte i2 = getIntArg(data, &quot;i2&quot;);</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; byte i3 = getIntArg(data, &quot;i3&quot;);</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; byte i4 = getIntArg(data, &quot;i4&quot;);</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; //Gateway</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; byte g1 = getIntArg(data, &quot;g1&quot;);</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; byte g2 = getIntArg(data, &quot;g2&quot;);</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; byte g3 = getIntArg(data, &quot;g3&quot;); &nbsp; &nbsp; &nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; byte g4 = getIntArg(data, &quot;g4&quot;); &nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; //DNS</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; byte d1 = getIntArg(data, &quot;d1&quot;);</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; byte d2 = getIntArg(data, &quot;d2&quot;);</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; byte d3 = getIntArg(data, &quot;d3&quot;); &nbsp; &nbsp; &nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; byte d4 = getIntArg(data, &quot;d4&quot;); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; if ((i1 &gt;= 0 &amp;&amp; i1 &lt;= 255 &amp;&amp; i2 &gt;= 0 &amp;&amp; i2 &lt;= 255 &amp;&amp; i3 &gt;= 0 &amp;&amp; i3 &lt;= 255 &amp;&amp; i4 &gt;= 0 &amp;&amp; i4 &lt;= 255)&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &amp;&amp; (g1 &gt;= 0 &amp;&amp; g1 &lt;= 255 &amp;&amp; g2 &gt;= 0 &amp;&amp; g2 &lt;= 255 &amp;&amp; g3 &gt;= 0 &amp;&amp; g3 &lt;= 255 &amp;&amp; g4 &gt;= 0 &amp;&amp; g4 &lt;= 255) &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &amp;&amp; (d1 &gt;= 0 &amp;&amp; d1 &lt;= 255 &amp;&amp; d2 &gt;= 0 &amp;&amp; d2 &lt;= 255 &amp;&amp; d3 &gt;= 0 &amp;&amp; d3 &lt;= 255 &amp;&amp; d4 &gt;= 0 &amp;&amp; d4 &lt;= 255))&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; {</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // store values as new settings</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; config.ip[0]=i1; config.ip[1]=i2; config.ip[2]=i3; config.ip[3]=i4;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; config.gateway[0]=g1; config.gateway[1]=g2; config.gateway[2]=g3; config.gateway[3]=g4;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; config.dns[0]=d1; config.dns[1]=d2; config.dns[2]=d3; config.dns[3]=d4;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; saveConfig();</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; loadConfig();</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // redirect to the home page</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; buf.emit_p(PSTR(</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;HTTP/1.0 302 found\r\n&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;Location: /\r\n&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;\r\n&quot;));</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; }</p>
+<p>&nbsp; &nbsp; }</p>
+<p>&nbsp; &nbsp; // else show a configuration form</p>
+<p>&nbsp; &nbsp; buf.emit_p(PSTR(&quot;$F\r\n&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;h3&gt;naNode network settings&lt;/h3&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;form&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;p&gt;&quot; &nbsp; &nbsp; &nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;IP &nbsp; &lt;input type=text name=i1 value='$D' size=3&gt;.&lt;input type=text name=i2 value='$D' size=3&gt;.&lt;input type=text name=i3 value='$D' size=3&gt;.&lt;input type=text name=i4 value='$D' size=3&gt; &lt;br&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;GW &nbsp; &lt;input type=text name=g1 value='$D' size=3&gt;.&lt;input type=text name=g2 value='$D' size=3&gt;.&lt;input type=text name=g3 value='$D' size=3&gt;.&lt;input type=text name=g4 value='$D' size=3&gt; &lt;br&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;DNS &nbsp;&lt;input type=text name=d1 value='$D' size=3&gt;.&lt;input type=text name=d2 value='$D' size=3&gt;.&lt;input type=text name=d3 value='$D' size=3&gt;.&lt;input type=text name=d4 value='$D' size=3&gt; &lt;br&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;/p&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;input type=submit value=Set&gt; &lt;input type=button value=Back onclick='history.go(-1)'&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;/form&gt;&quot;),okHeader,</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; config.ip[0],config.ip[1],config.ip[2],config.ip[3],</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; config.gateway[0],config.gateway[1],config.gateway[2],config.gateway[3],</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; config.dns[0],config.dns[1],config.dns[2],config.dns[3] );</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>static void apiPage(const char* data, BufferFiller&amp; buf) {</p>
+<p>&nbsp; &nbsp; // pick up submitted data, if present</p>
+<p>&nbsp; &nbsp; if (data[6] == '?') {</p>
+<p>&nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; char* temp=getArg(data, &quot;domain&quot;);</p>
+<p>&nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; for(int i=0;i&lt;sizeof(config.domain);i++) {</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;config.domain[i]=temp[i] ;</p>
+<p>&nbsp; &nbsp; &nbsp; } &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; temp=getArg(data, &quot;api&quot;);</p>
+<p>&nbsp; &nbsp; &nbsp; ether.urlDecode(temp);</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; for(int i=0;i&lt;sizeof(config.api);i++) {</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;config.api[i]=temp[i] ;</p>
+<p>&nbsp; &nbsp; &nbsp; } &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;saveConfig();</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;loadConfig();</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // redirect to the home page</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; buf.emit_p(PSTR(</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;HTTP/1.0 302 found\r\n&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;Location: /\r\n&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;\r\n&quot;));</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; }</p>
+<p>&nbsp; &nbsp; // else show a configuration form</p>
+<p>&nbsp; &nbsp; buf.emit_p(PSTR(&quot;$F\r\n&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;h3&gt;naNode API settings&lt;/h3&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;form&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;p&gt;&quot; &nbsp; &nbsp; &nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;Domain &nbsp; &lt;input type=text name=domain value='$S' size=32&gt;&lt;br&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;API &nbsp; &lt;input type=text name=api value='$S' size=64&gt;&lt;br&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;/p&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;input type=submit value=Set&gt; &lt;input type=button value=Back onclick='history.go(-1)'&gt;&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;/form&gt;&quot;),okHeader,</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; config.domain, config.api );</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>void loop(){</p>
+<p>&nbsp;&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; word len = ether.packetReceive();</p>
+<p>&nbsp; &nbsp; word pos = ether.packetLoop(len);</p>
+<p>&nbsp; &nbsp; // check if valid tcp data is received</p>
+<p>&nbsp; &nbsp; if (pos) {</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; bfill = ether.tcpOffset();</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; char* data = (char *) Ethernet::buffer + pos;</p>
+<p>#if SERIAL</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;// Serial.println(data);</p>
+<p>#endif</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; // receive buf hasn't been clobbered by reply yet</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; if (strncmp(&quot;GET / &quot;, data, 6) == 0)</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; homePage(bfill);</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; else if (strncmp(&quot;GET /c&quot;, data, 6) == 0)</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; configPage(data, bfill);</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; else if (strncmp(&quot;GET /a&quot;, data, 6) == 0)</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; apiPage(data, bfill);</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; else</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; bfill.emit_p(PSTR(</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;HTTP/1.0 401 Unauthorized\r\n&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;Content-Type: text/html\r\n&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;\r\n&quot;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;&lt;h1&gt;401 Unauthorized&lt;/h1&gt;&quot;)); &nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; ether.httpServerReply(bfill.position()); // send web page data</p>
+<p>&nbsp; &nbsp; }</p>
+<p>&nbsp;</p>
+<p>}</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="254.html" class="topic-previous" title="Go to previous forum topic">‹ Voltage reading from Inverter</a>
+              <a href="241.html" class="topic-next" title="Go to next forum topic">Graph time scale in show as UTC ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-2134"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: naNode web configuration sketch</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 27/09/2011 - 12:43.</div>
+    <div class="content">
+     <p>&nbsp;Awesome, thanks&nbsp;mharizanov, looks great</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/244"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Ri-CLmxiKWQTHiSxpobEemnmyRvtfwSzW7dRG-HoCv8" value="form-Ri-CLmxiKWQTHiSxpobEemnmyRvtfwSzW7dRG-HoCv8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/244 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:42:19 GMT -->
+</html>

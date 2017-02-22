@@ -1,0 +1,355 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/252 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:33:03 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Ghost 0.14A load? | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Ghost 0.14A load?</h3>
+        <span class="submitted">Submitted by Guest on Wed, 05/10/2011 - 16:31</span>
+        <div class="content"><p>Not sure whether I'm dealing with a hardware or software problem so here it goes in the general forum. I've got a monitor setup and it's working reasonably well however for some strange reason I am reading a ghost 0.14A even when the cable that the CT is clamped to is unplugged from the mains. The weird thing is that it is spot on when measuring a load that has been verified with a DMM. So if I futz around with any of the settings it might fix the .14A reading but throws off the good values when there's a load. I'm hoping this is just a duh moment on my part that someone could see from a mile away.</p>
+<p>I ended up picking up a 333mV CT with 100A range in part because they could be had cheaply and in part because they seem to be everywhere once I started looking for them. Not an ideal range for what I want to measure but it works, sort of. While I have no datasheet for my CT, after cracking the case on the sensor I found a 40.2 ohm burden resistor inside so using the online calculator my best guess is that the CT has somewhere in the ballpark of 2200 turns. Im also using a 12 VAC adapter that outputs something like 14 V for a reference and my circuit is simply the bog standard one with a bunch of 10k&nbsp;resistors&nbsp;and a 100k resistor on the AC line, with no external burden resistor of course. I've also hooked up a graphic lcd to make a nice little package out of this monitor when Im done.</p>
+<p>So here's the code Im working from. Mostly the standard emon code cleaned up some and brought in line with Arduino 1.0 along with the lcd display stuff, although Im still working on the sketch. Ive also worked up some code for a kwh total although it will reset when millis() resets but Im not sure I can be bothered about that.&nbsp;Like I said, this setup is bang on when measuring a known load but when everything is turned off it still displays a 0.14A load. Any thoughts?</p>
+<p>Cheers-</p>
+<p>Brian</p>
+<pre>
+#include&nbsp;&lt;<span style="color: #CC6600;">LiquidCrystal</span>.h&gt;
+<span style="color: #CC6600;">LiquidCrystal</span> lcd(7, 8, 9, 10, 11, 12);
+
+const&nbsp;<span style="color: #CC6600;">int</span> numberOfSamples = 3000;
+const&nbsp;<span style="color: #CC6600;">int</span> voltageSensor = A0;
+const&nbsp;<span style="color: #CC6600;">int</span> currentSensor = A1;
+
+const&nbsp;<span style="color: #CC6600;">float</span> AC_WALL_VOLTAGE      = 124.0;
+const&nbsp;<span style="color: #CC6600;">float</span> AC_ADAPTER_VOLTAGE   = 14.1;
+const&nbsp;<span style="color: #CC6600;">float</span> AC_VOLTAGE_DIV_RATIO = 11.0;
+const&nbsp;<span style="color: #CC6600;">float</span> CT_BURDEN_RESISTOR   = 40.2;
+const&nbsp;<span style="color: #CC6600;">float</span> CT_TURNS             = 2274.0;
+
+<span style="color: #7E7E7E;">//Calibration&nbsp;coeficients</span>
+const&nbsp;<span style="color: #CC6600;">float</span> VCAL = 1.015;
+const&nbsp;<span style="color: #CC6600;">float</span> ICAL = 1.05;
+const&nbsp;<span style="color: #CC6600;">float</span> PHASECAL = 0.1;
+
+<span style="color: #7E7E7E;">//&nbsp;Initial&nbsp;gueses&nbsp;for&nbsp;ratios,&nbsp;modified&nbsp;by&nbsp;VCAL/ICAL&nbsp;tweaks</span>
+const&nbsp;<span style="color: #CC6600;">float</span> AC_ADAPTER_RATIO = (AC_WALL_VOLTAGE / AC_ADAPTER_VOLTAGE);
+const&nbsp;<span style="color: #CC6600;">float</span> V_RATIO = AC_ADAPTER_RATIO * AC_VOLTAGE_DIV_RATIO * 5 / 1024 * VCAL;
+const&nbsp;<span style="color: #CC6600;">float</span> I_RATIO = CT_TURNS / CT_BURDEN_RESISTOR * 5 / 1024 * ICAL;
+
+<span style="color: #7E7E7E;">//Sample&nbsp;variables</span>
+<span style="color: #CC6600;">int</span> lastSampleV,lastSampleI,sampleV,sampleI;
+
+<span style="color: #7E7E7E;">//Filter&nbsp;variables</span>
+<span style="color: #CC6600;">float</span> lastFilteredV,lastFilteredI,filteredV,filteredI;
+
+<span style="color: #7E7E7E;">//Power&nbsp;calculation&nbsp;variables</span>
+<span style="color: #CC6600;">float</span> sumI,sumV,sumP;
+
+<span style="color: #7E7E7E;">//Stores&nbsp;the&nbsp;phase&nbsp;calibrated&nbsp;instantaneous&nbsp;voltage</span>
+<span style="color: #CC6600;">float</span> calibratedV;
+
+<span style="color: #7E7E7E;">//Useful&nbsp;value&nbsp;variables</span>
+<span style="color: #CC6600;">float</span> realPower,apparentPower,powerFactor,Vrms,Irms;
+
+<span style="color: #CC6600;">unsigned</span> <span style="color: #CC6600;">long</span> last_kWHtime, kWHtime;
+<span style="color: #CC6600;">float</span> kWH = 0.0;
+
+<span style="color: #CC6600;">void</span> <span style="color: #CC6600;"><b>setup</b></span>() {
+&nbsp;lcd.<span style="color: #CC6600;">begin</span>(16,2);
+}
+
+<span style="color: #CC6600;">void</span> <span style="color: #CC6600;"><b>loop</b></span>() { 
+&nbsp;calculatePower();
+
+&nbsp;last_kWHtime&nbsp;=&nbsp;kWHtime;
+&nbsp;kWHtime&nbsp;=&nbsp;<span style="color: #CC6600;">millis</span>();
+&nbsp;kWH&nbsp;+=&nbsp;realPower&nbsp;*&nbsp;((kWHtime-last_kWHtime)/3600000.0);
+
+&nbsp;lcd.<span style="color: #CC6600;">clear</span>();
+&nbsp;lcd.<span style="color: #CC6600;">print</span>(realPower, 0);
+&nbsp;lcd.<span style="color: #CC6600;">print</span>(<span style="color: #006699;">&quot; &quot;</span>);
+&nbsp;lcd.<span style="color: #CC6600;">print</span>(apparentPower, 0);
+&nbsp;lcd.<span style="color: #CC6600;">print</span>(<span style="color: #006699;">&quot; &quot;</span>);
+&nbsp;lcd.<span style="color: #CC6600;">print</span>(powerFactor, 2);
+&nbsp;lcd.<span style="color: #CC6600;">setCursor</span>(0,1);
+&nbsp;lcd.<span style="color: #CC6600;">print</span>(Vrms, 0);
+&nbsp;lcd.<span style="color: #CC6600;">print</span>(<span style="color: #006699;">&quot; &quot;</span>);
+&nbsp;lcd.<span style="color: #CC6600;">print</span>(Irms, 2);
+&nbsp;lcd.<span style="color: #CC6600;">print</span>(<span style="color: #006699;">&quot; &quot;</span>);
+&nbsp;lcd.<span style="color: #CC6600;">print</span>(kWH);
+}
+
+<span style="color: #CC6600;">void</span> calculatePower() {
+&nbsp;<span style="color: #CC6600;">for</span> (<span style="color: #CC6600;">int</span> n=0; n&lt;numberOfSamples; n++) {
+&nbsp;&nbsp;&nbsp;<span style="color: #7E7E7E;">//Used for offset removal</span>
+&nbsp;&nbsp;&nbsp;lastSampleV&nbsp;=&nbsp;sampleV;
+&nbsp;&nbsp;&nbsp;lastSampleI&nbsp;=&nbsp;sampleI;
+
+&nbsp;&nbsp;&nbsp;<span style="color: #7E7E7E;">//Read in voltage and current samples.   </span>
+&nbsp;&nbsp;&nbsp;sampleV&nbsp;=&nbsp;<span style="color: #CC6600;">analogRead</span>(voltageSensor);
+&nbsp;&nbsp;&nbsp;sampleI&nbsp;=&nbsp;<span style="color: #CC6600;">analogRead</span>(currentSensor);
+
+&nbsp;&nbsp;&nbsp;<span style="color: #7E7E7E;">//Used for offset removal</span>
+&nbsp;&nbsp;&nbsp;lastFilteredV&nbsp;=&nbsp;filteredV;
+&nbsp;&nbsp;&nbsp;lastFilteredI&nbsp;=&nbsp;filteredI;
+
+&nbsp;&nbsp;&nbsp;<span style="color: #7E7E7E;">//Digital high pass filters to remove 2.5V DC offset.</span>
+&nbsp;&nbsp;&nbsp;filteredV&nbsp;=&nbsp;0.996&nbsp;*&nbsp;(lastFilteredV&nbsp;+&nbsp;sampleV&nbsp;-&nbsp;lastSampleV);
+&nbsp;&nbsp;&nbsp;filteredI&nbsp;=&nbsp;0.996&nbsp;*&nbsp;(lastFilteredI&nbsp;+&nbsp;sampleI&nbsp;-&nbsp;lastSampleI);
+
+&nbsp;&nbsp;&nbsp;<span style="color: #7E7E7E;">//Phase calibration goes here.</span>
+&nbsp;&nbsp;&nbsp;calibratedV&nbsp;=&nbsp;lastFilteredV&nbsp;+&nbsp;PHASECAL&nbsp;*&nbsp;(filteredV&nbsp;-&nbsp;lastFilteredV);
+
+&nbsp;&nbsp;&nbsp;<span style="color: #7E7E7E;">//Root-mean-square method voltage</span>
+&nbsp;&nbsp;&nbsp;sumV&nbsp;+=&nbsp;calibratedV&nbsp;*&nbsp;calibratedV;
+
+&nbsp;&nbsp;&nbsp;<span style="color: #7E7E7E;">//Root-mean-square method current</span>
+&nbsp;&nbsp;&nbsp;sumI&nbsp;+=&nbsp;filteredI&nbsp;*&nbsp;filteredI;
+
+&nbsp;&nbsp;&nbsp;<span style="color: #7E7E7E;">//Instantaneous Power</span>
+&nbsp;&nbsp;&nbsp;sumP&nbsp;+=&nbsp;<span style="color: #CC6600;">abs</span>(calibratedV * filteredI);
+&nbsp;}
+
+&nbsp;<span style="color: #7E7E7E;">//Calculation of the root of the mean of the voltage and current squared (rms)</span>
+&nbsp;<span style="color: #7E7E7E;">//Calibration coeficients applied. </span>
+&nbsp;Vrms&nbsp;=&nbsp;V_RATIO&nbsp;*&nbsp;<span style="color: #CC6600;">sqrt</span>(sumV / numberOfSamples); 
+&nbsp;Irms&nbsp;=&nbsp;I_RATIO&nbsp;*&nbsp;<span style="color: #CC6600;">sqrt</span>(sumI / numberOfSamples); 
+
+&nbsp;<span style="color: #7E7E7E;">//Calculation power values</span>
+&nbsp;realPower&nbsp;=&nbsp;V_RATIO&nbsp;*&nbsp;I_RATIO&nbsp;*&nbsp;sumP&nbsp;/&nbsp;numberOfSamples;
+&nbsp;apparentPower&nbsp;=&nbsp;Vrms&nbsp;*&nbsp;Irms;
+&nbsp;powerFactor&nbsp;=&nbsp;realPower&nbsp;/&nbsp;apparentPower;
+
+&nbsp;<span style="color: #7E7E7E;">//Reset accumulators</span>
+&nbsp;sumV&nbsp;=&nbsp;0;
+&nbsp;sumI&nbsp;=&nbsp;0;
+&nbsp;sumP&nbsp;=&nbsp;0;
+}
+
+</pre>  <div class="forum-topic-navigation clear-block">
+          <a href="1937.html" class="topic-previous" title="Go to previous forum topic">‹ Multiple pulse counting with Arduino Mega?</a>
+              <a href="1929.html" class="topic-next" title="Go to next forum topic">Leaonardo + RFM12b problem ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-2167"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Ghost 0.14A load?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Wed, 05/10/2011 - 19:18.</div>
+    <div class="content">
+     <p>&nbsp;Hi Bw Evans,</p>
+<p>Sounds like good progress. I think your pretty much there. Due to noise in the circuit the reading when nothing is connected will never be quite zero. Trystan should be able to explan this in greater detail to you.&nbsp;</p>
+<p>If you really want increased accuracy at low power readings you should use a lower rated CT.&nbsp;</p>
+<p>Its interesting that you have used Arduino 1.0. We are yet to try it out ourselves. I would be intrested to hear what changes (if any) you had to make to the energy onitor sketch to make it compile?</p>
+<p>All best, Glyn.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2169"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="bwevans&#039;s picture" title="bwevans&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Ghost 0.14A load?</h3>
+
+    <div class="submitted">Submitted by bwevans (not verified) on Wed, 05/10/2011 - 20:34.</div>
+    <div class="content">
+     <p>Actually, I didn't <em>have </em>to make any changes to get it to compile which was nice for a change. A few of the changes I did make was to move the double datatypes over to floats (floats and doubles are identical in Arduino and generally I find floats easier to explain), changed all constants and #defines to the const variable qualifier (again to make them more Arduino friendly and in my testing const is better than #define when using the Arduino library and has no impact on RAM), I took out the sqI, sqV, and instP variables consolidating those operations with the sum operations (to save a little memory and streamline the code), and I moved the bulk of the code into a function to make it a little easier to read the loop() function if/when I start to add sd logging and/or ethernet connectivity.&nbsp;I'm actually writing this up for a chapter in an upcoming Arduino book which is why I needed to bring it into line with some of the other code samples. Still working on it though so I'll let you all know how it works out.</p>
+<p>So the sensitivity is much as I expected, I just wanted to make sure I wan't missing something totally obvious. A little reality check is always a good thing. Thanks for the quick reply - this community has been great with lots of information and work done to make these things so simple to work with. Thanks again!</p>
+<p>Cheers-<br />
+Brian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2170"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Ghost 0.14A load?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Wed, 05/10/2011 - 21:34.</div>
+    <div class="content">
+     <p>&nbsp;Hi Brian,</p>
+<p>Thats good to hear. I like the chages you have suggested. In due cause I will update the source code on github.&nbsp;</p>
+<p>What is the book that your writing? This is great news, let us know if we can be of assistance. Could you sent us the section your write about energy monitoring before the book goes to press so we can have a read through?</p>
+<p>Cheers, Glyn.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2171"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="bwevans&#039;s picture" title="bwevans&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Ghost 0.14A load?</h3>
+
+    <div class="submitted">Submitted by bwevans (not verified) on Thu, 06/10/2011 - 01:19.</div>
+    <div class="content">
+     <p>Glyn-</p>
+<p>I just finished up Beginning Arduino Programming for Apress Media to be published in the next week or so and have been asked to contribute a chapter to Emery Premeaux's upcoming Arduino Projects to Save the World. I'm on a super tight deadline but would love some feedback. Why don't you send me an email at bevans24 [at] mscd [dot] edu and I can bounce you a manuscript for the chapter early next week. There's only so much that I would be able to change but I would welcome your thoughts and ciritcism.</p>
+<p>Cheers-</p>
+<p>Brian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9352"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Ghost 0.14A load?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Thu, 24/01/2013 - 10:07.</div>
+    <div class="content">
+     <p>I think your 0.14A figure for current is just a consequence of random noise.&nbsp; Because of the squaring, the calculation for Irms sees all sample values as positive.&nbsp;</p>
+<p>(Unless, or course, you are seeing 33W of background &#39;real power&#39;)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9355"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Ghost 0.14A load?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 24/01/2013 - 10:24.</div>
+    <div class="content">
+     <p>You&#39;ve dug up an old post there, Robin!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9356"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Ghost 0.14A load?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Thu, 24/01/2013 - 10:41.</div>
+    <div class="content">
+     <p>Sure, but the underlying principles are unlikely to have changed much since then.&nbsp;</p>
+<p>I got there via a Building Blocks page ...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9363"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1774.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Ghost 0.14A load?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1774.html" title="View user profile.">PaulOckenden</a> on Thu, 24/01/2013 - 13:20.</div>
+    <div class="content">
+     <p>A ghost topic about ghost current from a ghost poster!</p>
+<p>Spooky!</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/252"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-EDdQfQhKQNIjvcAVhijB0gOP1O5D07jZHQrVw46diUU" value="form-EDdQfQhKQNIjvcAVhijB0gOP1O5D07jZHQrVw46diUU"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/252 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:33:04 GMT -->
+</html>

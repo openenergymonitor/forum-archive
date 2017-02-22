@@ -1,0 +1,420 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/4300 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:24:14 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Sending Arduino Sensor data to Emoncms  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Sending Arduino Sensor data to Emoncms </h3>
+        <span class="submitted">Submitted by Guest on Sat, 22/03/2014 - 15:40</span>
+        <div class="content"><p>Firstly thanks in advance to whoever can help me, im pretty new to arduino software and this is my first time trying to connect sensor data to Emoncms.</p>
+<p>Im trying to send sensor readings from my CT sensor to the Emoncms web application in order to visualise my energy usage, ive got the correct readings appearing on my serial monitor but for some reason the live feed isnt appearing in the Emoncms application. Im pretty sure this has something to do with my code trying to connect with the application, any ideas?</p>
+<p>&nbsp;</p>
+<p>[code]</p>
+<p>#include &quot;EmonLib.h&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Include Emon Library<br />
+	#include &lt;SPI.h&gt;<br />
+	#include &lt;Ethernet.h&gt;</p>
+<p>// assign a MAC address for the ethernet controller.<br />
+	// fill in your address here:<br />
+	byte mac[] = {<br />
+	&nbsp; 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };<br />
+	&nbsp;<br />
+	// fill in an available IP address on your network here,<br />
+	// for auto configuration:<br />
+	IPAddress ip(192, 168, 0, 11);&nbsp;&nbsp;&nbsp; //ip address of ethernet sheild<br />
+	IPAddress subnet(255, 255, 255, 0);<br />
+	IPAddress DNS(8, 8, 8, 8);<br />
+	IPAddress gw(192, 168, 0, 1);<br />
+	//IPAddress gw(192, 168, 0, 254);<br />
+	// initialize the library instance:<br />
+	EthernetClient client;</p>
+<p>char server[] = &quot;http://emoncms.org/&quot;;&nbsp;&nbsp;&nbsp;&nbsp; //emoncms URL<br />
+	//IPAddress server(213, 138, 101, 177);<br />
+	boolean lastConnected = false;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // state of the connection last time through the main loop<br />
+	String apikey = &quot;MYAPIKEY&quot;;&nbsp; //api key<br />
+	int node = 0; //if 0, not used<br />
+	const unsigned long postingInterval = 3*1000; // delay between updates, in milliseconds</p>
+<p>EnergyMonitor emon1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Create an instance</p>
+<p>void setup()<br />
+	{&nbsp;<br />
+	&nbsp; Serial.begin(9600);<br />
+	&nbsp; // give the ethernet module time to boot up:<br />
+	&nbsp; delay(1000);<br />
+	&nbsp; // Display a welcome message<br />
+	&nbsp; Serial.println(&quot;HTTP emoncms client v0.1 starting...&quot;);</p>
+<p>&nbsp; emon1.voltage(2, 234.26, 1.7);&nbsp; // Voltage: input pin, calibration, phase_shift<br />
+	&nbsp; emon1.current(1, 111.1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration.<br />
+	}</p>
+<p>void loop()<br />
+	{<br />
+	&nbsp; emon1.calcVI(20,2000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Calculate all. No.of half wavelengths (crossings), time-out<br />
+	&nbsp; emon1.serialprint();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Print out all variables (realpower, apparent power, Vrms, Irms, power factor)<br />
+	&nbsp;<br />
+	&nbsp; float realPower&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = emon1.realPower;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //extract Real Power into variable<br />
+	&nbsp; float apparentPower&nbsp;&nbsp; = emon1.apparentPower;&nbsp;&nbsp;&nbsp; //extract Apparent Power into variable<br />
+	&nbsp; float powerFActor&nbsp;&nbsp;&nbsp;&nbsp; = emon1.powerFactor;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //extractPower Factor into Variable<br />
+	&nbsp; float supplyVoltage&nbsp;&nbsp; = emon1.Vrms;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //extract Vrms into Variable<br />
+	&nbsp; float Irms&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = emon1.Irms;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //extract Irms into Variable<br />
+	&nbsp;<br />
+	&nbsp;&nbsp; Serial.print(&quot;Real Power, &quot;);<br />
+	&nbsp;&nbsp; Serial.print(&quot;Apparent Power, &quot;);<br />
+	&nbsp;&nbsp; Serial.print(&quot;Power Factor, &quot;);<br />
+	&nbsp;&nbsp; Serial.print(&quot;Supply Voltage, &quot;);<br />
+	&nbsp;&nbsp; Serial.print(&quot;Irms = (&quot;);<br />
+	&nbsp;<br />
+	}<br />
+	// this method makes a HTTP connection to the server:<br />
+	void sendData(float realPower, float apparentPower, float PowerFActor, float supplyVoltage, float Irms) {<br />
+	&nbsp; // if there&#39;s a successful connection:<br />
+	&nbsp; if (client.connect(server, 80)) {<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(&quot;Connecting...&quot;);<br />
+	&nbsp;&nbsp;&nbsp; // send the HTTP PUT request:<br />
+	&nbsp;&nbsp;&nbsp; //client.print(&quot;GET /emoncms/input/post.json?apikey=MYAPIKEY&amp;json={power&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;GET /emoncms.org/input/post.json?json={power:200}&amp;apikey=MYAPIKEY&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;:&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;,realPower:&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(realPower);<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;,apparentPower:&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(apparentPower);<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;,PowerFActor:&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(PowerFActor);&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;,supplyVoltage:&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(supplyVoltage);<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;,Irms:&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(Irms);&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; client.println(&quot;} HTTP/1.1&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.println(&quot;Host: ip(192, 168, 0, 11)&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.println(&quot;User-Agent: Arduino-ethernet&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.println(&quot;Connection: close&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.println();<br />
+	&nbsp; }<br />
+	&nbsp; else {<br />
+	&nbsp;&nbsp;&nbsp; // if you couldn&#39;t make a connection:<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(&quot;Connection failed&quot;);<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(&quot;Disconnecting...&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.stop();<br />
+	&nbsp; }<br />
+	}</p>
+<p>[/code]</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5382.html" class="topic-previous" title="Go to previous forum topic">‹ Upgrade Emoncms Fails</a>
+              <a href="5376.html" class="topic-next" title="Go to next forum topic">Monitoring a Raspberry Pi on EmonCMS ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-19619"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1741.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1741.jpg" alt="ukmoose&#039;s picture" title="ukmoose&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sending Arduino Sensor data to Emoncms </h3>
+
+    <div class="submitted">Submitted by <a href="../user/1741.html" title="View user profile.">ukmoose</a> on Sat, 22/03/2014 - 16:38.</div>
+    <div class="content">
+     <p>You should probably edit your post to hide your APIKey.</p>
+<p>one issue is the you have the IP ADDRESS of the server set but in your &nbsp; Client.print string you have emoncms.org.</p>
+<p>you can simply test this in a webrowser</p>
+<p>try <a href="http://<ipaddress/" title="http://&lt;ipaddress">http://&lt;ipaddress</a> of server&gt;/&lt;client.print string&gt;</p>
+<p>if you get the response Ok you know it&#39;s correct.&nbsp;</p>
+<p>Also have a look at the Api help page on the input tab on emoncms.org</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-19626"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sending Arduino Sensor data to Emoncms </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 22/03/2014 - 18:03.</div>
+    <div class="content">
+     <p>Would changing the line:</p>
+<p>client.print(&quot;GET /emoncms.org/input/post.json?json={power:200}&amp;apikey=MYAPIKEY&quot;);</p>
+<p>to:</p>
+<p>client.print(&quot;GET /input/post.json?json={power:200}&amp;apikey=MYAPIKEY&quot;);</p>
+<p>do it?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-19633"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="energy_man&#039;s picture" title="energy_man&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sending Arduino Sensor data to Emoncms </h3>
+
+    <div class="submitted">Submitted by energy_man (not verified) on Sat, 22/03/2014 - 20:19.</div>
+    <div class="content">
+     <p>Thanks for both your responses; Trystan i made the change you recommended&nbsp;but the values from the sensor are still not appearing in&nbsp;emoncms. &nbsp;any other ideas?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-19646"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5850.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="soundjudgement&#039;s picture" title="soundjudgement&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sending Arduino Sensor data to Emoncms </h3>
+
+    <div class="submitted">Submitted by <a href="../user/5850.html" title="View user profile.">soundjudgement</a> on Sun, 23/03/2014 - 02:41.</div>
+    <div class="content">
+     <div>
+	This is what works for me:</div>
+<div>
+	&nbsp;</div>
+<div class="rteindent1">
+	&nbsp;if (client.connect(&quot;emoncms.org&quot;, 80))<br />
+	&nbsp; {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; client.print(F(&quot;GET /input/post.json?node=1&amp;csv=&quot;));</div>
+<div class="rteindent1">
+	&nbsp; &nbsp;client.print(&quot;my,csv,data,goes,here,34,53,33,etc&quot;);</div>
+<div class="rteindent1">
+	&nbsp; &nbsp;client.print(F(&quot;&amp;apikey=76XXXfbfXXXX937XXXXX19dX1dXXXXXX&quot;));</div>
+<div class="rteindent1">
+	&nbsp; &nbsp;client.println(F(&quot; HTTP/1.1&quot;));</div>
+<div>
+	&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; client.println(F(&quot;Host: emoncms.org&quot;));<br />
+	&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; client.print(F(&quot;User-Agent: Arduino-ethernet&quot;));<br />
+	&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; client.println(F(&quot;Connection: close&quot;));<br />
+	&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;client.println();</div>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;}</p>
+<p>&nbsp;</p>
+<p>So for you, I would try something like:</p>
+<p>if(client.connect(&quot;emoncms.org&quot;,80))</p>
+<p>{</p>
+<div>
+	&nbsp; &nbsp; client.print(&quot;GET /input/post.json?json={power:200&quot;); &nbsp;// make sure there is a [space] between GET and /input<br />
+	&nbsp; &nbsp; client.print(&quot;,realPower:&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(realPower);<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;,apparentPower:&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(apparentPower);<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;,PowerFActor:&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(PowerFActor);&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;,supplyVoltage:&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(supplyVoltage);<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;,Irms:&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(Irms);&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;}&amp;apikey=&quot;</div>
+<div>
+	&nbsp; &nbsp; client.print(MYAPIKEY) &nbsp; &nbsp; &nbsp; &nbsp; //assuming MYAPIKEY is a char or string</div>
+<div>
+	&nbsp; &nbsp; client.println(&quot; HTTP/1.1&quot;); &nbsp; //make sure there is a [space] BEFORE the HTTP</div>
+<div>
+	&nbsp; &nbsp; client.println(F(&quot;Host: emoncms.org&quot;));</div>
+<div>
+	&nbsp; &nbsp; client.print(F(&quot;User-Agent: Arduino-ethernet&quot;));<br />
+	&nbsp; &nbsp; client.println(F(&quot;Connection: close&quot;)); &nbsp; &nbsp; // &nbsp; &nbsp;Although not technically necessary, I found this helpful<br />
+	&nbsp; &nbsp; client.println();</div>
+<div>
+	}</div>
+<div>
+	&nbsp;</div>
+<div>
+	Hope it helps.</div>
+<div>
+	&nbsp;</div>
+<div>
+	&nbsp;</div>
+<div>
+	Tim &nbsp;&nbsp;</div>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22316"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="shreyas32177&#039;s picture" title="shreyas32177&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Sending Arduino Sensor data to Emoncms </h3>
+
+    <div class="submitted">Submitted by shreyas32177 (not verified) on Fri, 04/07/2014 - 14:42.</div>
+    <div class="content">
+     <p>I am new in Arduino Programming and I am trying to upload sensor data onto emoncms website using GSM shield , EmonTx V2&nbsp;shield and Arduino&nbsp;duemilanove. I just want to upload real power readings&nbsp;</p>
+<p>ive got the correct readings appearing on my serial monitor but for some reason the live feed isnt appearing in the Emoncms application. I think their is something wrong in my code while connecting to website , please if anybody could help&nbsp;</p>
+<p>&nbsp;</p>
+<p>#include &quot;EmonLib.h&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Include Emon Library<br />
+	#include &lt;SPI.h&gt;<br />
+	#include &lt;GSM.h&gt;<br />
+	#define GPRS_APN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;data.lycamobile.co.uk&quot;&nbsp; // replace your GPRS APN<br />
+	#define GPRS_LOGIN&nbsp;&nbsp;&nbsp;&nbsp; &quot;lmuk&quot;&nbsp;&nbsp;&nbsp;&nbsp; // replace with your GPRS login<br />
+	#define GPRS_PASSWORD&nbsp; &quot;plus&quot;&nbsp; // replace with your GPRS password</p>
+<p>#define PINNUMBER &quot;&quot;</p>
+<p>GSMClient client;<br />
+	GPRS gprs;<br />
+	GSM gsmAccess;</p>
+<p>
+	char server[] = &quot;http://emoncms.org/&quot;;&nbsp;&nbsp;&nbsp;&nbsp; //emoncms URL</p>
+<p>boolean lastConnected = false;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // state of the connection last time through the main loop<br />
+	String apikey = &quot;b340460c41753172b26XXXXXXXX9fb0297&quot;;&nbsp; //api key<br />
+	int node = 0; //if 0, not used<br />
+	const unsigned long postingInterval = 3*1000; // delay between updates, in milliseconds</p>
+<p>EnergyMonitor ct1;&nbsp;<br />
+	const int LEDpin = 9;// Create an instance</p>
+<p>void setup()<br />
+	{<br />
+	&nbsp; Serial.begin(9600);<br />
+	&nbsp; // give the ethernet module time to boot up:<br />
+	&nbsp; delay(1000);<br />
+	&nbsp; // Display a welcome message<br />
+	&nbsp; Serial.println(&quot;HTTP emoncms client v0.1 starting...&quot;);</p>
+<p>&nbsp; ct1.voltage(0, 300.26, 1.7);&nbsp; // Voltage: input pin, calibration, phase_shift<br />
+	&nbsp; ct1.current(1, 60.606);</p>
+<p>	&nbsp; pinMode(LEDpin, OUTPUT);<br />
+	&nbsp; digitalWrite(LEDpin, HIGH);<br />
+	boolean notConnected = true;<br />
+	&nbsp;<br />
+	&nbsp; // After starting the modem with GSM.begin()<br />
+	&nbsp; // attach the shield to the GPRS network with the APN, login and password<br />
+	&nbsp; while(notConnected)<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; if((gsmAccess.begin(PINNUMBER)==GSM_READY) &amp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (gprs.attachGPRS(GPRS_APN, GPRS_LOGIN, GPRS_PASSWORD)==GPRS_READY))<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; notConnected = false;<br />
+	&nbsp;&nbsp;&nbsp; else<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot;Not connected&quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; delay(1000);<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp; }<br />
+	Serial.println(&quot;Connected to GPRS network&quot;);&nbsp; // Current: input pin, calibration.<br />
+	}</p>
+<p>void loop()<br />
+	{<br />
+	&nbsp; ct1.calcVI(20,2000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Calculate all. No.of half wavelengths (crossings), time-out<br />
+	&nbsp; ct1.serialprint();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Print out all variables (realpower, apparent power, Vrms, Irms, power factor)</p>
+<p>	&nbsp; float realPower&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = ct1.realPower;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //extract Real Power into variable</p>
+<p>	&nbsp;&nbsp; Serial.print(&quot;ct1.realpower &quot;);<br />
+	&nbsp;&nbsp; Serial.print(&quot; &quot;);<br />
+	&nbsp;&nbsp;<br />
+	}<br />
+	// this method makes a HTTP connection to the server:<br />
+	void sendData(float realPower) {<br />
+	&nbsp; // if there&#39;s a successful connection:<br />
+	&nbsp; if (client.connect(server, 80)) {<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(&quot;Connecting...&quot;);<br />
+	&nbsp;&nbsp;&nbsp; // send the HTTP PUT request:<br />
+	&nbsp;&nbsp;&nbsp; //client.print(&quot; /emoncms/input/post.json?apikey=MYAPIKEY&amp;json={power&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.print(&quot;GET /emoncms.org/input/post.json?json={power:200}&amp;apikey=b340460c4175317XXXXX6809fb0297&quot;);<br />
+	&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; client.print(realPower);<br />
+	&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; client.println(&quot;} HTTP/1.1&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.println(&quot;Host: emoncms.org&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.println(&quot;User-Agent: GSM shield&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.println(&quot;Connection: close&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.println();<br />
+	&nbsp; }<br />
+	&nbsp; else {<br />
+	&nbsp;&nbsp;&nbsp; // if you couldn&#39;t make a connection:<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(&quot;Connection failed&quot;);<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(&quot;Disconnecting...&quot;);<br />
+	&nbsp;&nbsp;&nbsp; client.stop();<br />
+	&nbsp; }<br />
+	}</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/4300"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-btCLdzXkbws01yPvztBPDTvEG1PJ5FCmqwu0B9LNhMk" value="form-btCLdzXkbws01yPvztBPDTvEG1PJ5FCmqwu0B9LNhMk"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/4300 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:24:15 GMT -->
+</html>

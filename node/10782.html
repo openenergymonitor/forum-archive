@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10782 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:54:31 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Existing Raspberry Pi SD card upgrade guide (ADVANCED) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Existing Raspberry Pi SD card upgrade guide (ADVANCED)</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 02/06/2015 - 23:04</span>
+        <div class="content"><p>I&#39;ve been working on the upgrade path for upgrading from: emonSD-13-03-15.img.zip and emonSD-13-08-14.img.zip SD card images (that we have been shipping out for almost a year with the standard raspberrypi and rfm12pi adapter board and are available on the ready to go image page here <a href="https://github.com/emoncms/emoncms/blob/low-write/docs/setup.md">https://github.com/emoncms/emoncms/blob/low-write/docs/setup.md</a>) - to the latest version of the low-write branch and the new features developed for the emonpi such as the in-browser emonhub.conf editor, the wifi config, nodes module and app module.&nbsp;</p>
+<p><strong>This forum post is the advanced step by step process to go through to upgrade an existing installation, I will try and package this up into an upgrade script next.</strong></p>
+<p>There is more information on the new features available in these forums posts:</p>
+<p>emonPi and RFM69Pi emonbase ready-to-go SD card image<br />
+<a href="10729.html" title="http://openenergymonitor.org/emon/node/10729">http://openenergymonitor.org/emon/node/10729</a></p>
+<p>Using Emonpi features in v8.5<br />
+<a href="10732.html" title="http://openenergymonitor.org/emon/node/10732">http://openenergymonitor.org/emon/node/10732</a></p>
+<p>This was tested with the emonSD-13-08-14.img.zip image with the local install of emoncms enabled and logging data. Many of the feature may be useful such as the in-browser emonhub.conf editor whether your logging locally or not, but most of the benefits of upgrading are for installations where data is being logged locally on the raspberrypi.</p>
+<p><strong>Upgrade procedure</strong></p>
+<p>Start by SSH&#39;ing into your raspberrypi, i.e ssh pi@IPADDRESS (password:raspberry). Then place your raspberrypi in write mode with command: <strong>rpi-rw.</strong></p>
+<p>The variant of emonhub used on the emonpi that makes use of MQTT and the new emoncms nodes module requires an update to the rfm12pi firmware to work, it needs received RF data to be printed with OK at the start of each line. To update the firmware a couple of pieces of software need to be installed. But before that you may need to make some more space on the SD card. You can skip this step if you have a larger SD card or dont want to upgrade the firmware or use the emon-pi variant of emonhub.</p>
+<p>Around 400Mb can be free&#39;d by deleting: wolfram-engine, sonic-pi and scratch</p>
+<pre>
+sudo apt-get purge -y wolfram-engine sonic-pi scratch
+sudo apt-get autoremove -y
+sudo apt-get clean</pre><p>&nbsp;</p>
+<p><strong>1) Upgrading emoncms and installing new modules</strong></p>
+<p>The latest version of the low-write branch and the new modules brings:</p>
+<ul>
+<li>An in-browser emonhub.conf editor and emonhub.log viewer</li>
+<li>The new apps module with mysolar and mysolar&amp;wind dashboards in addition to myelectric.</li>
+<li>In browser wifi config</li>
+<li>New nodes module for use with emon-pi variant of emonhub (see below)</li>
+<li>Improvements to the feed engines that make it possible to use accumulating watt hour or kwh feeds for generating daily data graphs and improved data viewer and csv export.</li>
+</ul>
+<p>Start by stopping emonhub and feedwriter so that no data is written during the upgrade:</p>
+<pre>
+sudo service emonhub stop
+sudo service feedwriter stop</pre><p>Keep a backup of the existing emoncms installation before installing the new one:</p>
+<pre>
+mkdir /home/pi/backup
+mv /var/www/emoncms /home/pi/backup/emoncms</pre><p>Install new low-write emoncms and modules:</p>
+<pre>
+cd /var/www
+git clone -b low-write <a href="https://github.com/emoncms/emoncms.git" title="https://github.com/emoncms/emoncms.git">https://github.com/emoncms/emoncms.git</a>
+cp /var/www/emoncms/default.settings.php /var/www/emoncms/settings.php
+cd /var/www/emoncms/Modules
+git clone <a href="https://github.com/emoncms/nodes.git" title="https://github.com/emoncms/nodes.git">https://github.com/emoncms/nodes.git</a>
+git clone <a href="https://github.com/emoncms/app.git" title="https://github.com/emoncms/app.git">https://github.com/emoncms/app.git</a>
+git clone <a href="https://github.com/emoncms/config.git" title="https://github.com/emoncms/config.git">https://github.com/emoncms/config.git</a>
+git clone <a href="https://github.com/emoncms/wifi.git" title="https://github.com/emoncms/wifi.git">https://github.com/emoncms/wifi.git</a>
+
+redis-cli &ldquo;flushall&rdquo;</pre><p>Create a emoncms.conf file for use with the nodes module:</p>
+<pre>
+sudo touch /home/pi/data/emoncms.conf
+sudo chown pi:www-data /home/pi/data/emoncms.conf
+sudo chmod 664 /home/pi/data/emoncms.conf</pre><p><strong>Update the emoncms database </strong>by logging in to emoncms and running database update and check.</p>
+<p>At this point if you want to restart emonhub and feedwriter and test that everything is still running as normal inputs being received and data being stored in feeds you can do this with:</p>
+<p>sudo service emonhub start<br />
+sudo service feedwriter start<br />
+&nbsp;</p>
+<p><strong>2) Installing requirements for updating RFMPi firmware</strong></p>
+<p>The new RFMPi firmware standardises the message format to include the OK at the from of the data received over RF.</p>
+<pre>
+git clone <a href="https://github.com/openenergymonitor/avrdude-rpi.git" title="https://github.com/openenergymonitor/avrdude-rpi.git">https://github.com/openenergymonitor/avrdude-rpi.git</a> ~/avrdude-rpi &amp;&amp; ~/avrdude-rpi/install
+sudo apt-get install arduino -y
+sudo apt-get install python-pip -y
+pip install ino
+git clone https://github.com/openenergymonitor/RFM2Pi.git</pre><p>To update the firmware the steps are then:</p>
+<pre>
+sudo service emonhub stop
+cd RFM2Pi
+./update-RFM12</pre><p>The new firmware should work fine with the existing installation of emonhub on the raspberrypi which is the development branch.</p>
+<p>&nbsp;</p>
+<p><strong>3) Switching to the emon-pi variant of emonhub</strong></p>
+<p>(The emon-pi variant of emonhub needs the firmware upgrade in step 2 to work)</p>
+<p>The emon-pi variant of emonhub is a variant that I adapted from Paul Burnell&#39;s experimental branch (which may in time be superseded by another version of emonhub that Paul is currently working on), it sends the node data to the local emoncms via MQTT rather than HTTP requests, although it can send by HTTP too if configured, it can also receive node data via MQTT to be sent out over the RFM network for control applications.</p>
+<p>To upgrade to the emon-pi variant you may want to start by making a backup of the existing emonhub directory:</p>
+<pre>
+mv /home/pi/emonhub /home/pi/backup/emonhub
+sudo mv /boot/emonhub.conf /home/pi/backup</pre><p>Installation of the emonhub emon-pi variant:</p>
+<pre>
+sudo service emonhub stop
+cd
+git clone <a href="https://github.com/openenergymonitor/emonhub.git" title="https://github.com/openenergymonitor/emonhub.git">https://github.com/openenergymonitor/emonhub.git</a> &amp;&amp; emonhub/install
+sudo cp /home/pi/emonhub/conf/emonhub-blanknodes.conf /home/pi/data/emonhub.conf
+sudo chown pi:www-data /home/pi/data/emonhub.conf
+sudo chmod 664 /home/pi/data/emonhub.conf</pre><p>Install emoncms-nodes-service to subscribe to MQTT messages published by the emon-pi variant of emonhub:</p>
+<pre>
+sudo cp /var/www/emoncms/Modules/nodes/emoncms-nodes-service /etc/init.d/
+sudo chmod 755 /etc/init.d/emoncms-nodes-service
+sudo update-rc.d emoncms-nodes-service defaults</pre><p>Start services:</p>
+<pre>
+sudo service emonhub start
+sudo service emoncms-nodes-service start
+sudo service feedwriter start</pre><p><strong>Configure new emonhub.conf</strong></p>
+<p>To get existing inputs and feeds up and running again you will need to reconfigure emonhub.conf this can now be done from the in-browser editor by logging in to emoncms and clicking on the EmonHub tab.</p>
+<p>If you wish to keep using existing inputs rather than use the new nodes module change the entry:</p>
+<p>[[emoncmsorg]]<br />
+&nbsp;&nbsp;&nbsp; Type = EmonHubEmoncmsHTTPInterfacer<br />
+&nbsp;&nbsp;&nbsp; [[[init_settings]]]<br />
+&nbsp;&nbsp;&nbsp; [[[runtimesettings]]]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pubchannels = ToRFM12,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; subchannels = ToEmonCMS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; url = <a href="http://emoncms.org/" title="http://emoncms.org">http://emoncms.org</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; apikey = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; senddata = 1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sendstatus = 1</p>
+<p>to point to:</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; url = <a href="http://localhost/emoncms" title="http://localhost/emoncms">http://localhost/emoncms</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; apikey = write api key<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; senddata = 1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sendstatus = 0</p>
+<p>or make a copy of this entry with a different interfacer name [[emoncmsorg]] &amp;&nbsp;[[localemoncms]] if you wish to record data locally and send data to a remote install of emoncms,</p>
+<p>If you made any custom node definitions these will also need to be re-entered but with the new [[[rx]]], [[[tx]]] tags as in the example here: <a href="10732.html" title="http://openenergymonitor.org/emon/node/10732">http://openenergymonitor.org/emon/node/10732</a></p>
+<p>That completes most of the upgrade to the latest raspberrypi software stack being used on the emonpi and soon to be the standard image for emonbase rfm12/69pi adapter board SD cards too.</p>
+<p>There are a few more steps to get the wifi config up and running and the in browser system update tool. But the above covers the main parts of upgrading the emonhub/emoncms part while keeping existing data feeds and configurations.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11028.html" class="topic-previous" title="Go to previous forum topic">‹ emoncms.org raw data graphs frozen?</a>
+              <a href="11027.html" class="topic-next" title="Go to next forum topic">v8.6 - MySQL Memory Storage Engine ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-32490"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7605.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="craigfryer&#039;s picture" title="craigfryer&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Existing Raspberry Pi SD card upgrade guide (ADVANCED)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7605.html" title="View user profile.">craigfryer</a> on Thu, 23/07/2015 - 04:04.</div>
+    <div class="content">
+     <p>Thanks for this useful guide.</p>
+<p>Just a few comments.</p>
+<p>The command&nbsp;redis-cli &ldquo;flushall&rdquo; had problems when I cut and pasted as the quotation marks were the wrong character, it should be&nbsp;redis-cli&nbsp;&quot;flushall&quot;.</p>
+<p>The&nbsp;Update the emoncms database needs to be a little clearer.</p>
+<ol>
+<li>sudo service emonhub start</li>
+<li>sudo service feedwriter start</li>
+<li>Log&nbsp;in to emoncms&nbsp;via a browser</li>
+<li>Go to Admin section, then click on &quot;Update &amp; Check&quot;</li>
+</ol>
+<p>After the &quot;pip install ino&quot; command I received the following message:<br />
+error: could not create &#39;/usr/local/lib/python2.7/dist-package/ino&#39; Permission denied<br />
+It didn&#39;t appear to cause a problem, but it was unexpected.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32566"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7605.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="craigfryer&#039;s picture" title="craigfryer&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Existing Raspberry Pi SD card upgrade guide (ADVANCED)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7605.html" title="View user profile.">craigfryer</a> on Thu, 23/07/2015 - 23:01.</div>
+    <div class="content">
+     <p>Is it still recommended to migrate to the&nbsp;emon-pi variant of emonhub?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10782"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-5j2k31ZfGXVDtm013055Mr8LH1dacgahCmS-EpLdFf0" value="form-5j2k31ZfGXVDtm013055Mr8LH1dacgahCmS-EpLdFf0"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10782 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:54:31 GMT -->
+</html>

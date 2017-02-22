@@ -1,0 +1,353 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10941 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:59:10 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>EMONHUB Crashing on Direct Serial Receive | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">EMONHUB Crashing on Direct Serial Receive</h3>
+        <span class="submitted">Submitted by <a href="../user/8395.html" title="View user profile.">paddy</a> on Sun, 05/07/2015 - 03:18</span>
+        <div class="content"><p>Hi,</p>
+<p>I have been trying to solve this issue for the last few days and have read everything that this forum and google has to offer but alas I cannot figure it out.</p>
+<p>I have been using the standard openenergymonitor system for a few years now to monitor home power usage.</p>
+<p>Recently I have wanted to expand to other monitoring so I am playing with a new emoncms installation to try other sensors. The emoncms I am using is the emonSD-17Jun2015.img.zip image.</p>
+<p>With the new sensors I am using RF69 radios and a direct USB connection with a moteinousb to RPi. I have also tried direct serial connection to the RPi with the same result.</p>
+<p>The problem is, that when I add a EmonHubSerialInterfacer to the configuration I get the following message on the console:</p>
+<p>root@emonpi:~# Exception in thread SerialDirect:</p>
+<p>Traceback (most recent call last):</p>
+<p>File &quot;/usr/lib/python2.7/threading.py&quot;, line 552, in __bootstrap_inner self.run()</p>
+<p>File &quot;/home/pi/emonhub/src/interfacers/emonhub_interfacer.py&quot;, line 73, in run rxc = self.read()</p>
+<p>File &quot;/home/pi/emonhub/src/interfacers/EmonHubserialInterfacer.py&quot;, line 81, in read c = new_cargo(rawdata=f)</p>
+<p>NameError: global name &#39;new_cargo&#39; is not defined</p>
+<p>and the emonhub.log:</p>
+<p>pi@emonpi /var/log/emonhub $ cat emonhub.log<br />
+2015-07-05 11:31:59,015 INFO&nbsp;&nbsp;&nbsp;&nbsp; MainThread EmonHub emonHub &#39;emon-pi&#39; variant v1.0<br />
+2015-07-05 11:31:59,017 INFO&nbsp;&nbsp;&nbsp;&nbsp; MainThread Opening hub...<br />
+2015-07-05 11:31:59,019 INFO&nbsp;&nbsp;&nbsp;&nbsp; MainThread Logging level set to DEBUG<br />
+2015-07-05 11:31:59,020 INFO&nbsp;&nbsp;&nbsp;&nbsp; MainThread Creating EmonHubSerialInterfacer &#39;SerialDirect&#39;<br />
+2015-07-05 11:31:59,024 DEBUG&nbsp;&nbsp;&nbsp; MainThread Opening serial port: /dev/ttyUSB0 @ 9600 bits/s<br />
+2015-07-05 11:31:59,027 INFO&nbsp;&nbsp;&nbsp;&nbsp; MainThread Creating EmonHubMqttInterfacer &#39;MQTT&#39;<br />
+2015-07-05 11:31:59,029 INFO&nbsp;&nbsp;&nbsp;&nbsp; MainThread MQTT Init mqtt_host=127.0.0.1 mqtt_port=1883<br />
+2015-07-05 11:31:59,036 DEBUG&nbsp;&nbsp;&nbsp; MainThread MQTT Subscribed to channel&#39; : ToEmonCMS<br />
+2015-07-05 11:31:59,038 INFO&nbsp;&nbsp;&nbsp;&nbsp; MainThread Creating EmonHubEmoncmsHTTPInterfacer &#39;emoncmsorg&#39;<br />
+2015-07-05 11:31:59,041 DEBUG&nbsp;&nbsp;&nbsp; MainThread emoncmsorg Subscribed to channel&#39; : ToEmonCMS<br />
+2015-07-05 11:31:59,138 INFO&nbsp;&nbsp;&nbsp;&nbsp; MQTT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Connecting to MQTT Server<br />
+2015-07-05 11:31:59,147 INFO&nbsp;&nbsp;&nbsp;&nbsp; MQTT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connection status: Connection successful<br />
+2015-07-05 11:31:59,149 DEBUG&nbsp;&nbsp;&nbsp; MQTT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CONACK =&gt; Return code: 0<br />
+2015-07-05 11:31:59,252 INFO&nbsp;&nbsp;&nbsp;&nbsp; MQTT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; on_subscribe<br />
+2015-07-05 12:18:08,720 WARNING&nbsp; MainThread SerialDirect thread is dead<br />
+2015-07-05 12:18:08,928 WARNING&nbsp; MainThread SerialDirect thread is dead</p>
+<p>I have cut everything back to basics so only sending node number and humidity, here is the minicom report of serial input on the Pi:</p>
+<p>pi@emonpi /var/log $ minicom -D /dev/ttyUSB0 -b 9600</p>
+<p>Welcome to minicom 2.6.1</p>
+<p>OPTIONS: I18n<br />
+Compiled on Apr 28 2012, 19:24:31.<br />
+Port /dev/ttyUSB0</p>
+<p>Press CTRL-A Z for help on special keys</p>
+<p>19 6450<br />
+19 6450<br />
+19 6450<br />
+19 6450<br />
+19 6440<br />
+19 6450<br />
+19 6450<br />
+19 6450<br />
+19 6450<br />
+19 6450</p>
+<p>I have tried all the different datacode suggestions (including no datacode) but cannot seem to prevent emonhub from crashing.</p>
+<p>Any suggestions would be most appreciated.</p>
+<p>&nbsp;</p>
+<p>Cheers,</p>
+<p>Paddy</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10946.html" class="topic-previous" title="Go to previous forum topic">‹ Feeds view is updating but no data is being written.</a>
+              <a href="10943.html" class="topic-next" title="Go to next forum topic">MK2 self consumption ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-31923"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMONHUB Crashing on Direct Serial Receive</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 05/07/2015 - 08:04.</div>
+    <div class="content">
+     <p>I don&#39;t think you have configured anything to cause this issue, from what I see the &quot;serial-direct&quot; settings appear correct and the node/datacode settings will not influence this type of error.</p>
+<p>The traceback and error suggest an import issue, looking at the emonhub&nbsp;&quot;emon-pi&quot; variant repo, it&#39;s&nbsp;unclear (to me) exactly how the import hierarchy is structured, but it does appear the Cargo module is imported directly into the EmonHubJeeInterfacer&nbsp;rather than the core&nbsp;EmonHubInterfacer&nbsp;and therefore not seen in the SerialInterfacer, so you could try <a href="https://github.com/openenergymonitor/emonhub/blob/emon-pi/src/interfacers/EmonHubSerialInterfacer.py#L5">adding &quot;import Cargo&quot; to the imports in EmonHubSerialInterfacer</a>, usually found at&nbsp;&nbsp;/home/pi/emonhub/src/interfacers/EmonHubSerialInterfacers.py.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31924"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8395.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="paddy&#039;s picture" title="paddy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMONHUB Crashing on Direct Serial Receive</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8395.html" title="View user profile.">paddy</a> on Sun, 05/07/2015 - 08:35.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>Thanks for taking the time to look at this.</p>
+<p>I added import Cargo to the imports as below and rebooted but I still get the same error message.</p>
+<p>pi@emonpi ~/emonhub/src/interfacers $ sudo nano EmonHubSerialInterfacer.py<br />
+import serial<br />
+import time<br />
+import Cargo<br />
+from pydispatch import dispatcher<br />
+import emonhub_interfacer as ehi</p>
+<p>&quot;&quot;&quot;class EmonhubSerialInterfacer</p>
+<p>&nbsp;</p>
+<p>Regards,</p>
+<p>Paddy</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31925"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMONHUB Crashing on Direct Serial Receive</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 05/07/2015 - 08:45.</div>
+    <div class="content">
+     <p>Try changing <a href="https://github.com/openenergymonitor/emonhub/blob/emon-pi/src/interfacers/EmonHubSerialInterfacer.py#L81">new_cargo on line 81</a> to <a href="https://github.com/openenergymonitor/emonhub/blob/emon-pi/src/interfacers/EmonHubJeeInterfacer.py#L116">Cargo.new_cargo as used in the JeeInterfacer</a>..</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31926"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8395.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="paddy&#039;s picture" title="paddy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMONHUB Crashing on Direct Serial Receive</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8395.html" title="View user profile.">paddy</a> on Sun, 05/07/2015 - 08:47.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>I actually just found that difference and the change fixed the problem.</p>
+<p>I would never have thought to look there without your pointer.</p>
+<p>Thank you very much!</p>
+<p>Cheers,</p>
+<p>Paddy</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31929"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMONHUB Crashing on Direct Serial Receive</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 05/07/2015 - 09:30.</div>
+    <div class="content">
+     <p>Thanks for letting us know, <a href="https://github.com/openenergymonitor/emonhub/pull/2">I have submitted a pull request to the repo for a patch</a></p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31932"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8395.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="paddy&#039;s picture" title="paddy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMONHUB Crashing on Direct Serial Receive</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8395.html" title="View user profile.">paddy</a> on Sun, 05/07/2015 - 10:06.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>I may have found another glitch. Data was logging fine for a while and then I got this error at the console:</p>
+<p>root@emonpi:~# Exception in thread SerialDirect:</p>
+<p>Traceback (most recent call last):</p>
+<p>File &quot;/usr/lib/python2.7/threading.py&quot;, line 552, in __bootstrap_inner self.run()</p>
+<p>File &quot;/home/pi/emonhub/src/interfacers/emonhub_interfacer.py&quot;, line 73, in run rxc = self.read()</p>
+<p>File &quot;/home/pi/emonhub/src/interfacers/EmonHubserialInterfacer.py&quot;, line 90, in read c.nodeid = int(f[0])</p>
+<p>ValueError: invalid literal for int() with base 10: &#39;sendtoWait&#39;</p>
+<p>Cheers.</p>
+<p>Paddy</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31940"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMONHUB Crashing on Direct Serial Receive</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 05/07/2015 - 12:32.</div>
+    <div class="content">
+     <p>Hi Paddy,</p>
+<p>This is happening because there is some non-numeric content ie&nbsp;&nbsp;&#39;sendtoWait&#39; coming in via the serial and tripping emonhub&nbsp;up. basically that &quot;c.nodeid = int(f[0])&quot; comes way before any validation or sanity checks are done and it fall over if f[0] isn&#39;t an int.</p>
+<p>I sthere&nbsp;a particular reason you have opted for the &quot;emon-pi&quot; variant? is there something you need on the &quot;current&quot; post&nbsp;emonPi image that isn&#39;t on the &quot;previous&quot; pre emonPi image?</p>
+<p>The reason I ask is the original emonHub has better error handling, not only would this particular fault not occur, if it did it would be easier&nbsp;to fix as it would appear in the logs.</p>
+<p>The version you are using is based heavily on the &quot;experimental&quot; branch of emonhub which was not a release version just a&nbsp;proof of concept, Additional work has been done to it by T &amp; G to implement new features predominantly to marry the emonPi to the latest v8.5 low-write emoncms&nbsp;and so some parts have probably been bug&nbsp;tested more than others. It was probally&nbsp;assumed the serial port is permanently occupied by the emonPi board or a RFM2Pi.</p>
+<p>You can either try testing for an int immediately&nbsp;before that code, which is a quick and very dirty fix that may just push the issue down the line, ensure you only ever get the correct data format coming in via the serial port, introduce some proper sanity checks (but I would argue this isn&#39;t the right&nbsp;place for them) or use the previous image with &quot;original&quot; emonhub.</p>
+<p>I would recommend the latter and use original emonhub&nbsp;for what is being specifically discussed here.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31942"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8395.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="paddy&#039;s picture" title="paddy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMONHUB Crashing on Direct Serial Receive</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8395.html" title="View user profile.">paddy</a> on Sun, 05/07/2015 - 13:22.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>I guess I just went with the latest SD Image. I haven&#39;t really been following the recent emon developments and I am not sure what post emonPi and pre emonPi is? I didn&#39;t pick up from this post that this was &quot;experimental&quot; as it indicated that this is what is currently shipping on new hardware <a href="10729.html" title="http://openenergymonitor.org/emon/node/10729">http://openenergymonitor.org/emon/node/10729</a></p>
+<p>Out of frustration I did try an older image this weekend but I couldn&#39;t even get the web page up on that.</p>
+<p>Where can I get the latest version of the &quot;original&quot; emonhub? As you suggest this sounds like what I should be using.</p>
+<p>Cheers,</p>
+<p>Paddy</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31957"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMONHUB Crashing on Direct Serial Receive</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 05/07/2015 - 22:08.</div>
+    <div class="content">
+     <p>emonPi is the latest hardware release out of the OEM stable, it was crowd funded on kickstarter recently.</p>
+<p>There was a new SDcard&nbsp;image with a&nbsp;lot of changes released for the emonPi and that same image is intended to replace the SDcard image that was &quot;current&quot;&nbsp;immediately prior to the emonPi release.</p>
+<p>So the Post emonPi release image is more cutting edge and has a&nbsp;lot of good stuff focused more towards the emonPi&nbsp;where as the earlier image is less&nbsp;biased to the emonPi&nbsp;and far more familiar, tried and tested for trying less mainstream stuff (IMO)</p>
+<p>The emonPi image contains a version of emonHub called &quot;emon-pi&quot; which is BASED on the experimental branch, As I said&nbsp;additional work has been done to make it suit the emonPi&nbsp;image,&nbsp;I didn&#39;t say it was&nbsp;experimental, but it is focused and still being&nbsp;developed.</p>
+<p>See the&nbsp;<a href="10163.html">OLD: Raspberry Pi 2 pre-built SD card image (emonSD-13-03-15.img) BETA</a>&nbsp;thread for the earlier image. Or was this the image you tried but had issues with?</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31962"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8395.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="paddy&#039;s picture" title="paddy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMONHUB Crashing on Direct Serial Receive</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8395.html" title="View user profile.">paddy</a> on Sun, 05/07/2015 - 23:36.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>I guess the terminology may be a little confusing. I have been running emon on raspberry Pi&#39;s with RFM12Pi&#39;s for a couple of years, but I don&#39;t have an emonPi.</p>
+<p>Anyway even after fixing my code I am finding the emon-pi version of emonHub quite unstable, so will go to as pre emonp-pi version as you suggest. The version that I tried and had issues with was indeed emonSD-13-03-15.img but I shall give it another go.</p>
+<p>Thanks again for your help.</p>
+<p>Cheers,</p>
+<p>Paddy</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10941"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-AL4ZliFni_pb1-qy0YYdShTZhD8MKrvzzKY-Jb1NOFg" value="form-AL4ZliFni_pb1-qy0YYdShTZhD8MKrvzzKY-Jb1NOFg"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10941 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:59:10 GMT -->
+</html>

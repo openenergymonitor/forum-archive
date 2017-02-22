@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3771 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:33:46 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Using more than one AC-AC adapter  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Using more than one AC-AC adapter </h3>
+        <span class="submitted">Submitted by <a href="../user/5458.html" title="View user profile.">fca</a> on Wed, 05/02/2014 - 00:18</span>
+        <div class="content"><p>Hi i have 2 different power sources so 2 different ac waves, as far as i understand i can&#39;t have 2 ac-ac adapters...</p>
+<p>So can i &quot;select&quot; to use the ac-ac adapter for one CT and fix the other CT as no ac-ac adapter mode ?</p>
+<p>&nbsp;</p>
+<p>thanks</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="3779.html" class="topic-previous" title="Go to previous forum topic">‹ EmonTX v3 Voltage Readings</a>
+              <a href="2311.html" class="topic-next" title="Go to next forum topic">Current offset and linearity issues ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-18178"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using more than one AC-AC adapter </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 05/02/2014 - 11:29.</div>
+    <div class="content">
+     <p>Are these two power sources connected in any way? are they on the same phase? The firmware could be modified to do what you want.</p>
+<p>Take a look at the examples:</p>
+<p>&nbsp; emonTxFirmware &gt; emontx v2 &gt; Guide &gt; 1_SingleCT</p>
+<p>and</p>
+<p>emonTxFirmware &gt; emontx v2 &gt; Guide &gt; c_ACVoltage</p>
+<p>you would need to merge these two, something like this:</p>
+<p>&nbsp;</p>
+<pre>
+#include &quot;EmonLib.h&quot;                   // Include Emon Library
+EnergyMonitor ct1,ct2;                     // Create an instance
+
+void setup()
+{ 
+  Serial.begin(9600);
+ 
+  ct1.voltageTX(228.268, 1.7);         // Calibration, phase_shift
+  ct1.currentTX(1, 111.1);             // CT channel, calibration.
+  ct2.currentTX(1, 111.1);             // CT channel, calibration.
+}
+
+void loop()
+{
+  ct1.calcVI(20,2000);                 // Calculate all. No.of half wavelengths (crossings), time-out
+  ct1.serialprint();                   // Print out all variables
+
+  double Irms = ct2.calcIrms(1480);    // Calculate RMS current (1480: no. of samples)
+  Serial.println(Irms*230);            // Print power Irms x 230Volts (assumed)
+}</pre><p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18203"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5458.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="fca&#039;s picture" title="fca&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using more than one AC-AC adapter </h3>
+
+    <div class="submitted">Submitted by <a href="../user/5458.html" title="View user profile.">fca</a> on Wed, 05/02/2014 - 22:51.</div>
+    <div class="content">
+     <p>Hi and thanks...</p>
+<p>no the power sources are complete isolate &nbsp;one from the public grid other from my offgrid ( hybrid) inverter &nbsp;and third one from diesel generator (near future )</p>
+<p>sobin&nbsp;your example ct1 as no ac ac adapter and ct2&nbsp;is using the ac ac adapter reading ?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3771"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-16yjIVHe2XEirzwe8u7RUAqfow7rIBDu4HDBVdQsu70" value="form-16yjIVHe2XEirzwe8u7RUAqfow7rIBDu4HDBVdQsu70"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3771 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:33:46 GMT -->
+</html>

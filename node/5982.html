@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5982 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:04:13 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>count down timmer program | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">count down timmer program</h3>
+        <span class="submitted">Submitted by Guest on Wed, 22/10/2014 - 14:42</span>
+        <div class="content"><p>i have downloaded this program&nbsp; it is in minuets and seconds&nbsp;&nbsp;&nbsp; 00:00&nbsp;&nbsp; MM:SS</p>
+<p>i want to change it to seconds&nbsp; and milliseconds&nbsp;&nbsp;&nbsp;&nbsp; 00:00&nbsp;&nbsp;&nbsp;&nbsp; SS:mS mS</p>
+<p>how easy will it be i am just getting into programming and have made 4 projects&nbsp; from getting started with arduino</p>
+<p>i am farely old and did not grow up with computers at school</p>
+<p>here is the program&nbsp; i have</p>
+<p>
+//constants for Control Pin</p>
+<p>int controlPin = 13;<br />
+char currentTimeValue[4];<br />
+int currentState = 1;<br />
+int timerSeconds = 0;<br />
+int lpcnt = 0;</p>
+<p>//define the keypad<br />
+const byte rows = 4;<br />
+const byte cols = 4;<br />
+char keys[rows][cols] = {</p>
+<p>&nbsp;{&#39;1&#39;,&#39;2&#39;,&#39;3&#39;,&#39;A&#39;},<br />
+&nbsp;{&#39;4&#39;,&#39;5&#39;,&#39;6&#39;,&#39;B&#39;},<br />
+&nbsp;{&#39;7&#39;,&#39;8&#39;,&#39;9&#39;,&#39;C&#39;},<br />
+&nbsp;{&#39;*&#39;,&#39;0&#39;,&#39;#&#39;,&#39;D&#39;}<br />
+};</p>
+<p>byte rowPins[rows] = {11,10,9,8};<br />
+byte colPins[cols] = {7,6,5,4};<br />
+Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, rows, cols);<br />
+LiquidCrystal_I2C lcd(0x3F,20,4); // set the LCD address to 0x27 for a 16 chars and 2 line<br />
+display</p>
+<p>void setup()<br />
+{<br />
+&nbsp;lcd.init(); // initialize the lcd</p>
+<p>&nbsp;// Print a message to the LCD.<br />
+&nbsp;lcd.backlight();</p>
+<p>&nbsp;//display main screen<br />
+&nbsp;displayCodeEntryScreen();</p>
+<p>&nbsp;//setup and turn off relay<br />
+&nbsp;pinMode(controlPin, OUTPUT);<br />
+&nbsp;digitalWrite(controlPin, LOW);</p>
+<p>&nbsp;//setup default time to 00:00<br />
+&nbsp;currentTimeValue[0]=&#39;0&#39;;<br />
+&nbsp;currentTimeValue[1]=&#39;0&#39;;<br />
+&nbsp;currentTimeValue[2]=&#39;0&#39;;<br />
+&nbsp;currentTimeValue[3]=&#39;0&#39;;<br />
+&nbsp;showEnteredTime();<br />
+}</p>
+<p>void loop()<br />
+{<br />
+&nbsp;int l;<br />
+&nbsp;char tempVal[3];<br />
+&nbsp;char key = keypad.getKey();</p>
+<p>&nbsp;//key pressed and state is 1<br />
+&nbsp;if (int(key) != 0 and currentState == 1) {</p>
+<p>&nbsp;switch (key) {<br />
+&nbsp;case &#39;*&#39;:<br />
+&nbsp;relayStatus(false);<br />
+&nbsp;currentTimeValue[0]=&#39;0&#39;;<br />
+&nbsp;currentTimeValue[1]=&#39;0&#39;;<br />
+&nbsp;currentTimeValue[2]=&#39;0&#39;;<br />
+&nbsp;currentTimeValue[3]=&#39;0&#39;;<br />
+&nbsp;showEnteredTime();<br />
+&nbsp;currentState = 1;</p>
+<p>&nbsp;lpcnt = 0;<br />
+&nbsp;timerSeconds = 0;<br />
+&nbsp;break;</p>
+<p>&nbsp;case &#39;#&#39;:<br />
+&nbsp;tempVal[0] = currentTimeValue[0];<br />
+&nbsp;tempVal[1] = currentTimeValue[1];<br />
+&nbsp;tempVal[2] = 0;</p>
+<p>&nbsp;timerSeconds = atol(tempVal) * 60;</p>
+<p>&nbsp;tempVal[0] = currentTimeValue[2];<br />
+&nbsp;tempVal[1] = currentTimeValue[3];<br />
+&nbsp;tempVal[2] = 0;</p>
+<p>&nbsp;timerSeconds = timerSeconds + atol(tempVal);<br />
+&nbsp;currentState = 2;<br />
+&nbsp;break;</p>
+<p>&nbsp;default:<br />
+&nbsp;currentTimeValue[0] = currentTimeValue[1];<br />
+&nbsp;currentTimeValue[1] = currentTimeValue[2];<br />
+&nbsp;currentTimeValue[2] = currentTimeValue[3];<br />
+&nbsp;currentTimeValue[3] = key;<br />
+&nbsp;showEnteredTime();<br />
+&nbsp;break;<br />
+&nbsp;}<br />
+&nbsp;}</p>
+<p>&nbsp;if (currentState == 2) {<br />
+&nbsp;if (int(key) != 0) {<br />
+&nbsp;if (key == &#39;*&#39;) {<br />
+&nbsp;relayStatus(false);<br />
+&nbsp;displayCodeEntryScreen();<br />
+&nbsp;currentTimeValue[0]=&#39;0&#39;;<br />
+&nbsp;currentTimeValue[1]=&#39;0&#39;;<br />
+&nbsp;currentTimeValue[2]=&#39;0&#39;;<br />
+&nbsp;currentTimeValue[3]=&#39;0&#39;;<br />
+&nbsp;showEnteredTime();<br />
+&nbsp;currentState = 1;<br />
+&nbsp;lpcnt = 0;<br />
+&nbsp;timerSeconds = 0;<br />
+&nbsp;}<br />
+&nbsp;} else {</p>
+<p>&nbsp;if (lpcnt &gt; 9) {<br />
+&nbsp;lpcnt = 0;<br />
+&nbsp;--timerSeconds;<br />
+&nbsp;showCountdown();</p>
+<p>&nbsp;if (timerSeconds &lt;= 0) {<br />
+&nbsp;currentState = 1;<br />
+&nbsp;relayStatus(false);<br />
+&nbsp;displayCodeEntryScreen();<br />
+&nbsp;showEnteredTime();<br />
+&nbsp;} else {<br />
+&nbsp;relayStatus(true);<br />
+&nbsp;}<br />
+&nbsp;}</p>
+<p>&nbsp;++lpcnt;<br />
+&nbsp;delay(100);<br />
+&nbsp;}<br />
+&nbsp;}<br />
+}</p>
+<p>void showEnteredTime()<br />
+{<br />
+&nbsp;lcd.setCursor(14,3);<br />
+&nbsp;lcd.print(currentTimeValue[0]);<br />
+&nbsp;lcd.print(currentTimeValue[1]);<br />
+&nbsp;lcd.print(&quot;:&quot;);<br />
+&nbsp;lcd.print(currentTimeValue[2]);<br />
+&nbsp;lcd.print(currentTimeValue[3]);<br />
+}<br />
+void relayStatus(bool state)<br />
+{<br />
+&nbsp;if (state)<br />
+&nbsp;digitalWrite(controlPin, HIGH);<br />
+&nbsp;else<br />
+&nbsp;digitalWrite(controlPin, LOW);<br />
+}<br />
+void showCountdown()<br />
+{<br />
+&nbsp;char timest[6];\</p>
+<p>&nbsp;lcd.setCursor(0,0);<br />
+&nbsp;lcd.print(&quot;********************&quot;);<br />
+&nbsp;lcd.setCursor(0,1);<br />
+&nbsp;lcd.print(&quot;** COUNTING DOWN **&quot;);<br />
+&nbsp;lcd.setCursor(0,2);<br />
+&nbsp;lcd.print(&quot;** &quot;);<br />
+&nbsp;sprintf(timest, &quot;%d:%.2d&quot;, (timerSeconds/60), (timerSeconds - ((timerSeconds/60)*60)));<br />
+&nbsp;lcd.print(timest);<br />
+&nbsp;lcd.print(&quot; **&quot;);<br />
+&nbsp;lcd.setCursor(0,3);<br />
+&nbsp;lcd.print(&quot;********************&quot;);</p>
+<p>}</p>
+<p>void displayCodeEntryScreen()<br />
+{<br />
+&nbsp;clearScreen();<br />
+&nbsp;lcd.setCursor(0,0);<br />
+&nbsp;lcd.print(&quot;Let&#39;s Make It Count&quot;);<br />
+&nbsp;lcd.setCursor(0,1);<br />
+&nbsp;lcd.print(&quot;Down Time...&quot;);<br />
+&nbsp;lcd.setCursor(0,2);<br />
+&nbsp;lcd.print(&quot;Enter Time mm:ss:&quot;);<br />
+}</p>
+<p>void clearScreen()<br />
+{<br />
+&nbsp;lcd.setCursor(0,0);<br />
+&nbsp;lcd.print(&quot; &quot;);<br />
+&nbsp;lcd.setCursor(0,1);<br />
+&nbsp;lcd.print(&quot; &quot;);<br />
+&nbsp;lcd.setCursor(0,2);<br />
+&nbsp;lcd.print(&quot; &quot;);<br />
+&nbsp;lcd.setCursor(0,3);<br />
+&nbsp;lcd.print(&quot; &quot;);<br />
+}</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5977.html" class="topic-previous" title="Go to previous forum topic">‹ struggling with image on SD</a>
+              <a href="5974.html" class="topic-next" title="Go to next forum topic">Validation error while posting about a Forbidden error !!! ›</a>
+      </div>
+</div>
+      </div>
+    
+      </div>
+<div id="comments">
+  <a id="comment-24722"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: count down timmer program</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Wed, 22/10/2014 - 15:03.</div>
+    <div class="content">
+     <p>Hi Warren. You may want to post your question in a forum which deals with general programming issues, rather than this one which is quite specific. I would try <a href="http://forum.arduino.cc/" title="http://forum.arduino.cc">http://forum.arduino.cc</a> which I often use for general support.</p>
+<p>Paul - forum moderator</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-24723"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: count down timmer program</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 22/10/2014 - 15:11.</div>
+    <div class="content">
+     <p>Paul - you're a rotter! I'd just written a reply saying it would be difficult to do it accurately, and he'd be better asking on an Arduino forum, and I lost it!</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5982"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-O0mLENvozQQNH428J8_NTsrLfmYJYelGDYv2IKJ3mpk" value="form-O0mLENvozQQNH428J8_NTsrLfmYJYelGDYv2IKJ3mpk"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5982 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:04:13 GMT -->
+</html>

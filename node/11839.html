@@ -1,0 +1,470 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11839 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:12:05 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Use Socket Interfacer on EmonPi | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Use Socket Interfacer on EmonPi</h3>
+        <span class="submitted">Submitted by <a href="../user/1624.html" title="View user profile.">jsroques</a> on Sun, 20/12/2015 - 22:51</span>
+        <div class="content"><p>Hello,</p>
+<p>I am trying to use Socket Interfacer with emonPi&nbsp;but I can&#39;t get is to work properly. I did find some information in the following forum thread&nbsp;:&nbsp;http://openenergymonitor.org/emon/node/11448. I did some progress but I am not there yet.</p>
+<p>First, I added&nbsp;3 imports missing from&nbsp;EmonHubSocketInterfacer.py :</p>
+<pre>
+import socket
+import select
+import Cargo</pre><p>and I also&nbsp;modified call to new_cargo with <strong>Cargo.</strong>new_cargo in read function.</p>
+<p>I also&nbsp;added the following to my emonhub.conf :</p>
+<pre>
+[[MySocket]]   # Socket Interfacer
+   Type = EmonHubSocketInterfacer
+    [[[init_settings]]]
+        port_nb = 20100
+    [[[runtimesettings]]]
+        pubchannels = ToEmonCMS,</pre><p>Socket interfacer is now properly started. I got this in the logs.</p>
+<p>So far so good.</p>
+<p>I did a Python script which is opening the connection to the socket and sends data over every 5 seconds or so. But in&nbsp;EmonHubSocketInterfacer.py, it seems that connection is closed after something has been read :&nbsp;</p>
+<pre>
+    def read(self):
+        ...
+        # If data received, add it to socket RX buffer
+        if self._socket in ready_to_read:
+
+            # Accept connection
+            conn, addr = self._socket.accept()
+
+            # Read data
+            self._sock_rx_buf = self._sock_rx_buf + conn.recv(1024)
+
+            <strong># Close connection</strong>
+           <strong> conn.close()</strong>
+
+       ...</pre><p>&nbsp;</p>
+<p>Is there a reason for that ? I mean, should&nbsp;<span style="line-height: 20.8px;">the client&nbsp;</span><span style="line-height: 1.6;">be</span><span style="line-height: 1.6;">&nbsp;</span><span style="line-height: 1.6;">responsible</span><span style="line-height: 1.6;">&nbsp;for opening and </span><span style="line-height: 1.6;">closing the connection ? What I was planning to do is open a persistent connection to avoid opening a new socket every 5 seconds. Is that possible ?</span></p>
+<p>Thanks.</p>
+<p>JS</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5142.html" class="topic-previous" title="Go to previous forum topic">‹ DC Sensing project</a>
+              <a href="11935.html" class="topic-next" title="Go to next forum topic">EMONTX V3.4 Extra ADC Pin use? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-37308"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 20/12/2015 - 23:24.</div>
+    <div class="content">
+     <p>Hi JS</p>
+<p>Good to see the socket interfacer&nbsp;getting some exercise, I think it&#39;s a much&nbsp;under used feature.&nbsp;</p>
+<p>I&#39;m not an expert in this area, but wouldn&#39;t keeping the connection open block any other devices? Is there a reason not to close the connection? or rather is there a major benefit to keeping it open?&nbsp;I&#39;m not particularly&nbsp;opposed to the concept, other than&nbsp;I think the original idea was to have a &quot;rfm2pi&nbsp;type&nbsp;listener&quot; for &quot;depositing&quot; any local and network packets. in the past I have had several scripts posting to a single port&nbsp;on my own set-up.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37316"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1624.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="jsroques&#039;s picture" title="jsroques&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1624.html" title="View user profile.">jsroques</a> on Mon, 21/12/2015 - 08:41.</div>
+    <div class="content">
+     <p>Hello Paul,</p>
+<p>There should be no issue keeping the connection opened. And even though,&nbsp;if the client opens the socket, it should be responsible for closing it&nbsp;: it knows when it has nothing left to send !</p>
+<p>I don&#39;t think it would prevent any other connection from another device. I&#39;ll test that. Also, If the server is forcibly closing the connection, client may have been in the process of sending data. So data is lost.&nbsp;I think client side connection will remain for 5 minutes in &quot;CLOSE_WAIT&quot; which can be a problem if you open a socket every second&nbsp;: you&#39;ll get 300 CLOSE_WAIT connection. But I&#39;ll check that also.</p>
+<p>So, if you post data fast enough, I tend to think that the overhead of opening a socket each time is worse that keeping a connection alive. But to be honest... I don&#39;t know what &quot;fast enough&quot; would be.</p>
+<p>JS</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37344"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 21/12/2015 - 18:48.</div>
+    <div class="content">
+     <p>I look forward to the results of your testing.</p>
+<p>That code was inherited from <a href="https://github.com/Jerome-github/oem_gateway/commit/1509459708a2154e1e57c41838b20c74d7a81d9b?diff=unified#diff-f42cbce77025ab40653416ed3890bf3dR285">oemgateway and was originally written &nbsp;two and &nbsp;a half years ago</a>, I&#39;m not opposed to changing it but I would like to be 110% sure it&#39;s the right thing to do before I commit, ideally yes the client should know when it&#39;s finished and sign off, but where does that leave emonhub if it doesn&#39;t, emonhub must be able to continue functioning correctly even if a client crashes, stalls or just isn&#39;t written well enough to close the connection.</p>
+<p>I would need to do some swatting up to make the call myself so hopefully some more knowledgable&nbsp;devs&nbsp;will chip in here. My main concerns are that emonhub is resilient to client error and that the connection is non-blocking for other nodes to post to the same port.</p>
+<p>Otherwise maybe an optional setting&nbsp;to make it an exclusive &quot;kept open&quot; connection&nbsp;could be introduced ?</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37351"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1624.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="jsroques&#039;s picture" title="jsroques&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1624.html" title="View user profile.">jsroques</a> on Mon, 21/12/2015 - 23:08.</div>
+    <div class="content">
+     <p>Hello again,</p>
+<p>I modified my script so that I open a new socket each time I need to send data,&nbsp;and it works well.</p>
+<p>I checked the TCP connection is properly closed on both side, even though the client is not closing the connection.&nbsp;On emonpi&nbsp;side, the connection is cleared almost right away. On my sensor side (I am testing&nbsp;this with an Arduino Y&ugrave;n), I have some socket in &quot;TIME_WAIT&quot; : ~55&nbsp;if I post every second,&nbsp;no more than&nbsp;~20 if I am posting every 3 seconds.</p>
+<p>If I also close the socket in my script, I get the very same behavior.</p>
+<p>I also tried adding a conn.shutdown in&nbsp;EmonHubSocketInterfacer.py but no change.</p>
+<p>Anyway, I guess unless you want to post data at a very high rate (I would&nbsp;say more that 1/sec), opening and closing the socket each time seems&nbsp;ok. So having&nbsp;a persistent connection may not be that usefull in the end... Sorry for that.&nbsp;And in addition, forget I said it should&nbsp;not be a problem...&nbsp;it may require quite a bit of work &nbsp;to make&nbsp;it accept more that 1 connection at a time.</p>
+<p>Finally, I got it to work properly just by adding the missing imports into&nbsp;EmonHubSocketInterfacer.py, that is</p>
+<pre>
+import socket
+import select
+import Cargo</pre><p>changing</p>
+<pre>
+        # create a new cargo
+        c = new_cargo(rawdata=f)</pre><p>to</p>
+<pre>
+        # create a new cargo
+        c = <em><strong>Cargo.</strong></em>new_cargo(rawdata=f)</pre><p>and by opening (and closing) the socket at each posting.</p>
+<p>Here is my test script (run on my Y&ugrave;n)</p>
+<pre>
+import time
+import sys
+import datetime
+import socket
+
+# Interval between sensor reading
+readInterval=1   # in seconds
+
+# emoncms properties
+emoncmsHost = &quot;myip&quot;
+emoncmsSocketPort = 20100
+
+while True:
+    emoncmsSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    try:
+        emoncmsSocket.connect((emoncmsHost,emoncmsSocketPort))
+    except socket.error as msg:
+        print str(msg)
+        time.sleep(readInterval)
+        continue
+
+    payload=&quot;31 22.1 2.3 36 -18&quot;
+    print &quot;Sending &quot; + payload
+    payload = payload + &quot;\r\n&quot;
+
+    try:
+        emoncmsSocket.send(payload)
+    except socket.error as msg:
+        print str(msg)
+        
+    emoncmsSocket.shutdown(socket.SHUT_RDWR)
+    emoncmsSocket.close()
+
+    time.sleep(readInterval)
+</pre>         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37352"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 21/12/2015 - 23:27.</div>
+    <div class="content">
+     <p>I&#39;m glad you found it works ok for you now. I was just reading up on it myself and it seems to be very much the &quot;standard&quot; way going by the general examples. It was still useful for me to better understand the code,&nbsp;thanks for testing and sharing your findings too.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37353"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 21/12/2015 - 23:44.</div>
+    <div class="content">
+     <p>I&#39;ve submitted a pull request for the missing imports to the OEM &quot;emon-pi&quot; emonhub&nbsp;repo, (this isn&#39;t an issue in the original emonhub). Could you please confirm the edits as I haven&#39;t tested them personally.</p>
+<p><a href="https://github.com/openenergymonitor/emonhub/pull/3">Added missing imports</a></p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37399"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Wed, 23/12/2015 - 10:45.</div>
+    <div class="content">
+     <p>Pull request has been merged, please could you confirm this works for you&nbsp;<a href="https://github.com/openenergymonitor/emonhub/commit/2a45af573f0a381bf50942a8c5552359455050d3">https://github.com/openenergymonitor/emonhub/commit/2a45af573f0a381bf50942a8c5552359455050d3</a></p>
+<p>​Thanks.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37414"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1624.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="jsroques&#039;s picture" title="jsroques&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1624.html" title="View user profile.">jsroques</a> on Wed, 23/12/2015 - 19:56.</div>
+    <div class="content">
+     <p>Hello,</p>
+<p>I just updated my emonpi, and&nbsp;it works for me !</p>
+<p>Thank you for your help.</p>
+<p>JS.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38106"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7723.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7723.jpg" alt="daturach&#039;s picture" title="daturach&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7723.html" title="View user profile.">daturach</a> on Sun, 10/01/2016 - 20:25.</div>
+    <div class="content">
+     <p>This is a great solution. I spent some time today to test it with a RPi 2 and the 22 dec 2015 image. You can configure&nbsp;emoncms, mqtt, openhab&nbsp;(what else?)&nbsp;without connecting anything physically&nbsp;to your serial port.&nbsp;</p>
+<p>With a bit of imagination, you can create&nbsp;mathematical&nbsp;functions and display them in your feeds...</p>
+<p>Good work, thanks</p>
+<p>Walter</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38147"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/937.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/937.html" title="View user profile.">Bramco</a> on Mon, 11/01/2016 - 15:16.</div>
+    <div class="content">
+     <p>Paul,</p>
+<p>Can you point folks to the documentation for the socket interface?</p>
+<p>I&#39;m assuming if you are using the original emonhub, i.e. not the one on the emonPi then you don&#39;t need the pubchannels&nbsp;line in [[[runtimesettings]]]</p>
+<p>Thanks</p>
+<p>Simon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38181"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/937.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/937.html" title="View user profile.">Bramco</a> on Tue, 12/01/2016 - 13:03.</div>
+    <div class="content">
+     <p>If anyone is interested in doing this from an esp8266 system, then see the attached file. I couldn&#39;t find a decent example or any instructions as to how to do this - and yes I searched.....</p>
+<p>These are the instructions for using the code that I put at the top of the file</p>
+<p>// Replace the ssid and password for your wifi router<br />
+// Also replace the ip address of your local emoncms server<br />
+// and if necessary the port number you want to use.<br />
+// You can also set the node id , it&#39;s set to 15 in this example</p>
+<p>// you may need to use &#39;sudo ufw allow 20100/tcp&#39; to allow the packets through the firewall</p>
+<p>// Tested sending to a PiB with Jessie Lite and emoncms 9.3 and the original emonhub installed through the Raspberry Pi<br />
+// installation instructions at <a href="https://github.com/emoncms/emoncms/tree/master/docs/RaspberryPi" title="https://github.com/emoncms/emoncms/tree/master/docs/RaspberryPi">https://github.com/emoncms/emoncms/tree/master/docs/RaspberryPi</a></p>
+<p>// &nbsp; &nbsp; &nbsp;/etc/emonhub/emonhub.conf &nbsp; needs the following section</p>
+<p>/* &nbsp;<br />
+# This interfacer manages sockets<br />
+[[Socket]]<br />
+&nbsp; &nbsp;Type = EmonHubSocketInterfacer<br />
+&nbsp; &nbsp; [[[init_settings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; port_nb = 20100<br />
+&nbsp; &nbsp; [[[runtimesettings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; pubchannels = emonCMS, emonCMSlocal</p>
+<p>In my&nbsp;case emonCMS refers to the .org copy and emonCMSlocal refers to the local emoncms.&nbsp;<br />
+Change these names to match what you have called your reporters.&nbsp;<br />
+*/</p>
+<p>I&#39;m sure the code could be improved but it works for me (it&#39;s a cut down version of the full code I&#39;m using to manage my boiler and heat bank on an esp03)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38185"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 12/01/2016 - 13:42.</div>
+    <div class="content">
+     <p>yes documentation is even&nbsp;thinner than usual on this (socketinterfacers) as they never really took off, they currently only tend to only get used in custom scenario&#39;s and each user has thier own way of doing things and specific settings or code.</p>
+<p>I will try and write something up but finding the time is not easy, I really must get emonhub&nbsp;v2.0 off the ground too.</p>
+<p>I will at least get a few notes together with a range of links, the other trouble being the various past versions and settings may not all apply now, for example Simon yes the pubsub channels are only required on emonPi (as you&#39;ve discovered) .</p>
+<p>A note on the channels (not specific to socketinterfacers though) if the emonpi variant has the same intended operation as the experimental branch it&#39;s based on then you should only need the one &quot;emoncms&quot; channel and both your local and remote emoncms&#39;s&nbsp;could subscribe to that one channel, this means you do not need to list every target in every interfacer. The only time you would &quot;need&quot; to do it the way you have is if say, you had 5 input interfacers and only 4 of those went to one emoncms and 5 to the other for example.</p>
+<p>The &quot;experimental&quot; branch also has default channel settings for each interfacer so only the more exotic set-ups and braver users had to tackle setting the channels, meaning the settings will not even be visible on a totally default setup.</p>
+<p>Again I need to do some investigating into what did get carried over to the emonpi variant as the &quot;experimental&quot;&nbsp;socket interfacer has provision to use an apikey&nbsp;for use outside the LAN and also can accept a supplied timestamp in the payload rather than apply one on arrival, this last feature is very useful if trying to post a list of data, a&nbsp;script can loop through back-up data or downloaded data etc.</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38188"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/937.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/937.html" title="View user profile.">Bramco</a> on Tue, 12/01/2016 - 14:05.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>I actually left the pubchannels in but it doesn&#39;t&nbsp;seem to affect anything which is good. I&#39;m pretty sure the data gets to both the .org version and my local version.</p>
+<p>I&#39;m not sure I&#39;m even going to use this as I already have some code in my full version of the esp s/w for using the http interface.</p>
+<p>As for whether folks would use this from outside the network I&#39;m not sure, I wouldn&#39;t as the esp controller is visible from outside and I can see the emoncms data from the .org version which is a duplicate.</p>
+<p>I guess for V 2.0 what you&#39;d need to do would be to collect requirements from the forum. I wonder if you asked the question whether you needed both the socket interface or the http interface then they would say only one is needed. But then it would have to be http into emonhub not into emoncms.</p>
+<p>One thought on the documentation, it might&nbsp;be a good idea to start with to add to the emonhub/emonhub space on github&nbsp;a note about the history and different versions, this would at least clear up any confusion. Took me a while to realise that the emonPi version was different, even though I&#39;d probably read the posts during the development.&nbsp;</p>
+<p>Anyway, hope the file I posted might help other folks get the answer more quickly. It was a good exercise for me to work out how things worked.</p>
+<p>Simon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38190"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 12/01/2016 - 14:28.</div>
+    <div class="content">
+     <p>Ahh yes, I have just come back to say about the channels as I have just posted on your other thread and the penny dropped you are using v1.2 emonhub.</p>
+<p>The big advantage of using a socket interfacer&nbsp;to post to emonhub locally and then emonhub post to emoncms&nbsp;(local or remote) is each of the devices only needs configuring to find emonhub&nbsp;and then you can post to as many places as you like and change it freely without having to upload a new sketch. Plus if using v1.2 and a remote instance of emoncms the data is buffered in emonhub&nbsp;where as directly send data will be lost if there is a server or network issue beyond the lan.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38192"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/937.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Use Socket Interfacer on EmonPi</h3>
+
+    <div class="submitted">Submitted by <a href="../user/937.html" title="View user profile.">Bramco</a> on Tue, 12/01/2016 - 15:05.</div>
+    <div class="content">
+     <p>Agree about moving everything through emonhub, it certainly makes things easier than replicating the posts for every system you want the data to reach as well as the buffering.</p>
+<p>Simon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11839"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-pmR4ZRImXIiAk2aPHj73ICN4j_Fhi_iCoe-vWZPbgbI" value="form-pmR4ZRImXIiAk2aPHj73ICN4j_Fhi_iCoe-vWZPbgbI"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11839 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:12:05 GMT -->
+</html>

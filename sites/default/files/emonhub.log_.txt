@@ -1,0 +1,96 @@
+#### EXAMPLE LOGFILE WITH COMMENTS
+# Any line starting with a hash(#) has been added to an actual logfile
+#
+# 1) First 3 lines are always present. these 2 lines tell you version info and confirm emonhub is starting,
+#
+2014-08-17 09:42:12,975 INFO EmonHub Pre-Release Development Version (rc1.1)
+2014-08-17 09:42:12,978 INFO Opening hub...
+#
+# 2) The 3rd line confirms which loglevel is set, the default is WARNING, this gets overridden by emonhub.conf "loglevel ="
+#    If "WARNING" is set very little is logged, as you can see in the line below this log was created with the level "DEBUG"
+#
+2014-08-17 09:42:12,981 INFO Logging level set to DEBUG
+#
+# 3) All the reporters are created first, this example is reporting to the default "emoncms.org" so url isn't shown
+#    If using any other url in emonhub.conf eg "url  = http://localhost/emoncms that will be confirmed here" 
+#
+2014-08-17 09:42:12,983 INFO Creating EmonHubEmoncmsReporter 'emonCMS'
+2014-08-17 09:42:12,988 INFO Set up reporter 'emonCMS' (buffer: memory | size: 1000)
+#
+# 4) Then the interfacers are created one at a time, this example is an RFM2Pi any set up issues will also be logged.
+#
+2014-08-17 09:42:12,993 INFO Creating EmonHubJeeInterfacer 'RFM2Pi'
+2014-08-17 09:42:12,997 DEBUG Opening serial port: /dev/ttyAMA0 @ 57600 bits/s
+2014-08-17 09:42:15,015 DEBUG Setting RFM2Pi frequency: 433 (4b)
+2014-08-17 09:42:16,019 DEBUG Setting RFM2Pi group: 210 (210g)
+2014-08-17 09:42:17,023 DEBUG Setting RFM2Pi baseid: 15 (15i)
+#
+# 5) This part is a bit crowded because emonhub is sending the freq/group/base id commands and the rfm2pi is repeating them
+#    confirming them and passing recieved packets, then emonhub starts processing frames and forwarding the data
+#
+2014-08-17 09:42:18,043 DEBUG 1 NEW FRAME : 1408268538.04 > 4b
+2014-08-17 09:42:18,046 WARNING 1 Discard RX frame 'information' : ['>', '4b']
+2014-08-17 09:42:18,255 DEBUG 2 NEW FRAME : 1408268538.26  O i15 g210 @ 433 MHz q1
+2014-08-17 09:42:18,259 WARNING 2 Discarded RX frame 'non-numerical content' : ['O', 'i15', 'g210', '@', '433', 'MHz', 'q1']
+2014-08-17 09:42:18,471 DEBUG 3 NEW FRAME : 1408268538.47 OK 10 76 95 162 245 13 12 3 0 214 6 (-55)
+2014-08-17 09:42:18,477 DEBUG 3 Timestamp : 1408268538.47
+2014-08-17 09:42:18,480 DEBUG 3      Node : 10
+2014-08-17 09:42:18,483 DEBUG 3    Values : [24396, -2654, 3085, 3, 1750]
+2014-08-17 09:42:18,486 DEBUG 3      RSSI : -55
+2014-08-17 09:42:18,523 DEBUG 3 Append to 'emonCMS' buffer => time: 1408268538.47, data: [10, 24396, -2654, 3085, 3, 1750, -55], ref: 3
+2014-08-17 09:42:18,627 INFO Sending: http://emoncms.org/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&data=[[1408268538.47,10,24396,-2654,3085,3,1750,-55]]&sentat=1408268538
+2014-08-17 09:42:18,692 DEBUG 4 NEW FRAME : 1408268538.69 > 210g
+2014-08-17 09:42:18,696 WARNING 4 Discard RX frame 'information' : ['>', '210g']
+2014-08-17 09:42:18,905 DEBUG 5 NEW FRAME : 1408268538.91  O i15 g210 @ 433 MHz q1
+2014-08-17 09:42:18,909 WARNING 5 Discarded RX frame 'non-numerical content' : ['O', 'i15', 'g210', '@', '433', 'MHz', 'q1']
+2014-08-17 09:42:19,126 DEBUG 6 NEW FRAME : 1408268539.13 > 15i
+2014-08-17 09:42:19,129 WARNING 6 Discard RX frame 'information' : ['>', '15i']
+2014-08-17 09:42:19,339 DEBUG 7 NEW FRAME : 1408268539.34  O i15 g210 @ 433 MHz q1
+2014-08-17 09:42:19,342 WARNING 7 Discarded RX frame 'non-numerical content' : ['O', 'i15', 'g210', '@', '433', 'MHz', 'q1']
+2014-08-17 09:42:20,004 DEBUG Receipt acknowledged with 'ok' from http://emoncms.org
+#
+# 6) Once it settles it is much clearer what is happening this is one frames complete journey
+#
+2014-08-17 09:42:20,770 DEBUG 8 NEW FRAME : 1408268540.77 OK 10 65 95 168 245 9 12 3 0 214 6 (-56)
+2014-08-17 09:42:20,776 DEBUG 8 Timestamp : 1408268540.77
+2014-08-17 09:42:20,779 DEBUG 8      Node : 10
+2014-08-17 09:42:20,782 DEBUG 8    Values : [24385, -2648, 3081, 3, 1750]
+2014-08-17 09:42:20,786 DEBUG 8      RSSI : -56
+2014-08-17 09:42:20,811 DEBUG 8 Append to 'emonCMS' buffer => time: 1408268540.77, data: [10, 24385, -2648, 3081, 3, 1750, -56], ref: 8
+2014-08-17 09:42:20,915 INFO Sending: http://emoncms.org/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&data=[[1408268540.77,10,24385,-2648,3081,3,1750,-56]]&sentat=1408268540
+2014-08-17 09:42:21,481 DEBUG Receipt acknowledged with 'ok' from http://emoncms.org
+#
+# AND SO ON !!!
+#
+2014-08-17 09:42:25,676 DEBUG 9 NEW FRAME : 1408268545.68 OK 10 43 95 42 247 145 10 3 0 214 6 (-54)
+2014-08-17 09:42:25,682 DEBUG 9 Timestamp : 1408268545.68
+2014-08-17 09:42:25,685 DEBUG 9      Node : 10
+2014-08-17 09:42:25,688 DEBUG 9    Values : [24363, -2262, 2705, 3, 1750]
+2014-08-17 09:42:25,691 DEBUG 9      RSSI : -54
+2014-08-17 09:42:25,701 DEBUG 9 Append to 'emonCMS' buffer => time: 1408268545.68, data: [10, 24363, -2262, 2705, 3, 1750, -54], ref: 9
+2014-08-17 09:42:25,805 INFO Sending: http://emoncms.org/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&data=[[1408268545.68,10,24363,-2262,2705,3,1750,-54]]&sentat=1408268545
+2014-08-17 09:42:25,948 DEBUG Receipt acknowledged with 'ok' from http://emoncms.org
+2014-08-17 09:42:30,799 DEBUG 10 NEW FRAME : 1408268550.8 OK 10 47 95 80 248 118 9 3 0 214 6 (-58)
+2014-08-17 09:42:30,804 DEBUG 10 Timestamp : 1408268550.8
+2014-08-17 09:42:30,807 DEBUG 10      Node : 10
+2014-08-17 09:42:30,811 DEBUG 10    Values : [24367, -1968, 2422, 3, 1750]
+2014-08-17 09:42:30,814 DEBUG 10      RSSI : -58
+2014-08-17 09:42:30,871 DEBUG 10 Append to 'emonCMS' buffer => time: 1408268550.8, data: [10, 24367, -1968, 2422, 3, 1750, -58], ref: 10
+2014-08-17 09:42:30,975 INFO Sending: http://emoncms.org/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&data=[[1408268550.8,10,24367,-1968,2422,3,1750,-58]]&sentat=1408268550
+2014-08-17 09:42:31,097 DEBUG Receipt acknowledged with 'ok' from http://emoncms.org
+2014-08-17 09:42:35,705 DEBUG 11 NEW FRAME : 1408268555.7 OK 10 48 95 201 246 243 10 3 0 214 6 (-55)
+2014-08-17 09:42:35,710 DEBUG 11 Timestamp : 1408268555.7
+2014-08-17 09:42:35,713 DEBUG 11      Node : 10
+2014-08-17 09:42:35,717 DEBUG 11    Values : [24368, -2359, 2803, 3, 1750]
+2014-08-17 09:42:35,720 DEBUG 11      RSSI : -55
+2014-08-17 09:42:35,819 DEBUG 11 Append to 'emonCMS' buffer => time: 1408268555.7, data: [10, 24368, -2359, 2803, 3, 1750, -55], ref: 11
+2014-08-17 09:42:35,923 INFO Sending: http://emoncms.org/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&data=[[1408268555.7,10,24368,-2359,2803,3,1750,-55]]&sentat=1408268555
+2014-08-17 09:42:36,385 DEBUG Receipt acknowledged with 'ok' from http://emoncms.org
+2014-08-17 09:42:40,814 DEBUG 12 NEW FRAME : 1408268560.81 OK 10 28 95 204 246 236 10 3 0 214 6 (-57)
+2014-08-17 09:42:40,819 DEBUG 12 Timestamp : 1408268560.81
+2014-08-17 09:42:40,822 DEBUG 12      Node : 10
+2014-08-17 09:42:40,826 DEBUG 12    Values : [24348, -2356, 2796, 3, 1750]
+2014-08-17 09:42:40,829 DEBUG 12      RSSI : -57
+2014-08-17 09:42:40,907 DEBUG 12 Append to 'emonCMS' buffer => time: 1408268560.81, data: [10, 24348, -2356, 2796, 3, 1750, -57], ref: 12
+2014-08-17 09:42:41,011 INFO Sending: http://emoncms.org/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&data=[[1408268560.81,10,24348,-2356,2796,3,1750,-57]]&sentat=1408268561
+2014-08-17 09:42:41,393 DEBUG Receipt acknowledged with 'ok' from http://emoncms.org

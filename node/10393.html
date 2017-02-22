@@ -1,0 +1,599 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10393 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:32:05 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Help! please - Arduino, two PV panels | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Help! please - Arduino, two PV panels</h3>
+        <span class="submitted">Submitted by <a href="../user/7847.html" title="View user profile.">phamilton</a> on Thu, 26/03/2015 - 23:53</span>
+        <div class="content"><p>I was about to trash all my work and buy&nbsp;a commercial Energy Monitor system but decided to post this first in the hopes someone can come to my help!</p>
+<p>Before I go on, I would like to thank ALL of the participants for this project! Its been an awesome experience!!</p>
+<p><u>Ok, the situation:</u></p>
+<p>- I have two small PV panels each connecting to separate&nbsp;600W&nbsp;grid tie inverters. Both&nbsp;connected to same outlet</p>
+<p>- Panels rated abt 300 W and 200W respectively</p>
+<p>- I built an Arduino&nbsp;Monitor as per:&nbsp;http://openenergymonitor.org/emon/buildingblocks/how-to-build-an-arduino-energy-monitor</p>
+<p>​- I initially used only ONE CT in order to understand the&nbsp;code, output etc etc. I used this CT:&nbsp;http://www.seeedstudio.com/depot/Noninvasive-AC-Current-Sensor-100A-max-p-547.html &nbsp; &nbsp;</p>
+<p>- For voltage i used:&nbsp;http://openenergymonitor.org/emon/buildingblocks/measuring-voltage-with-an-acac-power-adapter</p>
+<p>- After many hours of tinkering I found the Arduino Power source was affecting my results&nbsp;and found this adapter/charger to work the best:&nbsp;HP F1290A AC/DC Adapter Power Supply 5V / 2.5A&nbsp;</p>
+<p>- Our official voltage is 110. It&nbsp;oscillates&nbsp;between 115 and 130 averaging at about 120</p>
+<p>- I used the suggested calibration procedure in:&nbsp;http://openenergymonitor.org/emon/buildingblocks/calibration</p>
+<p>- Although I used a kettle to adjust the PF as close to 1 as possible, when then connecting to my PV i found I had to re-adjust the constants as follows so that the Arduino&nbsp;readings and KillAwatt reading were close:<br />
+&nbsp; ct1.current(A0, 60.6); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;// for Current: input pin, calibration.... &nbsp; 111.1 or 90.9 or 60.6&nbsp;<br />
+&nbsp; ct1.voltage(A3, 110.0, -4.5); &nbsp; &nbsp;// Voltage: input pin, calibration, phase_shift<br />
+&nbsp; ct1.calcVI(100,2000);&nbsp;</p>
+<p>- I am using an Original Arduino UNO R3 ( I also used a clone with same results...)</p>
+<p>&nbsp;</p>
+<p><u>Ok, now for the problems, questions and doubts!!</u></p>
+<p><em><strong>Q&nbsp;-</strong></em> The documentation states &quot;The phase calibration coefficient should not normally go outside the range 0.0 &ndash; 2.0&quot; &nbsp;I found that -4.5 provided the closest results comparing my arduino&nbsp;power monitor and my KillAWatt (KAW) while connected to the PV inverter. Why is this negative number working? Why is it negative?&nbsp;I left the system to operate for several days and the numbers of both Arduino and KAW were acceptably close...</p>
+<p><em><strong>Q -</strong></em> When I then added a SECOND CT&nbsp;connected to the second Inverter,&nbsp;numbers went ALL OVER THE PLACE!! &nbsp;The second CT&nbsp;voltage&nbsp;and current calibrations are just as crazy and needless to say, the readings are mostly garbage! I am&nbsp;unable to get the KAW and Arduino to come consistently close. They appear to be close for a few minutes and then they go nuts - amps and power factor numbers go all over the place!!</p>
+<p>&nbsp; ct1.current(A0, 60.6); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// for Current: input pin, calibration.... &nbsp; 111.1 or 90.9 or 60.6&nbsp;<br />
+&nbsp; ct1.voltage(A3, 110.0, -4.5); &nbsp; // Voltage: input pin, calibration, phase_shift<br />
+&nbsp; ct1.calcVI(100,2000); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Calculate all, &nbsp;No.of half wavelengths (crossings), time-out<br />
+&nbsp;&nbsp;<br />
+&nbsp; ct2.current(A1, 0.59); &nbsp;<br />
+&nbsp; ct2.voltage(A3, 109.5, -200.5);<br />
+&nbsp; ct2.calcVI(100,2000);</p>
+<p>&nbsp; The numbers for CT2 above are the closest numbers I have been able to get so that the KAW and Arduino&nbsp;more or less match up...</p>
+<p>What am I doing wrong? &nbsp;What am I not getting? Why am I unable to get the second CT to work as well as when i used only one?</p>
+<p><em><strong>Q -</strong></em> Why is the Arduino power source soo crucial making results between the KAW and Arduino vary so much? I tried using various power sources (my computer USB port, an&nbsp;iPhone charger cube, a computer 12V charger) and all gave me different results. How come? The iPhone charger was the worst...&nbsp;</p>
+<p><em><strong>Q -</strong></em>&nbsp;Would a battery provide the best matching results? I have not tried a battery yet...&nbsp;</p>
+<p><em><strong>Q - </strong></em>Why did I find myself having to re-adjust the voltage and current&nbsp;coefficients AFTER having already adjusted them with a resistive (a Kettle) load?</p>
+<p><em><strong>Last minute Doubt -</strong></em>&nbsp;Could the Arduino 5v power source be to low messing things up when I add a second CT?</p>
+<p>If you have read this far, I appreciate it!! If you can help me shed some light on my questions, I appreciate it even more!!</p>
+<p>TIA</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10451.html" class="topic-previous" title="Go to previous forum topic">‹ What am I misunderstanding about the CT clamps and burden resistors</a>
+              <a href="10438.html" class="topic-next" title="Go to next forum topic">emonTH slow adjusting humidity ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-29058"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Fri, 27/03/2015 - 01:06.</div>
+    <div class="content">
+     <p>I&#39;ll have a crack at some of your questions, and leave others to those more qualified....</p>
+<p><em>Q - Why is the Arduino power source soo crucial&nbsp;</em></p>
+<p>The AVR processor needs a reference voltage by which it can measure all analog inputs presented to it. &nbsp;It&#39;s never actually telling you what voltage it sees at an analog input, but rather it&#39;s telling you what fraction of the reference voltage it&#39;s seeing. So if you want that reading to be consistent from sample to sample, it&#39;s vital that the reference voltage isn&#39;t moving around. &nbsp;Most designs discussed in these parts use Vcc as that reference, so you need a very clean Vcc for good results. &nbsp;There&#39;s a thread about that here: &nbsp;<a href="10111.html">http://openenergymonitor.org/emon/node/10111</a></p>
+<p>&nbsp;</p>
+<p><em>&nbsp;Why am I unable to get the second CT to work as well as when i used only one?</em></p>
+<p>It&#39;s possible you&#39;re dealing with more than one problem. &nbsp; &nbsp;Did you build a separate 2.5V mid-point for each CT channel? &nbsp; What&#39;s your circuit look like?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29059"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7847.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="phamilton&#039;s picture" title="phamilton&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7847.html" title="View user profile.">phamilton</a> on Fri, 27/03/2015 - 10:58.</div>
+    <div class="content">
+     <p>Dbc,</p>
+<p>Tks for the power source answer! &nbsp;I will read, digest and understand!!</p>
+<p>Yes, i built two completely different&nbsp;circuits for each CT. Same as: &nbsp;http://openenergymonitor.org/emon/buildingblocks/how-to-build-an-arduino-energy-monitor&nbsp;&nbsp; &nbsp;But with TWO CT circuits...</p>
+<p>Hope it clarifies things</p>
+<p>Tks again</p>
+<p>P</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29060"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 27/03/2015 - 01:26.</div>
+    <div class="content">
+     <p>I <i>have</i> read to the end!</p>
+<p>Q1. PHASECAL (the phase calibration constant) interpolates or extrapolates between voltage samples in an attempt to correct phase shifts in the transformers and the delay between reading voltage and current. You certainly should not need to shift the voltage by 4&frac12; samples to line up with the current. I don't know what your ac voltage sensing transformer is, but that could be the culprit. There's a Building Blocks article about how the algorithm works.<br />
+You could try the shop ac adapter (we know that is OK), or you could try using a 240 / 18 V transformer. Running it at half-volts should give you a better performance in the phase error department, but it's not guaranteed.<br />
+Also, the CT is struggling. With only 300 W &amp; 200 W (albeit at 120 V), it's on the bottom limit of its range. You can improve that very easily by using multiple turns for the primary winding (which will improve the phase error) and by increasing the value of the burden resistor. If you have a 10-turn primary, and say 100 &Omega; burden, those will give you a max current of 3.3 A approx. You'll need a current calibration constant of about 2.0.</p>
+<p>Q2. I don't know. It certainly should not do that. Is CT2 another instance of EnergyMonitor - it looks as if it is. Does each CT have its own bias network, so that the two aren't interacting? I think you've found the solution when you ask about the power supply (and the rest of your questions don't conflict with this): my guess is that none of your power supplies are up to the job, and a good part of what you are "measuring" is actually rubbish on the power supply, because that is used as the voltage reference against which the inputs are measured. So if that has noise on it or it fluctuates, your measurements are wrong. Can you try a big (100 - 470 &mu;F or so) electrolytic capacitor across your 5 V supply?</p>
+<p>How have you assembled the components? Because you have quite a low output from your CTs (which will improve when you change the burden resistor), the physical layout could be quite important. In general terms, the shorter the leads between the front end and the Arduino, the better.</p>
+<p>Q4. If I'm right about the power supplies, a battery should give you sensible and stable results.</p>
+<p>Q5. If you've calibrated properly, you should definitely not need to change the calibration again. But as I wrote above, the supply voltage can affect calibration. If you are using emonLib, that can compensate for slow voltage changes (i.e. a falling battery voltage) but it can't cope with power supply nasties.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29061"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Fri, 27/03/2015 - 01:35.</div>
+    <div class="content">
+     <p>One other thing I just noticed (if I&#39;m reading your posting correctly), it seems like you&#39;re trying to measure quite low power values.... &nbsp;200W max from one, and 300W max from the other? &nbsp; &nbsp; Depending on what you&#39;ve done with burden resistors etc. your 100A CT might be really struggling right down there at the low end. &nbsp;It&#39;s possible all your measurements are drowning in the noise because they&#39;re so small.</p>
+<p>Also, if you calibrated your phase error at a relatively high power value (2kW say?), &nbsp;then it&#39;s likely not suitable down at the low end. &nbsp;Most CT&#39;s phase errors go pretty crazy as the current gets really low. &nbsp;There are some good graphs of that here: &nbsp;<a href="https://learn.openenergymonitor.org/?redirect=report-yhdc-sct-013-000-current-transformer">http://openenergymonitor.org/emon/buildingblocks/report-yhdc-sct-013-000-current-transformer</a>. &nbsp;I&#39;m not familiar enough with emonlib to comment on your PHASECAL values, but there are plenty here who are.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29069"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7847.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="phamilton&#039;s picture" title="phamilton&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7847.html" title="View user profile.">phamilton</a> on Fri, 27/03/2015 - 11:14.</div>
+    <div class="content">
+     <p>Hi Robert,</p>
+<p>Thanks for your input, you have provided several things to work on!!</p>
+<p>For the next few days I am going to work on several fornts:</p>
+<p>- Power source: I will try various others including a 5000Mah Lipo&nbsp;Battery which should give me stable and ample supply! If push comes to shove, I could write some code to ONLY charge the pack during the night when I do not need it... If fact, I am also&nbsp;thinking of lowering the frequency at which I write to emons at night ... No point in filling disk space with zeroes!!</p>
+<p>- Multiple turns on primary. Sounds logical!!</p>
+<p>- Consider changing CT clips&nbsp;</p>
+<p>As dBC said, I could have several problems on my hands - which I am certain I do!!</p>
+<p>Thanks again folks!!</p>
+<p>P</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29096"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sat, 28/03/2015 - 03:32.</div>
+    <div class="content">
+     <p>The <strong>RawSamplesTool_4ss</strong> tool on my <a href="1757.html">Summary Page</a> will show your voltage and current values as a graph, something like this:<img alt="" src="../sites/default/files/debug_1k5W.jpg" style="width: 1280px; height: 768px;" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29111"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7847.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="phamilton&#039;s picture" title="phamilton&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7847.html" title="View user profile.">phamilton</a> on Sat, 28/03/2015 - 13:57.</div>
+    <div class="content">
+     <p>Nice!! &nbsp;Thanks</p>
+<p>I will give it a try... I have decided to redo ALL my circuitry!! &nbsp;I have a feeling something is not right on that front... I am going to use a LIPO pack... I will keep you all posted!!</p>
+<p>&nbsp;</p>
+<p>Tks</p>
+<p>P</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29246"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7847.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="phamilton&#039;s picture" title="phamilton&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7847.html" title="View user profile.">phamilton</a> on Tue, 31/03/2015 - 23:37.</div>
+    <div class="content">
+     <p>Hi&nbsp;</p>
+<p>Ok, an update!</p>
+<p>I decided to scrap my circuit and tossed everything out. I rebuilt and results have been much&nbsp;more&nbsp;consistent!! I also simplified things by using only one CT. &nbsp;I also increased the number of windings on the CT form one pass to three which has given me a higher current resolution.</p>
+<p>I ran calypso_rae&#39;s&nbsp;RawSamplesTool_4ss but, to be honest could not quite interpret the results (!!) I am working on it though!!</p>
+<p>I changed my 5v&nbsp;Arduino&nbsp;power source to a 12v power source which meant having to re-adjust the calibration numbers.&nbsp;My current and voltages are pretty much spot on and I am happy for that!! AT least my apparent power values are on!! My phase shift though is now at -12... Odd number...</p>
+<p>I am&nbsp;still however,&nbsp;unable to ge&nbsp;the&nbsp;Power Factor to&nbsp;match&nbsp;up to my&nbsp;KillAWatt&nbsp;- which I have assumed to be correct!. After some thought I came to the&nbsp;conclusion&nbsp;that my PF factor is not linear.&nbsp;&nbsp;If I adjust it to one part of the range (say PFs close to 1) I then find its off at the mid range (close to 0.5). Here is a plot of the two PF&rsquo;s:&nbsp;<a href="https://www.flickr.com/photos/phamiltonsmith/16369951034/">https://www.flickr.com/photos/phamiltonsmith/16369951034/</a></p>
+<p>Indeed the PF is NOT linear as you can see. Although there is some noise, the numbers are pretty much consistent. Therefore, to compensate for these &quot;errors&quot;&nbsp;I am going to use 3 &nbsp;map functions to draw 3 straight lines through my plot. I suspect this is not the way to adjust the PF but It should work!!</p>
+<p>
+This is my code, I will test it tomorrow:<br />
+&nbsp; &nbsp; &nbsp;if (ct1.powerFactor &gt;= 0.00 &amp;&amp; ct1.powerFactor &lt;= 0.70) {<br />
+&nbsp; &nbsp; &nbsp; &nbsp; powerFactor = map (ct1.powerFactor, 0.00, 0.70, 0.00, 0.40);&nbsp;<br />
+&nbsp; &nbsp; &nbsp;} else if (ct1.powerFactor &gt; 0.70 &amp;&amp; ct1.powerFactor &lt;= 0.85) {<br />
+&nbsp; &nbsp; &nbsp; &nbsp; powerFactor = map (ct1.powerFactor, 0.70, 0.85, 0.40, 0.70);<br />
+&nbsp; &nbsp; &nbsp;} else if (ct1.powerFactor &gt; 0.85 ) {<br />
+&nbsp; &nbsp; &nbsp; &nbsp; powerFactor = map (ct1.powerFactor, 0.85, 1.00, 0.70, 1.00);<br />
+&nbsp; &nbsp; &nbsp;}<br />
+&nbsp; &nbsp; &nbsp;RealPower = apparentPower * powerFactor;<br />
+&nbsp;<br />
+Ill keep you posted<br />
+P</p>
+<p><em>Fixed link - BT</em></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29303"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 01/04/2015 - 23:45.</div>
+    <div class="content">
+     <p>Your power factor changing is almost certainly due to the phase errors in your CT and possibly your ac adapter changing with current or voltage respectively. What currents are you using - you've mentioned 3 primary turns so it can't be much, and still the 100 A CT? If you look at the report in Building Blocks, you can see just how much the phase error changes at low currents.</p>
+<p>I'm a bit puzzled by your calculation of real power, because power factor is obtained in emonLib with<br />
+powerFactor=realPower / apparentPower</p>
+<p>PHASECAL should not be -12, that means that you're extrapolating the voltage by 12 samples. Are you actually on the same phase with your voltage and current? </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29306"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 02/04/2015 - 03:40.</div>
+    <div class="content">
+     <p>I&#39;m curious how you were able to dial up such a wide range of power factors for your graph? &nbsp; If you can reliably choose a steady state power factor of your load, then a whole world of calibration options open up to you. Calibrating at a power factor of 1 is not really optimal but is chosen here because everyone has some equipment that has a power factor of 1.</p>
+<p>I calibrate my meter&nbsp;at a power factor of 0.5, but that requires some fairly specialised kit (a power calibrator basically).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29324"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 02/04/2015 - 09:11.</div>
+    <div class="content">
+     <p>I think there's a serious problem with the installation, and that calibration is pointless until that's addressed. The phase/timing calibration attempts to line up the voltage wave with the current by interpolating or extrapolating between samples. With PHASECAL = -12, that's 13 samples away, since normally (at 50 Hz) it's +1.7. From Paul's email address, I'm guessing he's on a 60 Hz system (though we don't know) and if so, he should be seeing around 44 samples per cycle - so more than &frac14; cycle phase error? ! ! ! It's not credible, so there's something else seriously wrong. </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29327"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Thu, 02/04/2015 - 10:12.</div>
+    <div class="content">
+     <p><em>I ran calypso_rae&#39;s&nbsp;RawSamplesTool_4ss but, to be honest could not quite interpret the results (!!) I am working on it though!!</em></p>
+<p>If you could post some results using this tool, that may help.&nbsp; With a resistive load, the waveforms for voltage and current should be closely aligned.&nbsp; After waiting for a few seconds, all of the ADC values during one or more complete mains cycles are recorded.&nbsp; It then sends this data to the Serial port in a simple graphical form (ASCII-art), and the raw values follow so that they can be imported into a spreadsheet for higher resolution viewing.&nbsp; The program then sits in a paused state from which another run can be initiated by typing &#39;g&#39; [cr] at the Serial terminal.</p>
+<p>This tool requires an AC signal to be present on the voltage sensor pin.&nbsp; When this signal is present, a countdown sequence will appear on the Serial Monitor&#39;s screen and the waveforms will then appear.&nbsp; Common reasons for this tool not behaving as intended would be:</p>
+<p>- Serial Monitor not open (the magnifying glass icon, top right of the IDE)</p>
+<p>- no AC signal at the voltage sensor port</p>
+<p>Hope this helps.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29348"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7847.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="phamilton&#039;s picture" title="phamilton&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7847.html" title="View user profile.">phamilton</a> on Thu, 02/04/2015 - 23:36.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>Here some results!! &nbsp;I tried several things:</p>
+<p>1- I modified Phase Checker so that it would write directly to an SD card. I input the variables via the Console end then disconnect the USB to let the sketch write to the SD card. This way I could eliminate any &quot;weirdness&quot; due to my computer pawer source affecting the library. If anyones is interested, I can post the code...</p>
+<p>2-I ran the sketch with my kettle on (it runs at about 12 amps at 120 V) several times and the following output is the closest it comes to a PF of 1!! &nbsp;I tried to get an appliance that was nice and high and avoid any noise due to the CT. I have 3 turns on the CT.</p>
+<p>3-Today i came up with a solution to my power Factor woes!! &nbsp;I will post the solution in a new comment</p>
+<p>********************</p>
+<p>real power = -19718.59 &nbsp;apparent power = 71862.99 &nbsp;power factor = -0.27<br />
+real power = -26170.99 &nbsp;apparent power = 69591.16 &nbsp;power factor = -0.38<br />
+real power = -26607.82 &nbsp;apparent power = 71589.94 &nbsp;power factor = -0.37<br />
+real power = -25652.22 &nbsp;apparent power = 71130.08 &nbsp;power factor = -0.36<br />
+real power = -26517.16 &nbsp;apparent power = 71405.23 &nbsp;power factor = -0.37<br />
+PHASECAL is now 1.10<br />
+real power = -25339.36 &nbsp;apparent power = 71372.80 &nbsp;power factor = -0.36<br />
+real power = -26020.74 &nbsp;apparent power = 71284.51 &nbsp;power factor = -0.37<br />
+real power = -25643.02 &nbsp;apparent power = 70771.17 &nbsp;power factor = -0.36<br />
+real power = -25615.32 &nbsp;apparent power = 71083.26 &nbsp;power factor = -0.36<br />
+real power = -25317.83 &nbsp;apparent power = 70535.66 &nbsp;power factor = -0.36<br />
+PHASECAL is now 1.20<br />
+real power = -25621.61 &nbsp;apparent power = 71288.64 &nbsp;power factor = -0.36<br />
+real power = -25497.74 &nbsp;apparent power = 71709.15 &nbsp;power factor = -0.36<br />
+real power = -25877.58 &nbsp;apparent power = 71951.36 &nbsp;power factor = -0.36<br />
+real power = -25699.48 &nbsp;apparent power = 72209.24 &nbsp;power factor = -0.36<br />
+real power = -26465.37 &nbsp;apparent power = 72181.49 &nbsp;power factor = -0.37<br />
+PHASECAL is now 1.30<br />
+real power = -26235.88 &nbsp;apparent power = 73235.20 &nbsp;power factor = -0.36<br />
+real power = -25893.97 &nbsp;apparent power = 72742.39 &nbsp;power factor = -0.36<br />
+real power = -25640.45 &nbsp;apparent power = 73017.99 &nbsp;power factor = -0.35<br />
+real power = -25671.06 &nbsp;apparent power = 72853.11 &nbsp;power factor = -0.35<br />
+real power = -26280.29 &nbsp;apparent power = 72190.10 &nbsp;power factor = -0.36<br />
+PHASECAL is now 1.40<br />
+real power = -25571.52 &nbsp;apparent power = 73159.64 &nbsp;power factor = -0.35<br />
+real power = -26451.03 &nbsp;apparent power = 73858.22 &nbsp;power factor = -0.36<br />
+real power = -26387.02 &nbsp;apparent power = 74229.41 &nbsp;power factor = -0.36<br />
+real power = -26367.99 &nbsp;apparent power = 73799.57 &nbsp;power factor = -0.36<br />
+real power = -26270.02 &nbsp;apparent power = 73883.64 &nbsp;power factor = -0.36<br />
+PHASECAL is now 1.50<br />
+real power = -26152.03 &nbsp;apparent power = 74208.53 &nbsp;power factor = -0.35<br />
+real power = -26581.15 &nbsp;apparent power = 74692.33 &nbsp;power factor = -0.36<br />
+real power = -26474.50 &nbsp;apparent power = 74391.68 &nbsp;power factor = -0.36<br />
+real power = -26681.89 &nbsp;apparent power = 74557.44 &nbsp;power factor = -0.36<br />
+real power = -26415.73 &nbsp;apparent power = 74606.40 &nbsp;power factor = -0.35<br />
+PHASECAL is now 1.60<br />
+real power = -26720.69 &nbsp;apparent power = 75029.19 &nbsp;power factor = -0.36<br />
+real power = -26593.08 &nbsp;apparent power = 74923.46 &nbsp;power factor = -0.35<br />
+real power = -26694.42 &nbsp;apparent power = 75130.15 &nbsp;power factor = -0.36<br />
+real power = -26779.33 &nbsp;apparent power = 75183.03 &nbsp;power factor = -0.36<br />
+real power = -26692.42 &nbsp;apparent power = 75306.33 &nbsp;power factor = -0.35<br />
+PHASECAL is now 1.70<br />
+real power = -26663.52 &nbsp;apparent power = 76252.97 &nbsp;power factor = -0.35<br />
+real power = -26627.06 &nbsp;apparent power = 76558.71 &nbsp;power factor = -0.35<br />
+real power = -26860.55 &nbsp;apparent power = 76381.95 &nbsp;power factor = -0.35<br />
+real power = -26676.54 &nbsp;apparent power = 76582.61 &nbsp;power factor = -0.35<br />
+real power = -26812.77 &nbsp;apparent power = 76715.03 &nbsp;power factor = -0.35<br />
+PHASECAL is now 1.80<br />
+real power = -26773.96 &nbsp;apparent power = 77193.76 &nbsp;power factor = -0.35<br />
+real power = -26295.45 &nbsp;apparent power = 77952.10 &nbsp;power factor = -0.34<br />
+real power = -26538.10 &nbsp;apparent power = 77858.86 &nbsp;power factor = -0.34<br />
+real power = -26558.59 &nbsp;apparent power = 77817.26 &nbsp;power factor = -0.34<br />
+real power = -26430.39 &nbsp;apparent power = 77546.04 &nbsp;power factor = -0.34<br />
+PHASECAL is now 1.90<br />
+real power = -26650.26 &nbsp;apparent power = 78707.67 &nbsp;power factor = -0.34<br />
+real power = -26573.88 &nbsp;apparent power = 78871.94 &nbsp;power factor = -0.34<br />
+real power = -26565.33 &nbsp;apparent power = 79344.96 &nbsp;power factor = -0.33<br />
+real power = -26708.22 &nbsp;apparent power = 79284.46 &nbsp;power factor = -0.34<br />
+real power = -26516.57 &nbsp;apparent power = 78965.53 &nbsp;power factor = -0.34<br />
+PHASECAL is now 2.00<br />
+real power = -25945.51 &nbsp;apparent power = 80408.41 &nbsp;power factor = -0.32<br />
+real power = -26095.17 &nbsp;apparent power = 80074.72 &nbsp;power factor = -0.33<br />
+real power = -26165.21 &nbsp;apparent power = 80414.53 &nbsp;power factor = -0.33<br />
+real power = -26120.78 &nbsp;apparent power = 80226.88 &nbsp;power factor = -0.33<br />
+real power = -25998.16 &nbsp;apparent power = 80427.87 &nbsp;power factor = -0.32<br />
+End of run &nbsp;please restart to repeat</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29349"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7847.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="phamilton&#039;s picture" title="phamilton&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7847.html" title="View user profile.">phamilton</a> on Fri, 03/04/2015 - 00:01.</div>
+    <div class="content">
+     <p>Today, I spent practically all morning on a new solution to my Power Factor Woes!! And its working. I am sure there&#39;s probably a cleaner, more elegant solution but this oneis providing consistently accurate PF factors all across the range.</p>
+<p>As I mentioned before, my voltage readings are spot on as are my amps readings - no problems there! &nbsp;Before this fix, my PF factors were accurate only in a narrow range and thius my realPower readings were only accurate in that narrow range.</p>
+<p>I decided to do a new plot : I plotted my arduino&#39;s&nbsp;AMPERAGE (which is correct) Vs. my KillAWatt&#39;s&nbsp;power factor in the hopes of understanding what was going on. I got this:&nbsp; &nbsp;&nbsp;<a href="https://www.flickr.com/photos/phamiltonsmith/16828230479/">https://www.flickr.com/photos/phamiltonsmith/16828230479/</a></p>
+<p>The correlation is high as you can see with very little noise! (BTW the inputs after 6.5 Amps all the way to the end are only there to smooth out the curve at the end).&nbsp;</p>
+<p>I then ran a 6th order polynomial through the points and got the formula you can see in the plot. I punched that into my arduino sketch and ran it for the rest of the day comparing the NEW PF factor Vs my KAW PF factor. It ran flawlessly!! &nbsp;</p>
+<p>I am now calculating my PF from my Amps, a value I know to be correct!! I am only interested in the PF readings form .5 to 4.5 amps. Below 0.5 Its pointless to measure, so I set it to 0. Above 4.5 my PF is 0.97.</p>
+<p>So, as I said before, theres probably a better, nicer, cleaner solution but this one so far is working. I will run for a couple of days and update my comment!</p>
+<p>I will also run&nbsp;calypso_rae&#39;s&nbsp;RawSamplesTool_4ss tool and post the results</p>
+<p>Thanks again folks!!</p>
+<p>P</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29350"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7847.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="phamilton&#039;s picture" title="phamilton&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7847.html" title="View user profile.">phamilton</a> on Fri, 03/04/2015 - 00:04.</div>
+    <div class="content">
+     <p>Hi Robert!!</p>
+<p>Yes, I am at 60Hz&nbsp;!! &nbsp;Good guess form my email address!! &nbsp;LOL &nbsp;:)</p>
+<p>I know, there is something somewhere I am not getting! I will eventually!! &nbsp;Have a look at my last post since I think I have solved the issue by leaving my odd calibration factors alone and working on a &quot;correction factor&quot; of my own!!</p>
+<p>Tks</p>
+<p>P</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29361"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 03/04/2015 - 13:50.</div>
+    <div class="content">
+     <p>If you can physically do it, I'd still advocate a few more primary turns on your CT. It's designed for 100 A and any CT will be less accurate at both the bottom and the top end of the range - the top due to saturation and the bottom due to magnetising current and core losses. Your maximum current is only around 2.5 % of the CT's maximum (and the data sheet says it's linear &plusmn; 3% from 10% - 120% rated current, i.e. above 10 A up to 120 A). Have you looked in the report at how the phase error changes rapidly below 1 A?  All this ties in with what you're finding.</p>
+<p>What you really want to do is increase the number of primary turns that your CT has so that it sees 100 ampere-turns at the maximum true current that you need to measure. That way, the CT will be operating for most of the time on the flatter part of the phase error curve. </p>
+<p>If you're not happy in the end with the results, you might like to consider replacing the CT with one more suited to the duty.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29401"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7847.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="phamilton&#039;s picture" title="phamilton&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7847.html" title="View user profile.">phamilton</a> on Sat, 04/04/2015 - 22:50.</div>
+    <div class="content">
+     <p>I will give it a try Robert</p>
+<p>Tks</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29404"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sun, 05/04/2015 - 10:17.</div>
+    <div class="content">
+     <p>phamilton, is it possible that the grid-tie feature is not behaving as it should?&nbsp; If your generated voltage were out of phase with your grid supply, that could account for the strange readings.&nbsp;</p>
+<p>I have seen exactly this kind of behaviour for a generator that was not phase-locked.&nbsp; The solution in that case was to monitor apparent power using only the ADC values for current, rather than real power.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29409"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7847.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="phamilton&#039;s picture" title="phamilton&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7847.html" title="View user profile.">phamilton</a> on Sun, 05/04/2015 - 19:29.</div>
+    <div class="content">
+     <p>Wow, I&nbsp;had not thought&nbsp;of that!! &nbsp;Its always possible! &nbsp; How could i determine if that is the case? &nbsp;I suspect I would need a oscilloscope for this?</p>
+<p>I am currently waiting for parts to arrive for my second monitor... This one will monitor house mains... I should be able to compare the two monitors and see what gives. I figure if the one connected to the house behaves &quot;as it should&quot; then the only thing left are the grid inverters...</p>
+<p>Today has been the first full day I have run the PV comparing my Arduino monitor and the KAW. They are spot on! So, although there may be something weird going on with the inverters, at least they are consistently weird. My sixth order polynomial is holding up so far...!!&nbsp;I am going to leave the system untouched all week to see what gives.</p>
+<p>Thanks for the comments!</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29431"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Mon, 06/04/2015 - 13:49.</div>
+    <div class="content">
+     <p><em>Wow, I&nbsp;had not thought&nbsp;of that!! &nbsp;Its always possible! &nbsp; How could i determine if that is the case? &nbsp;I suspect I would need a oscilloscope for this?</em></p>
+<p>My RawSamplesTool should show whether&nbsp;your generated voltage is in phase with your grid supply.&nbsp; It&#39;s essentially acting as a simple oscilloscope.&nbsp; I didn&#39;t mention this possibility earlier because you mentioned in your original post that your inverters were &quot;grid-tied&quot;.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29473"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7847.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="phamilton&#039;s picture" title="phamilton&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help! please - Arduino, two PV panels</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7847.html" title="View user profile.">phamilton</a> on Wed, 08/04/2015 - 14:19.</div>
+    <div class="content">
+     <p>Robin</p>
+<p>I will test w yr&nbsp;RawSamplesTool this week end... Ill keep you posted</p>
+<p>Indeed, the Inverters are gid tied.</p>
+<p>P</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10393"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-vEbaZPC2n4Uq5GmJLaqgOnzHPcK6PBO94y7TA_3KN6I" value="form-vEbaZPC2n4Uq5GmJLaqgOnzHPcK6PBO94y7TA_3KN6I"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10393 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:32:05 GMT -->
+</html>

@@ -1,0 +1,791 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6069 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:03:27 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>3 Phase + Temp + Pulse | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">3 Phase + Temp + Pulse</h3>
+        <span class="submitted">Submitted by <a href="../user/7151.html" title="View user profile.">wjwnz</a> on Thu, 06/11/2014 - 06:10</span>
+        <div class="content"><p>Just in case anyone wants it, i did a copy and paste job to get pulse counter + temperature and 3 phase running at home.</p>
+<blockquote><p>/*<br />
+emonTx V3 CT1234 + 3-phase Voltage example</p>
+<p>An example sketch for the emontx module for<br />
+3-phase electricity monitoring, with 4 current transformers&nbsp;<br />
+and 1 only voltage transformer</p>
+<p>Part of the openenergymonitor.org project<br />
+Licence: GNU GPL V3</p>
+<p>Authors: Glyn Hudson, Trystan Lea<br />
+Builds upon JeeLabs RF12 library and Arduino<br />
+Extended for 3-phase operation: Robert Wall<br />
+V.1 &nbsp;7/11/2013 &nbsp; &nbsp;Derived from emonTx_CT123_3Phase_Voltage.ino&nbsp;</p>
+<p>emonTx V3 Shield documentation:http://openenergymonitor.org/emon/modules/emonTxV3<br />
+emonTx firmware code explanation: <a href="../modules/emontx/firmware.html" title="http://openenergymonitor.org/emon/modules/emontx/firmware">http://openenergymonitor.org/emon/modules/emontx/firmware</a><br />
+emonTx / emonTx Shield calibration instructions: <a href="https://learn.openenergymonitor.org/?redirect=calibration" title="http://openenergymonitor.org/emon/buildingblocks/calibration">http://openenergymonitor.org/emon/buildingblocks/calibration</a></p>
+<p>REQUIRES in [Arduino]/libraries<br />
+Arduino.h<br />
+WProgram.h<br />
+avr/wdt.h &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // the UNO bootloader&nbsp;<br />
+RFu_JeeLib.h &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Download RFu_JeeLib:https://github.com/openenergymonitor/RFu_jeelib<br />
+REQUIRES in project directory&nbsp;<br />
+emontx_lib.ino</p>
+<p>(does NOT require EmonLib)<br />
+=============================================================================================</p>
+<p>Extended to allow the voltage measurement of a single phase to be used to generate approximate indications of<br />
+power (real and apparent) and phase angle for the other two phases of a 3-phase installation.</p>
+<p>The measured voltage of one phase is delayed in an array and subsequently used in the calculations for the<br />
+remaining phases.<br />
+N.B. &quot;Phase shifted&quot; means a small adjustment to the voltage waveform to accommodate small ( &lt; 10 degrees) phase shifts<br />
+in the transformers etc. &quot;Delayed&quot; means a delay of the voltage samples by approx 1/3 or 2/3 cycle.<br />
+&nbsp;Without the 4th c.t. in use, this sketch records approx 24 sample sets per cycle at 50 Hz.</p>
+<p>POSSIBLE SOURCES OF ERROR<br />
+This method is an approximation. It assumes that the voltages of the three phases remain identical and the angles<br />
+between the voltage vectors remain accurately 120 degrees apart. The lower the fault level of the supply (i.e. the higher<br />
+the impedance), the greater the change in the true voltage will be as a result of load changes, and therefore the&nbsp;<br />
+inaccuracies that result from these approximations will be greater also.<br />
+If the mains frequency changes, this will appear as a change in real power and power factor for L2 and more so for L3.&nbsp;</p>
+<p>CALIBRATION<br />
+Adjust Vcal = 234.26 so that the correct voltage for L1 is displayed.<br />
+Adjust Ical1 = 119.0 so that the correct current for L1 is displayed.<br />
+Do the same for Ical2 &amp; Ical3.<br />
+Connect a pure resistive load (e.g. a heater) to L1 and adjust Phasecal1 to display a power factor of 1.00.<br />
+Do the same for L2 and L3. If it not possible to keep Phasecal within the range 0 - 2, it is permissible to<br />
+change &quot;#define PHASE2 8&quot; and/or &quot;#define PHASE3 18&quot;</p>
+<p>The fourth channel may be used, for example, for a PV input. This must be on Phase 1 (meaning the same phase as the CT&nbsp;<br />
+connected to Input 1).<br />
+Include the line &quot; #define CT4 &quot; if the fourth C.T. is to be used.</p>
+<p>*/<br />
+// #define DEBUGGING &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // enable this line to include debugging print statements<br />
+#define SERIALPRINT &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // include print statement for commissioning - comment this line to exclude<br />
+//#define CT4 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // uncomment this line if you are using the 4th c.t.<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // The timing values &quot;PHASE2&quot;, &quot;PHASE3&quot;, &quot;Phasecal2&quot; &amp; &quot;Phasecal3&quot; will be different&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // depending on whether CT 4 is used or not.<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>#if defined(ARDUINO) &amp;&amp; ARDUINO &gt;= 100<br />
+#include &quot;Arduino.h&quot;<br />
+#else<br />
+#include &quot;WProgram.h&quot;<br />
+#endif</p>
+<p>#define RF_freq RF12_433MHZ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Frequency of RF12B module can be&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp; &nbsp;RF12_433MHZ, RF12_868MHZ or RF12_915MHZ.&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp;You should use the one matching the module you have.<br />
+#define FILTERSETTLETIME 5000 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp;Time (ms) to allow the filters to settle before sending data</p>
+<p>#define PHASE2 8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // &nbsp;Number of samples delay for L2<br />
+#define PHASE3 18 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp;Number &nbsp;of samples delay for L3, also size of array<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp;These can be adjusted if the phase correction is not adequate<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp;Suggested starting values for 4 ct&#39;s:<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp; &nbsp;PHASE2 &nbsp;6<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp; &nbsp;PHASE3 15<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp; &nbsp;Phasecal2 = 0.57<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp; &nbsp;Phasecal3 = 0.97</p>
+<p>const int nodeID = 10; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // &nbsp;emonTx RFM12B node ID<br />
+const int networkGroup = 210; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp;emonTx RFM12B wireless network group<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp;- needs to be same as emonBase and emonGLCD needs to be same<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp; &nbsp;as emonBase and emonGLCD</p>
+<p>const int UNO = 1; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Set to 0 if you are not using the UNO bootloader&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// (i.e using Duemilanove) - All Atmega&#39;s shipped from<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// OpenEnergyMonitor come with Arduino Uno bootloader<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<br />
+#include &lt;avr/wdt.h&gt; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // the UNO bootloader&nbsp;</p>
+<p>#include &lt;RFu_JeeLib.h&gt; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Download JeeLib:https://github.com/openenergymonitor/RFu_jeelib<br />
+ISR(WDT_vect) { Sleepy::watchdogEvent(); }</p>
+<p>#include &lt;OneWire.h&gt; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//http://www.pjrc.com/teensy/td_libs_OneWire.html<br />
+#include &lt;DallasTemperature.h&gt; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//http://download.milesburton.com/Arduino/MaximTemperature/DallasTemperature_LATEST.zip</p>
+<p>
+//Set Voltage and current input pins<br />
+int inPinV = 0;<br />
+int inPinI1 = 1;<br />
+int inPinI2 = 2;<br />
+int inPinI3 = 3;<br />
+int inPinI4 = 4;<br />
+//Calibration coefficients<br />
+//These need to be set in order to obtain accurate results<br />
+double Vcal = 276.9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Calibration constant for voltage input<br />
+double Ical1 = 90.9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Calibration constant for current transformer 1<br />
+double Ical2 = 90.9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Calibration constant for current transformer 2<br />
+double Ical3 = 90.9; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Calibration constant for current transformer 3<br />
+double Ical4 = 16.6; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Calibration constant for current transformer 4</p>
+<p>double Phasecal1 = 1.00; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Calibration constant for phase shift L1<br />
+double Phasecal2 = 1.35; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Calibration constant for phase shift L2<br />
+double Phasecal3 = 1.37; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Calibration constant for phase shift L3<br />
+double Phasecal4 = 1.00; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Calibration constant for phase shift CT 4</p>
+<p>
+const int TEMPERATURE_PRECISION= &nbsp;11;<br />
+#define ASYNC_DELAY 375<br />
+const byte DS18B20_PWR= &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 19; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// DS18B20 Power<br />
+#define ONE_WIRE_BUS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;5 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// DS18B20 Data &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<br />
+//-------------------------------------------------------------------------------------------------------------------------------------------</p>
+<p>//Setup DS128B20<br />
+OneWire oneWire(ONE_WIRE_BUS);<br />
+DallasTemperature sensors(&amp;oneWire);</p>
+<p>
+//--------------------------------------------------------------------------------------<br />
+// Variable declaration for filters, phase shift, voltages, currents &amp; powers<br />
+//--------------------------------------------------------------------------------------<br />
+double realPower1, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // The final data<br />
+apparentPower1,<br />
+powerFactor1,<br />
+Irms1,<br />
+realPower2,<br />
+apparentPower2,<br />
+powerFactor2,<br />
+Irms2,<br />
+realPower3,<br />
+apparentPower3,<br />
+powerFactor3,<br />
+Irms3,<br />
+realPower4,<br />
+apparentPower4,<br />
+powerFactor4,<br />
+Irms4,<br />
+Vrms; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp;&nbsp;<br />
+typedef struct { int power1, power2, power3, power4, Vrms, temp, power, pulse; } PayloadTX; &nbsp; &nbsp; &nbsp; &nbsp;// neat way of packaging data for RF comms<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// (Include all the variables that are desired,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// ensure the same struct is used to receive)</p>
+<p>PayloadTX emontx; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// create an instance</p>
+<p>const int LEDpin = 6; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// On-board emonTx LED&nbsp;</p>
+<p>boolean settled = false;</p>
+<p>// Added by BW for Pulse Counting<br />
+long pulseCount =0;<br />
+unsigned long pulseTime,lastTime;<br />
+double power, elapsedWh;<br />
+int ppwh=1;</p>
+<p>boolean DS18B20_STATUS;<br />
+int numSensors;<br />
+byte allAddress [4][8];</p>
+<p>void setup()&nbsp;<br />
+{<br />
+&nbsp; attachInterrupt(0, onPulse, FALLING);<br />
+&nbsp; pinMode(DS18B20_PWR, OUTPUT); &nbsp;<br />
+Serial.begin(9600);<br />
+Serial.println(&quot;emonTx V3 CT1234 Voltage 3 Phase example&quot;);<br />
+Serial.println(&quot;OpenEnergyMonitor.org&quot;);<br />
+Serial.print(&quot;Node: &quot;);&nbsp;<br />
+Serial.print(nodeID);&nbsp;<br />
+Serial.print(&quot; Freq: &quot;);&nbsp;<br />
+if (RF_freq == RF12_433MHZ) Serial.print(&quot;433Mhz&quot;);<br />
+else if (RF_freq == RF12_868MHZ) Serial.print(&quot;868Mhz&quot;);<br />
+else if (RF_freq == RF12_915MHZ) Serial.print(&quot;915Mhz&quot;);&nbsp;<br />
+else Serial.print(&quot;Not set&quot;);<br />
+Serial.print(&quot; Network: &quot;);&nbsp;<br />
+Serial.println(networkGroup);</p>
+<p>
+rf12_initialize(nodeID, RF_freq, networkGroup); &nbsp; &nbsp; // initialize RF<br />
+rf12_sleep(RF12_SLEEP);</p>
+<p>pinMode(LEDpin, OUTPUT); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Setup indicator LED<br />
+digitalWrite(LEDpin, HIGH);</p>
+<p>if (UNO) wdt_enable(WDTO_8S); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Enable anti crash (restart) watchdog if UNO bootloader is selected.&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// &nbsp;(Watchdog does not work with duemilanove bootloader)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Restarts emonTx if sketch hangs for more than 8s<br />
+//################################################################################################################################<br />
+&nbsp; //Setup and for presence of DS18B20<br />
+&nbsp; //################################################################################################################################<br />
+&nbsp; digitalWrite(DS18B20_PWR, HIGH); delay(50);&nbsp;<br />
+&nbsp; sensors.begin();<br />
+&nbsp; sensors.setWaitForConversion(false); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; //disable automatic temperature conversion to reduce time spent awake, conversion will be implemented manually in sleeping <a href="http://harizanov.com/2013/07/optimizing-ds18b20-code-for-low-power-applications/ " title="http://harizanov.com/2013/07/optimizing-ds18b20-code-for-low-power-applications/ ">http://harizanov.com/2013/07/optimizing-ds18b20-code-for-low-power-appli...</a><br />
+&nbsp; numSensors=(sensors.getDeviceCount());&nbsp;<br />
+&nbsp;&nbsp;<br />
+&nbsp; byte j=0; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// search for one wire devices and<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// copy to device address arrays.<br />
+&nbsp; while ((j &lt; numSensors) &amp;&amp; (oneWire.search(allAddress[j]))) &nbsp;j++;<br />
+&nbsp; digitalWrite(DS18B20_PWR, LOW);<br />
+&nbsp;&nbsp;<br />
+&nbsp; if (numSensors==0) DS18B20_STATUS=0;&nbsp;<br />
+&nbsp; &nbsp; else DS18B20_STATUS=1;<br />
+}</p>
+<p>//*********************************************************************************************************************<br />
+void loop()&nbsp;<br />
+{&nbsp;<br />
+&nbsp; emontx.pulse = pulseCount; pulseCount=0; &nbsp; // Added by BW</p>
+<p>&nbsp; &nbsp;if (DS18B20_STATUS==1)<br />
+&nbsp; {<br />
+&nbsp; &nbsp; &nbsp;digitalWrite(DS18B20_PWR, HIGH); Sleepy::loseSomeTime(50);&nbsp;<br />
+&nbsp; &nbsp; &nbsp;for(int j=0;j&lt;numSensors;j++) sensors.setResolution(allAddress[j], TEMPERATURE_PRECISION); &nbsp; &nbsp; &nbsp;// and set the a to d conversion resolution of each.<br />
+&nbsp; &nbsp; &nbsp;sensors.requestTemperatures(); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Send the command to get temperatures<br />
+&nbsp; &nbsp; &nbsp;Sleepy::loseSomeTime(ASYNC_DELAY); //Must wait for conversion, since we use ASYNC mode<br />
+&nbsp; &nbsp; &nbsp;float temp=(sensors.getTempC(allAddress[0]));<br />
+&nbsp; &nbsp; &nbsp;digitalWrite(DS18B20_PWR, LOW);<br />
+&nbsp; &nbsp; &nbsp;if ((temp&lt;125.0) &amp;&amp; (temp&gt;-40.0)) emontx.temp=(temp*10); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//if reading is within range for the sensor convert float to int ready to send via RF<br />
+&nbsp; &nbsp; &nbsp;Serial.print(&quot;temperature: &quot;); Serial.println(emontx.temp*0.1); delay(20);<br />
+&nbsp; }<br />
+&nbsp;&nbsp;<br />
+// Outer loop - Reads Voltages &amp; Currents - Sends results<br />
+calcVI3Ph(11,2000); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Calculate all. No.of complete cycles, time-out &nbsp;</p>
+<p>// Removing these print statements is recommended for normal use (if not required).<br />
+#ifdef SERIALPRINT</p>
+<p>Serial.print(&quot;Voltage: &quot;); Serial.println(Vrms);<br />
+Serial.print(&quot; Current 1: &quot;); Serial.print(Irms1);<br />
+Serial.print(&quot; Power 1: &quot;); Serial.print(realPower1);<br />
+Serial.print(&quot; VA 1: &quot;); Serial.print(apparentPower1);<br />
+Serial.print(&quot; PF 1: &quot;); Serial.println(powerFactor1);<br />
+Serial.print(&quot; Current 2: &quot;); Serial.print(Irms2);<br />
+Serial.print(&quot; Power 2: &quot;); Serial.print(realPower2);<br />
+Serial.print(&quot; VA 2: &quot;); Serial.print(apparentPower2);<br />
+Serial.print(&quot; PF 2: &quot;); Serial.println(powerFactor2);<br />
+Serial.print(&quot; Current 3: &quot;); Serial.print(Irms3);<br />
+Serial.print(&quot; Power 3: &quot;); Serial.print(realPower3);<br />
+Serial.print(&quot; VA 3: &quot;); Serial.print(apparentPower3);<br />
+Serial.print(&quot; PF 3: &quot;); Serial.println(powerFactor3);<br />
+#ifdef CT4<br />
+Serial.print(&quot; Current 4: &quot;); Serial.print(Irms4);<br />
+Serial.print(&quot; Power 4: &quot;); Serial.print(realPower4);<br />
+Serial.print(&quot; VA 4: &quot;); Serial.print(apparentPower4);<br />
+Serial.print(&quot; PF 4: &quot;); Serial.println(powerFactor4);<br />
+#endif</p>
+<p>Serial.println(); delay(100);</p>
+<p>#endif&nbsp;</p>
+<p>emontx.power1 = realPower1; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Copy the desired variables ready for transmision<br />
+emontx.power2 = realPower2;<br />
+emontx.power3 = realPower3;<br />
+emontx.power4 = realPower4;<br />
+emontx.Vrms &nbsp; = Vrms;</p>
+<p>if (!settled &amp;&amp; millis() &gt; FILTERSETTLETIME) &nbsp; &nbsp; // because millis() returns to zero after 50 days !&nbsp;<br />
+&nbsp; &nbsp; settled = true;<br />
+&nbsp; &nbsp;&nbsp;<br />
+if (settled) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // send data only after filters have settled<br />
+{ &nbsp;<br />
+&nbsp; &nbsp; send_rf_data(); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// *SEND RF DATA* - see emontx_lib<br />
+&nbsp; &nbsp; digitalWrite(LEDpin, HIGH); delay(2); digitalWrite(LEDpin, LOW); &nbsp; &nbsp; &nbsp;// flash LED<br />
+&nbsp; &nbsp; emontx_sleep(3); &nbsp; &nbsp;<br />
+}<br />
+}</p>
+<p>//*********************************************************************************************************************</p>
+<p>void calcVI3Ph(int cycles, int timeout)<br />
+{<br />
+&nbsp; &nbsp; //--------------------------------------------------------------------------------------<br />
+&nbsp; &nbsp; // Variable declaration for filters, phase shift, voltages, currents &amp; powers<br />
+&nbsp; &nbsp; //--------------------------------------------------------------------------------------</p>
+<p>&nbsp; &nbsp; static int lastSampleV,sampleV; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // &#39;sample&#39; holds the raw analog read value, &#39;lastSample&#39; holds the last sample<br />
+&nbsp; &nbsp; static int lastSampleI1,sampleI1;<br />
+&nbsp; &nbsp; static int lastSampleI2,sampleI2;<br />
+&nbsp; &nbsp; static int lastSampleI3,sampleI3;<br />
+&nbsp; &nbsp; static int lastSampleI4,sampleI4;</p>
+<p>
+&nbsp; &nbsp; static double lastFilteredV,filteredV; &nbsp; &nbsp; &nbsp;// &#39;Filtered&#39; is the raw analog value minus the DC offset<br />
+&nbsp; &nbsp; static double lastFilteredI1, filteredI1;<br />
+&nbsp; &nbsp; static double lastFilteredI2, filteredI2;<br />
+&nbsp; &nbsp; static double lastFilteredI3, filteredI3;<br />
+&nbsp; &nbsp; static double lastFilteredI4, filteredI4;</p>
+<p>&nbsp; &nbsp; double phaseShiftedV1; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Holds the calibrated delayed &amp; phase shifted voltage.<br />
+&nbsp; &nbsp; double phaseShiftedV2;<br />
+&nbsp; &nbsp; double phaseShiftedV3;<br />
+&nbsp; &nbsp; double phaseShiftedV4;</p>
+<p>&nbsp; &nbsp; double sumV,sumI1,sumI2,sumI3,sumI4;<br />
+&nbsp; &nbsp; double sumP1,sumP2,sumP3,sumP4; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // sq = squared, sum = Sum, inst = instantaneous</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; int startV; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Instantaneous voltage at start of sample window.</p>
+<p>&nbsp; &nbsp; int SupplyVoltage = 3300; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//Hardcode supply voltage for emonTx V3, it should be always 3.3V<br />
+&nbsp; &nbsp; int crossCount = -2; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Used to measure number of times threshold is crossed.<br />
+&nbsp; &nbsp; int numberOfSamples = 0; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // This is now incremented &nbsp;<br />
+&nbsp; &nbsp; int numberOfPowerSamples = 0; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Needed because 1 cycle of voltages needs to be stored before use<br />
+&nbsp; &nbsp; boolean lastVCross, checkVCross; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Used to measure number of times threshold is crossed.<br />
+&nbsp; &nbsp; double storedV[PHASE3]; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Array to store &gt;240 degrees of voltage samples<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; //-------------------------------------------------------------------------------------------------------------------------<br />
+&nbsp; &nbsp; // 1) Waits for the waveform to be close to &#39;zero&#39; (500 adc) part in sin curve.<br />
+&nbsp; &nbsp; //-------------------------------------------------------------------------------------------------------------------------<br />
+&nbsp; &nbsp; boolean st=false; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // an indicator to exit the while loop</p>
+<p>&nbsp; &nbsp; unsigned long start = millis(); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // millis()-start makes sure it doesnt get stuck in the loop if there is an error.</p>
+<p>&nbsp; &nbsp; while(st==false) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Wait for first zero crossing...<br />
+&nbsp; &nbsp; {<br />
+&nbsp; &nbsp; &nbsp; &nbsp; startV = analogRead(inPinV); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// using the voltage waveform<br />
+&nbsp; &nbsp; &nbsp; &nbsp; if ((startV &lt; 550) &amp;&amp; (startV &gt; 440)) st=true; &nbsp; &nbsp; &nbsp; &nbsp;// check it&#39;s within range<br />
+&nbsp; &nbsp; &nbsp; &nbsp; if ((millis()-start)&gt;timeout) st = true;<br />
+&nbsp; &nbsp; }</p>
+<p>&nbsp; &nbsp; //-------------------------------------------------------------------------------------------------------------------------<br />
+&nbsp; &nbsp; // 2) Main measurment loop<br />
+&nbsp; &nbsp; //-------------------------------------------------------------------------------------------------------------------------&nbsp;<br />
+&nbsp; &nbsp; start = millis();&nbsp;</p>
+<p>&nbsp; &nbsp; while ((crossCount &lt; cycles * 2) &amp;&amp; ((millis()-start)&lt;timeout))&nbsp;<br />
+&nbsp; &nbsp; {<br />
+&nbsp; &nbsp; &nbsp; &nbsp; lastSampleV=sampleV; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Used for digital high pass filter - offset removal<br />
+&nbsp; &nbsp; &nbsp; &nbsp; lastSampleI1=sampleI1;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; lastSampleI2=sampleI2;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; lastSampleI3=sampleI3;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; lastSampleI4=sampleI4;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; lastFilteredV = filteredV;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; lastFilteredI1 = filteredI1; &nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; lastFilteredI2 = filteredI2;&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; lastFilteredI3 = filteredI3;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; lastFilteredI4 = filteredI4;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; //-----------------------------------------------------------------------------<br />
+&nbsp; &nbsp; &nbsp; &nbsp; // A) Read in raw voltage and current samples<br />
+&nbsp; &nbsp; &nbsp; &nbsp; //-----------------------------------------------------------------------------<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sampleV = analogRead(inPinV); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Read in raw voltage signal<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sampleI1 = analogRead(inPinI1); &nbsp; &nbsp; &nbsp; &nbsp; // Read in raw current signal<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sampleI2 = analogRead(inPinI2); &nbsp; &nbsp; &nbsp; &nbsp; // Read in raw current signal<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sampleI3 = analogRead(inPinI3); &nbsp; &nbsp; &nbsp; &nbsp; // Read in raw current signal<br />
+&nbsp;#ifdef CT4<br />
+&nbsp; &nbsp; &nbsp; &nbsp;sampleI4 = analogRead(inPinI4); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Read in raw current signal<br />
+#endif<br />
+&nbsp; &nbsp; &nbsp; &nbsp; //-----------------------------------------------------------------------------<br />
+&nbsp; &nbsp; &nbsp; &nbsp; // B) Apply digital high pass filters to remove 2.5V DC offset (to centre wave on 0).<br />
+&nbsp; &nbsp; &nbsp; &nbsp; //-----------------------------------------------------------------------------<br />
+&nbsp; &nbsp; &nbsp; &nbsp; filteredV = 0.996*(lastFilteredV+(sampleV-lastSampleV));<br />
+&nbsp; &nbsp; &nbsp; &nbsp; filteredI1 = 0.996*(lastFilteredI1+(sampleI1-lastSampleI1));<br />
+&nbsp; &nbsp; &nbsp; &nbsp; filteredI2 = 0.996*(lastFilteredI2+(sampleI2-lastSampleI2));<br />
+&nbsp; &nbsp; &nbsp; &nbsp; filteredI3 = 0.996*(lastFilteredI3+(sampleI3-lastSampleI3));<br />
+#ifdef CT4<br />
+&nbsp; &nbsp; &nbsp; &nbsp; filteredI4 = 0.996*(lastFilteredI4+(sampleI4-lastSampleI4));<br />
+#endif</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; storedV[numberOfSamples%PHASE3] = filteredV; &nbsp; &nbsp; &nbsp; &nbsp;// store this voltage sample in circular buffer</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; //-----------------------------------------------------------------------------</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; // C) &nbsp;Find the number of times the voltage has crossed the initial voltage<br />
+&nbsp; &nbsp; &nbsp; &nbsp; // &nbsp; &nbsp; &nbsp; &nbsp;- every 2 crosses we will have sampled 1 wavelength&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; // &nbsp; &nbsp; &nbsp; &nbsp;- so this method allows us to sample an integer number of half wavelengths which increases accuracy<br />
+&nbsp; &nbsp; &nbsp; &nbsp; //----------------------------------------------------------------------------- &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>
+&nbsp; &nbsp; &nbsp; &nbsp; lastVCross = checkVCross; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; checkVCross = (sampleV &gt; startV)? true : false;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; if (numberOfSamples==1)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; lastVCross = checkVCross; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; if (lastVCross != checkVCross)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; {<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; crossCount++;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; if (crossCount == 0) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Started recording at -2 crossings so that one complete cycle has been stored before accumulating.<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; {<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sumV &nbsp;= 0;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sumI1 = 0;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sumI2 = 0;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sumI3 = 0;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sumI4 = 0;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sumP1 = 0; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sumP2 = 0;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sumP3 = 0;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sumP4 = 0;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; numberOfPowerSamples = 0;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; }<br />
+&nbsp; &nbsp; &nbsp; &nbsp; }</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; //-----------------------------------------------------------------------------<br />
+&nbsp; &nbsp; &nbsp; &nbsp; // D) Root-mean-square method voltage<br />
+&nbsp; &nbsp; &nbsp; &nbsp; //----------------------------------------------------------------------------- &nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sumV += filteredV * filteredV; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// sum += square voltage values</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; //-----------------------------------------------------------------------------<br />
+&nbsp; &nbsp; &nbsp; &nbsp; // E) Root-mean-square method current<br />
+&nbsp; &nbsp; &nbsp; &nbsp; //----------------------------------------------------------------------------- &nbsp;&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sumI1 += filteredI1 * filteredI1; &nbsp; &nbsp; &nbsp; // sum += square current values<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sumI2 += filteredI2 * filteredI2;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sumI3 += filteredI3 * filteredI3;<br />
+#ifdef CT4<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sumI4 += filteredI4 * filteredI4;<br />
+#endif</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; //-----------------------------------------------------------------------------<br />
+&nbsp; &nbsp; &nbsp; &nbsp; // F) Phase calibration - for Phase 1: shifts V1 to correct transformer errors<br />
+&nbsp; &nbsp; &nbsp; &nbsp; // &nbsp; &nbsp;for phases 2 &amp; 3 delays V1 by 120 degrees &amp; 240 degrees respectively&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; // &nbsp; &nbsp;and shifts for fine adjustment and to correct transformer errors.<br />
+&nbsp; &nbsp; &nbsp; &nbsp; //-----------------------------------------------------------------------------<br />
+&nbsp; &nbsp; &nbsp; &nbsp; phaseShiftedV1 = lastFilteredV + Phasecal1 * (filteredV - lastFilteredV);<br />
+&nbsp; &nbsp; &nbsp; &nbsp; phaseShiftedV2 = storedV[(numberOfSamples-PHASE2-1)%PHASE3]&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; + Phasecal2 * (storedV[(numberOfSamples-PHASE2)%PHASE3]&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; - storedV[(numberOfSamples-PHASE2-1)%PHASE3]);<br />
+&nbsp; &nbsp; &nbsp; &nbsp; phaseShiftedV3 = storedV[(numberOfSamples+1)%PHASE3]&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; + Phasecal3 * (storedV[(numberOfSamples+2)%PHASE3]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; - storedV[(numberOfSamples+1)%PHASE3]);<br />
+&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; //-----------------------------------------------------------------------------<br />
+&nbsp; &nbsp; &nbsp; &nbsp; // G) Instantaneous power calc<br />
+&nbsp; &nbsp; &nbsp; &nbsp; //----------------------------------------------------------------------------- &nbsp;&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sumP1 += phaseShiftedV1 * filteredI1; &nbsp; // Sum &nbsp;+= Instantaneous Power<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sumP2 += phaseShiftedV2 * filteredI2;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sumP3 += phaseShiftedV3 * filteredI3;<br />
+#ifdef CT4<br />
+&nbsp; &nbsp; &nbsp; &nbsp; sumP4 += phaseShiftedV1 * filteredI4;<br />
+#endif<br />
+&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; numberOfPowerSamples++; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Count number of times looped for Power averages.<br />
+&nbsp; &nbsp; &nbsp; &nbsp; numberOfSamples++; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//Count number of times looped. &nbsp; &nbsp;</p>
+<p>&nbsp; &nbsp; }</p>
+<p>&nbsp; &nbsp; //-------------------------------------------------------------------------------------------------------------------------<br />
+&nbsp; &nbsp; // 3) Post loop calculations<br />
+&nbsp; &nbsp; //-------------------------------------------------------------------------------------------------------------------------&nbsp;<br />
+&nbsp; &nbsp; //Calculation of the root of the mean of the voltage and current squared (rms)<br />
+&nbsp; &nbsp; //Calibration coefficients applied.&nbsp;</p>
+<p>&nbsp; &nbsp; double V_Ratio = Vcal *((SupplyVoltage/1000.0) / 1023.0);<br />
+&nbsp; &nbsp; Vrms = V_Ratio * sqrt(sumV / numberOfPowerSamples);&nbsp;</p>
+<p>&nbsp; &nbsp; double I_Ratio1 = Ical1 *((SupplyVoltage/1000.0) / 1023.0);<br />
+&nbsp; &nbsp; Irms1 = I_Ratio1 * sqrt(sumI1 / numberOfPowerSamples);&nbsp;<br />
+&nbsp; &nbsp; double I_Ratio2 = Ical2 *((SupplyVoltage/1000.0) / 1023.0);<br />
+&nbsp; &nbsp; Irms2 = I_Ratio2 * sqrt(sumI2 / numberOfPowerSamples);&nbsp;<br />
+&nbsp; &nbsp; double I_Ratio3 = Ical3 *((SupplyVoltage/1000.0) / 1023.0);<br />
+&nbsp; &nbsp; Irms3 = I_Ratio3 * sqrt(sumI3 / numberOfPowerSamples);&nbsp;<br />
+#ifdef CT4<br />
+&nbsp; &nbsp; double I_Ratio4 = Ical4 *((SupplyVoltage/1000.0) / 1023.0);<br />
+&nbsp; &nbsp; Irms4 = I_Ratio4 * sqrt(sumI4 / numberOfPowerSamples);&nbsp;<br />
+#endif</p>
+<p>&nbsp; &nbsp; //Calculation power values<br />
+&nbsp; &nbsp; realPower1 = V_Ratio * I_Ratio1 * sumP1 / numberOfPowerSamples;<br />
+&nbsp; &nbsp; apparentPower1 = Vrms * Irms1;<br />
+&nbsp; &nbsp; powerFactor1 = realPower1 / apparentPower1;</p>
+<p>&nbsp; &nbsp; realPower2 = V_Ratio * I_Ratio2 * sumP2 / numberOfPowerSamples;<br />
+&nbsp; &nbsp; apparentPower2 = Vrms * Irms2;<br />
+&nbsp; &nbsp; powerFactor2 = realPower2 / apparentPower2;</p>
+<p>&nbsp; &nbsp; realPower3 = V_Ratio * I_Ratio3 * sumP3 / numberOfPowerSamples;<br />
+&nbsp; &nbsp; apparentPower3 = Vrms * Irms3;<br />
+&nbsp; &nbsp; powerFactor3 = realPower3 / apparentPower3;</p>
+<p>#ifdef CT4<br />
+&nbsp; &nbsp; realPower4 = V_Ratio * I_Ratio4 * sumP4 / numberOfPowerSamples;<br />
+&nbsp; &nbsp; apparentPower4 = Vrms * Irms4;<br />
+&nbsp; &nbsp; powerFactor4 = realPower4 / apparentPower4;<br />
+#else<br />
+&nbsp; &nbsp; realPower4 = 0.0;<br />
+&nbsp; &nbsp; apparentPower4 = 0.0;<br />
+&nbsp; &nbsp; powerFactor4 = 0.0;<br />
+#endif</p>
+<p>&nbsp; &nbsp; //Reset accumulators<br />
+&nbsp; &nbsp; sumV = 0;<br />
+&nbsp; &nbsp; sumI1 = 0;<br />
+&nbsp; &nbsp; sumI2 = 0;<br />
+&nbsp; &nbsp; sumI3 = 0;<br />
+&nbsp; &nbsp; sumI4 = 0;<br />
+&nbsp; &nbsp; sumP1 = 0;<br />
+&nbsp; &nbsp; sumP2 = 0;<br />
+&nbsp; &nbsp; sumP3 = 0;<br />
+&nbsp; &nbsp; sumP4 = 0;<br />
+&nbsp; &nbsp; //-------------------------------------------------------------------------------------- &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>#ifdef DEBUGGING<br />
+&nbsp; &nbsp; // Include these statements for development/debugging only<br />
+&nbsp; &nbsp;&nbsp;<br />
+&nbsp; &nbsp; Serial.print(&quot;Total Samples: &quot;); Serial.print(numberOfSamples);<br />
+&nbsp; &nbsp; Serial.print(&quot; Power Samples: &quot;); Serial.print(numberOfPowerSamples);<br />
+&nbsp; &nbsp; Serial.print(&quot; Time: &quot;); Serial.print(millis() - start);<br />
+&nbsp; &nbsp; Serial.print(&quot; Crossings: &quot;); Serial.println(crossCount);</p>
+<p>&nbsp; &nbsp; for (int j=0; j&lt;PHASE3; j++)<br />
+&nbsp; &nbsp; {<br />
+&nbsp; &nbsp; &nbsp; &nbsp; Serial.print(storedV[j]); Serial.print(&quot; &quot;);<br />
+&nbsp; &nbsp; &nbsp; &nbsp; Serial.println();<br />
+&nbsp; &nbsp; }<br />
+#endif<br />
+}</p>
+<p>//*********************************************************************************************************************</p>
+<p>long readVcc()&nbsp;<br />
+{<br />
+long result;<br />
+ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+delay(2);<br />
+ADCSRA |= _BV(ADSC);<br />
+while (bit_is_set(ADCSRA,ADSC));<br />
+result = ADCL;<br />
+result |= ADCH&lt;&lt;8;<br />
+result = 1126400L / result;<br />
+return result;<br />
+}</p>
+<p>void onPulse() &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br />
+{<br />
+&nbsp; lastTime = pulseTime; &nbsp; &nbsp; &nbsp; &nbsp;//used to measure time between pulses.<br />
+&nbsp; pulseTime = micros();<br />
+&nbsp; pulseCount++; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//pulseCounter &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<br />
+&nbsp; emontx.power = int((3600000000.0 / (pulseTime - lastTime))/ppwh); &nbsp;//Calculate power<br />
+}</p>
+</blockquote>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10205.html" class="topic-previous" title="Go to previous forum topic">‹ emonTx V3 Transmission Range</a>
+              <a href="3619.html" class="topic-next" title="Go to next forum topic">Raspberry Pi Emon Shield ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-28016"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7703.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="intruder82&#039;s picture" title="intruder82&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 3 Phase + Temp + Pulse</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7703.html" title="View user profile.">intruder82</a> on Sat, 21/02/2015 - 16:18.</div>
+    <div class="content">
+     <p>Hi wjwnz,</p>
+<p>that&#39;s exactly what I want to have on my emontx 3.4. unfortunately as I uploaded this code emoncms is not getting any inputs.. Could you help me out?</p>
+<p>Debugging my raspberry I got this:</p>
+<p>
+2015-02-21 18:04:52,319 DEBUG 1 NEW FRAME : 1424534692.32 &gt; 4b<br />
+2015-02-21 18:04:52,321 WARNING 1 Discard RX frame &#39;information&#39; : [&#39;&gt;&#39;, &#39;4b&#39;]<br />
+2015-02-21 18:04:52,525 DEBUG 2 NEW FRAME : 1424534692.52<br />
+2015-02-21 18:04:52,527 INFO 2 Ignoring frame consisting of SOH character<br />
+2015-02-21 18:04:52,732 DEBUG 3 NEW FRAME : 1424534692.73 &gt; 210g<br />
+2015-02-21 18:04:52,734 WARNING 3 Discard RX frame &#39;information&#39; : [&#39;&gt;&#39;, &#39;210g&#39;]<br />
+2015-02-21 18:04:52,937 DEBUG 4 NEW FRAME : 1424534692.94<br />
+2015-02-21 18:04:52,940 INFO 4 Ignoring frame consisting of SOH character<br />
+2015-02-21 18:04:53,144 DEBUG 5 NEW FRAME : 1424534693.14 &gt; 15i<br />
+2015-02-21 18:04:53,146 WARNING 5 Discard RX frame &#39;information&#39; : [&#39;&gt;&#39;, &#39;15i&#39;]<br />
+2015-02-21 18:04:53,362 DEBUG 6 NEW FRAME : 1424534693.36<br />
+2015-02-21 18:04:53,365 INFO 6 Ignoring frame consisting of SOH character</p>
+<p>tried few different settings in emonhub.conf but it seams that I don&#39;t understand the full logic behind it..</p>
+<p>what should be the right setting under the &#39;Nodes&#39;:</p>
+<p>[[99]] datacode = h</p>
+<p>datacodes = l, h, h, h,</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28018"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 3 Phase + Temp + Pulse</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 21/02/2015 - 17:15.</div>
+    <div class="content">
+     <p>I don't think you should need anything special - that sketch outputs the default signed integers (data code: h):</p>
+<pre>typedef struct { int power1, power2, power3, power4, Vrms, temp, power, pulse; } PayloadTX;   </pre><p>
+Node 99 is (obviously?) out of range and included only as a template. Your emonTx is Node 10.  Paul (pb66) can tell you more.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28025"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7703.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="intruder82&#039;s picture" title="intruder82&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 3 Phase + Temp + Pulse</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7703.html" title="View user profile.">intruder82</a> on Sat, 21/02/2015 - 20:15.</div>
+    <div class="content">
+     <p>Hi Robert,</p>
+<p>thanks for your reply. Paul explained in another post that this setup in emonhub.conf:</p>
+<p>[[99]] datacode = h</p>
+<p>datacodes = l, h, h, h,</p>
+<p>is the default setting. And it is unchanged from my previous setup. I had a default running setup with emonTx 3.4, and Raspbery Pi with these settings and it was sending data to the Emoncms. But because at home I have a 3 phase setup I tried to upload to the emonTx this version to measure 3 phase setup (Temp and pulse will be added later).</p>
+<p>It seams that the upload was successful it compiles without errors and in Arduino serial monitor I get following results:</p>
+<p>emonTx V3 CT1234 Voltage 3 Phase example<br />
+OpenEnergyMonitor.org<br />
+Node: 10 Freq: 433Mhz Network: 210<br />
+Voltage: 355.07<br />
+&nbsp;Current 1: 93.80 Power 1: 24725.30 VA 1: 33303.95 PF 1: 0.74<br />
+&nbsp;Current 2: 93.52 Power 2: 26267.98 VA 2: 33206.72 PF 2: 0.79<br />
+&nbsp;Current 3: 93.52 Power 3: 26853.05 VA 3: 33206.00 PF 3: 0.81<br />
+&nbsp;Current 4: 17.07 Power 4: 4546.02 VA 4: 6062.33 PF 4: 0.75</p>
+<p>Voltage: 254.38<br />
+&nbsp;Current 1: 35.23 Power 1: 3177.04 VA 1: 8962.16 PF 1: 0.35<br />
+&nbsp;Current 2: 35.09 Power 2: 3906.26 VA 2: 8927.39 PF 2: 0.44<br />
+&nbsp;Current 3: 35.09 Power 3: 3834.19 VA 3: 8927.16 PF 3: 0.43<br />
+&nbsp;Current 4: 6.40 Power 4: 623.00 VA 4: 1629.24 PF 4: 0.38</p>
+<p>Voltage: 237.00<br />
+&nbsp;Current 1: 13.80 Power 1: 164.90 VA 1: 3271.04 PF 1: 0.05<br />
+&nbsp;Current 2: 13.71 Power 2: 693.26 VA 2: 3248.09 PF 2: 0.21<br />
+&nbsp;Current 3: 13.68 Power 3: 548.57 VA 3: 3242.64 PF 3: 0.17<br />
+&nbsp;Current 4: 2.49 Power 4: 73.94 VA 4: 591.21 PF 4: 0.13</p>
+<p>Although I have spotted one interesting thing. The EmonTx module has the red led always on and only every 10-15s it blinks. But it stays on. Does this indicate something? Before it was the other way round it was short blinking of the red led.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28026"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 3 Phase + Temp + Pulse</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 21/02/2015 - 21:12.</div>
+    <div class="content">
+     <p>The bit about the LED is interesting. As you can see from the sketch above, it should blink for 2 ms immediately after each time data is sent, which should be a little slower than once every 3 s. Does that tie in with how often it prints the voltage and currents?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28030"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 3 Phase + Temp + Pulse</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 21/02/2015 - 22:10.</div>
+    <div class="content">
+     <p>I can see nothing obviously wrong in the info you&#39;ve given. The node [[99]] will have no impact (whilst it remains 99) and it looks like that payload is likely to be all ints, therefore default and not requiring any special settings.</p>
+<p>Is the green led on the rfm2pi flashing to indicate reception of packets from the emonTx ?</p>
+<p>If YES, what image or software etc to you have on the Pi? is the serial port available to the rfm2pi?</p>
+<p>if NO, How close is the emonTx to the Pi? How frequent are the values output over serial?</p>
+<p>The sketch above is for a v3(.2) and you mention a v3.4, these are not directly interchangeable, Are you sure you are using a v3.4 compatible sketch? if not it would explain the led activity on the emonTx as well as the lack of data.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28034"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 3 Phase + Temp + Pulse</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 21/02/2015 - 23:06.</div>
+    <div class="content">
+     <p>I didn't notice that RFu_JeeLib was being used. Intruder needs to at least change that to the plain JeeLib. I've not studied the sketch in detail, as "ownership" has now passed to BW/wjwnz, who included the code for the pulse input.</p>
+<p>But if the wrong library is being used, it normally fails to return from initialising the RFM module, which means (if the watchdog is causing a restart) that we should see the startup messages, which we're not seeing. So there seems to be an inconsistency there.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28056"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7703.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="intruder82&#039;s picture" title="intruder82&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 3 Phase + Temp + Pulse</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7703.html" title="View user profile.">intruder82</a> on Sun, 22/02/2015 - 15:53.</div>
+    <div class="content">
+     <p>Yes I have Emontx 3.4. So if I understood correctly this will be the main problem. I will try to upload the emonTxV3_4_3Phase_Voltage from GitHub to see if this was the problem..</p>
+<p>By the way are there 3 phase, pulse and temperature sketch for 3.4 or no one needs that kind of setup :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28059"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 3 Phase + Temp + Pulse</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 22/02/2015 - 16:11.</div>
+    <div class="content">
+     <p><i>"are there 3 phase, pulse and temperature sketch for 3.4 or no one needs that kind of setup"</i></p>
+<p>Either no-one has asked for that particular combination before, or they have converted/merged the sketches themselves and not published the result.</p>
+<p>If the emonTxV3_4_3Phase_Voltage sketch works (which it probably will), in your original sketch you should only need to change the library as I mentioned above. If it doesn't work, or it gives silly results, then it's possible you've run into the memory corruption problem that's been reported and is still under investigation.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28060"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7703.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="intruder82&#039;s picture" title="intruder82&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 3 Phase + Temp + Pulse</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7703.html" title="View user profile.">intruder82</a> on Sun, 22/02/2015 - 16:27.</div>
+    <div class="content">
+     <p>yes emonTxV3_4_3Phase_Voltage works without errors.</p>
+<p>Do I understand correctly that in this sketch for 3.2 version all I need to do is change the&nbsp;RFu_JeeLib to plain JeeLib and it should be ok?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28062"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 3 Phase + Temp + Pulse</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 22/02/2015 - 17:27.</div>
+    <div class="content">
+     <p>Correct. (At least, I can't think of anything else that <i>needs</i> changing. The DIP switch settings etc are redundant for your needs. (You don't need them to change the Node number, nor the input voltage setting.)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28082"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7638.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Lykke&#039;s picture" title="Lykke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 3 Phase + Temp + Pulse</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7638.html" title="View user profile.">Lykke</a> on Mon, 23/02/2015 - 20:21.</div>
+    <div class="content">
+     <p>This is very interesting!</p>
+<p>I am currently running emonTxV3_4_3Phase_Voltage and plan to include pulse counting for our&nbsp;&quot;distributed heating meter&quot;, so I&#39;ll be very interested to learn if you get the sketch to run on v3.4.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/6069"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-z3xBcl3zSCUu99MyAPIPA4hF7ogai9_R3ShPQSs6sXg" value="form-z3xBcl3zSCUu99MyAPIPA4hF7ogai9_R3ShPQSs6sXg"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6069 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:03:27 GMT -->
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11070 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:46:34 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Temp sensor circuit error codes. | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Temp sensor circuit error codes.</h3>
+        <span class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 02/08/2015 - 19:38</span>
+        <div class="content"><p>A recent issue concerning&nbsp;<a href="10900.html">Data loss due to RF packets getting corrupted</a> turned out to be due to the packets being read incorrectly because there were no temp sensors installed to&nbsp;an emonTx&nbsp;and the long run of 0 values did&nbsp;not provide any bits for the rfm receiver to synchronize&nbsp;to, so avoiding zero values where possible is highly recommended.</p>
+<p>We could just remove unused temp sensor values from sketches&nbsp;but that would mean every user would need to adjust both the sketch,&nbsp;emonhub and emoncms&nbsp;for each application to match the number of sensors used, not ideal!</p>
+<p>An alternative is to use a non-zero value for unused temp sensor values, which is easy enough to &quot;set&quot; but again isn&#39;t automatic and requires each user to &quot;set&quot; the unused sensors to a parked value, the automatic use of a default out of range value is also possible but will corrupt&nbsp;valid data if the sensor is not detected for any reason</p>
+<p>But that out of range value could actually be a bonus, used as an error code it could actually trigger or indicate a warning and if filtered before being written to a feed, data integrity is maintained. Currently when we see a 0 value is it currently 0&deg;C, recently&nbsp;was&nbsp;0&deg;C,&nbsp;an unused sensor or has it failed ???&nbsp;</p>
+<p>What I would like to propose is using a standard approach in all sketches that starts out specifying all temp sensor values to 301&deg;C in setup() regardless of whether they are fitted or not and then in each&nbsp;loop() the previously&nbsp;&quot;found&quot; sensors&nbsp;are set to 300&deg;C before an attempted read. This will effectively then only report <em>actual</em> current temperature or &quot;300&quot; (not read - possible fault) or &quot;301&quot; (circuit not in use)&nbsp;.</p>
+<p>This combined with the use of &quot;minus 300&quot;, &quot;allow positive&quot; and &quot;add 300&quot; processes&nbsp;<span style="line-height: 20.7999992370605px;">at&nbsp;</span>emoncms,&nbsp;<span style="line-height: 1.6;">prior to logging will ensure only </span><u style="line-height: 1.6;">live values</u><span style="line-height: 1.6;"> below 300&deg;C will be recorded to a feed and an open-</span><span style="line-height: 1.6;">cir</span><span style="line-height: 1.6;">cuit</span><span style="line-height: 1.6;">&nbsp;temp sensor will <u>not</u> show as 0&deg;C.</span></p>
+<p>The 3 processes could&nbsp;easily be written into&nbsp;a custom &quot;temperture-input&quot;&nbsp;processor for ease of use.</p>
+<p><span style="line-height: 20.7999992370605px;">The use of 300 and 301 in this way will allow a simple &quot; if not&nbsp;</span><span style="line-height: 20.7999992370605px;">temp_input-300</span><span style="line-height: 20.7999992370605px;">&nbsp;&quot; test (eg in events module) to only indicate a fault condition if a previously &quot;found&quot; sensor goes open circuit, unused circuits will not trigger a fault indication.</span></p>
+<p><span style="line-height: 20.7999992370605px;">Any thoughts? I have tried this (as has Ian) it works well&nbsp;and can&#39;t think of a better way to keep the current &quot;upto 6 sensors&quot; approach&nbsp;and this adds error indication too. before I submit a pull I thought I would explain the reasoning and ask users opinions first.</span></p>
+<p><span style="line-height: 20.7999992370605px;">Paul</span></p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11068.html" class="topic-previous" title="Go to previous forum topic">‹ how to handle voltage fluctuation</a>
+              <a href="11054.html" class="topic-next" title="Go to next forum topic">Beginner Questions: S0 and voltcraft energy count 3000  experiences? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-32939"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Temp sensor circuit error codes.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 02/08/2015 - 21:44.</div>
+    <div class="content">
+     <p>I support the idea of a positive indication of a fault condition.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11070"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-xEElvs0wmqH_NLQ7GULvs2qGetRYG9bTJh6m4oIu3HY" value="form-xEElvs0wmqH_NLQ7GULvs2qGetRYG9bTJh6m4oIu3HY"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11070 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:46:34 GMT -->
+</html>

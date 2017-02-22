@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12520 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:16:18 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Emonhub Local Graphs not updating | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Emonhub Local Graphs not updating</h3>
+        <span class="submitted">Submitted by <a href="../user/4312.html" title="View user profile.">hendersoniain</a> on Sun, 17/04/2016 - 19:44</span>
+        <div class="content"><p>Hi,</p>
+<p>I have a new recent problem. I am running emonhub on my pi and all has been working fine. Today after a reboot of the pi mysql did not start. However, I started it manually and my feeds are all OK again. I tried several reboots but each time I had to start the mysql service manually each time. I don&#39;t know if this is related to my main problem which is that my graphs have stopped updating - they are just blank from the time of restart:</p>
+<p><img alt="" src="../sites/default/files/Graph.jpg" /></p>
+<p>My settings.php looks like this:</p>
+<pre>
+    /*
+
+    Database connection settings
+
+    */
+
+    $username = &quot;root&quot;;
+    $password = &quot;password&quot;;
+    $server   = &quot;localhost&quot;;
+    $database = &quot;emoncms&quot;;
+
+    $redis_enabled = true;</pre><p>Mysql says the emoncms database is ok when I run a check on it:</p>
+<pre>
+pi@raspberrypi /var/log/emonhub $ mysqlcheck -c emoncms  -u root -p
+Enter password:
+emoncms.dashboard                                  OK
+emoncms.event                                      OK
+emoncms.event_settings                             OK
+emoncms.feeds                                      OK
+emoncms.input                                      OK
+emoncms.multigraph                                 OK
+emoncms.myelectric                                 OK
+emoncms.rememberme                                 OK
+emoncms.users                                      OK
+pi@raspberrypi /var/log/emonhub $
+
+</pre><p>A tail of emonhub.log shows the following:</p>
+<pre>
+2016-04-17 20:08:55,392 INFO EmonHub Pre-Release Development Version (rc1.2)
+2016-04-17 20:08:55,395 INFO Opening hub...
+2016-04-17 20:27:45,031 WARNING emonCMS.org couldn&#39;t send to server, Exception:
+Traceback (most recent call last):
+  File &quot;/home/pi/emonhub/src/emonhub_reporter.py&quot;, line 227, in _send_post
+    response = urllib2.urlopen(request, timeout=60)
+  File &quot;/usr/lib/python2.7/urllib2.py&quot;, line 127, in urlopen
+    return _opener.open(url, data, timeout)
+  File &quot;/usr/lib/python2.7/urllib2.py&quot;, line 401, in open
+    response = self._open(req, data)
+  File &quot;/usr/lib/python2.7/urllib2.py&quot;, line 419, in _open
+    &#39;_open&#39;, req)
+  File &quot;/usr/lib/python2.7/urllib2.py&quot;, line 379, in _call_chain
+    result = func(*args)
+  File &quot;/usr/lib/python2.7/urllib2.py&quot;, line 1211, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File &quot;/usr/lib/python2.7/urllib2.py&quot;, line 1184, in do_open
+    r = h.getresponse(buffering=True)
+  File &quot;/usr/lib/python2.7/httplib.py&quot;, line 1034, in getresponse
+    response.begin()
+  File &quot;/usr/lib/python2.7/httplib.py&quot;, line 407, in begin
+    version, status, reason = self._read_status()
+  File &quot;/usr/lib/python2.7/httplib.py&quot;, line 365, in _read_status
+    line = self.fp.readline()
+  File &quot;/usr/lib/python2.7/socket.py&quot;, line 447, in readline
+    data = self._sock.recv(self._rbufsize)
+error: [Errno 104] Connection reset by peer</pre><p>&nbsp;</p>
+<pre>
+2016-04-17 20:27:45,034 WARNING emonCMS.org send failure: wanted &#39;ok&#39; but got &#39;&#39;
+
+</pre><p>
+Although to my mind the errors are related to emoncms.org rather than my local emoncms. The graphs are fine on emoncms.org.</p>
+<p>Any ideas?</p>
+<p>Thanks.</p>
+<p><em>Edit - Formatted text - Moderator, BT</em></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12553.html" class="topic-previous" title="Go to previous forum topic">‹ emonPi Crashing</a>
+              <a href="12543.html" class="topic-next" title="Go to next forum topic">emoncms feeds stopped updating ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-41228"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub Local Graphs not updating</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 18/04/2016 - 11:09.</div>
+    <div class="content">
+     <p>You haven&#39;t said much about the emoncms installed locally.</p>
+<p>If you set the loglevel&nbsp;to DEBUG in emonhub.conf you may get more info, if not pointing to any issues it should at least confirm packets are being recieved by emoncms ok.</p>
+<p>The errors posted do point towards emoncms.org resetting the connection on one occasion but the lack of any other message&nbsp;occupancies and data being found ok there suggests it was a single glitch and unlikely to be linked.</p>
+<p>Did you do any updating etc prior to the issue appearing?</p>
+<p>How much space to you have left? (df -h)</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41229"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4312.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hendersoniain&#039;s picture" title="hendersoniain&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub Local Graphs not updating</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4312.html" title="View user profile.">hendersoniain</a> on Mon, 18/04/2016 - 13:22.</div>
+    <div class="content">
+     <p>The emoncms installed locally is: v8.4.0, bufferedwrite:0.0.2. I believe it was left at this version as later versions events module did not work properly.</p>
+<p>Setting loglevel to DEBUG does show that packets are being recieved OK (my feeds are updating OK).</p>
+<p>No updating done prior to issue appearing - I just rebooted pi which I do once every few months to make sure everything starts OK - I&#39;m using a NAS as the HDD for the pi and there were issues in the past where it would not come back after a power failure.</p>
+<p>Because I&#39;m using the NAS plenty of freespace left:</p>
+<pre>
+pi@raspberrypi ~/emonhub/conf $ df -h
+Filesystem                     Size  Used Avail Use% Mounted on
+rootfs                         888G  686G  194G  78% /
+192.168.1.71:/export/rpi-root  888G  686G  194G  78% /
+devtmpfs                        87M     0   87M   0% /dev
+tmpfs                           19M  232K   18M   2% /run
+tmpfs                          5.0M     0  5.0M   0% /run/lock
+tmpfs                           37M     0   37M   0% /run/shm
+/dev/mmcblk0p1                  56M   15M   42M  26% /boot</pre><p>pi@raspberrypi ~/emonhub/conf $</p>
+<p>The other thing I thought of was maybe the time on the pi but the ntp service is running fine on the pi and my PC so all times are synchronised.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41284"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub Local Graphs not updating</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 20/04/2016 - 18:01.</div>
+    <div class="content">
+     <p>Sorry Iain, I missed this reply somehow. Not that it would&#39;ve helped you much if I had spotted it sooner. I loosely suspect the mysql error is probably connected to the use of a NAS, especially if you had previous issues. I can only recall &quot;mysql daemon not starting after a reboot&quot; issues&nbsp;occurring due to diskspace filling up. But not only do you have plenty of space, the fact you can manually start it proves there is enough space.</p>
+<p>I totally get the desire to hang on to the old version because of the demise of the events module, I don&#39;t think you are alone there. The latest versions do have an email event process and a publish to MQTT process. Depending on what events you have, you may consider&nbsp;updating if you are having troubles with an older version, because support will get very thin for v8.4. That being said, if the issue is NAS based, then it may not help.</p>
+<p>I would be interested to know what event processes you are using as I am thinking a simple &quot;send&nbsp;to url&quot; event process may fill much of the hole left by events module.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41348"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4312.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hendersoniain&#039;s picture" title="hendersoniain&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub Local Graphs not updating</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4312.html" title="View user profile.">hendersoniain</a> on Sat, 23/04/2016 - 07:07.</div>
+    <div class="content">
+     <p>Sorry for the delay in replying. I have it working again now but it was still a little bit stange. I noticed that the feedwriter service was not running (not sure what it actually does but from the name I thought it could be important). I started the service manually and looked at my graphs 20 minutes later but still blank as in picture above. That was 2 days ago. However, when I looked again the next morning the graphs were all present and correct including the period when they hadn&#39;t been updating (the data certainly looks correct for all feeds). So I rebooted again and again the graphs stopped updating and the feedwriter service was not running. Left it for about 4 hours and then started the feedwriter service and although the graphs again did not start updating till sometime during the night they did start updating with no data missing including from the 4 hour period when feedwriter service was not running.</p>
+<p>Interestingly also mysql has started running again itself from the last couple of reboots so I am suspecting you are correct in thinking it may be something to do with using the NAS as the pi hard disk - maybe it is something to do with timings of the filesystem appearing at boot - I&#39;ll try to investigate further.</p>
+<p>With regards the events module the main thing I use it for is for reseting a feed to 0 when another feed changes value. In my case it is to display the current power consumption when charging an electric car but to set it to 0 again when the car has finished charging (I have a feed that is true or false depending on whether or not the car is actually charging).</p>
+<p>The other uses for the events module (although I have not got around to implementing it yet due to lack of time and needing to learn more!) would be to take a feed with the wind speed from my wireless weather station and to notify me if my wind turbine generation did not seem to be roughly correct for the wind speed - this can be a sign that bearings me be starting to fail on the turbine and will need replacing soon. The other use would be to adjust the settings of the heatpump in high winds as very high winds can make a difference to the temperature of the house (and during high winds there is normally some excess power in order to up the heating demand).</p>
+<p>Maybe later versions could do all these things without the events module but for the last year or so things have been working nicely so always a bit worried if I upgrade I might break something ;-)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41350"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub Local Graphs not updating</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 23/04/2016 - 08:45.</div>
+    <div class="content">
+     <p>Ian you may be correct that this could be a &#39;timing issue&#39;.</p>
+<p>I&#39;m not sure how you are starting the feedwriter script in v8.4, but certainly in later versions it was run via a rc script.</p>
+<p>At the time of system starting, Feedwriter needs access to MYSQL, and if MYSQL is not yet&nbsp;running then Feedwriter will fail, which was a&nbsp;frequent problem I observed some months ago, as both MYSQL &amp; Feedwriter are assigned the same start priority, and sometimes Feedwriter started first.<br />
+Therefore<a href="https://github.com/emoncms/emoncms/commit/59d910f04c85d47c71e43481be1e46f1c36c497d"> I added &#39;mysql&#39; &nbsp;to the Feedwriter&nbsp;rc script dependency</a>, to ensure that Feedwriter is not started until MYSQL is up and running.</p>
+<p>Can you check your emoncms/scripts/feedwriter rc script, and see if the<a href="https://github.com/emoncms/emoncms/blob/master/scripts/feedwriter#L19"> mysql dependency is present</a>.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41355"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4312.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hendersoniain&#039;s picture" title="hendersoniain&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub Local Graphs not updating</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4312.html" title="View user profile.">hendersoniain</a> on Sat, 23/04/2016 - 15:34.</div>
+    <div class="content">
+     <p>Thanks Paul. Adding mysql to the feedwriter rc script dependency seems to have solved the problem. Just tried a couple of reboots over the last hour and the graphs have stayed working perfectly and feedwriter has always been running OK.</p>
+<p>As to mysql not starting earlier in the week it seems to be starting fine now - just going to trawl through the syslog and see if I can find a reason - I&#39;m thinking it still might be something to do with the NAS and a timing issue or even a router problem between the pi and the NAS.</p>
+<p>If it happens again at least I now know which services I should be looking at. Thanks again for your help.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41356"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4312.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hendersoniain&#039;s picture" title="hendersoniain&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub Local Graphs not updating</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4312.html" title="View user profile.">hendersoniain</a> on Sat, 23/04/2016 - 15:47.</div>
+    <div class="content">
+     <p>Just another update. In my cmdline.txt for the root filesystem I have a rootwait to wait for the root filesystem to become ready. As the NAS could be slow to respond I have also put a rootdelay=10 before the rootwait. I&#39;m no expert but as I understand it the rootdelay=10 means mounting the root filesystem will not be attempted for 10 seconds and this will allow the NAS disks to be up to speed before anything is done. Not sure if it will really help but as I said above everything is working as it should at the moment after several more reboots.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/12520"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-7cvqSdtedN677cXGBY3aKPLo4Qn-8oDN_TNY1BRsI00" value="form-7cvqSdtedN677cXGBY3aKPLo4Qn-8oDN_TNY1BRsI00"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12520 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:16:19 GMT -->
+</html>

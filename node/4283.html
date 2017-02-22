@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/4283 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:20:42 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Home Energy Monitor (emonTx V3, RPi, emoncms v8) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h1>
+	Home Energy Monitor (emonTx v3, Raspberry Pi, Emoncms&nbsp;V8)</h1>
+<p>This guide details how to build a web-connected home electricity monitor using the OpenEnergyMonitor emonTx V3, a Raspberry Pi (with RFM12Pi expansion board) and Emoncms web-app for logging and viewing the data. At the end of this guide you should have your system up and running with your energy data accessible on a mobile friendly web page like this:</p>
+<p><img alt="" src="../sites/default/files/SAM_0408_0.jpg" style="width: 732px; height: 549px;" /></p>
+<h2>
+	System overview</h2>
+<p><a href="../sites/default/files/HomeEnergyMonitorSystem.jpg"><img alt="" src="../sites/default/files/HomeEnergyMonitorSystem.jpg" style="width: 732px; height: 279px;" /></a></p>
+<p>&nbsp;</p>
+<h2>
+	Parts list</h2>
+<p>Here are the parts you will need, most of them are available from the OpenEnergyMonitor shop.</p>
+<p>1x <a href="http://shop.openenergymonitor.com/emontx-v3-electricity-monitoring-transmitter-unit-fully-assembled/">emonTx V3 pre-assembled</a><br />
+	1x <a href="http://shop.openenergymonitor.com/100a-max-clip-on-current-sensor-ct/">100A</a><a href="http://shop.openenergymonitor.com/100a-max-clip-on-current-sensor-ct/"> max clip-on current sensor CT</a><br />
+	1x <a href="http://shop.openenergymonitor.com/ac-ac-power-supply-adapter-ac-voltage-sensor-uk-plug/">AC-AC Power Supply Adapter - AC voltage sensor</a> (Both <a href="http://shop.openenergymonitor.com/ac-ac-power-supply-adapter-ac-voltage-sensor-uk-plug/">UK</a> and <a href="http://shop.openenergymonitor.com/ac-ac-power-supply-adapter-ac-voltage-sensor-euro-plug/">Euro</a>&nbsp;plugs are available)</p>
+<p>1x <a href="http://shop.openenergymonitor.com/raspberry-pi-model-b-web-connected-base-station/">Raspberry Pi (Model B) - Web-connected Base Station</a><br />
+	1x <a href="http://shop.openenergymonitor.com/rfm12pi-raspberry-pi-base-station-receiver-board/">RFM12Pi - Raspberry Pi Base Station Receiver Board</a><br />
+	1x Blank SD Card<br />
+	1x (optional) RaspberryPi case, this one is nice: <a href="http://shop.pimoroni.com/products/blackberry-case-for-raspberry-pi">Pimoroni Berryblack Case</a></p>
+<p><em>Note: it&#39;s important that the frequency (868Mhz / 433Mhz) of the chosen modules match each other and is a legal ISM band in your country.</em></p>
+<p>You might also need:</p>
+<p>1x <a href="http://shop.openenergymonitor.com/5v-dc-usb-power-adapter-uk-plug/">5V DC USB Power Adapter (UK Plug)</a><br />
+	1x <a href="http://shop.openenergymonitor.com/micro-usb-cable/">Micro-USB cable</a><br />
+	1x Ethernet cable</p>
+<p>	1x <a href="http://shop.openenergymonitor.com/programmer-usb-to-serial-uart/">USB to serial programmer</a></p>
+<h2>
+	System setup</h2>
+<p>The OpenEnergyMonitor hardware listed above all come pre-assembled, no soldering is required. However for this particular configuration we need to change the default firmware on the emonTx in order to gain the benefit of the new addition of accumulated watt-hours calculation on the emonx which increases the accuracy and reliability of the energy measurement.</p>
+<pre>
+<strong>Changing the EmonTx firmware</strong>
+
+1. Start by following the: <a href="https://learn.openenergymonitor.org/?redirect=setting-up-the-arduino-environment">setting up the arduino anvironment guide</a>
+
+2. Click on File &gt; sketchbook &gt; OpenEnergyMonitor &gt; emonTxFirmware &gt; emonTxV3 &gt; 
+RFM12B &gt; Examples &gt; <strong>emonTxV3_continuous_kwhtotals_noeeprom</strong>. This will load the 
+firmware example that both uses the higher accuracy continuous sampling code by 
+Robin Emley and the watt hour calculation code mentioned above.
+
+3. Set the frequency of your emontx at the top of the sketch/firmware and nodeid 
+if you wish to change it. Plug up your emonTx v3 with a usb to serial programmer 
+and click on Upload.</pre><p><strong>Continuing with the hardware installation:</strong></p>
+<ol>
+<li>
+		Place or mount your emontx near your meter cabinet, the emonTx V3 comes with wall mounts as can be seen in the example installation above.</li>
+<li>
+		Plug in the CT sensor into the emonTx first before clipping it around the mains wire and before powering-up the emonTx. Clip the sensor around either the live or neutral wire of the circuit you wish to measure. (Don&#39;t clip around both as the magnetic fields will cancel).</li>
+<li>
+		Plug in the AC-AC Voltage adapter this both power&#39;s the emonTx and is used for sampling the AC mains voltage. A red light should now appear near the AC-AC adapter input and start flashing once every 10 seconds. Thats the emonTx set up! The emonTx can also be powered by batteries or from DC power source. See the <a href="http://wiki.openenergymonitor.org/index.php?title=EmonTx_V3#Power_Supply_Options">emonTx technical wiki</a> for info on using alternate power sources and interoperating the red LED behaviour</li>
+<li>
+		Plug the RFM12Pi hardware expansion module onto the Pi&#39;s GPIO pins taking care to align up pin 1, the RFM12Pi should be connected to the GPIO pins connector closest to the edge of the pi.</li>
+</ol>
+<h2>
+	Preparing the raspberrypi SD Card</h2>
+<p>Download the official raspberrpi raspbian image and write to the SD card.</p>
+<p><a href="http://www.raspberrypi.org/downloads">http://www.raspberrypi.org/downloads</a></p>
+<p>Once uploaded to the SD card, insert the SD card into the raspberrypi and power the pi up.</p>
+<p>Find the IP address of your raspberrypi on your network then connect and login to your pi with SSH, for windows users there&#39;s a nice tool called <a href="http://www.putty.org/">putty</a> which you can use to do this. To connect via ssh on linux:</p>
+<pre>
+ssh pi@YOUR_PI_IP_ADDRESS</pre><p>It will then prompt you for a username and password which are: username:pi, password: raspberry.</p>
+<p>Now that your in the first step is to edit the inittab and boot cmdline config file to allow the python gateway which we will install next to use the serial port:</p>
+<pre>
+sudo nano /etc/inittab</pre><p>At the bottom of the file comment out the line (by adding a &lsquo;#&rsquo; at beginning)</p>
+<pre>
+# T0:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100</pre><p>[Ctrl+X] then [y] then [Enter] to save and exit</p>
+<p>Edit boot cmdline.txt</p>
+<p>sudo nano /boot/cmdline.txt</p>
+<p>replace the line:</p>
+<pre>
+dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 
+root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait</pre><p>with:</p>
+<pre>
+dwc_otg.lpm_enable=0 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait</pre><p>Reboot the pi so that this will take effect:</p>
+<p>sudo reboot</p>
+<p>Next we will install git and python gateway dependencies</p>
+<pre>
+sudo apt-get update</pre><pre>
+sudo apt-get install git-core python-serial python-configobj</pre><p>Download oem_gateway with git (Im temporarily using my github &#39;fork&#39; here until the node interface code has been integrated in Jerome&#39;s master repository, see here for discussion <a href="https://github.com/Jerome-github/oem_gateway/pull/20">https://github.com/Jerome-github/oem_gateway/pull/20</a></p>
+<pre>
+git clone <a href="https://github.com/TrystanLea/oem_gateway" title="https://github.com/TrystanLea/oem_gateway">https://github.com/TrystanLea/oem_gateway</a>
+
+cd oem_gateway
+
+cp oemgateway_node.conf.dist oemgateway.conf</pre><p>Open the oem_gateway configuration file</p>
+<pre>
+nano oemgateway.conf</pre><p>Set your radio frequency and network group in the listener config (use short hand 4 for 433Mhz and 8 for 868Mhz).</p>
+<p>Set your emoncms.org apikey in the apikey section in the buffer.</p>
+<p>Next we make oem_gateway run as a deamon, steps from the oem_gateway readme.</p>
+<p>Create group emoncms and make user pi part of it</p>
+<pre>
+sudo groupadd emoncms
+sudo usermod -a -G emoncms pi</pre><p>Create a directory for the logfile and give ownership to user pi, group emoncms</p>
+<pre>
+sudo mkdir /var/log/oemgateway
+sudo chown pi:emoncms /var/log/oemgateway
+sudo chmod 750 /var/log/oemgateway</pre><p>Make script run as daemon on startup</p>
+<p>Copy the oemgateway init script:</p>
+<pre>
+sudo cp oemgateway.init.dist /etc/init.d/oemgateway
+sudo chmod 755 /etc/init.d/oemgateway
+sudo update-rc.d oemgateway defaults 99</pre><p>The gateway can be started or stopped anytime with following commands:</p>
+<pre>
+sudo service oemgateway start
+sudo service oemgateway stop
+sudo service oemgateway restart</pre><p>To stop running automatically on startup (sudo update-rc.d -f oemgateway remove)</p>
+<p>&nbsp;</p>
+<p>That&#39;s it, with your emonTx V3 powered, inputs should start appearing under the node tab in your emoncms account in a few seconds.</p>
+<p><strong>Configure Raspbian to run in read-only mode for increased stability (optional but recommended)</strong></p>
+<p>Steps from: <a href="http://www.raspberrypi.org/forum/viewtopic.php?f=29&amp;t=22596">http://www.raspberrypi.org/forum/viewtopic.php?f=29&amp;t=22596</a></p>
+<p>a) sudo nano /etc/default/rcS, add line RAMTMP=yes</p>
+<p>b) sudo nano /etc/fstab</p>
+<pre>
+tmpfs           /tmp            tmpfs   nodev,nosuid,size=30M,mode=1777    0    0
+tmpfs           /var/log        tmpfs   nodev,nosuid,size=30M,mode=1777    0    0
+proc            /proc           proc    defaults          0       0
+/dev/mmcblk0p1  /boot           vfat    defaults          0       2
+/dev/mmcblk0p2  /               ext4    defaults,ro,noatime,errors=remount-ro  0       1
+# /dev/mmcblk0p3  /home           ext4    defaults,noatime</pre><p>c) fix mtab:</p>
+<pre>
+sudo rm /etc/mtab
+sudo ln -s /proc/self/mounts /etc/mtab</pre><p>Change mount mode:</p>
+<pre>
+sudo mount -o remount,ro /dev/mmcblk0p2  /
+sudo mount -o remount,rw /dev/mmcblk0p2  /</pre><h2>
+	Setting up emoncms</h2>
+<p>Navigate to the Node tab.</p>
+<p>Click on the name of the node that appeared, it should show a drop down menu. Select the node type: <strong>EmonTx V3 (Continuous sampling with Wh totals). </strong>This will turn the undefined node into a full populated node with a list of available variables.</p>
+<p><a href="../sites/default/files/Nodes.png"><img alt="" src="../sites/default/files/Nodes.png" style="width: 732px; height: 299px;" /></a></p>
+<p>Click on Config for:</p>
+<p><strong>Power CT1:</strong> Select Log to feed, enter a name for the feed such as &quot;Power CT1&quot; or House Power or whatever, select the PHPFiwa feed engine and select the 10s feed interval (this is the same rate at which the EmonTx is posting)</p>
+<p><strong>Wh CT1: </strong>Again select Log to feed, enter a name for the feed such as &quot;Wh CT1&quot; or House Wh, select the <strong>PHPFina</strong> feed engine and select the 10s feed interval.</p>
+<p>If your using the other CT&#39;s repeat for each CT.</p>
+<p>Click on My Electric.</p>
+<p>Click on the middle of the my electric page to bring up the configuration interface.</p>
+<p>Select under the power feed: Power CT1</p>
+<p>and under the Wh feed Wh CT1.</p>
+<p>click save</p>
+<p>Thats it you should now see your home electricity dashboard.</p>
+<p><img alt="" src="../sites/default/files/configuration.png" style="width: 215px; height: 292px;" /> <img alt="" src="../sites/default/files/configured.png" style="width: 215px; height: 292px;" /> <img alt="" src="../sites/default/files/mobile3.png" style="width: 215px; height: 292px;" /></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<em> Configuration</em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>After initial configuration&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</em>&nbsp;&nbsp;&nbsp;&nbsp; <em>After a week of logging</em></p>
+<p>Open the page on your mobile phone and bookmark it. When you click on the bookmark it will automatically log you in and bring up your electricity dashboard.</p>
+<h2>
+	Using the monitor</h2>
+<p>The appliance list tool is a useful exercise for answering questions such as how much electricity can be save by using low energy lighting such as LED&#39;s? How much electricity does turning off lighting when not in use save?<br />
+	Login to emoncms.org and then navigate to Extras &gt; Report &gt; Appliance list<br />
+	The <a href="../sustainable-energy/electricity-audit-and-savings-case-study.html">Electricity audit and savings case study</a> provides more background on the appliance list exercise</p>
+<h2>
+	Dive in, learn more</h2>
+<p>OpenEnergyMonitor mission is both to develop a super open source energy monitoring system and to build a knowledge resource that can be used to learn about everything that goes into an energy monitor. You should be able to start with just plugging up the system and using it but then be able to dive in and learn more about say the circuit design or how the web software works if you want to.</p>
+<p>Learn more about the EmonTx v3 on the <a href="../modules/emonTxV3.html">main emonTx V3</a> documentation page and <a href="http://wiki.openenergymonitor.org/index.php?title=EmonTx_V3">technical wiki</a></p>
+<p>Learn more about the <a href="http://emoncms.org/site/docs/raspberrypigateway">RaspberryPI BaseStation</a>&nbsp;and the <a href="http://wiki.openenergymonitor.org/index.php?title=RFM12Pi_V2">RFM12Pi Technical Wiki&nbsp;</a></p>
+<p>Learn more about <a href="http://emoncms.org/site/docs/">Emoncms</a></p>
+<h2>
+	Contributors</h2>
+<ul>
+<li>
+		Robin Emley: development of the continuous sampling emontx v3 code</li>
+<li>
+		Jerome Lafr&eacute;choux: development of the oem_gateway script</li>
+<li>
+		Jean Claude Wippler of jeelabs: development of RFM12B Library and RFM12_Demo code.</li>
+<li>
+		Martin Harizanov: adaptation of Jean Claude Wipplers RFM12_Demo example</li>
+<li>
+		Glyn Hudson: design of EmonTx v3 unit.</li>
+<li>
+		Robert Wall: Circuit design feedback and rigour behind building blocks documentation that makes up the above.</li>
+<li>
+		Glyn Hudson and Martin Harizanov: design of RFM12Pi board.</li>
+<li>
+		Glyn Hudson: production logistics of EmonTx v3 unit and RFM12Pi board.</li>
+<li>
+		Trystan Lea: emoncms development, new node interface and mobile dashboard, wh calculation addition to emontx firmware and writing of this documentation</li>
+</ul>
+</div>
+    
+    
+      </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/4283 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:20:47 GMT -->
+</html>

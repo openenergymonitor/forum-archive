@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2183 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:07:19 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Energy Monitor - My Way | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Energy Monitor - My Way</h3>
+        <span class="submitted">Submitted by Guest on Sun, 31/03/2013 - 12:01</span>
+        <div class="content"><p>After some time searching for a suitable energy monitor I found this project. Congratulations!&nbsp;</p>
+<p>Now I have some experience with it and I&#39;m posting my modifications and suggestions. Since they are both hardware and software related I&#39;m posting in the general discussion forum.</p>
+<p><strong>Hardware</strong></p>
+<p>I was not satisfied with the voltage transformer since the waveform was distorted. I found a simple way to sample the actual line waveform. I&#39;m using a simple resistor divider (1M - 10k&nbsp;multiturn&nbsp;trimpot) connected capacitively (via 2 2u2/300V capacitors) to the 230 V power lines. The output of the voltage divider is connected to the existing&nbsp;Vcc/2 ADC voltage divider via 10u capacitor. With multiturn trimpot&nbsp;I can adjust the voltage to be around 3.1&nbsp;Vpp. This approach has almost no phase shift and the ADC waveform is very accurate representation of the line waveform.</p>
+<p>I was also not satisfied with the current sensor. Since the current in my case is below 30 A I used two CTs with different burden resistors: CT1 with 68R and CT2&nbsp;with 120R. CT2 is additionally protected with two antiparallel&nbsp;1V8&nbsp;zener diodes. The first input (CT1) behaves like in the original emonTx but with higher sensitivity. If the current is below 10 A I make the second measurement via CT2. Zener diodes protect ADC input if the current produces too high voltage.&nbsp;</p>
+<p>With both modifications I have improved the accuracy of the readings even for low powers.</p>
+<p>As a base station I use RPi. This RPi also runs Nagios (with pnp4nagios). I have created also services for all parameters monitored by the energy monitor.</p>
+<p>The emonTx&nbsp;is powered via small switching 5V power supply. I have also added a small I2C 4-digit 7-segment display to the emonTx. It is conencted&nbsp;directly to the I2C bus on the emonTx and shows current power. The display was purchased <a href="http://www.ebay.com/itm/4-Digit-I2C-Serial-7-Segment-Display-/180774395452?pt=LH_DefaultDomain_2&amp;hash=item2a16fe5e3c">on eBay</a>:</p>
+<p><strong>Software</strong></p>
+<p>EmonCms is great software - I&#39;m only posting my comments and hints for future improvements:</p>
+<p>- Dashboard editing: if you set (drag) either width or height of any element to 0 then you can not edit the element anymore.</p>
+<p>- Dashboard size can not be edited</p>
+<p>- Charts: the buttons are too big and should be located outside (top right)</p>
+<p>- Charts: I&#39;m missing the option to select the color</p>
+<p>- Access via NAT: local address is used to access charts - relative paths should be used. $path should still be absolute since code to embed visualizations (shown in emoncms) uses it.</p>
+<p>- DB size: <a href="http://docs.pnp4nagios.org/pnp-0.6/start">pnp4nagios</a>&nbsp;stores data into RRD-databases (Round Robin Databases, see RRD Tool <a href="http://oss.oetiker.ch/rrdtool/">http://oss.oetiker.ch/rrdtool/</a>). I propose to use this approach also for emoncms to avoid having a huge database.</p>
+<p>- Maybe some setting to limit the age of the data kept in the DB. Having samples of voltage and current for ever 10 s is probably not needed. Maybe this is not needed if the RRD approach is implemented.</p>
+<p><strong>General</strong></p>
+<p>I was hoping the SMD version of emonTx will be smaller but this doesn&#39;t seem to be the case. Anyway, here are my wishes for future versions:</p>
+<p>- higher accuracy</p>
+<p>- environmental sensors that are used in Air Quality Egg</p>
+<p>&nbsp;</p>
+<p>That&#39;s it. I&#39;m having a lot of fun with energy monitor! Thanks to everybody who have contributed to this project.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="476.html" class="topic-previous" title="Go to previous forum topic">‹ Efergy vs SCT 100 clamp </a>
+              <a href="2177.html" class="topic-next" title="Go to next forum topic">Solar diverters and Insurance ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-10754"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Energy Monitor - My Way</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 31/03/2013 - 12:19.</div>
+    <div class="content">
+     <p>I hope you have installed your hardware in a double-insulated fireproof box, that your 5 V power supply is inside it and that that you never connect to anything else outside the box.</p>
+<p style="font-size: 15pt; color: red">WHAT YOU HAVE DESCRIBED IS POTENTIALLY DANGEROUS.</p>
+<p>There is a very good reason for using the voltage adapters that are recommended, that is to avoid having a direct connection to the electricity supply. If you do connect directly, then <strong>you must adhere to the minimum standards for safety. </strong></p>
+<p>This post <a href="1987.html">Galvanically Isolated Voltage Monitor - GIVmon</a>&nbsp; is the proper way to do it.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10756"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="funa&#039;s picture" title="funa&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Energy Monitor - My Way</h3>
+
+    <div class="submitted">Submitted by funa (not verified) on Sun, 31/03/2013 - 13:21.</div>
+    <div class="content">
+     <p>Of course, the hardware is completely isolated inside a box. I assume anybody doing this knows the potential danger. Thanks for the red text, I forgot to warn other users trying this approach.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10763"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Energy Monitor - My Way</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 31/03/2013 - 15:51.</div>
+    <div class="content">
+     <p><em>&quot;I assume anybody doing this knows the potential danger.</em>&quot; That&#39;s a very dangerous assumption. We have on these forums a complete range of skills and abilities ranging from complete novice to experienced professional electrical engineers. You must assume the worst and as far as possible warn the inexperienced against putting themselves in danger.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2183"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-fUB4dnJFLYC9u80-YWGGUDaiWNr_5cnHJbySToerJSQ" value="form-fUB4dnJFLYC9u80-YWGGUDaiWNr_5cnHJbySToerJSQ"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2183 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:07:19 GMT -->
+</html>

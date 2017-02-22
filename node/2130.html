@@ -1,0 +1,354 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2130 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:37 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>EmonLib Errors related with calcIrms() function | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">EmonLib Errors related with calcIrms() function</h3>
+        <span class="submitted">Submitted by Guest on Sun, 17/03/2013 - 14:19</span>
+        <div class="content"><p>Dear Friends,&nbsp;</p>
+<p>I am using <strong>EmonLib&nbsp;(Version April 27 2010) .</strong></p>
+<p>I am trying to use Library&nbsp;EmonLib&nbsp;on custom designed hardware based on&nbsp;Arduino Mega2560. I am having a strange trouble with calcIrms() function. I have 15 current sensors. When I use each sensor individually they work fine and always return a positive current value. However when I enable multiple sensors then some sensors start to return negative values.&nbsp;</p>
+<p>I traced down by adding prints in the Emonlib.cpp at various places and finally found that the trouble is related with readVCC() function. The readVCC function some times return errornous value of &quot;-1&quot;.The regular value for this function is around 512.&nbsp;</p>
+<p>I am copying the readVCC() function for your review:</p>
+<p><em>long EnergyMonitor::readVcc() {<br />
+	&nbsp; long result;</em></p>
+<p><em>&nbsp; #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined (__AVR_ATmega328P__)<br />
+	&nbsp; ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);&nbsp;<br />
+	&nbsp; #elif defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)<br />
+	&nbsp; ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+	&nbsp; #elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)<br />
+	&nbsp; ADMUX = _BV(MUX5) | _BV(MUX0);<br />
+	&nbsp; #elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)<br />
+	&nbsp; ADMUX = _BV(MUX3) | _BV(MUX2);<br />
+	&nbsp; #endif</em></p>
+<p><em>&nbsp; delay(2);&nbsp;&nbsp;&nbsp;&nbsp; // Wait for Vref to settle&nbsp;<br />
+	&nbsp; ADCSRA |= _BV(ADSC);&nbsp;&nbsp;&nbsp; // Convert<br />
+	&nbsp; while (bit_is_set(ADCSRA,ADSC));<br />
+	&nbsp; result = ADCL;<br />
+	&nbsp; result |= ADCH&lt;&lt;8;<br />
+	&nbsp; result = 1126400L / result;&nbsp;&nbsp; //1100mV*1024 ADC steps <a href="1186.html" title="http://openenergymonitor.org/emon/node/1186">http://openenergymonitor.org/emon/node/1186</a><br />
+	&nbsp; return result;<br />
+	}</em></p>
+<p>----------------</p>
+<p>Can someone suggest what might be wrong with readVCC function that it sometimes returns -1?</p>
+<p>Regards</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2160.html" class="topic-previous" title="Go to previous forum topic">‹ Voltage calibration without voltage meter</a>
+              <a href="2143.html" class="topic-next" title="Go to next forum topic">Setting up Pi to run Linux and emoncms on hard disk ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-10516"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonLib Errors related with calcIrms() function</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 17/03/2013 - 22:47.</div>
+    <div class="content">
+     <p><em>&quot;I have 15 current sensors. When I use each sensor individually they work fine and always return a positive current value. However when I enable multiple sensors then some sensors start to return negative values. &quot;</em></p>
+<p>I&#39;ve not seen anyone complain of this before. When you say you have 15 sensors, how are you defining them? And how do you enable and use them? Are you running out of memory?&nbsp; I would be looking for an out-of-memory error or an overflow for this fault. Take a look at this: <a href="http://playground.arduino.cc/Code/AvailableMemory " title="http://playground.arduino.cc/Code/AvailableMemory ">http://playground.arduino.cc/Code/AvailableMemory </a> or this:&nbsp; <a href="http://forum.pololu.com/viewtopic.php?f=10&amp;t=989&amp;view=unread#p4218" title="http://forum.pololu.com/viewtopic.php?f=10&amp;t=989&amp;view=unread#p4218">http://forum.pololu.com/viewtopic.php?f=10&amp;t=989&amp;view=unread#p4218</a></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10518"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonLib Errors related with calcIrms() function</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Mon, 18/03/2013 - 01:19.</div>
+    <div class="content">
+     <p>I&#39;m curious, what sort of sampling rate do you anticipate while running 15 CTs?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10526"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonLib Errors related with calcIrms() function</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 18/03/2013 - 16:26.</div>
+    <div class="content">
+     <p><em>&quot;I&#39;m curious, what sort of sampling rate do you anticipate while running 15 CTs?&quot;</em><br />
+	It depends on how many samples or how many half-cycles you ask for, and whether you&#39;re using the standard emonLib functions or the more advanced free-running or the interrupt-driven sketches, whether you interleave samples or c.t&#39;s. But it would nonetheless be fairly slow. If you read calypso-rae&#39;s threads, you can see what sort of rates are obtainable with one c.t. then divide by 15!</p>
+<p>Which approach you take depends very much on what you want to do with the data, and without doing the sums I&#39;d have thought a hybrid approach would be the best (i.e. maybe interleave 3 c.t&#39;s, then repeat for the 5 groups of 3).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10537"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="asimlink&#039;s picture" title="asimlink&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonLib Errors related with calcIrms() function</h3>
+
+    <div class="submitted">Submitted by asimlink (not verified) on Tue, 19/03/2013 - 12:29.</div>
+    <div class="content">
+     <p>For me it doesnt really matter if the calcIrms&nbsp;function takes time. my logging of power is very slow. Problem is with readVCC function() if multiple sensors are enabled the readVCC returns un-reliable values often containing -1.</p>
+<p>I am doing this experiment on Arduino Mega 2560 board. Maybe you all have tested things on Arduino UNO and not on Mega 2560. I would suggest if you have Arduino Mega just try to run this code (no matter if you have any sensor connected with analog pins) the return values for all analog inputs should be &quot;about&quot; same.</p>
+<p>Interesting thing is that when i replaced following line :</p>
+<p>int SUPPLYVOLTAGE = readVcc(); with&nbsp;</p>
+<p>int SUPPLYVOLTAGE = 5000;</p>
+<p>&nbsp;</p>
+<p>here is EmonLib.cpp function that i edited:</p>
+<p>-------------------------------------</p>
+<p><em>double EnergyMonitor::calcIrms(int NUMBER_OF_SAMPLES)</em></p>
+<p><em>{<br />
+	//int SUPPLYVOLTAGE = readVcc(); // disabled by me</em><br />
+	&nbsp;</p>
+<p><em>int SUPPLYVOLTAGE = 5000;&nbsp; // added by me</em></p>
+<p><em>--------------------------------------</em></p>
+<p>The calcIrms runs without any problems. So the trouble is with readVCC function for sure. I would like you guys to test readVCC function over Arduino Mega 2560.</p>
+<p>here is my main code:</p>
+<p>#include &quot;EmonLib.h&quot; // Include Emon Library</p>
+<p>&nbsp;</p>
+<p><em>EnergyMonitor emon1; //instance for sensor 01<br />
+	EnergyMonitor emon2; //instance for sensor 02<br />
+	EnergyMonitor emon3; //instance for sensor 03&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	EnergyMonitor emon4; //instance for sensor 04<br />
+	EnergyMonitor emon5; //instance for sensor 05<br />
+	EnergyMonitor emon6; //instance for sensor 06<br />
+	EnergyMonitor emon7; //instance for sensor 07<br />
+	EnergyMonitor emon8; //instance for sensor 08<br />
+	EnergyMonitor emon9; //instance for sensor 09<br />
+	EnergyMonitor emon10;//instance for sensor 10<br />
+	EnergyMonitor emon11;//instance for sensor 11<br />
+	EnergyMonitor emon12;//instance for sensor 12<br />
+	EnergyMonitor emon13;//instance for sensor 13<br />
+	EnergyMonitor emon14;//instance for sensor 14<br />
+	EnergyMonitor emon15;//instance for sensor 15</em></p>
+<p><em>void setup()<br />
+	{&nbsp;<br />
+	&nbsp; Serial.begin(9600);</em></p>
+<p><em>&nbsp; emon1.current(1, 17.5);&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 200R<br />
+	&nbsp; emon2.current(2, 17.5);&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 200R<br />
+	&nbsp; emon3.current(3, 17.5);&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 200R<br />
+	&nbsp; emon4.current(4, 7.1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 510R<br />
+	&nbsp; emon5.current(5, 7.1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 510R<br />
+	&nbsp; emon6.current(6, 7.1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 510R<br />
+	&nbsp; emon7.current(7, 7.1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 510R<br />
+	&nbsp; emon8.current(8, 7.1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 510R<br />
+	&nbsp; emon9.current(9, 7.1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 510R<br />
+	&nbsp; emon10.current(10, 7.1);&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 510R<br />
+	&nbsp; emon11.current(11, 7.1);&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 510R<br />
+	&nbsp; emon12.current(12, 7.1);&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 510R<br />
+	&nbsp; emon13.current(13, 7.1);&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 510R<br />
+	&nbsp; emon14.current(14, 7.1);&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 510R<br />
+	&nbsp; emon15.current(15, 7.1);&nbsp;&nbsp;&nbsp; // Current: input pin, calibration. for 510R<br />
+	&nbsp;<br />
+	}</em></p>
+<p><em>void loop()<br />
+	{<br />
+	&nbsp; // calculates Irms for all 15 sensors<br />
+	&nbsp; double Irms1 = emon1.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms2 = emon2.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms3 = emon3.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms4 = emon4.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms5 = emon5.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms6 = emon6.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms7 = emon7.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms8 = emon8.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms9 = emon9.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms10 = emon10.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms11 = emon11.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms12 = emon12.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms13 = emon13.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms14 = emon14.calcIrms(1480);&nbsp; // Calculate Irms only<br />
+	&nbsp; double Irms15 = emon15.calcIrms(1480);&nbsp; // Calculate Irms only&nbsp;<br />
+	&nbsp;<br />
+	&nbsp; // print Apparent power for all 15 sensors<br />
+	&nbsp;<br />
+	&nbsp; Serial.print(&quot;S1:&quot;); Serial.print(Irms1*230.0);&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S2:&quot;); Serial.print(Irms2*230.0);&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S3:&quot;); Serial.print(Irms3*230.0);&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S4:&quot;); Serial.print(Irms4*230.0);&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;\t&quot;);&nbsp;<br />
+	&nbsp; Serial.print(&quot;S5:&quot;); Serial.print(Irms5*230.0);&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S6:&quot;); Serial.print(Irms6*230.0);&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S7:&quot;); Serial.print(Irms7*230.0);&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S8:&quot;); Serial.print(Irms8*230.0);&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S9:&quot;); Serial.print(Irms9*230.0);&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S10:&quot;); Serial.print(Irms10*230.0);&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S11:&quot;); Serial.print(Irms11*230.0);&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S12:&quot;); Serial.print(Irms12*230.0);&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S13:&quot;); Serial.print(Irms13*230.0);&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S14:&quot;); Serial.print(Irms14*230.0);&nbsp;&nbsp; Serial.print(&quot;\t&quot;);<br />
+	&nbsp; Serial.print(&quot;S15:&quot;); Serial.println(Irms15*230.0);<br />
+	&nbsp; Serial.println (&quot;&quot;);<br />
+	&nbsp;<br />
+	}</em></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10538"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonLib Errors related with calcIrms() function</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 19/03/2013 - 13:46.</div>
+    <div class="content">
+     <p>Presumably you &quot;disable&quot; and &quot;enable&quot; channels by commenting / uncommenting them? Is there a critical point at which the number of active instances creates the fault - irrespective of <em>which</em> channels are active?</p>
+<p>So can you look again at this: &quot;Are you running out of memory?&nbsp; I would be looking for an out-of-memory error or an overflow for this fault. Take a look at this: <a href="http://playground.arduino.cc/Code/AvailableMemory " title="http://playground.arduino.cc/Code/AvailableMemory&nbsp;">http://playground.arduino.cc/Code/AvailableMemory&nbsp;</a> or this:&nbsp; <a href="http://forum.pololu.com/viewtopic.php?f=10&amp;t=989&amp;view=unread#p4218" title="http://forum.pololu.com/viewtopic.php?f=10&amp;t=989&amp;view=unread#p4218">http://forum.pololu.com/viewtopic.php?f=10&amp;t=989&amp;view=unread#p4218&quot;</a></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10637"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonLib Errors related with calcIrms() function</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Tue, 26/03/2013 - 00:15.</div>
+    <div class="content">
+     <p>I&#39;m not sure the logic behind readVCC() is sound anyway, so it may be your solution gives a better result. &nbsp; It appears to be using a Vref of 5V and using that to measure the 1.1V internal bandgap voltage. &nbsp;Any discrepancy then gets booked to the 5V supply. &nbsp;In my experience those internal bandgap voltages are not very accurate at all, and vary from device to device. &nbsp; I&#39;ve got a Mega2560 here on my bench whose 2.56V internal reference would appear to be more like 2.499V. &nbsp;The datasheet says anywhere from 2.4V to 2.8V (and 1.0V to 1.2V for the 1.1V reference).</p>
+<p>If you&#39;re running your Arduino off a long cheap USB cable from already overloaded computer USB ports, then I could imagine the bandgap voltages might be better than the 5V supply. &nbsp;But if you&#39;ve got a half decent 5V regulator onboard, then I&#39;d put my money on the 5V rather than the internal voltages.</p>
+<p>I&#39;m not familiar with emonlib&nbsp;but I&#39;d imagine the absolute voltage is probably not that relevant anyway. &nbsp;Presumably any inaccuracies there get calibrated away? &nbsp;And doing it on every measurement of current seems pretty wasteful of your most precious resource... the A/D converter. &nbsp; &nbsp;You might actually improve accuracy by assuming Vcc is stable, and keeping the A/D busy tracking the things that really mater (V and I). &nbsp;Especially given that any drift you do detect wth readVCC() might be bandgap voltage drift and not Vcc drift.</p>
+<p>None of that explains what you&#39;re seeing though, so I&#39;m afraid this doesn&#39;t get you off the hook from finding your problem.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10638"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonLib Errors related with calcIrms() function</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 26/03/2013 - 01:09.</div>
+    <div class="content">
+     <p>The argument is that the internal bandgap reference might not be more <em>accurate</em>, but it is more <em>stable,</em> than the 5 V supply.</p>
+<p>Therefore as you say the inaccuracy gets calibrated out. You cannot calibrate out instability.</p>
+<p>It&#39;s really there for the people who run off batteries. In that case, using the bandgap reference to calibrate A<sub>ref</sub> - which is the battery voltage - is essential.</p>
+<p>(dBC: I got the impression the OP was a bit cheesed off by you sidetracking &#39;his&#39; thread - better start a new one if you want to discuss this further.)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10639"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonLib Errors related with calcIrms() function</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Tue, 26/03/2013 - 01:20.</div>
+    <div class="content">
+     <p>In that case, you might get better results using one of the internal voltages as the Vref for the A/D &nbsp;and adjust the burden resistors, mid-voltages, and op-amps accordingly. &nbsp; If the 5V is noisy, and it&#39;s being used as the Vref for the A/D, then checking its value 110usecs before or after using it as a reference doesn&#39;t sound too good.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2130"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-6k1ukq8PaDypuWD4kX2lrGZJjsr64WPcu5Ebw1mg4eM" value="form-6k1ukq8PaDypuWD4kX2lrGZJjsr64WPcu5Ebw1mg4eM"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2130 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:37 GMT -->
+</html>

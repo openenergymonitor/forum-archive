@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/4290 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:48 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>New GLCD code for displaying 6 values on one screen | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">New GLCD code for displaying 6 values on one screen</h3>
+        <span class="submitted">Submitted by <a href="../user/5022.html" title="View user profile.">cybergibbons</a> on Sat, 22/03/2014 - 10:13</span>
+        <div class="content"><p>I&#39;m currently developing a heat pump monitor system with a GLCD and I need to be able to display quite a lot of data on a single screen for it to be useful, as well as configure the screen to fit different setups.</p>
+<p>After spending a while getting used to the capabilities of the GLCD, I made a fairly tidy display but then found it was painful to reconfigure the layout, chose different parameters and so on. I wanted to create a single table that allowed me to chose which node, which value (power1, power2, Vrms, temp, humidity) etc, where it should be displayed, what units to use etc. rather than change the code in a million places.</p>
+<p>So, I present my new 6 panel GLCD&nbsp;sketch.</p>
+<p><a href="../../../i.imgur.com/PDhUn1f.jpg" target="_blank"><img alt="GLCD" src="../../../i.imgur.com/PDhUn1f.jpg" style="width: 800px; height: 600px;" /></a></p>
+<p>I realise this might be a bit cluttered and show a lot of information - perhaps too much for some. I find it takes a short while to get used to it.</p>
+<p><a href="https://github.com/cybergibbons/HomeEnergyMonitor/blob/master/HomeEnergyMonitor.ino" title="https://github.com/cybergibbons/HomeEnergyMonitor/blob/master/HomeEnergyMonitor.ino">https://github.com/cybergibbons/HomeEnergyMonitor/blob/master/HomeEnergy...</a></p>
+<p>It has the following features:</p>
+<ul>
+<li>
+		Easy to configure which pane displays which value for a given node ID - deals with emonTH and emonTX values</li>
+<li>
+		Can calculate energy for 3 different power readings</li>
+<li>
+		Displays alternating daily MIN/MAX for temperature readings</li>
+<li>
+		Can display temperature, power, energy, voltage and percentage units</li>
+<li>
+		Allows display of numbers and strings aligned left, right, centre&nbsp;and on the number/unit division (which allows neat display of numbers that change from W to KW)</li>
+<li>
+		Uses a monospaced&nbsp;font to make calculating position of text easier</li>
+<li>
+		Has configurable timeouts for nodes - if no signal is received then label flashes &quot;TIMED OUT&quot;</li>
+<li>
+		Displays time</li>
+<li>
+		Has a small flashing circle to show system is still running (very dumb, but protects against hangs and memory issues)</li>
+<li>
+		Stores strings in flash to reduce RAM usage</li>
+<li>
+		Currently uses ~55% of flash and 82% of RAM - hopefully be enough headroom to add additional functionality.</li>
+</ul>
+<p>There are a few bits and bobs I don&#39;t like about the code - mainly having to maintain an index for the string table outside of the string table.&nbsp;</p>
+<p>Here is an example of a row in the configuration:</p>
+<pre>
+
+  {POWER_ID, NODE_EMONTX, VALUE_EMONTX_POWER1, X0_Y0, UNIT_POWER, I_LABEL_POWER, 30},
+</pre><p>POWER_ID is the node ID of the EMONTX.&nbsp;</p>
+<p>NODE_EMONTX&nbsp;tells us this is a normal EMONTX. Supports EMONTH as well</p>
+<p>VALUE_EMONTX_POWER1&nbsp;says we want to show the power1 value</p>
+<p>X0_Y0 is the top left panel.</p>
+<p>UNIT_POWER says to use W/KW units.</p>
+<p>I_LABEL_POWER uses the string in the table represented by this index (&quot;POWER&quot;).</p>
+<p>30 is the timeout in s - i.e. we can miss several readings before it shows</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="4268.html" class="topic-previous" title="Go to previous forum topic">‹ Parsing CSV values</a>
+              <a href="4228.html" class="topic-next" title="Go to next forum topic">Trying to get GLCD to display date rather than time ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/4290 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:48 GMT -->
+</html>

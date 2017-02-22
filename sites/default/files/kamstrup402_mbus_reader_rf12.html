@@ -1,0 +1,191 @@
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial(5,3);
+
+unsigned long last = 0;
+unsigned long now = 0;
+
+char str[16];
+
+int bid = 0;
+byte bytes[120];
+byte dlen = 0;
+
+
+#define RF_freq RF12_433MHZ                                                // Frequency of RF12B module can be RF12_433MHZ, RF12_868MHZ or RF12_915MHZ. You should use the one matching the module you have.433MHZ, RF12_868MHZ or RF12_915MHZ. You should use the one matching the module you have.
+const int nodeID = 5;                                                  // emonTx RFM12B node ID
+const int networkGroup = 210;                                           // emonTx RFM12B wireless network group - needs to be same as emonBase and emonGLCD needs to be same as emonBase and emonGLCD
+
+#define RF69_COMPAT 0 // set to 1 to use RFM69CW 
+#include <JeeLib.h>   // make sure V12 (latest) is used if using RFM69CW
+ISR(WDT_vect) { Sleepy::watchdogEvent(); }
+
+typedef struct { 
+  int address; 
+  int flowT; 
+  int returnT;
+  int deltaT;
+  int power;
+  int maxpower;
+  int flow;
+  int maxflow;
+  long energy;
+  long volume;
+  long ontime; 
+} PayloadTX;         // neat way of packaging data for RF comms
+PayloadTX emontx;
+
+const int LEDpin = 9;
+
+void setup() {
+  Serial.begin(2400,SERIAL_8E1);
+  mySerial.begin(2400);
+  
+  // command packet to request frame
+  str[0] = (char) 16;
+  str[1] = (char) 64;
+  str[2] = (char) 253;
+  str[3] = (char) 61;
+  str[4] = (char) 22;
+  str[5] = (char) 16;
+  str[6] = (char) 64;
+  str[7] = (char) 253;
+  str[8] = (char) 61;
+  str[9] = (char) 22;
+  str[10] = (char) 16;
+  str[11] = (char) 91;
+  str[12] = (char) 147;
+  str[13] = (char) 238;
+  str[14] = (char) 22;
+  str[15] = '\0';
+  
+  /*
+  // command packet to request frame
+  str[0] = (char) 16;
+  str[1] = (char) 64;
+  str[2] = (char) 253;
+  str[3] = (char) 61;
+  str[4] = (char) 22;
+  str[5] = (char) 16;
+  str[6] = (char) 64;
+  str[7] = (char) 253;
+  str[8] = (char) 61;
+  str[9] = (char) 22;
+  str[10] = (char) 16;
+  str[11] = (char) 91;
+  str[12] = (char) 147;
+  str[13] = (char) 159;
+  str[14] = (char) 22;
+  str[15] = '\0';
+  */
+  
+  rf12_initialize(nodeID, RF_freq, networkGroup);
+  pinMode(LEDpin,OUTPUT);
+}
+
+void loop() {
+  now = millis();
+  
+  if (mySerial.available()) {
+    byte val = (byte) mySerial.read();
+    
+    bytes[bid] = val;
+    bid++;
+    
+    if (bytes[0]!=104) {
+      bid = 0;
+    }
+    
+    if (bid==3) {
+      if (bytes[1]==bytes[2]) {
+        dlen = bytes[1];
+      } else {
+        bid = 0;
+      }
+    }
+    
+    if (bid==100)
+    {
+      parse();
+      bid = 0;
+    }
+  }
+    
+  if ((now-last)>10000) {
+    last = now;
+    Serial.println(str);
+    mySerial.println(str[0]);
+  }
+  
+}
+
+void parse()
+{
+  Serial.print("Address: ");
+  Serial.println(bytes[5]);
+  emontx.address = (int) bytes[5];
+  
+  byte i=25;
+  Serial.print("Energy (kWh): ");
+  Serial.println(decodeval(i));
+  emontx.energy = decodeval(i);
+  i+=6;
+  
+  Serial.print("Volume (m3): ");
+  Serial.println(decodeval(i)*0.01);
+  emontx.volume = decodeval(i);
+  i+=6;
+  
+  Serial.print("Ontime (hours): ");
+  Serial.println(decodeval(i));
+  emontx.ontime = decodeval(i);
+  i+=6;
+  
+  Serial.print("Flow temperature: ");
+  Serial.println(decodeval(i)/100.0);
+  emontx.flowT = decodeval(i);
+  i+=6;
+  
+  Serial.print("Return temperature: ");
+  Serial.println(decodeval(i)/100.0);
+  emontx.returnT = decodeval(i);
+  i+=6;
+  
+  Serial.print("Temperature difference (K): ");
+  Serial.println(decodeval(i)/100.0);
+  emontx.deltaT = decodeval(i);
+  i+=6;
+  
+  Serial.print("Power (W): ");
+  Serial.println(decodeval(i));
+  emontx.power = decodeval(i);
+  i+=6;
+  
+  Serial.print("Max Power (W): ");
+  Serial.println(decodeval(i));
+  emontx.maxpower = decodeval(i);
+  i+=6;
+  
+  Serial.print("Volume flow (m3/h): ");
+  Serial.println(decodeval(i));
+  emontx.flow = decodeval(i);
+  i+=6;
+  
+  Serial.print("Max volume flow (m3/h): ");
+  Serial.println(decodeval(i));
+  emontx.maxflow = decodeval(i);
+  i+=6;
+  
+  // if ready to send + exit loop if it gets stuck as it seems too
+  int rf = 0; while (!rf12_canSend() && rf<10) {rf12_recvDone(); rf++;}
+  rf12_sendStart(0, &emontx, sizeof emontx);
+  // set the sync mode to 2 if the fuses are still the Arduino default
+  // mode 3 (full powerdown) can only be used with 258 CK startup fuses
+  rf12_sendWait(2);
+  
+  delay(100);
+  digitalWrite(LEDpin, HIGH); delay(20); digitalWrite(LEDpin, LOW);      // flash LED
+}
+
+long decodeval(long i) {
+  return bytes[i+2] + (bytes[i+3]<<8) + (bytes[i+4]<<16) + (bytes[i+5]<<24);
+}

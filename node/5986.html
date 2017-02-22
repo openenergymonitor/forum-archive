@@ -1,0 +1,935 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5986 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:14:40 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Emonhub installation/update | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node sticky">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Emonhub installation/update</h3>
+        <span class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 23/10/2014 - 23:01</span>
+        <div class="content"><p>Emonhub is now the recommended method of interfacing a rfm12pi to a local or remote emoncms install, and replaces the PHP and Python scripts which we have previously used.<br />
+Thanks to Paul Burnell, the author of emonhub, installation of emonhub can be achieved via a command line, which clones an installation script to automate the installation process.<br />
+The process is slightly different, depending upon if you have the &#39;raspberry pi module&#39; <u>already installed</u> in an existing installation&nbsp;and wish to change to emonhub, or if you have a new installation and the &#39;raspberry pi module&#39; has not been installed. Firstly the former;</p>
+<p>1) If you have the <strong>raspberry pi module already installed</strong>,<strong> </strong>it&#39;s important that it is removed<strong> </strong>prior to installing emonhub, as only one software can use the serial UART the RFM2Pi is connected to at any one time.<br />
+To remove the existing module, and then install emonhub, enter the following command line;</p>
+<pre>
+$ git clone <a href="https://github.com/emonhub/dev-emonhub.git" title="https://github.com/emonhub/dev-emonhub.git">https://github.com/emonhub/dev-emonhub.git</a> ~/dev-emonhub &amp;&amp; ~/dev-emonhub/upgrade</pre><p>You will notice that after running this command, that emoncms will stop updating, this is expected until the configuration file is updated as follows;</p>
+<pre>
+$ nano /etc/emonhub/emonhub.conf</pre><p>Enter your emoncms read/write api key in [[[runtimesettings]]] and also enter your rfm2pi frequency, group &amp; base id under [[[runtimesettings]]]&nbsp;<br />
+Save your settings, and;</p>
+<pre>
+$ sudo service emonhub restart</pre><p><strong>NOTE</strong>&nbsp;- This update will not orphan or alter&nbsp;your input processes, feeds, visualizations&nbsp;or feed data, as it only changes the way in which data is fed to&nbsp;emoncms.</p>
+<p>&nbsp;</p>
+<p>2) To install emonhub on an&nbsp;system&nbsp;where the <strong>raspberry pi module is <u>not </u>already&nbsp;installed</strong>&nbsp;the process is slightly different and includes two additional steps;</p>
+<pre>
+$ git clone <a href="https://github.com/emonhub/dev-emonhub.git" title="https://github.com/emonhub/dev-emonhub.git">https://github.com/emonhub/dev-emonhub.git</a> ~/dev-emonhub &amp;&amp; ~/dev-emonhub/install</pre><p>Edit the configuration file - emonhub.conf exactly same as 1)&nbsp;above;</p>
+<pre>
+$ nano /etc/emonhub/emonhub.conf</pre><p>Then&nbsp;disable the&nbsp;serial console&nbsp;by editing&nbsp;/etc/inittab and&nbsp;&nbsp;/boot/cmdline.txt</p>
+<p>Firstly edit the inittab&nbsp;file&nbsp;by adding a &#39;#&#39; to the beginning of the last line, so it reads;</p>
+<p># T0:23:respawn:/sbin/getty&nbsp;-L&nbsp;ttyAMA0&nbsp;115200&nbsp;vt100</p>
+<p>​...and edit the cmdline.txt file by changing the single line to;</p>
+<p>dwc_otg.lpm_enable=0 console=tty1&nbsp;root=/dev/mmcblk0p2&nbsp;rootfstype=ext4&nbsp;elevator=deadline&nbsp;rootwait</p>
+<p>(The reference to&nbsp;mmcblk0p2 may be different on your installation, depending if you are using a SD card for your root, or an external HDD)</p>
+<p>&nbsp;</p>
+<p><strong>Problems?</strong><br />
+View the error log;</p>
+<pre>
+$ tail -f /var/log/emonhub/emonhub.log</pre><p>By default this is set to record &#39;WARNING&#39;, however this can be changed to either - DEBUG, INFO, WARNING, ERROR, and CRITICAL by editing the configuration file.</p>
+<p>&nbsp;</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12104.html" class="topic-previous" title="Go to previous forum topic">‹ MQTT changes 6th Feb</a>
+              <a href="11844.html" class="topic-next" title="Go to next forum topic">Dashboards missing after update ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-24764"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Fri, 24/10/2014 - 10:04.</div>
+    <div class="content">
+     <p>Hi Paul</p>
+<p>Can you clarify the usage of Emonhub. Is it useable only if you have a rfm12pi&nbsp;module on the Raspberry Pi? I use a Pi as my local server but with data coming in on the network connection as I use a remote&nbsp;NanodeRF as the base station.</p>
+<p>Regards</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24766"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Fri, 24/10/2014 - 10:31.</div>
+    <div class="content">
+     <p>Yes, it's purely the gateway to enable the rfm12b module to talk to emoncms.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24767"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Fri, 24/10/2014 - 10:50.</div>
+    <div class="content">
+     <p>Thankyou Paul Reed and Paul Burnell for posting this. Thats brilliant, Il copy it into a blog post.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24771"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 24/10/2014 - 12:00.</div>
+    <div class="content">
+     <p>Thanks for posting the info about emonHub&nbsp;Paul, the scripts you&#39;ve linked to need to be improved (and documented), they do the job but are a little rough around the edges. The <strong>dev-</strong>emonhub&nbsp;script was just a tool I knocked up to use during development of emonHub before it got debian packaged (hence the dev- prefix).</p>
+<p>The&nbsp;install script does not yet tackle access to the serial port by disabling the serial console so the /boot/cmdline.txt and&nbsp;/etc/inittab&nbsp;will need editing if installed to a new image.</p>
+<p>The last line in&nbsp;/etc/inittab&nbsp;should read (in particular the&nbsp;#&nbsp;should of been added)</p>
+<p><strong># T0:23:respawn:/sbin/getty&nbsp;-L&nbsp;ttyAMA0&nbsp;115200&nbsp;vt100</strong></p>
+<p>​And the single line in&nbsp;/boot/cmdline.txt should read (changind&nbsp;mmcblk0p2 if required)</p>
+<p><strong>dwc_otg.lpm_enable=0 console=tty1&nbsp;root=/dev/mmcblk0p2&nbsp;rootfstype=ext4&nbsp;elevator=deadline&nbsp;rootwait</strong></p>
+<p>I intend to improve the install scripts (and the documentation)&nbsp;soon (&#39;ish), especially as I don&#39;t think the&nbsp;debian&nbsp;packaging will be happening for a while now.</p>
+<p>Thanks Trystan a blog post would be good.</p>
+<p>Ian, Although currently the only interfacer&nbsp;used in emonHub is indeed primarily&nbsp;for&nbsp;the RFM2Pi, emonHub is actually&nbsp;able to accept other inputs, the socket interfacer&nbsp;just needs to be defined in the conf file to work. This functionality is carried over from OEMGateway&nbsp;and allows data from the LAN to come in via a websocket.</p>
+<p>If you cast your mind back sometime to a <a href="4393.html">discussion we had about your nanodeRF</a>&nbsp;I started an issue on OEM gateway, which was carried over to&nbsp;emonHub.&nbsp;I also did some experimenting and found that &quot;all&quot; that is really needed was some form of authentication as it is already possible to do what you need with emonHub but not in a secure way. see&nbsp;<a href="https://github.com/emonhub/emonhub/issues/25">https://github.com/emonhub/emonhub/issues/25</a>.</p>
+<p>I will take a look&nbsp;at implementing some sort of authentication ( hopefully sometime soon) as I think this would be very useful,</p>
+<p>Paul<br />
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24778"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Fri, 24/10/2014 - 17:27.</div>
+    <div class="content">
+     <p>cmdline.txt &amp; inittab changes now added to main post.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24849"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Tue, 28/10/2014 - 21:19.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>As a starting point, I would like to use the ready-to-go SD card image described <a href="https://github.com/emoncms/emoncms/blob/bufferedwrite/readme.md">here</a> that contains emonhub + emoncms (low write version).&nbsp; Two questions :</p>
+<p>1. I guess I have to update emonhub using the first procedure above. Correct ?</p>
+<p>2. The issue described <a href="5877.html">here</a> is solved or not after updating emonhub ?</p>
+<p>Thank&#39;s</p>
+<p>Eric</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24850"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 28/10/2014 - 22:04.</div>
+    <div class="content">
+     <p>Hi Eric</p>
+<p>The scripts mentioned in this thread are for installing emonhub&nbsp;from scratch (one also removes a&nbsp;previous rfm2pi interface). Since emonhub is included in the ready to go image you wouldn&#39;t need either of these.</p>
+<p>The &quot;read-only time issue&quot;&nbsp;in <a href="5877.html">that discussion</a>&nbsp;isn&#39;t specific to emonhub, it&#39;s to do with keeping time on the&nbsp;Raspbian&nbsp;OS when the file system is mounted as&nbsp;read-only. To avoid the issue&nbsp;you can install ntp-backup, which is the&nbsp;modification mentioned in that same thread,</p>
+<p>You can run&nbsp;this&nbsp;command&nbsp;when in RW&nbsp;mode (rpi-rw) to install ntp-backup to the &quot;read-only SD image&quot;</p>
+<p>&nbsp; &nbsp; <strong>git clone&nbsp;https://github.com/emonhub/ntp-backup.git&nbsp;~/ntp-backup &amp;&amp; ~/ntp-backup/install</strong></p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24859"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Wed, 29/10/2014 - 09:19.</div>
+    <div class="content">
+     <blockquote><p><em>The scripts mentioned in this thread are for installing emonhub&nbsp;from scratch (one also removes a&nbsp;previous rfm2pi interface). Since emonhub is included in the ready to go image you wouldn&#39;t need either of these.</em></p>
+</blockquote>
+<p>Ok but do I need to update emonhub if I want to use this image ? If yes, how ?</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24863"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 29/10/2014 - 11:12.</div>
+    <div class="content">
+     <p>And which version(s) is/are the starting point on which to run the scripts? That's a vital piece of information that's missing.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24867"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Wed, 29/10/2014 - 13:57.</div>
+    <div class="content">
+     <p>Eric, the upgrade is to change from the old rfp2pi interface, not an upgrade from emonhub to a newer version of emonhub. You either have it or you don't as there is only one release version at this time. The image you are installing comes with emonhub pre installed, so there is no need to install it again.<br />
+Robert, I view emonhub as a completely separate piece of software from emoncms, and the only connection is that they talk to each other, the same way that the old rfm2pi interface did. So it doesn't matter what version of emoncms you use, as the communication protocol is common across as many versions of emoncms that I can recall.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24871"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 29/10/2014 - 14:19.</div>
+    <div class="content">
+     <p>Paul (Reed), I didn't mention emonCMS, like you I'm talking about the Raspberry Pi software. My point was that it's not clear where to start from. If it's the "new" version (that goes by two names!) that's recommended in <a href="../guide.html">OpenEnergyMonitor Guide</a> then it wouldn't hurt to say so. And what about the two SD cards in the shop - are they both ready to go, or which script should be used for those? Again, an explicit mention of what's right and what's wrong would give some clarity.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24874"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 29/10/2014 - 18:09.</div>
+    <div class="content">
+     <p>There is now only one current &quot;image&quot; that may get&nbsp;referred to by several labels many depend on context, the current version of that &quot;image&quot; is emonSD-13-08-14.img.</p>
+<p>That &quot;image&quot; is the complete Raspbian OS modified to mount in read-only mode&nbsp;with both&nbsp;emonhub and emoncms&nbsp;pre-installed. emonhub&nbsp;just needs the configuration file edited with some details to work out of the box where as emoncms&nbsp;is installed but not configured, so additional steps are required to &quot;enable&quot;&nbsp;emoncms if a local instance is required, otherwise it will remain dormant.</p>
+<p>The version of emonhub&nbsp;pre-installed is the &quot;Pre-Release&nbsp;development version (rc1.0)&quot; which is still the current copy in general use. ...(rc1.1) is in progress and any&nbsp;other&nbsp;versions are not strictly&nbsp;supported as they are&nbsp;&nbsp;early prototypes etc.</p>
+<p>The pre-installed emoncms version is &quot;master:8.2.8, bufferedwrite:0.0.1&quot; which is an early copy of the newer, leaner &quot;low-write&quot; or &quot;lite&quot; strain of emoncms, which has since been revised and the current version is &quot;8.3.6, bufferedwrite:0.0.2&quot; this can be <strong>updated</strong> on the &quot;image&quot; using usual git methods.</p>
+<p>emoncms can also be <strong>upgraded </strong>from the &quot;low-write version&quot; to a &quot;full version&quot; if using a hdd and would like to regain the features suppressed to reach &quot;low-write&quot; status. This I believe&nbsp;can be achieved by switching git branches after installing a hdd as&nbsp;documented in <a href="https://github.com/emoncms/emoncms/blob/bufferedwrite/docs/hddsetup.md">this guide (despite the references to an earlier &quot;image&quot;)</a></p>
+<p>I believe the only difference in the 2 cards sold in the shop is the media format. Both are 4gb and both have the &quot;latest image&quot;. The new Pi model B+ only accepts a microSD card and the previous Pi model B takes a standard larger SD card (or a microSD in an adapter).</p>
+<p>If using&nbsp;an&nbsp;&quot;image&quot; whether purchased on one of the cards or downloaded as an &quot;image&quot; and written to a card, emonhub is ready to go (except config) and doesn&#39;t require installing or (at this time) updating so the only &quot;script&quot; that should be run is the ntp-backup&nbsp;script. This is to further modify the changes made to the latest &quot;image&quot; to accommodate&nbsp;the clock in a read-only file system. It should also be safe to use on earlier images but is predominantly&nbsp;needed by the latest &quot;image&quot; due to a characteristic of that image. It is IMO&nbsp; recommended that the ntp-backup script be used with any &quot;read-only&quot;&nbsp;raspbian image.</p>
+<p>The &quot;dev-emonhub/install&quot; script is something basic I knocked up to install emonhub&nbsp;to a fresh image during development and can be used for that purpose without an issue, it is not a refined installer and it may&nbsp;not cope with other scenarios eg an existing install.</p>
+<p>In addition to that script there is &quot;dev-emonhub/<strong>upgrade</strong>&quot; (note -&nbsp;<strong>upgrade</strong> not <strong>update</strong>), it is a simple script which will&nbsp;remove a&nbsp;pre-existing&nbsp;emoncms&nbsp;&quot;rfm2pi&nbsp;package&quot; or &quot;raspberrypi module&quot;, before triggering the afore mentioned basic &quot;dev-emonhub/install&quot; script. It does not <strong>update</strong> emonhub&nbsp;it merely removes the old rfm2pi interface to allow an <strong>upgrade</strong> to &quot;emonhub&quot; from said interface, which is done in turn&nbsp;by the&nbsp;&quot;dev-emonhub/<strong>install</strong>&quot; script.</p>
+<p>When emonhub&nbsp;gets&nbsp;revised and an <strong>update&nbsp;</strong>is required it will probably be via the usual git route or I may create another script to automate the process. All of this is work in progress and hopefully one day all scenarios will be catered for in one menu driven&nbsp;script, but thats&nbsp;a way off yet.</p>
+<p>When Trystan&nbsp;puts&nbsp;the next &quot;image&quot; together, I expect it will have the latest emonhub and emoncms at that time and hopefully, the ntp-backup mod too.&nbsp;&nbsp;</p>
+<p>Sorry for the long post, I hope it helps clarify (and not confuse further) what can be&nbsp;quite a&nbsp;confusing subject. It isn&#39;t intended to be a &quot;how to&quot; guide, just an insight and explanation of how the current &quot;bits&quot; fit together.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24879"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Wed, 29/10/2014 - 20:02.</div>
+    <div class="content">
+     <p>Thank&#39;s Paul for this very complete post. Now it&#39;s clear in my mind.</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24903"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1958.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1958.png" alt="fluppie007&#039;s picture" title="fluppie007&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1958.html" title="View user profile.">fluppie007</a> on Fri, 31/10/2014 - 17:12.</div>
+    <div class="content">
+     <p>Hello all!<br />
+Tried switching to the new SD image as I had a corrupt SD :-(...</p>
+<p>I followed this guide, edited the emonhub conf file and also ran this command:</p>
+<p>git clone <a href="https://github.com/emonhub/ntp-backup.git" title="https://github.com/emonhub/ntp-backup.git">https://github.com/emonhub/ntp-backup.git</a> ~/ntp-backup &amp;&amp; ~/ntp-backup/install</p>
+<p>The only things my log give me are:</p>
+<p>pi@raspberrypi ~ $ tail -f /var/log/emonhub/emonhub.log<br />
+1970-01-01 00:00:25,080 INFO EmonHub Pre-Release Development Version (rc1.0)<br />
+1970-01-01 00:00:25,083 INFO Opening hub...<br />
+2014-10-31 17:07:43,745 INFO EmonHub Pre-Release Development Version (rc1.0)<br />
+2014-10-31 17:07:43,747 INFO Opening hub...</p>
+<p>After a reboot:</p>
+<p>pi@raspberrypi ~ $ tail -f /var/log/emonhub/emonhub.log<br />
+2014-10-31 17:08:58,559 INFO EmonHub Pre-Release Development Version (rc1.0)<br />
+2014-10-31 17:08:58,562 INFO Opening hub...</p>
+<p>&nbsp;</p>
+<p>emonCMS version: Powered by openenergymonitor.org | v8.3.6, bufferedwrite:0.0.2</p>
+<p>And ofcourse an empty input screen in emonCMS. Any clues here? I use a RFM2Pi with RFM69CW module, can that be the problem?<br />
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24905"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 31/10/2014 - 17:39.</div>
+    <div class="content">
+     <p>Hi, yes emonHub&nbsp;rc1.0 doesn&#39;t accommodate&nbsp;the rfm69&nbsp;yet&nbsp;(rc1.1 definitely will) I&#39;ve PM&#39;d you some details rather than go too far off topic on this thread, since&nbsp;the rfm69 isn&#39;t widely used yet.</p>
+<p>You should also set &quot;loglevel =&nbsp;debug&quot; in emonhub.conf to see more of what&#39;s going on when trying to iron out any issues it&#39;s far more informative.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24952"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1958.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1958.png" alt="fluppie007&#039;s picture" title="fluppie007&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1958.html" title="View user profile.">fluppie007</a> on Mon, 03/11/2014 - 17:38.</div>
+    <div class="content">
+     <p>Does the PacketGen module work with emonHub?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24957"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 03/11/2014 - 20:04.</div>
+    <div class="content">
+     <p><a href="https://github.com/emoncms/emoncms/blob/bufferedwrite/docs/emonhubmod.md">There is a &quot;hack&quot; that Trystan&nbsp;put together as a temporary measure</a>. The previous implementation wasn&#39;t carried over&nbsp;into emonHub so other methods of passing control packets could be explored without the restriction&nbsp;of having to fit in with pre-existing code.</p>
+<p>This will&nbsp;tie&nbsp;in with other areas of development like MQTT, Data over secure HTTP into emonhub, emonHub configuration via&nbsp;emonCMS etc</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25515"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5310.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="David L&#039;s picture" title="David L&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5310.html" title="View user profile.">David L</a> on Tue, 02/12/2014 - 21:20.</div>
+    <div class="content">
+     <p>The oemgateway had an implementation called&nbsp;OemGatewayRFM2PiListenerRepeater&nbsp;that enabled me to send packets on the RFM12PI&nbsp;via sockets. Are there any plans of of implementing something similar for Emonhub?</p>
+<div>
+<div>&nbsp;</div>
+<div>/ David</div>
+</div>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25521"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 02/12/2014 - 22:33.</div>
+    <div class="content">
+     <p>Hi Paul</p>
+<p>Thanks for the update and appreciate the time that you are committing&nbsp;to this, it&#39;s good to know that it&#39;s still under development, and look forward to the next release.<br />
+&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25522"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 02/12/2014 - 22:53.</div>
+    <div class="content">
+     <p>There certainly is intention to provide the same functionality, I would like to say soon but may need to settle for hopefully&nbsp;soon&#39;ish. It was deliberately omitted from emonHub to leave room for a more universal solution to outgoing data.</p>
+<p>Rather than retain the ListenerRepeater and add packetgen code and then bolt on some MQTT&nbsp;etc etc I&#39;m looking at making emonHub&nbsp;interfacers&nbsp;bi-directional, with&nbsp;some routing control. As mentioned in a post on the MQTT thread today I do have a working prototype but it still needs a fair bit of work yet.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25833"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4073.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4073.png" alt="dod&#039;s picture" title="dod&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4073.html" title="View user profile.">dod</a> on Sun, 14/12/2014 - 16:55.</div>
+    <div class="content">
+     <p>I just followed the guide here</p>
+<p><a href="http://openenergymonitor.blogspot.co.uk/2014/10/emonhub-installationupdate-replacing.html" title="http://openenergymonitor.blogspot.co.uk/2014/10/emonhub-installationupdate-replacing.html">http://openenergymonitor.blogspot.co.uk/2014/10/emonhub-installationupda...</a></p>
+<p>I did</p>
+<p>&nbsp;git clone&nbsp;https://github.com/emonhub/dev-emonhub.git&nbsp;~/dev-emonhub &amp;&amp; ~/dev-emonhub/upgrade</p>
+<p>now when I run the command to start i get an error&nbsp;</p>
+<p>root@oemgateway:~/emonhub/service# ./emonhub start</p>
+<p>[....] Starting OpenEnergyMonitor emonHub: emonhubstart-stop-daemon: unable to start /usr/share/emonhub/emonhub.py (Permission denied)</p>
+<p>Any ideas, as I would rather not reinstall the whole sd&nbsp;?</p>
+<p>it does seem to be updating but I dont&nbsp;know why it errors..</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25834"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 14/12/2014 - 17:03.</div>
+    <div class="content">
+     <p>Have you tried;</p>
+<p>$ sudo service emonhub&nbsp;start</p>
+<p>-- as per the blog?</p>
+<p>&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25835"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4073.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4073.png" alt="dod&#039;s picture" title="dod&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4073.html" title="View user profile.">dod</a> on Sun, 14/12/2014 - 17:06.</div>
+    <div class="content">
+     <p>Yep</p>
+<p>&nbsp;</p>
+<p>MacBook-Pro:~ davidd$ ssh 192.168.0.5 -lroot</p>
+<p>root@192.168.0.5&#39;s password:&nbsp;</p>
+<p>root@oemgateway:~# sudo service emonhub start</p>
+<p>[....] Starting OpenEnergyMonitor emonHub: emonhub has been started okstart-stop-daemon: unable to start /usr/share/emonhub/emonhub.py (Permission denied)</p>
+<p>root@oemgateway:~#</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25836"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 14/12/2014 - 17:44.</div>
+    <div class="content">
+     <p>I&#39;m just heading out so can only point you in the right direction for the moment.</p>
+<p>Your command prompt &quot;root@oemgateway&quot; suggests you are using the older&nbsp;<span style="font-size:12.7272720336914px; line-height:18.9090900421143px">OEM gateway&nbsp;</span><span style="font-size:13px; line-height:1.6">&quot;rock-solid&quot; image.</span></p>
+<p><span style="font-size:13px; line-height:1.6">The </span>IPE-R1<span style="font-size:13px; line-height:1.6">&nbsp;</span><span style="font-size:13px; line-height:1.6">read-only OS that that image was based on is the main reason behind the&nbsp;</span><span style="font-size:13px; line-height:1.6">image needing replacing, it cannot be updated and has several flaws, it was never factored in that someone may want to replace OEMG&nbsp;and retain IPE-R1. You really are in effect keeping the worst bit and trying to replace the good&nbsp;bit with something that was&nbsp;not really&nbsp;designed to run on IPE-R1.</span></p>
+<p><span style="font-size:13px; line-height:1.6">It may well work but not by just using the installer I&#39;m afraid. If you are still getting data it is probably because OEMG is still functioning. The error message tells us emonhub couldn&#39;t be started due to permission issues. which maybe related to the fact IPE-R1&nbsp;is run as root (which isn&#39;t good either)</span></p>
+<p><span style="font-size:13px; line-height:1.6">If you run&nbsp;</span></p>
+<blockquote><p>sudo update-rc.d -f emonhub remove</p>
+</blockquote>
+<p>that should prevent emonhub from attempting to start at boot and OEMG should work as before.</p>
+<p>I would recommend considering the new image as it&#39;s built on raspbian&nbsp;and runs&nbsp;read-only mode which was the original and only real benefit of IPE-R1.&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25839"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4073.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4073.png" alt="dod&#039;s picture" title="dod&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4073.html" title="View user profile.">dod</a> on Sun, 14/12/2014 - 19:06.</div>
+    <div class="content">
+     <p>OK Thanks, I have run your suggested command and will go to emonSD-13-08-14.img.zip in the festive break</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34950"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4611.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="deeaitch&#039;s picture" title="deeaitch&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4611.html" title="View user profile.">deeaitch</a> on Thu, 15/10/2015 - 13:42.</div>
+    <div class="content">
+     <p>Hi David,</p>
+<p>Can you tell me how you configured&nbsp;OemGatewayRFM2PiListenerRepeater?</p>
+<p>Is it just a case of adding stuff to the .conf file?</p>
+<p>Thanks,</p>
+<p>David</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34977"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 16/10/2015 - 00:32.</div>
+    <div class="content">
+     <p>@David - I have answered you on the <a href="11247.html">&quot;Emonhub and OEM Gateway&quot;</a>&nbsp;thread, but yes you just define a ListenerRepeater in place of the existing Listener.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37661"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7118.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="pfeilc&#039;s picture" title="pfeilc&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7118.html" title="View user profile.">pfeilc</a> on Wed, 30/12/2015 - 09:07.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>I installed emonhub. I used raspberrypi module before.<br />
+The installation worked fine, but starting emonhub fails.</p>
+<p>I receive a &quot;Permission denied&quot; when starting emonhub using root or pi user.</p>
+<p><strong>pi@raspberrypi ~ $ sudo service emonhub restart<br />
+[....] Restarting OpenEnergyMonitor emonHub: emonhubstart-stop-daemon: unable to start /usr/share/emonhub/emonhub.py (Permission denied)<br />
+[ ok been restarted ok.</strong></p>
+<p>What is wrong? Can anyone help?</p>
+<p>Checking the status of emonhub:</p>
+<p><strong>pi@raspberrypi ~ $ sudo service emonhub status<br />
+[FAIL] Checking OpenEnergyMonitor emonHub: emonhub process has failed!</strong></p>
+<p>I installed emonhub as root.</p>
+<p><strong>Emonhub logfile is empty!</strong></p>
+<p>Best regards,</p>
+<p>Christian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37664"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 30/12/2015 - 09:54.</div>
+    <div class="content">
+     <p>Hi Christian</p>
+<p>What does &quot; ls -la&nbsp;/usr/share/emonhub/emonhub.py &quot; return?</p>
+<p>Which OS are you using? Wheezy or Jessie?&nbsp;</p>
+<p>Can you&nbsp;expand&nbsp;on&nbsp;<em>&quot;I installed emonhub as root&quot;&nbsp;</em>? are you saying you were logged in as a&nbsp;&nbsp;root user or that you used sudo for the git clone?</p>
+<p>Much of the parts are installed as root from within the install script but using root could have set the cloned emonhub folders to root ownership. If &quot; ls -la /home/pi/emonhub&nbsp;&quot; shows &quot;root:root&quot; try&nbsp;&quot;sudo chown&nbsp;pi:pi&nbsp;/home/pi/emonhub &quot; to reset the ownership.</p>
+<p>(Sorry if I&#39;m a bit rusty on this, the scripts were written sometime ago)</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37692"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7118.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="pfeilc&#039;s picture" title="pfeilc&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7118.html" title="View user profile.">pfeilc</a> on Wed, 30/12/2015 - 21:59.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>thank you, I got it to work now!</p>
+<p>For the first installation I was logged in as root.</p>
+<p>s -la&nbsp;/usr/share/emonhub/emonhub.py<br />
+returned root:root. Changing the owner did not solve the problem!</p>
+<p>I removed emonhub again and installed it using user &quot;pi&quot; (logged in as &quot;pi&quot; and not as &quot;root&quot;).<br />
+Everthing is fine now!</p>
+<p>Thank you for your support. Your post was very helpful!</p>
+<p>Best regards,</p>
+<p>Christian</p>
+<p>
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37693"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 30/12/2015 - 22:45.</div>
+    <div class="content">
+     <p>My bad! I think that should of been &quot;&nbsp;sudo chown&nbsp;<strong>-R</strong>&nbsp;pi:pi&nbsp;/home/pi/emonhub &quot; so that all the files and sub-folders were changed too.</p>
+<p>Good to hear you&#39;re up and running anyway.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37694"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7118.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="pfeilc&#039;s picture" title="pfeilc&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7118.html" title="View user profile.">pfeilc</a> on Wed, 30/12/2015 - 23:15.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>emonhub works fine now! I am happy with the new version. Great tool, good job!<br />
+Hope I can contribute some code to emoncms in the future...</p>
+<p>Christian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37709"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9219.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="LLA&#039;s picture" title="LLA&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9219.html" title="View user profile.">LLA</a> on Thu, 31/12/2015 - 19:26.</div>
+    <div class="content">
+     <p>Hello,</p>
+<p>I have problem that after fresh installation of Raspbian&nbsp;Jessie, Emoncms and&nbsp;EmonHub communication between EmonHub and RFM12Pi&nbsp;does not work.</p>
+<p>I followed installation guide -&nbsp;https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/readme.md</p>
+<p>In EmonHub log I can see:</p>
+<p>2015-12-31 20:09:58,348 DEBUG SIGINT received.<br />
+2015-12-31 20:09:58,349 INFO Exiting hub...<br />
+2015-12-31 20:09:58,442 INFO Exit completed<br />
+2015-12-31 20:10:10,090 INFO EmonHub Pre-Release Development Version (rc1.2)<br />
+2015-12-31 20:10:10,093 INFO Opening hub...<br />
+2015-12-31 20:10:10,094 INFO Logging level set to DEBUG<br />
+2015-12-31 20:10:10,095 INFO Creating EmonHubEmoncmsReporter &#39;emonCMS&#39;<br />
+2015-12-31 20:10:10,098 INFO Set up reporter &#39;emonCMS&#39; (buffer: memory | size: 1000)<br />
+2015-12-31 20:10:10,106 INFO Setting emonCMS url: <a href="http://localhost/emoncms" title="http://localhost/emoncms">http://localhost/emoncms</a><br />
+2015-12-31 20:10:10,107 INFO Setting emonCMS apikey: set<br />
+2015-12-31 20:10:10,109 INFO Creating EmonHubJeeInterfacer &#39;RFM2Pi&#39;<br />
+2015-12-31 20:10:10,111 DEBUG Opening serial port: /dev/ttyAMA0 @ 38400 bits/s<br />
+2015-12-31 20:10:12,115 ERROR Unable to create &#39;RFM2Pi&#39; interfacer: device reports readiness to read but returned no data (device disconnected?)</p>
+<p>in syslog&nbsp;I can see repeated following lines:</p>
+<p>Dec 31 20:22:56 raspberrypi systemd[1]: Stopping Serial Getty on ttyAMA0...<br />
+Dec 31 20:22:56 raspberrypi systemd[1]: Starting Serial Getty on ttyAMA0...<br />
+Dec 31 20:22:56 raspberrypi systemd[1]: Started Serial Getty on ttyAMA0.<br />
+Dec 31 20:23:07 raspberrypi systemd[1]: serial-getty@ttyAMA0.service holdoff time over, scheduling restart.<br />
+Dec 31 20:23:07 raspberrypi rsyslogd-2007: action &#39;action 18&#39; suspended, next retry is Thu Dec 31 20:24:07 2015 [try <a href="http://www.rsyslog.com/e/2007" title="http://www.rsyslog.com/e/2007">http://www.rsyslog.com/e/2007</a> ]</p>
+<p>&nbsp;</p>
+<p>I am out of&nbsp;ideas what to check and how to fix it...</p>
+<p>Lubos</p>
+<p>&nbsp;</p>
+<p><i>[Read "Read this before posting" &nbsp;&nbsp;  Your duplicate post has been deleted. Moderator (RW)]</i></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37712"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 01/01/2016 - 10:53.</div>
+    <div class="content">
+     <p>Hi Lubos</p>
+<p>​Have you definitely&nbsp;restarted the Pi after editing the cmdline.txt file in the <a href="https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/readme.md#install-emonhub">&quot;Install Emonhub&quot;</a>&nbsp;section of&nbsp;that guide? the emonhub.log says there is a serial port comms issue and the syslog seems to suggest the original settings for the serial port to be used as a&nbsp;serial console are still in play.</p>
+<p>Otherwise ss the baud correct for your device? 38400 is the most widely used now but there are some 9600 and 57600 baud rfm2pi&#39;s out there.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37713"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9219.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="LLA&#039;s picture" title="LLA&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9219.html" title="View user profile.">LLA</a> on Thu, 31/12/2015 - 22:40.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>first of all - Happy New Year 2016!</p>
+<p>yes, I did (I&nbsp;attached reciever after installation without power&nbsp;RPI) and after that again and again.</p>
+<p>I had to reinstall my previous installation due to SD card failure.</p>
+<p>Can you please point me where can I change bauds? I can&#39;t find it, I tried steps described in post &quot;/etc/inittab no longer present in Raspbian Jessie?&quot; (<a href="https://www.raspberrypi.org/forums/viewtopic.php?f=66&amp;t=123081" title="https://www.raspberrypi.org/forums/viewtopic.php?f=66&amp;t=123081">https://www.raspberrypi.org/forums/viewtopic.php?f=66&amp;t=123081</a>)</p>
+<p>&quot;console=ttyAMA0,9600 kgdboc=ttyAMA0,9600 console=tty1&quot;</p>
+<p>It did not help.</p>
+<p>Thank you,</p>
+<p>Lubos</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37714"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Fri, 01/01/2016 - 00:00.</div>
+    <div class="content">
+     <p>Am I the first to post in 2016?? (sad I know!)</p>
+<p>To force a baud rate to&nbsp;emonhub:</p>
+<pre>
+$ nano&nbsp;/etc/emonhub/emonhub.conf</pre><pre>
+[[RFM2Pi]]
+&nbsp; &nbsp; Type = EmonHubJeeInterfacer
+&nbsp; &nbsp; [[[init_settings]]]
+&nbsp; &nbsp; &nbsp; &nbsp; com_port = /dev/ttyAMA0
+​ &nbsp; &nbsp; &nbsp; &nbsp;<strong>com_baud =57600</strong></pre><p><strong>Best Wishes</strong></p>
+<p>Paul</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37716"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9219.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="LLA&#039;s picture" title="LLA&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9219.html" title="View user profile.">LLA</a> on Fri, 01/01/2016 - 12:49.</div>
+    <div class="content">
+     <p>Hello,</p>
+<p>I installed Jessie, EmonCMS, EmonHub&nbsp;again and strictly followed the guide (all actions&nbsp;double checked).</p>
+<p>Now I see different lines in emonhub.log, I probably made a mistake before.</p>
+<p>2016-01-01 12:23:32,976 INFO EmonHub Pre-Release Development Version (rc1.2)<br />
+2016-01-01 12:23:32,977 INFO Opening hub...<br />
+2016-01-01 12:23:32,980 WARNING Setting emonCMS apikey: obscured<br />
+<strong>2016-01-01 12:23:32,982 ERROR could not open port /dev/ttyAMA0: [Errno 13] Permission denied: &#39;/dev/ttyAMA0&#39;</strong><br />
+2016-01-01 12:23:32,983 ERROR Failed to create &#39;RFM2Pi&#39; interfacer: Could not open COM port /dev/ttyAMA0<br />
+2016-01-01 12:27:51,933 ERROR could not open port /dev/ttyAMA0: [Errno 13] Permission denied: &#39;/dev/ttyAMA0&#39;<br />
+2016-01-01 12:27:51,935 ERROR Failed to create &#39;RFM2Pi&#39; interfacer: Could not open COM port /dev/ttyAMA0<br />
+2016-01-01 12:29:10,081 INFO EmonHub Pre-Release Development Version (rc1.2)<br />
+2016-01-01 12:29:10,096 INFO Opening hub...<br />
+2016-01-01 12:29:14,118 WARNING Device communication error - check settings<br />
+2016-01-01 12:32:40,430 INFO Logging level set to DEBUG</p>
+<p>2016-01-01 12:34:02,295 DEBUG SIGINT received.<br />
+2016-01-01 12:34:02,297 INFO Exiting hub...<br />
+2016-01-01 12:34:02,298 DEBUG Closing serial port<br />
+2016-01-01 12:34:02,362 INFO Exit completed</p>
+<p>Here I restarted R-PI and permission denied disappeared.</p>
+<p>2016-01-01 12:34:12,902 INFO EmonHub Pre-Release Development Version (rc1.2)<br />
+2016-01-01 12:34:12,921 INFO Opening hub...<br />
+2016-01-01 12:34:12,923 INFO Logging level set to DEBUG<br />
+2016-01-01 12:34:12,925 INFO Creating EmonHubEmoncmsReporter &#39;emonCMS&#39;<br />
+2016-01-01 12:34:12,928 INFO Set up reporter &#39;emonCMS&#39; (buffer: memory | size: 1000)<br />
+2016-01-01 12:34:12,938 INFO Setting emonCMS url: <a href="http://localhost/emoncms" title="http://localhost/emoncms">http://localhost/emoncms</a><br />
+2016-01-01 12:34:12,939 INFO Setting emonCMS apikey: set<br />
+2016-01-01 12:34:12,940 INFO Creating EmonHubJeeInterfacer &#39;RFM2Pi&#39;<br />
+2016-01-01 12:34:12,956 DEBUG Opening serial port: /dev/ttyAMA0 @ 38400 bits/s<br />
+2016-01-01 12:34:17,022 WARNING Device communication error - check settings<br />
+2016-01-01 12:34:17,023 INFO Setting RFM2Pi frequency: 433 (4b)<br />
+2016-01-01 12:34:18,026 INFO Setting RFM2Pi group: 210 (210g)<br />
+2016-01-01 12:34:19,028 INFO Setting RFM2Pi quiet: 1 (1q)<br />
+2016-01-01 12:34:20,031 INFO Setting RFM2Pi baseid: 15 (15i)</p>
+<p>&nbsp;</p>
+<p><strong>I added com_baud = 9600 into emonhub.conf and it works! I can see new nodes in EmonCMS.</strong></p>
+<p>2016-01-01 12:42:46,270 DEBUG Closing serial port<br />
+2016-01-01 12:42:46,272 INFO Deleting interfacer &#39;RFM2Pi&#39;<br />
+2016-01-01 12:42:46,273 INFO Creating EmonHubJeeInterfacer &#39;RFM2Pi&#39;<br />
+2016-01-01 12:42:46,275 DEBUG Opening serial port: /dev/ttyAMA0 @ 9600 bits/s<br />
+2016-01-01 12:42:48,279 INFO RFM2Pi device firmware version &amp; configuration: not available<br />
+2016-01-01 12:42:48,280 INFO Setting RFM2Pi frequency: 433 (4b)<br />
+2016-01-01 12:42:53,730 DEBUG emonCMS acknowledged receipt with &#39;ok&#39; from <a href="http://localhost/emoncms" title="http://localhost/emoncms">http://localhost/emoncms</a><br />
+2016-01-01 12:42:53,784 DEBUG RFM2Pi confirmed sent packet size: &nbsp;-&gt; ack<br />
+2016-01-01 12:42:56,476 DEBUG 3 NEW FRAME : 1451652176.48 &nbsp;1 250 30 244 11 54 1<br />
+2016-01-01 12:42:56,478 DEBUG 3 Timestamp : 1451652176.48<br />
+2016-01-01 12:42:56,481 DEBUG 3 &nbsp; &nbsp; &nbsp;Node : 1<br />
+2016-01-01 12:42:56,482 DEBUG 3 &nbsp; &nbsp;Values : [7930, 3060, 310]<br />
+2016-01-01 12:42:56,539 DEBUG 3 Append to &#39;emonCMS&#39; buffer =&gt; time: 1451652176.48, data: [1, 7930, 3060, 310], ref: 3</p>
+<p>&nbsp;</p>
+<p>Thank you for your help!</p>
+<p>Lubos</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37718"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Fri, 01/01/2016 - 14:53.</div>
+    <div class="content">
+     <p>Pleased that you have got it sorted.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37721"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonhub installation/update</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 01/01/2016 - 15:56.</div>
+    <div class="content">
+     <p>Yes good to see it sorted, although I cannot explain the <em>&quot;&nbsp;ERROR could not open port /dev/ttyAMA0: [Errno 13] Permission denied: &#39;/dev/ttyAMA0&#39;&quot;&nbsp;</em>errors, I will try a Jessie install &quot;by the guide&quot; myself and see if I can reproduce.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5986"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-im6UXeg8t-hysQcM5ahv2gRaMNih8gbLEs476e8RaNw" value="form-im6UXeg8t-hysQcM5ahv2gRaMNih8gbLEs476e8RaNw"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5986 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:14:42 GMT -->
+</html>

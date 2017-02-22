@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2272 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:43 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Instructions for Installing Emoncms on NAS4Free / FreeBSD file server | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Instructions for Installing Emoncms on NAS4Free / FreeBSD file server</h3>
+        <span class="submitted">Submitted by <a href="../user/3367.html" title="View user profile.">Dan Woodie</a> on Sun, 21/04/2013 - 20:12</span>
+        <div class="content"><p>&nbsp;</p>
+<p style="margin-bottom: 0in">I am a relatively new member to the Open Energy Monitor group, but I wanted to share the learning I have done in getting the Emoncms software to run on a <a href="http://www.nas4free.org/">NAS4Free</a> / <a href="http://www.freebsd.org/">FreeBSD</a> file server. NAS4Free is an open source project to write software that runs on FreeBSD to provide an easy to setup and run file server on light hardware. FreeBSD is a Unix derivative similar to Linux, but it is not based on the Debian kernel, instead forking off earlier in that tree. It is mostly used in web servers and the like as a fairly secure and light client.</p>
+<p style="margin-bottom: 0in">The NAS4Free software was originally worked on under the <a href="http://www.freenas.org/">FreeNAS</a> title, but switched names in the past few years. The software uses a web interface to setup and monitor the file server remotely, which makes setting up network services like CIFS/Samba file sharing (MS Windows network drives) really easy. It is also designed to be compatible with older hardware you might have sitting at home, and it can run in an &#39;embedded&#39; mode where you install and run the OS off of a USB memory stick, and keep all of your hard drive space available for network storage. The challenge that adds is that most of the OS runs in a RAM disk to minimize read/write to the flash memory, which results in extra FreeBSD software installed not being retained during a reboot.</p>
+<p style="margin-bottom: 0in">I have been using the NAS4Free software for a home file server for many years, and wanted to use it for running a local Emoncms server, but was unsure if it would work or not. I am an engineer by trade and an avid computer user, but my knowledge of FreeBSD or Linux was very limited as once I setup the file server using the web management tool, I pretty much left it alone. I used a variety of guides on the web on how to setup FreeBSD jails (secure VM like processes), how to install AMP (Apache/MySQL/PHP) on FreeBSD, and how to troubleshoot it. What follows is what worked for me to get Emoncms fully operational and in a more secure FreeBSD jail under NAS4Free. It was installed using methods that allow it to be retained through reboot, while retaining the robustness and easy upgrade path that the embedded install is designed for. It may not be the best way, but it worked for me. I welcome any comments or recommendations to add to the collective knowledge.</p>
+<p style="margin-bottom: 0in">Here are the steps:</p>
+<h1 style="margin-bottom: 0in;">
+	1. Install NAS4Free on the computer</h1>
+<p class="rteindent1" style="margin-bottom: 0in">This is done by creating a <a href="http://wiki.nas4free.org/doku.php?id=documentation:setup_and_user_guide">LiveCD that will boot into a FreeBSD</a> loader and give you options to install it onto a disk or USB memory stick. In my case I used a small SSD, partitioned into three partitions (OS/swap/data), but you could easily do this using the basic single OS partition to a memory stick, and mounting a separate data drive for Emoncms. Once NAS4Free is installed, reboot the server and log into it using your web browser.</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	In the NAS4Free web management tool</h2>
+<p class="rteindent2" style="margin-bottom: 0in">enable the SSH server, be sure to check option to allow login as root</p>
+<p class="rteindent2" style="margin-bottom: 0in">mount at least a single drive to contain the FreeBSD jail and the Emoncms software. I refer to this mounted drive as /mnt/{your storage drive name} in the directions that follow.</p>
+<p class="rteindent1">&nbsp;</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	Install &#39;The Brig&#39; NAS4Free extension to create and manage FreeBSD jails</h2>
+<p class="rteindent2">from: <a href="http://forums.nas4free.org/viewtopic.php?f=79&amp;t=1654&amp;start=53" title="http://forums.nas4free.org/viewtopic.php?f=79&amp;t=1654&amp;start=53">http://forums.nas4free.org/viewtopic.php?f=79&amp;t=1654&amp;start=53</a></p>
+<p class="rteindent2" style="margin-bottom: 0in">SSH to NAS4Free server, login as root with WebGUI password</p>
+<p class="rteindent2" style="margin-bottom: 0in">mkdir /mnt/{your storage drive name}/thebrig</p>
+<p class="rteindent2" style="margin-bottom: 0in">fetch <a href="https://sites.google.com/site/aganimkarmiel/home/free-time/file-sharing/thebrig_install.sh.gz" title="https://sites.google.com/site/aganimkarmiel/home/free-time/file-sharing/thebrig_install.sh.gz">https://sites.google.com/site/aganimkarmiel/home/free-time/file-sharing/...</a></p>
+<p class="rteindent2" style="margin-bottom: 0in">gunzip thebrig_install.sh.gz</p>
+<p class="rteindent2" style="margin-bottom: 0in">chmod 755 thebrig_install.sh</p>
+<p class="rteindent2" style="margin-bottom: 0in">sh thebrig_install.sh /mnt/{your storage drive name}/thebrig</p>
+<p class="rteindent2" style="margin-bottom: 0in">Reboot server</p>
+<p class="rteindent1">&nbsp;</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	Initialize The Brig</h2>
+<p class="rteindent2" style="margin-bottom: 0in">Log into the NAS4Free WebGUI and click on the new Extensions menu to enter The Brig. The first time you go there it will walk you through the setup. Download the the base and lib32 tarballs needed (the FreeBSD OS) to install a full verion of FreeBSD in the new jail we are creating.</p>
+<p class="rteindent1">&nbsp;</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	Create the jail</h2>
+<p class="rteindent2" style="margin-bottom: 0in">Click to create a new FreeBSD jail with the following options:</p>
+<p class="rteindent2" style="margin-bottom: 0in">Jail number: 1 (Default is 1 for your first jail)</p>
+<p class="rteindent2" style="margin-bottom: 0in">Jail Name:your choice but I called my emon</p>
+<p class="rteindent2" style="margin-bottom: 0in">Jail Type: Full</p>
+<p class="rteindent2" style="margin-bottom: 0in">Jail Interface: LAN</p>
+<p class="rteindent2" style="margin-bottom: 0in">Jail IP address: choose an IP address for this jailed version of FreeBSD to interact with the network on. I don&#39;t think allowing this to be set dynamically will work, as elsewhere in the directions you will need to type this IP into various configuration files. The file server will have two IP addresses on the network for one physical connection. One will be for the base NAS4Free install, one for the FreeBSD running Emoncms in the jail. In my case this was 192.168.1.200</p>
+<p class="rteindent2" style="margin-bottom: 0in">Jail Start on boot: Check</p>
+<p class="rteindent2" style="margin-bottom: 0in">Source from Archive: Check both the base and lib32 versions</p>
+<p class="rteindent2" style="margin-bottom: 0in">Once complete, reboot, go back to this web page and verify that the jail is running.</p>
+<h1 style="margin-bottom: 0in;">
+	2. Install AMP (Apache/MySQL/PHP) in the jail</h1>
+<p class="rteindent1" style="margin-bottom: 0in">SSH to the original NAS4Free server just like before</p>
+<p class="rteindent1" style="margin-bottom: 0in">Once in, verify the status of the jail by typing &#39;jls&#39; &ndash; you should see your jail listed and with the IP address you gave it.</p>
+<p class="rteindent1" style="margin-bottom: 0in">Enter into the FreeBSD running in the jail using &#39;jexec 1 csh&#39; (1 is the jail number if you have more than one jail). All of the remaining commands are to be entered in the FreeBSD running in the jail.</p>
+<p class="rteindent1">&nbsp;</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	Install Nano text editor</h2>
+<p class="rteindent2" style="margin-bottom: 0in;">not needed but I found it easier to use than the built in one</p>
+<p class="rteindent2" style="margin-bottom: 0in">pkg_add -r nano</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	Install Apache 2.2</h2>
+<p class="rteindent2" style="margin-bottom: 0in">pkg_add -r apache22</p>
+<p class="rteindent2" style="margin-bottom: 0in">This will take awhile and occasionally prompt you with various install options. Always choose the default.</p>
+<p class="rteindent2" style="margin-bottom: 0in">&nbsp;</p>
+<p class="rteindent2" style="margin-bottom: 0in"><strong>Add line to rc.conf to get apache to start at boot</strong></p>
+<p class="rteindent2" style="margin-bottom: 0in">echo &#39;apache22_enable=&quot;YES&quot;&#39; &gt;&gt; /etc/rc.conf</p>
+<p class="rteindent2" style="margin-bottom: 0in">&nbsp;</p>
+<p class="rteindent2" style="margin-bottom: 0in"><strong>Edit hosts file to let apache know what hostname it has</strong></p>
+<p class="rteindent2" style="margin-bottom: 0in">nano /etc/hosts</p>
+<p class="rteindent2" style="margin-bottom: 0in">edit line with IP address 127.0.0.1 to read</p>
+<p class="rteindent2" style="margin-bottom: 0in">127.0.0.1 &ndash; localhost.{your jail name}.local</p>
+<p class="rteindent2" style="margin-bottom: 0in">add line at bottom with your jail IP and your jail name (My line reads: 192.168.1.200 emon.local)</p>
+<p class="rteindent2" style="margin-bottom: 0in">{your jail IP address} {your jail name}.local</p>
+<p class="rteindent2" style="margin-bottom: 0in">Save and exit</p>
+<p class="rteindent2" style="margin-bottom: 0in">Start Apache server using &#39;apachectl start&#39; command.</p>
+<p class="rteindent2" style="margin-bottom: 0in">Verify Apache web server is running by pointing a web browser at your jailed FreeBSD IP (192.168.1.200 in my case). If it is running you will see &ldquo;It works!&rdquo; in your web browser.</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	Install MySQL</h2>
+<p class="rteindent2" style="margin-bottom: 0in">pkg_add -r mysql55-server</p>
+<p class="rteindent2" style="margin-bottom: 0in">echo &#39;mysql_enable=&quot;YES&quot;&#39; &gt;&gt; /etc/rc.conf</p>
+<p class="rteindent2" style="margin-bottom: 0in">/usr/local/etc/rc.d/mysql-server start</p>
+<p class="rteindent2" style="margin-bottom: 0in">/usr/local/bin/mysqladmin -u root password &#39;{your MySQL password}&#39;</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	Install PHP</h2>
+<p class="rteindent2" style="margin-bottom: 0in">I could only get this to work using the ports distribution instead of the package distribution</p>
+<p class="rteindent2" style="margin-bottom: 0in">portsnap fetch extract</p>
+<p class="rteindent2" style="margin-bottom: 0in">cd /usr/ports/lang/php5 &amp;&amp; make config &ndash; choose option to include apache module</p>
+<p class="rteindent2" style="margin-bottom: 0in">make install clean</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	Install PHP extensions</h2>
+<p class="rteindent1" style="margin-bottom: 0in">cd /usr/ports/lang/php5-extensions &amp;&amp; make config</p>
+<p class="rteindent1" style="margin-bottom: 0in">Select Gettext, mysql, and mysqli support options. I don&#39;t know if MySQLi extensions are needed, but I selected it to make sure.</p>
+<p class="rteindent1" style="margin-bottom: 0in">make install clean</p>
+<p class="rteindent1" style="margin-bottom: 0in">&nbsp;</p>
+<p class="rteindent1" style="margin-bottom: 0in"><strong>Edit httpd.conf file for PHP</strong></p>
+<p class="rteindent1" style="margin-bottom: 0in">nano /usr/local/etc/apache22/httpd.conf</p>
+<p class="rteindent1" style="margin-bottom: 0in">Search for AddType section &ndash; and add the following two lines</p>
+<p class="rteindent2" style="margin-bottom: 0in">AddType application/x-httpd-php .php</p>
+<p class="rteindent2" style="margin-bottom: 0in">AddType application/x-httpd-php-source .phps</p>
+<p class="rteindent1" style="margin-bottom: 0in">Search for DirectoryIndex line and change from:</p>
+<p class="rteindent2" style="margin-bottom: 0in">DirectoryIndex index.html</p>
+<p class="rteindent1" style="margin-bottom: 0in">to</p>
+<p class="rteindent2" style="margin-bottom: 0in">DirectoryIndex index.php index.html</p>
+<p class="rteindent1" style="margin-bottom: 0in">search for section starting with:</p>
+<p class="rteindent2" style="margin-bottom: 0in">&lt;Directory &quot;/usr/local/www/apache22/data&quot;&gt;</p>
+<p class="rteindent1" style="margin-bottom: 0in">and scroll down to line:</p>
+<p class="rteindent2" style="margin-bottom: 0in">AllowOverride None</p>
+<p class="rteindent1" style="margin-bottom: 0in">and change to:</p>
+<p class="rteindent2" style="margin-bottom: 0in">AllowOverride All</p>
+<p class="rteindent1" style="margin-bottom: 0in">This is the Enable Mod Rewrite setting needed for Emoncms</p>
+<p class="rteindent1" style="margin-bottom: 0in">&nbsp;</p>
+<p class="rteindent1" style="margin-bottom: 0in"><strong>Create php.ini file to list your timezone</strong> (from Emoncms forum posts on how to correct PHP errors in Emoncms)</p>
+<p class="rteindent1" style="margin-bottom: 0in">touch /usr/local/etc/php.ini</p>
+<p class="rteindent1" style="margin-bottom: 0in">nano /usr/local/etc/php.ini</p>
+<p class="rteindent1" style="margin-bottom: 0in">Add a line that reads:</p>
+<p class="rteindent1" style="margin-bottom: 0in">date.timezone =&quot;America/New_York&quot;</p>
+<p class="rteindent1" style="margin-bottom: 0in">change to your timezone, list of zones available at <a href="http://php.net/manual/en/timezones.php">http://php.net/manual/en/timezones.php</a></p>
+<p class="rteindent1" style="margin-bottom: 0in">&nbsp;</p>
+<p class="rteindent1" style="margin-bottom: 0in"><strong>Restart Apache</strong></p>
+<p class="rteindent1" style="margin-bottom: 0in">apachectl restart</p>
+<p class="rteindent1" style="margin-bottom: 0in">&nbsp;</p>
+<p class="rteindent1" style="margin-bottom: 0in"><strong>Test PHP is working and attached to Apache</strong></p>
+<p class="rteindent1" style="margin-bottom: 0in">Create a test php file with the following command:</p>
+<p class="rteindent1" style="margin-bottom: 0in">echo &quot;&lt;? phpinfo(); ?&gt;&quot; &gt;&gt; /usr/local/www/apache22/data/test.php</p>
+<p class="rteindent1" style="margin-bottom: 0in">and then in a browser on a computer, go to the web page {your jail IP address}/test.php</p>
+<p class="rteindent1" style="margin-bottom: 0in">You should see a long web page listing all of the settings and extensions in PHP. If not, or if your web browser wants you to view a PHP file, then PHP and Apache are not linked.</p>
+<h1 style="margin-bottom: 0in;">
+	3. Install Emoncms</h1>
+<p class="rteindent1" style="margin-bottom: 0in">Picking up the directions posted on Emoncms.org for a Linux install at step 6, with some slight modifications as the file locations and names were sometimes different.</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	Install git</h2>
+<p class="rteindent2" style="margin-bottom: 0in">pkg_add -r git</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	Install Emoncms</h2>
+<p class="rteindent2" style="margin-bottom: 0in">cd /usr/local/www/apache22/data</p>
+<p class="rteindent2" style="margin-bottom: 0in">git clone <a href="https://github.com/emoncms/emoncms.git">https://github.com/emoncms/emoncms.git</a></p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	create mysql database</h2>
+<p class="rteindent2" style="margin-bottom: 0in">mysql -u root -p</p>
+<p class="rteindent2" style="margin-bottom: 0in">mysql&gt; CREATE DATABASE emoncms;</p>
+<p class="rteindent2" style="margin-bottom: 0in">mysql&gt; exit</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	Set emoncms database settings</h2>
+<p class="rteindent2" style="margin-bottom: 0in;">cd /usr/local/www/apache22/data/emoncms</p>
+<p class="rteindent2" style="margin-bottom: 0in">cp default.settings.php settings.php</p>
+<p class="rteindent2" style="margin-bottom: 0in">nano settings.php</p>
+<p class="rteindent2" style="margin-bottom: 0in">enter in mysql username and password from earlier</p>
+<h2 class="rteindent1" style="margin-bottom: 0in;">
+	In an internet browser, load emoncms:</h2>
+<p class="rteindent2" style="margin-bottom: 0in">browse to 192.168.1.200/emoncms</p>
+<p style="margin-bottom: 0in">&nbsp;</p>
+<p style="margin-bottom: 0in">Once that was all complete I was able to follow the directions on the Emoncms website to post some dummy data to the site and navigate the menus to create a few feeds. I don&#39;t have any hardware yet, but will be ordering it shortly. If I find anything new that comes up and the directions need changing, I will correct the post with any updates. I hope this information is helpful to some who may want to combine a file server and an Emoncms server in one appliance. I had initally planned on setting up a file server with Ubuntu so the Emoncms work would be easy, but found getting Ubuntu to be as pain free as the NAS4Free software wasn&#39;t happening. If you haven&#39;t considered using the NAS4Free software for your file server, I highly recommend it.</p>
+<p style="margin-bottom: 0in">Sorry for the long post, and if you read to this far, thanks for your time.</p>
+<p style="margin-bottom: 0in">Dan</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1737.html" class="topic-previous" title="Go to previous forum topic">‹ Select preferred language does not work?</a>
+              <a href="2254.html" class="topic-next" title="Go to next forum topic">Forward &#039;custom&#039; node to emoncms.org ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-11510"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Instructions for Installing Emoncms on NAS4Free / FreeBSD file server</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 21/04/2013 - 21:57.</div>
+    <div class="content">
+     <p>Excellent tutorial, thanks for posting Dan.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11511"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Instructions for Installing Emoncms on NAS4Free / FreeBSD file server</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 21/04/2013 - 23:40.</div>
+    <div class="content">
+     <p>This deserves to go into the emoncms installation notes - I&#39;ve flagged it to Trystan.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2272"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-adMK4YDG157CrjTkAX_vGbJsVilWTenIXFxwbvBIF2o" value="form-adMK4YDG157CrjTkAX_vGbJsVilWTenIXFxwbvBIF2o"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2272 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:43 GMT -->
+</html>

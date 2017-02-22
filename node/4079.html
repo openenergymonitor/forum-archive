@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/4079 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:28:45 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonTH and emonTX V3 | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonTH and emonTX V3</h3>
+        <span class="submitted">Submitted by <a href="../user/5612.html" title="View user profile.">Geoff Soord</a> on Mon, 17/03/2014 - 21:40</span>
+        <div class="content"><p>Hi,</p>
+<p>&nbsp;</p>
+<p>I am successfully collecting data from an emonTX V3 but want to add several emonTH&nbsp;to record temperature and humidity in different rooms. This will finally link to some RF TRV for heating.</p>
+<p>The question I have is how to I received data from several emonTH and emonTX at the same time. I am using a JeeLink to received data with the following sketch:</p>
+<pre>
+//Simple RFM12B wireless demo - Receiver - no ack
+//Glyn Hudson openenergymonitor.org GNU GPL V3 12/4/12
+//Credit to JCW from Jeelabs.org for RFM12
+
+#include &lt;JeeLib.h&gt;
+
+#define myNodeID 30          //node ID of Rx (range 0-30)
+#define network     210      //network group (can be in the range 1-250).
+#define RF_freq RF12_433MHZ     //Freq of RF12B can be RF12_433MHZ, RF12_868MHZ or RF12_915MHZ. Match freq to module
+
+typedef struct { int power1, power2, power3, power4, Vrms, temp;  } PayloadTX; // create structure - a neat way of packaging data for RF comms
+PayloadTX emontx; 
+
+const int emonTx_NodeID=10;            //emonTx node ID
+
+void setup() {
+
+  rf12_initialize(myNodeID,RF_freq,network);   //Initialize RFM12 with settings defined above
+  Serial.begin(9600);
+#ifdef DEBUG
+  Serial.println(&quot;RF12B demo Receiver - Simple demo&quot;);
+
+  Serial.print(&quot;Node: &quot;);
+  Serial.print(myNodeID);
+  Serial.print(&quot; Freq: &quot;);
+  if (RF_freq == RF12_433MHZ) Serial.print(&quot;433Mhz&quot;);
+  if (RF_freq == RF12_868MHZ) Serial.print(&quot;868Mhz&quot;);
+  if (RF_freq == RF12_915MHZ) Serial.print(&quot;915Mhz&quot;); 
+  Serial.print(&quot; Network: &quot;);
+  Serial.println(network);
+#endif // DEBUG
+}
+
+void loop() {
+
+  if (rf12_recvDone()){   
+    if (rf12_crc == 0 &amp;&amp; (rf12_hdr &amp; RF12_HDR_CTL) == 0) {
+
+      int node_id = (rf12_hdr &amp; 0x1F);    //extract nodeID from payload
+
+      if (node_id == emonTx_NodeID)  {             //check data is coming from node with the corrct ID
+        emontx=*(PayloadTX*) rf12_data;            // Extract the data from the payload
+        Serial.print(emontx.power1);  // Solar power produced
+        Serial.print(&quot;,&quot;);
+        Serial.print(emontx.power2); // Power consumed
+        Serial.print(&quot;,&quot;);
+        Serial.println(emontx.temp); // Temperature
+      }
+    }
+  }
+}</pre><p>&nbsp;</p>
+<p>How would I extend this to read from multiple emonTH?</p>
+<p>Thanks in advance,</p>
+<p>Geoff</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="4211.html" class="topic-previous" title="Go to previous forum topic">‹ emonGLCD firmware upload</a>
+              <a href="4080.html" class="topic-next" title="Go to next forum topic">9V AC-AC Adapter Problem ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-19354"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5612.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Geoff Soord&#039;s picture" title="Geoff Soord&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTH and emonTX V3</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5612.html" title="View user profile.">Geoff Soord</a> on Mon, 17/03/2014 - 21:42.</div>
+    <div class="content">
+     <p>Updated formatting</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-19357"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTH and emonTX V3</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 18/03/2014 - 00:03.</div>
+    <div class="content">
+     <p>The bit you are interested in is:</p>
+<p>&nbsp;&nbsp;&nbsp; if (node_id == emonTx_NodeID)&nbsp; {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //check data is coming from node with the corrct ID<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emontx=*(PayloadTX*) rf12_data;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Extract the data from the payload<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(emontx.power1);&nbsp; // Solar power produced<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;,&quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(emontx.power2); // Power consumed<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;,&quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(emontx.temp); // Temperature<br />
+	&nbsp;&nbsp;&nbsp; }</p>
+<p>That decodes information received from node &quot;emonTx_NodeID&quot;. You need similar code for each node you wish to receive from. You&#39;ll need to add the appropriate data structure to decode the data, of course, and you must give each node within radio range its own, unique, node ID.</p>
+<p>For the emonTHs, you&#39;ll need something like this:</p>
+<p class="rteindent1">typedef struct {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // RFM12B RF payload datastructure<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; int temp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; int temp_external;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; int humidity;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; int battery;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	} PayloadTH;<br />
+	PayloadTH emonth1, emonth2, emonth3;</p>
+<p>and then</p>
+<p class="rteindent1">if (node_id == emonTH1_NodeID)&nbsp; {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //check data is coming from node with the correct ID<br />
+	&nbsp;&nbsp;&nbsp; emontx=*(PayloadTH*) rf12_data;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Extract the data from the payload<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(emonth1.temp_external);<br />
+	&nbsp;&nbsp;&nbsp; // [etc]<br />
+	}</p>
+<p>for each emonTH.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-19398"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5612.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Geoff Soord&#039;s picture" title="Geoff Soord&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTH and emonTX V3</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5612.html" title="View user profile.">Geoff Soord</a> on Tue, 18/03/2014 - 20:17.</div>
+    <div class="content">
+     <p>Thanks Robert. I&#39;ll let you know how I get on.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-19400"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5612.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Geoff Soord&#039;s picture" title="Geoff Soord&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTH and emonTX V3</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5612.html" title="View user profile.">Geoff Soord</a> on Tue, 18/03/2014 - 20:52.</div>
+    <div class="content">
+     <p>Richard - all up and running. I needed to upload the sketch to the emonTH - I had expected this to come preloaded with software as per the emonTX&nbsp;V3.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/4079"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-89ykmlKlFm_uVVxDyM9ZJLXB3o7jk6Mm-6v7wiwIM9o" value="form-89ykmlKlFm_uVVxDyM9ZJLXB3o7jk6Mm-6v7wiwIM9o"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/4079 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:28:45 GMT -->
+</html>

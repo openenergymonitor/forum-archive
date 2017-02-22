@@ -1,0 +1,779 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5877 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:43:38 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Read-only image time issues  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Read-only image time issues </h3>
+        <span class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 05/10/2014 - 12:11</span>
+        <div class="content"><p>The latest SD card image has had some issues with the fake-hwclock and many of the problems encountered with using a read-only file system on a Pi are down to incorrect timestamps as either a network connection isn&#39;t available or the files are locked to read-only and cannot be updated. The latest image has the fake-hwclock.data file relocated to the writable data partition and a symlink in it&#39;s place. in most cases this works well but can cause an issue if events don&#39;t happen exactly as expected at the right times during boot up.</p>
+<p>Having helped a few users with this issue I did some research and this is what I found.</p>
+<p>When the ntp daemon is initiated at boot-up it will attempt to correct the current system time that was previously loaded from the fake-hwclock.data file using ntp servers. Only the initial synchronization attempts are able to overcome a difference greater than 1000 secs, if any subsequent attempts discover a difference of 1000 secs or more the ntp daemon will terminate and no longer monitor or correct the time as it assumes user intervention is required to resolve a greater issue than a minor alignment. This means if there is no internet connection at the time of the initial attempts, it is then unable to resolve any time difference unless the ntp daemon is restarted and performs a successful initial sync.</p>
+<p>Providing the time difference remains less than 1000 secs the npt daemon will then continue to check and resync the time approximately every 5-6 mins (usually cycling 4 servers, each checked at up to 1024secs intervals). this time is held in memory and not affected directly by read-only access.</p>
+<p>A cron job is run hourly to save the current system time to fake-hwclock.data. This does require write access so in read-only mode the &quot;saved&quot; time remains unchanged (unless rpi-rw is used and then left in RW mode), in the last pre-configured SD card image the fake-hwclock.data file was moved to the RW &quot;data&quot; partition and can be written to at anytime.</p>
+<p>If the Pi is shutdown or rebooted correctly the current system time is saved to fake-hwclock.data during the shutdown process as well, depending on if write access is available at the time.</p>
+<p>This operation generally doesn&#39;t present a problem, but what is happening is the Pi is not ready to follow symlinks during the early stages of booting up so it cannot see the symlinked &quot;data&quot; partition&#39;s copy of fake-hwclock.data, which then results in a unix time of 0 (1970) as the file appears empty and if the internet connection is not then available for that first time resync, ntp will exit at a subsequent check as 1970 til now is over 1000 secs.</p>
+<p>Only rebooting the Pi or restarting ntpd with an active internet connection can correct the time once this happens.</p>
+<p>I therefore recommend reverting fake-hwclock.data to its former position (only if it&#39;s located on the data partition) and then editing 2 files to momentarily provide write access to enable that file to update at hourly intervals and again at shutdown.</p>
+<p>
+	to do this first we need to switch from read-only mode to write mode using</p>
+<blockquote><p><strong>rpi-rw</strong></p>
+</blockquote>
+<p>1) Delete the symlink and move the relocated fake-hwclock.data back to it&#39;s original location</p>
+<blockquote><p><strong>sudo rm /etc/fake-hwclock.data</strong></p>
+<p><strong>sudo mv /home/pi/data/fake-hwclock.data /etc/fake-hwclock.data</strong></p>
+</blockquote>
+<p>This should ensure the file can be found at boot time so the Pi shouldn&#39;t revert to unixtime 0 (1970) instead it should use the last saved time and date temporarily until the time is corrected by ntp (this may not be accurate but it should be more recent than 1970).</p>
+<p>2) Enable the hourly cron job to back-up the current time by temporarily remounting the partition as RW.</p>
+<blockquote><p><strong>sudo nano /etc/cron.hourly/fake-hwclock</strong></p>
+</blockquote>
+<p>&nbsp;&nbsp; replace this line</p>
+<blockquote><p><strong>fake-hwclock save</strong></p>
+</blockquote>
+<p>&nbsp;&nbsp; with these 3</p>
+<blockquote><p><strong>sudo mount -o remount,rw /dev/mmcblk0p2&nbsp; /<br />
+		fake-hwclock save<br />
+		sudo mount -o remount,ro /dev/mmcblk0p2&nbsp; /</strong></p>
+</blockquote>
+<p>By enabling the time to be back-up every hour any power interruptions can only result in a 1hr maximum (plus downtime) error in time at reboot until the time is corrected by ntp. Again not accurate but better than running full RO and going back to some much earlier point in the past or running full RW and risking damage to the SD card or file system.</p>
+<p>3) Also enable the fake-hwclock service to save the current time at shutdown the same way.</p>
+<blockquote><p><strong>sudo nano /etc/init.d/fake-hwclock</strong></p>
+</blockquote>
+<p>&nbsp;&nbsp; and replace this line</p>
+<blockquote><p><strong>fake-hwclock save;;</strong></p>
+</blockquote>
+<p>&nbsp;&nbsp; with these 3</p>
+<blockquote><p><strong>sudo mount -o remount,rw /dev/mmcblk0p2&nbsp; /<br />
+		fake-hwclock save<br />
+		sudo mount -o remount,ro /dev/mmcblk0p2&nbsp; /<br />
+		;;</strong></p>
+<p><em>(edited to correct &quot;;;&quot; location)&nbsp;</em></p>
+</blockquote>
+<p>Whilst nothing can be done if there is a sudden loss of power this edit will mean a graceful reboot should only lose seconds.</p>
+<p>These three steps should restore the Pi&#39;s timekeeping to it&#39;s former Raspbian standard and overcome any issues imposed by mounting the file system as read-only.</p>
+<p>Restart the ntp&nbsp;daemon and return to read-only mode</p>
+<blockquote><p><strong>sudo /etc/init.d/ntp restart<br />
+		rpi-ro</strong></p>
+</blockquote>
+<p>Additionally as the accuracy of the data we collect is dependent on an accurate timestamp I suspect a 4th step may be needed to improve the Pi&#39;s timekeeping, this additional step could counteract delayed network connections at start up caused by a poor internet connection or even just a router taking longer than the Pi to reboot and get a connection after a power outage.</p>
+<p>4) Create an init script to run a small utility at start-up to keep testing for an internet connection every 60secs or so and when&nbsp;successful, restart the ntpd service to initiate the first run again and then exit. there will be no further use for it unless the Pi is rebooted or the time gets over 1000 secs out of sync (if that&#39;s happening theres a bigger issue somewhere).</p>
+<p>5) Possibly create a cron entry to re-start the utility and therefore the&nbsp;ntp&nbsp;daemon periodically</p>
+<p>I have started writing a script for step 4 and will post it when i have completed it and done some testing, hopefully we can resolve this fully before the next image is compiled.</p>
+<p>If you are not totally confident with doing these changes please hang on until a couple of other users have tried it and hopefully confirmed it&#39;s ok, I see no reason for it not to work but I really would not like to be responsible for any corrupted or loss of data.</p>
+<p>So any volunteers ?</p>
+<p>Paul</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10924.html" class="topic-previous" title="Go to previous forum topic">‹ Transmit data from sensors</a>
+              <a href="10914.html" class="topic-next" title="Go to next forum topic">DS18B20 Sensors on EmonTX ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-24317"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Mon, 06/10/2014 - 06:37.</div>
+    <div class="content">
+     <p>Something doesn&#39;t sound quite right there. &nbsp;It&#39;s true that ntpd will only give you one shot at a jump greater than 1000 secs(*), but you don&#39;t spend that one-shot until it has successfully set the time. &nbsp; If ntpd has successfully changed the kernel time by more than 1000 seconds and it later decides it needs to do so again, then it exits. &nbsp;But if it can&#39;t currently reach any servers, it just waits until it can.</p>
+<p>You can verify that you don&#39;t waste your one-shot during network outages with this simple experiment:</p>
+<p>1. stop ntpd</p>
+<p>2. manually set the time to 1970</p>
+<p>3. pull the ethernet cable</p>
+<p>4. start ntpd</p>
+<p>5. wait as long as you like</p>
+<p>6. plug the ethernet cable back in</p>
+<p>ntpd&nbsp;will then jump the kernel time all the way forward from 1970 to the correct time. &nbsp;On some systems it might take a while, depending on local jitter. &nbsp;On one of my machines (an Asus netbook) it takes about 5 mins&nbsp;before it decides it&#39;s going to trust the NTP servers. &nbsp;But on everything else I&#39;ve tried (including 2 Raspberry PIs running various distros) it latches on after just a couple of updates.</p>
+<p>(*) you only get the one-shot if you&#39;re running ntpd with the -g option, which most &nbsp;Linux distros&nbsp;do. &nbsp;If you repeat the above experiment without the -g, &nbsp;ntpd will exit after step 6 when it hears from the NTP&nbsp;servers and decides the jump is too large. See the man page excerpt below. &nbsp; Most Linux distros set the ntpd switches in /etc/default/ntp</p>
+<p>What do you do with the driftfile when you mount readonly? &nbsp; On most Linux distros it lives in /var/lib/ntp, but it&#39;s location is specified in /etc/ntp.conf with the driftfile directive. &nbsp;ntpd writes to that every hour (unless the value it wants to write hasn&#39;t changed). &nbsp;</p>
+<p>man ntpd:</p>
+<p>-g&nbsp;&nbsp;&nbsp;&nbsp; Normally, ntpd exits with a message to the system log if the offset exceeds the&nbsp; panic&nbsp; threshold,&nbsp; which&nbsp; is<br />
+	&nbsp; &nbsp; &nbsp; &nbsp; 1000 s by default.&nbsp; This option allows the time to be set to any value without restriction; however, this can<br />
+	&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;happen only once.&nbsp; If the threshold is exceeded after that, ntpd will exit with a message to the system&nbsp; log.<br />
+	&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;This option can be used with the -q and -x options.</p>
+<p>&nbsp;</p>
+<p>man ntp.conf</p>
+<p>driftfile driftfile<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This&nbsp; command&nbsp; specifies the name of the file use to record the frequency offset of the local clock oscillator.<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If the file exists, it is read at startup in order to set the initial frequency offset and&nbsp; then&nbsp; updated&nbsp; once<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; per&nbsp; hour with the current frequency offset computed by the daemon.&nbsp; If the file does not exist or this command<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; is not given, the initial frequency offset is assumed to be zero.&nbsp; In this case, it may take some hours for the<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; frequency to stabilize and the residual timing errors to subside.</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The&nbsp; file&nbsp; format&nbsp; consists&nbsp; of a single line containing a single floating point number, which records the fre‐<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; quency offset measured in parts-per-million (PPM).&nbsp; The file is updated by&nbsp; first&nbsp; writing&nbsp; the&nbsp; current&nbsp; drift<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; value&nbsp; into&nbsp; a&nbsp; temporary&nbsp; file and then renaming this file to replace the old version.&nbsp; This implies that ntpd<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; must have write permission for the directory the drift file is located in, and that file system links, symbolic<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or otherwise, should be avoided.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24321"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 06/10/2014 - 10:06.</div>
+    <div class="content">
+     <p>I was of the same opinion that &quot;Something doesn&#39;t sound quite right there&quot; despite my doubt, my understanding was the ntpd -g was not repeated after a successful internet connection was established, although I could not find anything official to absolutely verify this one way or the other I did trawl through many forum discussions, guides and tutorials to arrive at that conclusion, it makes far more sense to only adjust the time after successfully confirming the correct time with live ntp servers over the internet.</p>
+<p>This however doesn&#39;t explain why several users have had a system time/date of 1970 for prolonged periods of time (days) despite having ssh access and posting data to emoncms.org, as barmy as my findings seemed it fitted the issue.</p>
+<p>I could only find limited info on the Raspbian ntp implementation and the fake-hwclock&#39;s involvement. What I couldn&#39;t establish specifically was if the loading of the &quot;fake time&quot; at boot effected the one-shot.</p>
+<p>I&#39;m not able to do the tests at the moment but will try them at a later date, in the meantime I will assume you are correct as you appear to know the system well and it&#39;s certainly more feasible for it to work that way. If the one-shot is retained until a working internet connection is available that&#39;s great as my suggested steps 4 &amp; 5 will not be required.</p>
+<p>The main issue though, is that the Pi is apparently unable to read the symlinked copy of the fake-hwclock.file at boot up which results in a 0 timestamp, this seems to get rectified if there is an internet connection available, but data can be disrupted in the interim even when there is a good internet connection, obviously the longer it takes the worse the impact will be.</p>
+<p>See attached log1 this is an excerpt from a emonhub.log from a Pi running the latest SD image and has a perfect internet connection. The timestamps are good to begin with and @2014-09-21 14:07:19,967 a reboot command is issued, emonhub closes, the Pi reboots and emonhub restarts, emonhub&#39;s log messages start at 1970-01-01 01:00:58,039 (unixtime 58.039) and around 12 seconds later the time sets to 2014-09-21 14:08:44,914. The fake-hwclock on this Pi was on the writable data partition and would of been saved at shutdown, this was confirmed to be the case that the file is being written but then ignored at boot.</p>
+<p>Log2 is from a read only system that did not have the fake-hwclock.data file on a writable partition. however the Pi was in RW mode until it was restarted at around midnight the previous evening (power outage) therefore the &quot;saved time&quot; was 00:17:02. Following a reboot at around 15:50 the initial time is the &quot;saved time&quot; not 1970 for a few seconds and then gets corrected very quickly by ntp.</p>
+<p>Log3 is the second Pi again a few minutes later, it is put in RW mode before rebooting again and it clearly saves the time at shutdown and loads it as expected at boot.</p>
+<p>The suggested steps 1 to 3 will allow the fake-hwclock.data file to be found at boot, plus allow it to be saved hourly and at shutdown,</p>
+<p>I don&#39;t think the drift time is catered for in the read only image, the file is located&nbsp; /var/lib/ntp/ntp.drift which is not currently writable, I&#39;m guessing the impact of that is quite minimal, but I may look into it once we get the Pi to reliably report the correct millennium :-)</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24322"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Mon, 06/10/2014 - 10:59.</div>
+    <div class="content">
+     <p>I&#39;m not particularly familiar with fake-hwclock (none of my distros&nbsp;include it). &nbsp;If I get time tomorrow I&#39;ll play with it. &nbsp;From what I can find on the web, it&#39;s a way of loading the kernel time with an approx time (+/- an hour) rather than using 1970, when ntp hasn&#39;t done its stuff yet. &nbsp; Personally, I prefer my clocks to display 1970 when they&#39;re wrong, that way I know they need attention, but each to their own.</p>
+<p>When one is stuck in the 70&#39;s have you been able to determine whether or not ntpd is still running? &nbsp;If it is running and just not syncing, ntpq is an good utility for poking around inside ntpd&#39;s state and looking at its associations and peers. &nbsp;</p>
+<p><em>I don&#39;t think the drift time is catered for in the read only image, the file is located&nbsp; /var/lib/ntp/ntp.drift which is not currently writable, I&#39;m guessing the impact of that is quite minimal,</em></p>
+<p>I&#39;m not sure if it&#39;s relevant or not, but I suspect if you did have a valid driftfile, ntpd might latch onto the NTP servers faster (in the case where the network is up).</p>
+<p>P.S. &nbsp;Do you have ntpdate installed? &nbsp;That will immediately force the system time to what the NTP servers say, without waiting around for ntpd to sync up &nbsp;(again only useful in the case where the network is up).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24323"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 06/10/2014 - 12:06.</div>
+    <div class="content">
+     <p>Fake-hwclock&nbsp;seems simple enough&nbsp;<a href="http://manpages.ubuntu.com/manpages/raring/man8/fake-hwclock.8.html#contenttoc5">http://manpages.ubuntu.com/manpages/raring/man8/fake-hwclock.8.html#contenttoc5</a>&nbsp;(not using ubuntu, but fake-hwclock seems quite uniform across distros) it just saves the current time to file hourly by cron and at shutdown. That time is then supposed to be loaded at boot. I assume the symlink is the hurdle.</p>
+<blockquote><p>&quot;Personally, I prefer my clocks to display 1970 when they&#39;re wrong, that way I know they need attention, but each to their own&quot;</p>
+</blockquote>
+<p>I can see the benefit there and would normally agree but then I would have to implement some sort of test before allowing emonhub, emoncms&nbsp;or any other time recording software to start and that could result in lost data rather than slightly inaccurately timestamped data, (always seem to be deciding the lesser evils)</p>
+<p>Because emonhub&nbsp;either buffers the incorrectly timestamped data until a network connection is available or in the case of a local emoncms&nbsp;which doesn&#39;t need a network connection to receive from a local&nbsp;emonHub, the data with the wrong timestamp can play havoc on some feeds. for example a whaccumulator&nbsp;that suddenly goes back in time by a few days or hours due to a reboot,&nbsp;</p>
+<p>Having now read a bit about the drift file I think you are right the valid drift file would result in a quicker correction as an absent file causes lengthy calculations to begin that can cause huge delays to corrections. I have checked all my P&#39;s and they all appear to have a file but it is not writable on the RO ones, so i assume the file is created during the initial set up stages and only updated if it happens to try and update while I have the Pi in RW mode for another reason. So I guess in my cases the Pi&#39;s will quickly establish a slightly inaccurate time (+/-&nbsp;20ppm is not alot) another lesser evil trade off!</p>
+<p>Ideally I would like to make the drift file RW&nbsp;momentarily to save but cannot find where this is done. It would be pointless symlinking&nbsp;it to &quot;data&quot; as would creating a file in RAM at boot as this would initiate the calculating at each boot.</p>
+<p>I don&#39;t have ntpdate installed as apparently it will not work after ntpd is running so I would effectively only mimic what ntpd&nbsp;-g does currently unless ntpd&nbsp;is stopped and restarted which in itself would rerun the &quot;one-hit&quot; and would need a trigger once the network is up which is where I was going with step 4.</p>
+<p>Having only read up on this over the weekend I haven&#39;t established if ntpd is running when these issues occur, I don&#39;t actually experience the issues on my Pi&#39;s but several other users have and as the issue seem to always be perceived as an emonhub&nbsp;error I though I would have a go at resolving it , but to do that I need to set up a Pi running the pre-configured image with a screen and keyboard to be able to monitor the effects of no network as ssh&nbsp;will include a network connection unless I disconnect my whole network from the outside world.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24324"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Mon, 06/10/2014 - 13:11.</div>
+    <div class="content">
+     <p><em>Ideally I would like to make the drift file RW momentarily to save but cannot find where this is done.</em></p>
+<p>It&#39;s rewritten by ntpd every hour (regardless of whether it previously existed). &nbsp;So in the case of a virgin system you&#39;ve just installed, the file will first appear one hour after you first install and run ntpd.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24325"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Mon, 06/10/2014 - 14:32.</div>
+    <div class="content">
+     <p><em>I don&#39;t have ntpdate installed as apparently it will not work after ntpd is running so I would effectively only mimic what ntpd -g does currently unless ntpd is stopped and restarted</em></p>
+<p>On all the machines I have ntpdate installed, it puts a script called ntpdate into&nbsp;/etc/network/if-up.d (scripts in that directory get executed when an interface comes up). &nbsp;That script stops ntpd, runs the ntpdate binary, and then restarts ntpd.</p>
+<p>ntpdate is a lot more brute-force than ntpd. &nbsp;ntpdate pretty much grabs the time from an NTP server and slams it into the system clock, with very few questions asked. &nbsp;By comparison,&nbsp;ntpd sits in the background listening to NTP server messages, runs filters on them, and if you&#39;re lucky, will eventually decide to sync to one of them.. but this can take tens of minutes. &nbsp;From there on in, it&#39;s very good at tracking those servers and keeping your system time extremely accurate.&nbsp;</p>
+<p>So the two work very nicely together. &nbsp;ntpdate will force your system time to be fairly correct pretty much immediately, and ntpd will then get it (and keep it) extremely correct after that.</p>
+<p>Here&#39;s an example log of me bringing my desktop machine out of suspend at 21:02:</p>
+<p>Oct&nbsp; 6 21:02:13 ntpd[21608]: ntpd exiting on signal 15<br />
+	Oct&nbsp; 6 21:02:28 ntpdate[22939]: adjust time server 59.167.227.65 offset 0.373472 sec<br />
+	Oct&nbsp; 6 21:02:28 ntpd[22966]: ntpd 4.2.6p3@1.2290-o Tue Jun&nbsp; 5 20:12:08 UTC 2012 (1)<br />
+	Oct&nbsp; 6 21:02:28 ntpd[22967]: proto: precision = 0.111 usec</p>
+<p>You can see it killed ntpd, then it ran ntpdate to brute-force my system time (which had drifted by 0.37 secs while suspended), then it restarted ntpd. &nbsp; ntpd then took a full 4 minutes before it sync&#39;d to an NTP server (not shown in the logs). &nbsp;You can see ntpdate took just 15 seconds to fetch the time and fix my system time.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24326"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 06/10/2014 - 15:22.</div>
+    <div class="content">
+     <p>Ok so ntpdate could force a correction at anytime as and when the network comes up,</p>
+<p>How would that be affected by an active network connection without internet access ? for example a power outage following which the Pi is quick to reboot and a router could provide an ip address but an external connection to the internet takes a bit longer to establish. The script I had written tests connectivity by trying to open a webpage, I&#39;m guessing the if-up.d could get caught out here.</p>
+<p>Although once triggered my script restarts ntpd I suppose it could be used to run ntpdate instead.</p>
+<p>The ntp.drift file is still equally important regardless of how the initial time is established I imagine, if the file is missing the calcs will take considerably longer to fine tune the time.</p>
+<p>I can only think of one way around it and that is to create a /var/lib/ntp directory in RAM using an entry in the fstab ( currently done for /var/logs) and as the Pi is booting but before the ntpd is started a ntp.drift.BAK file is copied to /var/lib/ntp/ntp.drift for ntpd to find and keep updated and the hourly cron job that currently saves fake.hwclock.data gets extended to save the ntp.drift file to ntp.drift.BAK and the same for saving at shutdown so that there is always a recent drift value available at boot up.</p>
+<p>Even if a RTC was fitted to removed the need for fake-hwclock, the drift file would probally still need to be functional.</p>
+<p>If there is a recent fake-hwclock.data entry and a recent ntp,drift file is there a need for the ntpdate as well do you think? ntpd&#39;s&nbsp;gradual changes have their advantages as well eg less chance of skipping a scheduled cron job or jumping forwards or backwards in time while mid measurement.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24327"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 06/10/2014 - 15:49.</div>
+    <div class="content">
+     <p>There again if ntpdate is used the drift at that time would be 0 so a drift file could just be created with a zero value to prevent &nbsp;the longer&nbsp;ntp&nbsp;calcs&nbsp;starting, then there would be no need to back it up just the RAM copy would do.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24332"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Mon, 06/10/2014 - 21:09.</div>
+    <div class="content">
+     <p><em>Ok so ntpdate could force a correction at anytime as and when the network comes up, &nbsp;How would that be affected by an active network connection without internet access ?</em></p>
+<p>Just as your script is polling a webpage, ntpdate is polling an NTP server. &nbsp; In the man page you&#39;ll find several switches that let you control its behaviour in that regard:</p>
+<p>-p samples<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Specify the number of samples to be acquired from each server as the integer samples, with values from 1&nbsp; to&nbsp; 8<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; inclusive. The default is 4.</p>
+<p>-t timeout<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Specify the maximum time waiting for a server response as the value timeout, in seconds and fraction. The value<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; is is rounded to a multiple of 0.2 seconds. The default is 1 second, a value suitable for polling across a LAN.</p>
+<p>&nbsp;</p>
+<p><em>If there is a recent fake-hwclock.data entry and a recent ntp,drift file is there a need for the ntpdate as well do you think? ntpd&#39;s gradual changes...</em></p>
+<p>Utlimately I guess that&#39;s a design decision for your server, but in general I think the answer is yes. &nbsp;The options&#39; features are:</p>
+<p>fake-hwclock: &nbsp;instant time setting, no network required, accuracy to within about an hour</p>
+<p>real-hwclock: &nbsp;instant time setting, no network required, accuracy to within tens of seconds</p>
+<p>ntpdate: &nbsp;~15 secs to set the time, network required, accuracy to within&nbsp;hundred of msecs</p>
+<p>ntpd: &nbsp; tens of minutes to set time, network required, accuracy to within one or two msecs</p>
+<p>&nbsp;</p>
+<p>On an always-on server the first 3 only happen after a major event, i.e. a reboot or a LAN failure. &nbsp;The general consensus of most distro designs is you want to get the server time as accurate as you can as quickly as you can, and then fine tune it, so they do real-hwclock, ntpdate, ntpd in that order. &nbsp; Given you have to use fake-hwclock with its incredibly poor accuracy, I would think ntpdate would be even more important.</p>
+<p>But you&#39;re right to consider all the possible failure modes and how you want your server to behave under those conditions. For example, if the ethernet cable has fallen out of the RPi the interface will never come up, but if it&#39;s receiving data via RF and has local storage, you might still want it to log. &nbsp;Or your DSL service might be down, so the interface comes up, but ntpdate&nbsp;and ntpd will never get you the correct time.... etc. etc.</p>
+<p>&nbsp;</p>
+<p><em>There again if ntpdate is used the drift at that time would be 0</em></p>
+<p>The driftfile doesn&#39;t contain the difference between your time and the NTP&nbsp;server&#39;s time (that difference is known as &quot;offset&quot; in NTP parlance). &nbsp;The driftfile&nbsp;contains the frequency adjustment that needs to be applied to your local crystal in PPM. &nbsp;As ntpd runs it effectively calibrates your crystal for you. &nbsp;That has two benefits:</p>
+<p>. if you fall off the network, time will continue to advance based on your adjusted crystal</p>
+<p>. next time you restart, ntpd can immediately be using your adjusted crystal while it tries to sync to the servers</p>
+<p>&nbsp;</p>
+<p><em>a drift file could just be created with a zero value to prevent&nbsp; the longer ntp calcs starting</em></p>
+<p>A driftfile containing 0 is identical to a missing driftfile&nbsp;to ntpd (see man page entry from an earlier post above).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24346"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Tue, 07/10/2014 - 06:26.</div>
+    <div class="content">
+     <p>I wonder if there&#39;s any path through that maze of scripts that can end up writing 1970 to the fake h/w clock, and then periodically loading the fake h/w clock into the system time, behind ntpd&#39;s back. &nbsp;That would be a way to use up your one-shot big jump.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24347"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 07/10/2014 - 09:59.</div>
+    <div class="content">
+     <p>As I recall, the cases that had 1970 stick for a prolonged time were run for a while without an internet connection. Although unsure of the exact details and durations etc I suspect the symlinked&nbsp;fake-hwclock was not accessible at boot so the 0 unix time stamp was loaded and then if no working internet connection was provided for the ntpd&nbsp;to rectify the time within 1 hour of booting up the 1970&#39;s time and date would get saved to fake-hwclock and there have been instances where the fake-hwclock.data has been confirmed as a 1970&#39;s timestamp.</p>
+<p>The steps 1 to 3 above are definitely&nbsp;going to over come the initial 1970&#39;s problem and in the majority of cases, the Pi will function as expected.</p>
+<p>A sturdier solution is still required for Pi&#39;s with weak or intermittent network connections, like ntpdate, my script or both maybe, I&#39;m not sure until&nbsp;I can get a test rig set up to try a few things. The ntpdate&nbsp;script may poll the ntp&nbsp;servers once it has been triggered by the initial network connection but that may not be when the internet connection is established, by polling a site until a reply is obtained and then running&nbsp;ntpdate the time is sure to be corrected unless the connection is lost again within a second or 2 and not regained.</p>
+<p>Although I was aware the drift value wasn&#39;t the difference. I had thought it was the required frequency correction to align the current and correct times gradually and therefore would be zero if a correction is forced. So the drift value ideally needs to be made &quot;editable&quot; using something like previously suggested, but as a last resort could be left as is so that it is always micro seconds out but doesn&#39;t restart the lengthy initial&nbsp;calcs&nbsp;which could delay any adjustments being made at all.</p>
+<p>I think as the pre-configured image will have a date already set in fake-hwclock it would be good advice for users to initially connect to the internet for a period or to set the clock manually and reboot or run <strong>sudo&nbsp;fake-hwclock&nbsp;save&nbsp;</strong>to refresh the fake-hwclock&nbsp;ensuring no matter what the Pi will not then revert back before that date.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24349"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/349.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-349.jpg" alt="EnergyRnR&#039;s picture" title="EnergyRnR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/349.html" title="View user profile.">EnergyRnR</a> on Tue, 07/10/2014 - 10:41.</div>
+    <div class="content">
+     <p>Paul,</p>
+<p>&nbsp;I can confirm your 1st para above; this is precisely what I&#39;ve validated to be happening for me here.</p>
+<p>And, it&#39;s a good idea that to &#39;deploy&#39; this emonbase, we need an install doc or procedure that requires the user to get the date correct as they set it up.&nbsp;</p>
+<p>I expect to be going to my &#39;offline&#39; emonbase tomorrow so it&#39;ll be interesting to see if I can get it working without access to internet. My worry would be if there were a power outage, it&#39;ll need manual intervention to recover.... Admittedly this completely offline use case is a severe example but we all like a challenge :-)</p>
+<p>Thanks a lot for going to such trouble investigating this very interesting issue.</p>
+<p>I&#39;ve implemented your steps 1-3 on another system I have here. The &#39;last updated&#39; status on the input page is performing a lot better ; i.e. there are 2 nodes, and both are updating very quickly. I was seeing long delays for one of the nodes. There are of course other variables, such as whether doors are closed etc but it&#39;s definitely much &#39;cleaner&#39; just from watching the input page update.</p>
+<p>Eamonn.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24350"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 07/10/2014 - 11:20.</div>
+    <div class="content">
+     <p>Thanks for the feedback&nbsp;Eamonn, In the case of your offline Pi, doing steps 1 to 3 will be enough to allow the Pi to count from the time and date you set and store that value at hourly intervals and at shutdown. This means the accuracy will not be corrected and may loss or gain a few seconds, not the end of the world. But a sudden power loss will result in a time loss of up to 1 hr plus outage time, so a prolonged outage will disrupt the validity of the ongoing data as would a series of momentary interruptions eg a momentary outage just&nbsp;before the &quot;hourly save&quot; will set the timekeeping back an hour to the previously saved time.</p>
+<p>Unless you can be sure the power is totally reliable I would recommend a RTC as a power outage may be un traceable and invalidate all your data as the Pi is none the wiser and keeps logging from the last saved time after a reboot as if time stood still, days weeks or months later you would just see a time or date difference but the data probably&nbsp;won&#39;t show the outages and there is no way for it to alert you at the time either.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24353"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/349.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-349.jpg" alt="EnergyRnR&#039;s picture" title="EnergyRnR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/349.html" title="View user profile.">EnergyRnR</a> on Tue, 07/10/2014 - 11:46.</div>
+    <div class="content">
+     <p>agreed ; I do need to get a config with the RTC&nbsp;for the offline scenario.&nbsp;</p>
+<p>Eamonn</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24363"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Tue, 07/10/2014 - 21:09.</div>
+    <div class="content">
+     <p><em>I had thought it was the required frequency correction to align the current and correct times gradually and therefore would be zero if a correction is forced.</em></p>
+<p>Ah ok. &nbsp;ntpd is constantly trying to fix the frequency and fix the offset. &nbsp;The driftfile is where it keeps track of the frequency fix it&#39;s calculated for this machine. So even if you somehow did get the system time perfect &nbsp;such that no offset adjustment was currently required, the value stored in driftfile wouldn&#39;t change.</p>
+<p>Whether or not it can write the file, internally it continues to use the value it wants to use (and would have written). So not being able to write to the file will only affect things next time it starts up. &nbsp;Instead of starting with the frequency tweak it&#39;s learned over the months/years it&#39;s been watching, it has to start over. &nbsp;On all the machines I&#39;ve ever looked at, once it&#39;s been up for a few days (months?) the contents of that file barely changes. &nbsp;But it does vary a lot from machine to machine of course. &nbsp;</p>
+<p>So maybe you can design something with your readonly&nbsp;Vs read-write filesystem to take advantage of that, i.e. you could perhaps get away with writing it once after ntpd has been sync&#39;d for a few days, and then burning that value into the readonly version for use from them on (but on a per-machine basis, not globally)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24372"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 08/10/2014 - 10:19.</div>
+    <div class="content">
+     <p>Finding a point to intervene in the drift file saving that isn&#39;t too complex and minimal opportunity to introduce side effects could be tricky. Where as the fake-hwclock&nbsp;uses cron, so a couple of simple edits to remount as RW momentarily works, it appears the ntpd code does the hourly drift file save directly, that is an assumption based on the fact I couldn&#39;t find a cron&nbsp;for it and I&#39;m unable to view the ntp code to confirm.</p>
+<p>I&#39;m not sure if I would be able to query the drift value from ntp and then write it to a file, where as if the ntp.drift file is moved to RAM ntpd can update it as usual and that file can then just be copied to a RO location that can be copied back at boot time.</p>
+<p>Since the ntpd saves&nbsp;once an hour only if the value has changed I feel that is probably&nbsp;the safest route for the &quot;fix&quot; to take and amalgamate the hourly back-up of the current time and drift value (if != existing&nbsp;back-up) into one momentary remount cycle.</p>
+<p>I need to experiment a bit really...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24375"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Wed, 08/10/2014 - 11:41.</div>
+    <div class="content">
+     <p><em>it appears the ntpd code does the hourly drift file save directly</em></p>
+<p>Yes, it does.</p>
+<p>&nbsp;</p>
+<p><em>I&#39;m unable to view the ntp code to confirm</em></p>
+<p><a href="http://www.ntp.org/downloads.html" title="http://www.ntp.org/downloads.html">http://www.ntp.org/downloads.html</a></p>
+<p>&nbsp;</p>
+<p><em>I&#39;m not sure if I would be able to query the drift value from ntp</em></p>
+<p>You can do it from C by calling ntp_adjtime(), or from a script with the kerninfo command in ntpdc and parsing the output for the item labeled &quot;pll frequency&quot;:</p>
+<p># ntpdc -c kerninfo | grep &quot;pll frequency&quot;<br />
+	pll frequency:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -11.870 ppm<br />
+	#<br />
+	# more /var/lib/ntp/ntp.drift<br />
+	-11.869<br />
+	#</p>
+<p>In the above example, my ntp.drift file is about 40 minutes old and you can see it&#39;s already changed its mind (ever so slightly) about what the value should be.</p>
+<p><strong>[EDIT]</strong></p>
+<p><em>I feel that is probably the safest route for the &quot;fix&quot; to take</em></p>
+<p>Don&#39;t interpret the details I&#39;ve added above as an attempt to talk you out of your proposed solution. &nbsp;If anything, I probably agree with you that it&#39;s the safest route. &nbsp;I was just filling in the bits you were unsure about so you&#39;ve got plenty of options to choose from.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24379"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 08/10/2014 - 13:50.</div>
+    <div class="content">
+     <p>Fantastic so something as simple as&nbsp;</p>
+<blockquote><p>ntpdc -c kerninfo | grep &quot;pll frequency&quot; | awk -F&#39; &#39; &#39;{print $3}&#39; &gt;&nbsp;/var/lib/ntp/ntp.drift</p>
+</blockquote>
+<p>would just overwrite the existing value in ntp.drift, if run as root by cron.</p>
+<p>and If that could be improved further to only over write if the value is not equal to the existing contents I think that would be much better than creating a file in RAM and copying at boot.</p>
+<p>&nbsp;</p>
+<blockquote><p>&nbsp;</p>
+</blockquote>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24381"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 08/10/2014 - 14:59.</div>
+    <div class="content">
+     <p>To echo Eamonn, thanks a lot for looking into this Paul, dbC, I think im just about following.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24386"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 08/10/2014 - 17:28.</div>
+    <div class="content">
+     <p>So something like this one line added to both the fake-hwclock hourly cron&nbsp;and the ntpd shutdown script</p>
+<blockquote><p><strong>dval=`ntpdc -c kerninfo | grep &quot;pll frequency&quot; | awk -F&#39; &#39; &#39;{print $3}&#39;`; dfile=/var/lib/ntp/ntp.drift; if [ ! $dval = $(&lt; $dfile) ]; then echo $dval &gt; $dfile; fi</strong></p>
+</blockquote>
+<p>should save the drift value&nbsp;&nbsp;to file, but only if it has changed, while the fake-hwclock&nbsp;routine has the file system mounted as RW momentarily.</p>
+<p>shell isn&#39;t my strong point so I welcome any corrections if that syntax can be improved, although I have just tested the logic and it seems to function correctly I have not actually tried it in place yet.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24390"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 08/10/2014 - 18:02.</div>
+    <div class="content">
+     <p>I still don&#39;t have a Pi set up that I can remove the network connection from (as I run them headless), but I have now added these mods to a read-only Pi to see if it works ok normally.</p>
+<p>Step 2 adds a neat safety function as every hour the system will be switched to RO regardless of whether it is RO or RW&nbsp; at the time, handy for those of us that never remember to use rpi-ro after making changes :-)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24394"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Wed, 08/10/2014 - 20:52.</div>
+    <div class="content">
+     <p>A couple of corner cases you might want to test against:</p>
+<p>1. if ntpd&nbsp;has exited for some reason, then&nbsp;ntpdc will output an error: &quot;ntpdc: read: Connection refused&quot;, so you&#39;d want to make sure you don&#39;t clobber your good drift file with a bad one (or null one) in that case</p>
+<p>2. it&#39;s also quite legal for the drfit file not to exist, in which case you want to create it, so you&#39;d want to make sure your &quot;has it changed?&quot; test doesn&#39;t prevent that.</p>
+<p>While it&#39;s true that ntpd does include that &quot;has it changed?&quot; optimisation before it rewrites ntp.drift every hour, in practice I think it&#39;s a code path rarely exercised. &nbsp;On all my machines, I can&#39;t find a single one where ntp.drift is older than 1 hour. &nbsp;Even on machines that have been up a long time, by the time an hour has come around it almost always wants to tweak the value, even if only by 0.001 as in the example I pasted above. &nbsp;So if it makes it easier (or more robust) you could drop that test and I suspect it would make little difference to how often the file is written.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24423"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 09/10/2014 - 13:06.</div>
+    <div class="content">
+     <p>You&#39;re right, if the drift value is most likely going to be different more often than not, then the &quot;if changed&quot; may introduce more issues than it helps ie not creating the file if it doesn&#39;t exist yet. i like the simplicity of &quot;just copy it regardless&quot; although as you point out ntpd may not be running for example if a difference of 1000 secs is detected after the &quot;one big step&quot; it will close.</p>
+<p>Would a simple check to see if the ntpd.pid file exists be sufficient ?</p>
+<blockquote><p>if [ -f /var/run/ntpd.pid ] ; then<br />
+		&nbsp; dval=`ntpdc -c kerninfo | grep &quot;pll frequency&quot; | awk -F&#39; &#39; &#39;{print $3}&#39;`<br />
+		&nbsp; dfile=/var/lib/ntp/ntp.drift<br />
+		&nbsp; echo $dval &gt; $dfile<br />
+		fi</p>
+</blockquote>
+<p>I am also considering creating a cron and init script called something like &quot;ntp-backup&quot; so that the existing file(s) can be deleted, disabled or just ignored so that our mods are independent and unlikely to be altered by updated packages or in the case of someone fitting a RTC and removing/deleting the fake-hwclock as per most guides instruct, the drift file will still work and if fake-hwclock is re-installed/re-enabled it will work with the RO file system again.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24429"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6914.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="solutions101&#039;s picture" title="solutions101&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/6914.html" title="View user profile.">solutions101</a> on Thu, 09/10/2014 - 15:52.</div>
+    <div class="content">
+     <p>Thanks for that</p>
+<p>&nbsp;</p>
+<p>now i am seeing a timestamp on my inputs, however im not getting any reports from my CT inputs...</p>
+<p>&nbsp;</p>
+<p>here is an output from my logs, i have increased the log level :</p>
+<p>	pi@raspberrypi:~$ tail /var/log/emonhub/emonhub.log<br />
+	2014-10-09 13:11:35,983 DEBUG 8 Append to &#39;emonCMS&#39; buffer =&gt; time: 1412860295.92, data: [10, 0, 0, 0, 0, 25433, 0], ref: 8<br />
+	2014-10-09 13:11:36,089 INFO Sending: http://localhost/emoncms/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&amp;data=[[1412860295.92,10,0,0,0,0,25433,0]]&amp;sentat=1412860296<br />
+	2014-10-09 13:11:37,251 DEBUG Receipt acknowledged with &#39;ok&#39; from <a href="http://localhost/emoncms" title="http://localhost/emoncms">http://localhost/emoncms</a><br />
+	2014-10-09 13:11:46,763 DEBUG 9 NEW FRAME : 1412860306.76&nbsp; 10 0 0 0 0 0 0 0 0 103 99 0 0<br />
+	2014-10-09 13:11:46,768 DEBUG 9 Timestamp : 1412860306.76<br />
+	2014-10-09 13:11:46,771 DEBUG 9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Node : 10<br />
+	2014-10-09 13:11:46,773 DEBUG 9&nbsp;&nbsp;&nbsp; Values : [0, 0, 0, 0, 25447, 0]<br />
+	2014-10-09 13:11:46,803 DEBUG 9 Append to &#39;emonCMS&#39; buffer =&gt; time: 1412860306.76, data: [10, 0, 0, 0, 0, 25447, 0], ref: 9<br />
+	2014-10-09 13:11:46,906 INFO Sending: http://localhost/emoncms/input/bulk.json?apikey=E-M-O-N-C-M-S-A-P-I-K-E-Y&amp;data=[[1412860306.76,10,0,0,0,0,25447,0]]&amp;sentat=1412860306<br />
+	2014-10-09 13:11:47,385 DEBUG Receipt acknowledged with &#39;ok&#39; from <a href="http://localhost/emoncms" title="http://localhost/emoncms">http://localhost/emoncms</a></p>
+<p>&nbsp;</p>
+<p>the mains power voltage seems to work fine, just the CT come back with no readings.</p>
+<p>&nbsp;</p>
+<p>please advise</p>
+<p>&nbsp;</p>
+<p>thanks</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24439"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 09/10/2014 - 21:39.</div>
+    <div class="content">
+     <p><em>Would a simple check to see if the ntpd.pid file exists be sufficient ?</em></p>
+<p>No, the pid file only gets cleaned up if ntpd is shutdtown gracefully by management. &nbsp;If the daemon just quietly exits, the stale pid file will remain around forever (well until it&#39;s replaced by a new one next time it gets restarted). &nbsp;It&#39;s probably better to do a sanity check on dval before you write it to the file. &nbsp;In the case where the daemon is not running, dval should end up empty after your assignment because the grep will fail to find anything.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24453"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 10/10/2014 - 09:50.</div>
+    <div class="content">
+     <p>Ok so a more reliable check would be to just check $dval&nbsp;for content, makes sense and it&#39;s simpler, win-win ! I&#39;ll take another look at doing this over the weekend hopefully and get a spare screen down from the loft to run some tests, thanks, I really appreciate all your help with this!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24529"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 13/10/2014 - 19:58.</div>
+    <div class="content">
+     <p>Although still being tested I have packaged this up so that it can be implemented with one command from the home directory when in RW mode (rpi-rw) and so far, it seems to work ok.&nbsp;</p>
+<blockquote><p><strong>git clone <a href="https://github.com/emonhub/ntp-backup.git" title="https://github.com/emonhub/ntp-backup.git">https://github.com/emonhub/ntp-backup.git</a> &amp;&amp; ~/ntp-backup/install</strong></p>
+</blockquote>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24543"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/349.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-349.jpg" alt="EnergyRnR&#039;s picture" title="EnergyRnR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/349.html" title="View user profile.">EnergyRnR</a> on Tue, 14/10/2014 - 11:15.</div>
+    <div class="content">
+     <p>nice one. spoiling us . .... Thanks!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24547"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 14/10/2014 - 13:58.</div>
+    <div class="content">
+     <p>No worries!</p>
+<p>Let us know how you get on if you use it, I&#39;ve tidied up some permissions etc this morning and tested some more, but you can&#39;t beat real world testing.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24607"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 17/10/2014 - 11:43.</div>
+    <div class="content">
+     <p>I&#39;ve modified this a little to be less sensitive to where it is initiated from. it does still need to be in &quot;write&quot; mode before running&nbsp;</p>
+<blockquote><p><strong>git clone <a href="https://github.com/emonhub/ntp-backup.git" title="https://github.com/emonhub/ntp-backup.git">https://github.com/emonhub/ntp-backup.git</a> ~/ntp-backup &amp;&amp; ~/ntp-backup/install</strong></p>
+</blockquote>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31826"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Read-only image time issues </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 01/07/2015 - 17:16.</div>
+    <div class="content">
+     <p>doh!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5877"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-fHLNE8L8IrDMMphtke6t343hghusm0d1x3iCuLxDM_A" value="form-fHLNE8L8IrDMMphtke6t343hghusm0d1x3iCuLxDM_A"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5877 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:43:38 GMT -->
+</html>

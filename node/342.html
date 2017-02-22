@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/342 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:34:37 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Reducing Arduino brown out voltage investigation  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Reducing Arduino brown out voltage investigation </h3>
+        <span class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sun, 08/01/2012 - 19:01</span>
+        <div class="content"><p>Recently I read Nathan Chantrell's blog about getting the longest life possible out of battery powered nodes&nbsp;<a href="http://nathan.chantrell.net/20120107/further-extending-the-temptx-battery-life/">http://nathan.chantrell.net/20120107/further-extending-the-temptx-battery-life/</a>. He mentions that although in the the ATmega328 is said to work down to 1.8V he observed the ATmega stopping workin at 2.7V, this is<a href="214.html"> exactly what we observed</a> in our early emonTx trails.</p>
+<p>Nathan explains this is probably down the the Arduino bootloaders BOD (Brown out detection) that puts the ATmega into a reset loop when the voltage drops to 2.7V. This is not normally a problem since normal Arduinio boards (for which the bootloader was designed for) run at 5V.&nbsp;</p>
+<p>After some <a href="https://twitter.com/#!/Openenergymon">twittering</a> with Nathen he worked out that the BOD drop-out voltage could be reduced to 1.8V by changing the value of the bootloader extended fuse from 0x05 to 0x06 then re-loading the bootloader.&nbsp;</p>
+<p>I gave it a go tonight using the <a href="https://github.com/jcw/jeelib/tree/master/examples/Ports/isp_repair">isp_repair</a> bootloading sketch from jeelabs (Optiboot (Arduino uno) 4.4 bootloader). It makes it simple to change the extended fuse value in the since its in the sketch itself. This avoids having to modify boards.txt. JeeLabs info on bootloading:&nbsp;<a href="http://jeelabs.org/2011/05/29/summary-of-isp-options/">http://jeelabs.org/2011/05/29/summary-of-isp-options/</a>.&nbsp;</p>
+<p>The end goal is the increase the battery life of an emonTx powerd by 2 x AA's. Currently the emonTx drains batteries down to 2.8V in four months. Hopefully this BOD setting will allow a few more months of battery life.</p>
+<p>I currently have a test emonTx running in the lab with depleated batteries, it's posting its internal battery voltage over RFM12B wireless to a NanodeRF where it's posted online to emoncms for logging. Its current voltage is 2.78V It wil be interesting to see at what voltage it stops working. The RFM12B is rated down to 2.2V so I'm not expecting to get much lower! I will update on how it goes.&nbsp;</p>
+<p>Just for fun we have embeded an emoncms dashboard widget and graph of the live emonTx battery test voltage. You can watch the battery voltage go down in real time! How low will it go....?? If no dashboard appears try refreshing the page. &nbsp;</p>
+<p>Update 28/1/12: Seemed like we got quite a few RF errors as voltage approached 2.7V, maybe RFM12 issue. emonTx under test now has fresh batteries, hence high votlage!&nbsp;</p>
+<p><iframe style="width:728px; height:350px;" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://vis.openenergymonitor.org/emoncms3/Vis/Dashboard/embed.php?apikey=94c2c35f4caade7c4dae9726ebf0305f"></iframe>Embeded dashboard powered by <a href="../emoncms.html">emoncms V3</a></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2413.html" class="topic-previous" title="Go to previous forum topic">‹ confused with code  calibration SCT-013</a>
+              <a href="2404.html" class="topic-next" title="Go to next forum topic">JMPM ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-2671"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Amin Zayani&#039;s picture" title="Amin Zayani&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing Arduino brown out voltage investigation </h3>
+
+    <div class="submitted">Submitted by Amin Zayani (not verified) on Sun, 08/01/2012 - 22:19.</div>
+    <div class="content">
+     <p>&nbsp;U think that can affect the AREF? the 3.3v reference for analog inputs?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2672"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing Arduino brown out voltage investigation </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Mon, 09/01/2012 - 00:18.</div>
+    <div class="content">
+     <p>The code take this into account. The supply voltage is internally measured then used here:</p>
+<p>double I_RATIO = (( CT_TURNS / CT_BURDEN_RESISTOR ) * (SUPPLY_VOLTAGE/1000.0)) / 1024.0;</p>
+<p>Need to check this works at extreme low voltages. Also if sampling AC voltage there is a change it could go out of range. More testing needed.&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2692"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing Arduino brown out voltage investigation </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 10/01/2012 - 22:13.</div>
+    <div class="content">
+     <p>I've made a custom emonTx bootloader which incorporates the BOD changes above and also loads up the emonTx singel CT example. This is more of use for us in OEM labs but is open to all, its up on github:&nbsp;<a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTx_Optiboot4_4_bootloader">https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTx_Optiboot4_4_bootloader</a></p>
+<p>Its based on the JeeLabs isp_reapair example and uses andother arduino conected via ISP connectors.&nbsp;</p>
+<p>See&nbsp;<a href="http://jeelabs.org/2011/05/29/summary-of-isp-options/">http://jeelabs.org/2011/05/29/summary-of-isp-options/</a>&nbsp;for wiring diagram.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2892"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/317.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-317.jpg" alt="Sergegsx&#039;s picture" title="Sergegsx&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing Arduino brown out voltage investigation </h3>
+
+    <div class="submitted">Submitted by <a href="../user/317.html" title="View user profile.">Sergegsx</a> on Sun, 29/01/2012 - 13:14.</div>
+    <div class="content">
+     <p>please modify the maximum value of the gauge as it starts going up, but clears at the level of 3V</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12421"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing Arduino brown out voltage investigation </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Tue, 28/05/2013 - 10:44.</div>
+    <div class="content">
+     <p>Some spam (now removed) brought this ancient thread to my attention for the first time. &nbsp;I think the datasheet says that if you want to run at 16MHz, Vcc needs to be at least 3.78V for safe operation (see attached).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12425"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/380.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-380.jpg" alt="mharizanov&#039;s picture" title="mharizanov&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Reducing Arduino brown out voltage investigation </h3>
+
+    <div class="submitted">Submitted by <a href="../user/380.html" title="View user profile.">mharizanov</a> on Tue, 28/05/2013 - 13:33.</div>
+    <div class="content">
+     <p><span style="font-size: 12px;">you can only run @ 1.8V if you lower the </span>Mhz<span style="font-size: 12px;">&nbsp;i.e. use the </span>prescaler to run at 4Mhz</p>
+<p>Nick Gammon has a good post with calculations here:&nbsp;http://www.gammon.com.au/forum/?id=11497&nbsp;</p>
+<p>MHz&nbsp; Volts<br />
+	4&nbsp;&nbsp;&nbsp; 1.80<br />
+	5&nbsp;&nbsp;&nbsp; 1.95<br />
+	6&nbsp;&nbsp;&nbsp; 2.10<br />
+	7&nbsp;&nbsp;&nbsp; 2.25<br />
+	8&nbsp;&nbsp;&nbsp; 2.40<br />
+	9&nbsp;&nbsp;&nbsp; 2.55<br />
+	10&nbsp;&nbsp;&nbsp; 2.70<br />
+	11&nbsp;&nbsp;&nbsp; 2.88<br />
+	12&nbsp;&nbsp;&nbsp; 3.06<br />
+	13&nbsp;&nbsp;&nbsp; 3.24<br />
+	14&nbsp;&nbsp;&nbsp; 3.42<br />
+	15&nbsp;&nbsp;&nbsp; 3.60<br />
+	16&nbsp;&nbsp;&nbsp; 3.78<br />
+	17&nbsp;&nbsp;&nbsp; 3.96<br />
+	18&nbsp;&nbsp;&nbsp; 4.14<br />
+	19&nbsp;&nbsp;&nbsp; 4.32<br />
+	20&nbsp;&nbsp;&nbsp; 4.50</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/342"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-y3431Wt9FSLT7GQQrOW5jmju2GySBmGpiMyCRU9lcO8" value="form-y3431Wt9FSLT7GQQrOW5jmju2GySBmGpiMyCRU9lcO8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/342 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:34:39 GMT -->
+</html>

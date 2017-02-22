@@ -1,0 +1,1053 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6258 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:47:18 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Static coheating module | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Static coheating module</h3>
+        <span class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Tue, 09/12/2014 - 09:29</span>
+        <div class="content"><p>**************************************************************</p>
+<p>UPDATE on the 9th Feb 2016</p>
+<p>This module is now availbale on EmonCMS.org.</p>
+<p>Once logged, you can access it via the following url : <a href="http://emoncms.org/statico">http://emoncms.org/statico</a></p>
+<p>**************************************************************</p>
+<p>Hi,</p>
+<p>Attached is an EmonCMS module that I&#39;m developing to perform simplified coheating tests. See more details about coheating <a href="http://www.leedsbeckett.ac.uk/as/cebe/projects/coheating_test_protocol.pdf">here</a>. My approach is to define a simplified method to determine the Heat Loss Coefficient (HLC) in occupied buildings using EmonCMS and few sensors (1TH and 1TX in my case).</p>
+<p>This approach is based on two major simplifications :<br />
+&nbsp;&nbsp; - the determination of the HLC is done using night time data only. So, solar gains do not interfere in the HLC determination and there is no need for a pyranometer as it is the case for some methods.<br />
+&nbsp;&nbsp; - instead of using portable electric resistance fan heaters, the temperature of the house is maintained using the existing heating system of the building. This means that you need to estimate the overall efficiency of this system (discussed bellow).</p>
+<p>This method is based on the assumption that the tested building is in a steady state during night time : gains and losses are equilibrated, the internal temperature is constant, and the energy in the thermal mass is constant. If all these conditions are present , then one can determine the HLC using the following equation :</p>
+<p>&nbsp;</p>
+<p>
+<em>&nbsp;&nbsp;&nbsp; Electric internal gains + body gains + heating gains = Heat losses</em></p>
+<p>&nbsp;where</p>
+<ul>
+<li>Heat losses are HLC x (Tint-Text) by definition</li>
+<li>Electric internal gains correspond to the heat generated by all electrical appliances (except the heating system if electric).&nbsp; This is&nbsp; more or less the total consumption of electricity during the night. The proportion of electrical energy converted in heat can be customized in this module but it&#39;s roughly 90%.</li>
+<li>Body gains correspond to the heat generated by people sleeping in the house. This can be estimated to 55W per sleeping adult .</li>
+<li>Heating gains correspond to the heat generated into the building by the heating system. It&#39;s not the consumption of heating energy as there are losses in the heating system : losses in the heat generation, losses in the heat distribution, and losses in the heat emission. Basically, one can estimate the heat gains like this :
+<ul>
+<li>Heat gains = heating energy consumed x overall_efficiency_of_the_heating_system</li>
+<li>where&nbsp; overall_efficiency_of_the_heating_system = efficiency_of_the generation x efficiency_of_the distribution x efficiency_of_the emission</li>
+</ul>
+</li>
+<li>As an example, I have a gas condensing boiler at home (103%), with a lot of losses in my distribution system (15% of losses) and classic radiators (5% of losses). My overall heating efficiency is 1.03*0.85*0.95= 83 %</li>
+</ul>
+<p>&nbsp;</p>
+<p>
+The HLC is then calculated in this method using a simple linear regression. A XY graph is plotted with one point for each night. On the X axis, it is the average of (Tint-Text). On the Y axis, it is the sum of all gains.</p>
+<p>I experienced this module on my own flat, using the data collected from the 26/02/2014 to the 11/3/2014. Using data collected during this period, the HLC determined with this method is 87.9 W/K. It seems to be a good result as the HLC I determined using a calculating tool is 84 W/K ! (I used PHPP, a very reliable software that I know very well).</p>
+<p>&nbsp;</p>
+<p><img alt="" src="../sites/default/files/Linear%20regression.png" style="height: 410px; width: 647px;" /></p>
+<p>If you don&#39;t like some points, just click on them and the linear regression will be done again without these points that would become grey. It&#39;s not cheating, it means that the building is not in a steady state for these points. As an example, I have 3 bad points that correspond to the last days of my test period. As you can see on the attached graph, the internal temperature doesn&#39;t meet the requirement of the test on those last days : too high during the afternoon, not in a steady state at night (up to 20&deg;C after midnight).</p>
+<p><img alt="" src="../sites/default/files/Graph.png" style="height: 316px; width: 638px;" /></p>
+<p>&nbsp;</p>
+<p>Off course, the relevance of this method has to be verified with many others buildings (with more or less insulation/infiltration/thermal mass/solair gains ...) but I&#39;m quite confident that it may allow to perform simplified co-heating tests in existing buildings. Maybe not in too windy places as it doesn&#39;t take into account the effect of the wind.</p>
+<p>To be successful :<br />
+&nbsp;&nbsp; - the test must be performed when the building can easily reach a steady state during the night. It means that the test must be performed during a cold period but not too sunny. This last aspect is mainly true if the building is well isolated, has a lot solar gains and a lot of thermal mass.<br />
+&nbsp;&nbsp; - the building must be maintained at a constant temperature during the test (during the night and the day) in order to stay as much as possible in a steady state.<br />
+&nbsp;&nbsp; - the duration of the night must be as long as possible ;) A night must start as soon as the building is in a steady state (midnight in my case). It must end before getting solar gains. In my case, I ended the night at 6AM because my boiler is also use for the DHW.</p>
+<p>These parameters really depend on the building itself, its location, its usage, ... It has to be determined by try and error. Just keep in mind that you must get a line crossing the point (0,0) ...&nbsp; R&sup2; should be as close as possible to 100% (and epsilon closed to 0 W).</p>
+<p>&nbsp;</p>
+<p>Please install and try this module that I called statico (static coheating).<br />
+Do not try on a long period (more than one month) because it would lag.<br />
+Let know if you get a line and if you can compare the result to a calculated HLC.</p>
+<p>&nbsp;</p>
+<p>Regards,</p>
+<p>Eric AMANN</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12150.html" class="topic-previous" title="Go to previous forum topic">‹ New emoncms backup module</a>
+              <a href="12443.html" class="topic-next" title="Go to next forum topic">EmonCMS IoT Dashboard without OpenEnergyMonitor hardware ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-26550"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 08/01/2015 - 08:04.</div>
+    <div class="content">
+     <p>Hello Eric, this looks really nice and very useful! thanks a lot for sharing! I&#39;ve linked this in on the building thermal performance monitoring and modelling page <a href="../openbem.html" title="http://openenergymonitor.org/emon/openbem">http://openenergymonitor.org/emon/openbem</a></p>
+<p>Brilliant!</p>
+<p>Trystan</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26880"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Tue, 20/01/2015 - 09:29.</div>
+    <div class="content">
+     <p>Hi Trystan,</p>
+<p>Thank&#39;s ! Do not hesitate to try it and let me know how it works.</p>
+<p>January is probably the best moment to do co-heating tests (few solar radiation and low temp)</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30505"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Tue, 19/05/2015 - 12:14.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>I got the same result in feb-march 2015 (below) than in march 2014 (my original post).</p>
+<p>Again, to be experimented on another building and in winter time.</p>
+<p>Eric</p>
+<p><img alt="" src="https://dl.dropboxusercontent.com/content_link/X26dQKgB5GlZLZ7aiqj0QLrlStfih0zZOgW7drcAXEA0pjUBqBaXkrDrh6Nn9cjW/file?dl=1" style="width: 600px; height: 357px;" /></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33983"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Wed, 09/09/2015 - 16:04.</div>
+    <div class="content">
+     <p>This is a really nice feature!</p>
+<p>I really think this should be worked on a&nbsp;little more and then integrated into the emoncms, this is one of the most useful tools for analysis when working with buildings.</p>
+<p>Its not only used for evaluation of the heatlosses, and it&#39;s not necessary to be 100% accurate on the efficiency of the heating system. If the system uses a certain ammount of energy at a certain outdoor temperature that can be enough. What is important is to evaluate the difference when making alterations in the building. And for this the tool is very helpful!</p>
+<p>This tool is used for evaluation when adjusting/calibrating systems and also for planning and follow-up after modifications have been done.</p>
+<p>In Norway this diagram is a must in order to get government funding when installing energy monitor systems in buildings. And energy monitors systems is a must in order to get government funding for any projects that are energy related. So this is really a key feature on this market, but in reality it would be for any user in order to evaluate building performance.</p>
+<p>I am thinking about how to add more to this plugin, in terms of useability. And that could be to use integral for temperatur difference from measured room temperature to outdoor temperature, and compare that to variations in the integral for energy consumption. Adding solar/wind factors could be interesting also, this can be done with local weatherstation data.</p>
+<p>Type of energy source is very important in this test. Heatpumps&nbsp;dont give the same kind of energy profile as a electrical heater. Accumulator tanks will seriosly make this more difficult, and maybe all 24h of the day will be needed. And thermal mass is also a factor.</p>
+<p>I have been thinking about how to coordinate this test with information from a weatherstation that will measure solarenergy, windspeed and such. This can be very useful!</p>
+<p>&nbsp;</p>
+<p>Are you still working on this? I am interested in knowing more about this, and how to add this feature into the emoncms.</p>
+<p>Thanks for sharing!</p>
+<p>&nbsp;</p>
+<p>//J</p>
+<p>&nbsp;</p>
+<p>Just a question:</p>
+<p>Is this plugin using a predetermined indoor temperature, or is it all the time comparing the indoor temperature vs. outdoor temperature? Because the interesting part would be the integral between these two.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34007"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Thu, 10/09/2015 - 07:08.</div>
+    <div class="content">
+     <p>Hello,</p>
+<p>Thank you for your message ! Very happy to discuss with people interested in building thermal performance monitoring and modeling which is my first job.</p>
+<p>My plan was to use it for my professional activity. Unfortunately, I had no time and no project to test it on several buildings except my flat ... So I&#39;m interested in improving/testing that tool.&nbsp; I can help people to install and configure it for the coming winter. It needs very few sensors (internal temp, external temp, main electricity and heating energy). Can be done with one EmonTX and one EmonTH. My first job is to make it run on EmonCMS V8.5 and greater.</p>
+<p>Regarding your question, the x-axis is&nbsp; average_internal_temperature_during_night_time - average_external_temperature_during_night_time. As everything is linear, it corresponds to the integral between these two. .</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34021"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Thu, 10/09/2015 - 10:40.</div>
+    <div class="content">
+     <p>Hello Eric!</p>
+<p>&nbsp;</p>
+<p>Thanks for clarifying what is measured and how it is calculated!</p>
+<p>I see two really good potential uses for this graph you have made:</p>
+<p><strong>One is more advanced then todays design:</strong></p>
+<p>I think that by using a weather&nbsp;station that measures solar radiation and wind speed this calculations could be made even more advanced as multiple factors of data is collected. By using this info all together there is more information to be calculated from data collected to the emoncms. This would be interesting for specialists and people working in construction and consulting.</p>
+<p><strong>One is less advanced:</strong></p>
+<p>And at the same time this graph can be made even more simple and still be very useful for ordinary users that just wants simple energy monitoring.</p>
+<p>By simply integrating the indoor temp vs. outdoor temp continuously all year day by day to create a degree day (degree hour) number for each day. And comparing this to the energy usage / day (or by hour), there will be a less advanced but still very useful graph. This can be done 24/7.</p>
+<p>If also the heated area is brought in to the diagram, so that it shows<strong> kWh/m2 @ &deg;C</strong> it can be used to compare buildings that has different sizes, construction materials and technical installations. This would be kind of real time energy rating for buildings.&nbsp;</p>
+<p><img alt="" src="../../../www.buildingenergyireland.ie/classified/beribercertificate.jpg" style="width: 200px; height: 283px;" /></p>
+<p>In systems with direct heating like&nbsp;direct electrical heating its possible to use hour/hour with very good result.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>More ideas how to use this diagram in various types of buildings:</strong></p>
+<p>I can see that you probably had small houses in mind during this design of this diagram. But the concept of the energy vs. temperature diagram is very usable also in large commercial buildings where there is a lot of energy to be saved.</p>
+<p>This diagram shows a building that has cooling installed, and that will create another kind of bend on the graph.</p>
+<p>&nbsp;</p>
+<p><img alt="" src="../../../4.bp.blogspot.com/-jSD7xKt1K7M/VOykMZK_kCI/AAAAAAAAAG0/h1O2sGwFNsc/s1600/Skjermbilde%20et%20kurve%20for%20bygget%20fren%20ti%2024022015.PNG" style="width: 500px; height: 327px;" /></p>
+<p>For people working with building management&nbsp;this graph is very useful, as it will show you if there is something wrong in the systems. For example a heat exchanger that is malfunctioning will generate a lot of dots above the standard lines. Or if the set&nbsp;point for heating and cooling is wrong, the two systems will work against each other and generate high energy consumption. So many typical situations will be found fast and easy.</p>
+<p>This will be shown directly in this graph if used for energy monitoring 24/7.</p>
+<p>&nbsp;</p>
+<p><strong>Not only for analysis and development, but also for maintaining good energy performance over time:</strong></p>
+<p>In long term usage of buildings this is one of the best ways to tell the state (diagnostics) of technical installations like cooling machines, ventilation and heating. When this graph starts sliding, it means that installations are in need of maintenance. If the right side of the graph is sliding up, its the cooling that has problems. If the left side is sliding up it means heating has a problem..</p>
+<p>This tool can really be developed into something that is very useful for all users of the emoncms. Small houses just like commercial buildings.&nbsp;For home users that does not have COP/HSFP&nbsp;meters on their heat&nbsp;pump, this&nbsp;&nbsp;will quickly catch a failed heat&nbsp;pump from this diagram. Same goes for failed heat exchangers in ventilation or failed thermostats for under&nbsp;floor heating and stuff like that.</p>
+<p>&nbsp;</p>
+<p>I have been looking for this for some time, and i am very thrilled that you took your time to look at this.</p>
+<p>I am interested in taking part in development of this idea, and i can probably find a client that will give me acess to&nbsp;large buildings that have both heating and cooling, where this can be developed.</p>
+<p>Also i have acess to a&nbsp;villa the size about 160m2, which is&nbsp;heated&nbsp;with direct electric heating (underfloor and panels) that can be used as reference too.</p>
+<p>I will have a small budget for this as my company agreed to fund som small development, so that equipment can be bought and configured for our purpose.</p>
+<p>I ordered the EmonTH, i have Raspberry and EmonTXv3, and i also ordered a weather station that can connect to wunderground weather service.</p>
+<p>Sorry for the long post, i am just a bit excited ;)</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34053"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Fri, 11/09/2015 - 07:25.</div>
+    <div class="content">
+     <p>Hello,</p>
+<p><em>I think that by using a weather&nbsp;station that measures solar radiation and wind speed this calculations could be made even more advanced as multiple factors of data is collected.</em></p>
+<p>I totally agree for the wind speed. It must be integrated in my tool as it is calculating the thermal performance during night time. But it will require another sensor that few people have. It is not necessary for regions with low wind.</p>
+<p>Regarding the solar radiation, this can be integrated in a more sophisticated tool like this <a href="http://www.sciencedirect.com/science/article/pii/S0378778814000760">one</a>.&nbsp; Although one can measure the solar radiation easily (I modified an EmonTh to make a cheap DIY pyranometer,&nbsp; I will write a post later on that), I think it is a hard job to integrate the solar gains in the calculation. For every glazing, one needs to know its surface, the solar irradiation in the slope/azimuth of the glazing, the shading, the solar protection, etc.)</p>
+<p><em>And at the same time this graph can be made even more simple and still be very useful for ordinary users that just wants simple energy monitoring.</em></p>
+<p>Again, I agree. That tool should be more simple and accessible for everyone.</p>
+<p><em>If also the heated area is brought into the diagram, so that it shows kWh/m2 @ &deg;C it can be used to compare buildings that have different sizes, construction materials and technical installations. This would be a kind of real time energy rating for buildings.&nbsp;</em></p>
+<p>A ratio in kWh/m&sup2;.&deg;C.&nbsp; is probably easy to understand. I can add it very easily. It&#39;s H x night_duration / floor_surface. For comparison, note that it would be dependent from the climate ... (solar radiation and wind in particular). This ratio is also dependent of the duration of the night. That factor depends on the building itself (insolation, thermal mass, internal temperature setup, ...)</p>
+<p><em>I can see that you probably had small houses in mind during this design of this diagram. But the concept of the energy vs. temperature diagram is very usable also in large commercial buildings where there is a lot of energy to be saved.</em></p>
+<p>Well, my first thinking was &quot;let&#39;s do it simple and cheap&quot;. That is why I worked first on residential buildings&nbsp;(not necessarily a small one) only during the night . In that kind of buildings, the internal temperature is quite constant during the night and this makes the co-heating test more reliable/simple</p>
+<p><em>For people working with building management, this graph is very useful, as it will show you if there is something wrong with the systems. </em></p>
+<p>This was also my idea for the next version. This tool should be used for commissioning, detecting wrong usage,&nbsp;detecting a system failure, etc. Before adding this kind of automation, I think I would be preferable first to test a basic version on several buildings with different level of insulation, different thermal mass, different climate, different occupation, etc.</p>
+<p><em>This tool can really be developed into something that is very useful for all users of&nbsp;emoncms.&nbsp;</em></p>
+<p>I agree and will be happy to bring something to the community but it requires that people get involved in it. It means testing the basic tool, or giving access to their data to let somebody else doing it.</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34109"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Sun, 13/09/2015 - 13:31.</div>
+    <div class="content">
+     <p>That&#39;s a nice Post Eric!</p>
+<p>Seems i have your other piece of the puzzle here because i am working mainly with existing buildings, and not designing new buildings. I am pretty sure i can help you to find some kinds of buildings in Scandinavian climate that can be used for this experiment. This means cold winters, long nights.</p>
+<p>My idea about the weather stations is not necessarily to use all the data provided in the diagram calculations, it can also be used to exclude data from calculations. It is simple to make a line of code in the script that will help to ignore data&nbsp;points if there is heavy wind or solar radiation present. So the local weather station will be used for three things.&nbsp;</p>
+<ul>
+<li>Measure outdoor temperature locally</li>
+<li>Measure wind&nbsp;speed&nbsp;locally so that windy days can be excluded from calculations</li>
+<li>Measure solar radiation locally so that daylight hours can be automatically excluded from calculations</li>
+</ul>
+<p>In Scandinavia&nbsp;there are only a few hours of sunlight in the north (wintertime), and there is a pretty big variation of daylight hours from November - March. So automatic exclusion can work nicely.</p>
+<p>Instead of telling the script what hours to analyze, it can be made&nbsp;automatic&nbsp;by using the solar radiation data from the weather station.</p>
+<p>This way the calculations will automatically be filtered from two disturbing factors, wind and solar radiation.</p>
+<p>However, if there is snow on the weather station, it will not measure solar&nbsp;radiation correctly.&nbsp;</p>
+<p>&nbsp;</p>
+<p>Another thing that can be done with weather data present is simply drawing the trend line from data where there is <em>no</em> wind and <em>no</em> solar effect on the building. And then another line can be made when there <em>is heavy wind and no solar</em>, and a third line when there is <em>heave solar radiation and no wind</em>.</p>
+<p><img alt="" src="../../../bygningsautomasjon.no/onewebstatic/a175e6812d-ET-kurve.png" style="width: 398px; height: 211px;" /></p>
+<p>It can look like this. When there is much wind the energy consumption will be higher (red line) and when there is much solar radiation energy will be lower (green line). Also the dots that are excluded from main line calculations can have colors accordingly.</p>
+<p>Well thought trough visualization can make this diagram very useful,&nbsp;what do you think?</p>
+<p>Do you have access to your own emoncms server? If not maybe we can setup one where we both can have access to and store data. I don&#39;t know, maybe its possible to setup the EmonPie so that it sends data to multiple emoncms servers?</p>
+<p>Im still very happy to have found this thread.</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34246"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Fri, 18/09/2015 - 13:26.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p><em>This way the calculations will automatically be filtered from two disturbing factors, wind and solar radiation.</em></p>
+<p>Ok, I understand your point. That&#39;s a good idea. This is feasible.&nbsp; As a complement, the wind measurement would allow to estimate the quality of the airtightness of the building (something like poor/medium/good/excellent)</p>
+<p>&nbsp;</p>
+<p><em>Another thing that can be done with weather data present is simply drawing the trend line from data where there is no wind and no solar effect on the building. And then another line can be made when there is heavy wind and no solar, and a third line when there is heave solar radiation and no wind.</em></p>
+<p>It may work with some buildings in some places. I&#39;m not sure this can be generalized.</p>
+<p><em>Do you have access to your own emoncms server?</em></p>
+<p>Yes. I&#39;m using a shared host linux server but it&#39;s almost full.</p>
+<p><em>If not maybe we can setup one where we both can have access to and store data. I don&#39;t know, maybe its possible to setup the EmonPie so that it sends data to multiple emoncms servers?</em></p>
+<p>Yes.</p>
+<p>&nbsp;</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34373"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Tue, 22/09/2015 - 16:04.</div>
+    <div class="content">
+     <p>Eric</p>
+<p>I have now attained the hardware that is needed to make some small initial tests. Its a weather station that has direct connection to the internet, and uploads data to any server. It uses the same POST string as the wunderground service, so it will not go into emoncms without some hassle. I have one emonTX&nbsp; V3 with that.</p>
+<p>Also i got one EmonTH&nbsp;that can be used together with two dallas sensors and one pulse counter. This will be enough for another building.</p>
+<p>&nbsp;</p>
+<p>I like the idea about evaluating air tightness in a simple way. Usually i do this with the Retrotec blower door and a thermal camera.</p>
+<p>I found out that the weather station can measure and log pressure, inside and outside the building. It also measures temperature inside and outside.&nbsp;</p>
+<p>Do you think that inside pressure, and outside pressure can be analyzed together with wind&nbsp;speed to draw some simple conclusions regarding air tightness?</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34460"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Thu, 24/09/2015 - 21:52.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p><em>Do you think that inside pressure, and outside pressure can be analyzed together with wind&nbsp;speed to draw some simple conclusions regarding air tightness?</em></p>
+<p>For the pressure, I don&#39;t know. I guess it means being able to measure it with a good precision (few Pascal). I have no idea if it possible with a low cost sensor.</p>
+<p>My idea was to calculate the Heat Loss Coefficient (HLC in W/K) during nights with no wind and with heavy wind. Combined with other parameters (direction of the wind, exposure to wind of the building, height of the building, ... ) those coefficients may give an rough idea of the air tightness. It may help to estimate the n50 coefficient but I&#39;m not sure. To be investigated.</p>
+<p>Working on existing buildings, my goal is just to determine whether n50 is closest to 2 or to 10.</p>
+<p>&nbsp;</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35775"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Mon, 09/11/2015 - 23:33.</div>
+    <div class="content">
+     <p>Eric, is there any progress on this tool?</p>
+<p>Do you need any input, help or beta testing?</p>
+<p>I now have pretty much everything we need to start logging some buildings in scandinavian climate if that is interesting for you.</p>
+<p>I can set up in different kind of building and can try to find the kind of building that is needed. I have one small office building that is used for telemarketing, and that has heat pump&nbsp;(air source) and electrical radiators. It is not used as a residence and outside of office hours, it&#39;s mostly empty. It&#39;s situated with no wind and very little sunshine.</p>
+<p>If you are still trying to develop this I am very much interested to help&nbsp;out with the practical stuff.</p>
+<p>Best regards</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35984"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Tue, 17/11/2015 - 08:11.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>This module doesn&#39;t work anymore on my EmonCMS server since I have updated it from v7 to v8.5. So, I&#39;m modifying the initial code to make it work on EmonCMS v8.x and greater. I will publish this new version soon. On your side, can you install it on your own EmonCMS server ?</p>
+<p>For the moment, I didn&#39;t plan any others improvement/features. But, in the coming weeks, I will add a second graph as you suggested with external temp (X-axis) and heating energy (Y-axis).</p>
+<p>Bye,</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36064"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Wed, 18/11/2015 - 21:35.</div>
+    <div class="content">
+     <p>Hi Eric!</p>
+<p>How nice that you are still on the project of making the E/T diagram real for the emoncms users!</p>
+<p>I am very exited about the graph with energy vs temperature that would look like this:</p>
+<p><img alt="" src="../../../fdvhms.no/praktisk/Feilsoking_files/image004.html" style="width: 300px; height: 205px;" /></p>
+<p>It is actually really simple, and does not need so much. Only outdoor temperature (average/day) &nbsp;and kWh/day feeds in the same diagram. And a simple statistic function for the line to show.</p>
+<p>I dont have my own server as of today, but my friend have one. And i can ask him to install this when you have it running and i will try it and give you feedback! I can also give you access to the results ofcourse.</p>
+<p>I just ordered another EmonPi&nbsp;for this, together with a EmonTH. I will set it up in a cuple of weeks when i have my hands on all the hardware.</p>
+<p>Do you need anything regarding test building? Just tell me and i will see what i can do.</p>
+<p>&nbsp;</p>
+<p>Best regards</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36110"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Fri, 20/11/2015 - 08:52.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p><em>How nice that you are still on the project of making the E/T diagram real for&nbsp;emoncms users!</em></p>
+<p>The coheating test is very interesting but not understandable for everyone. Moreover it doesn&#39;t monitor the heating device efficiency. That is why a simple tool as the E/T graph is a very good idea !</p>
+<p><em>I don&#39;t have my own server as of today, but my friend has one. And I can ask him to install this when you have it running </em></p>
+<p>I have already updated the code and it&#39;s now running on EmonCMS 8.5 and greater. Let me add the E/T graph before sending it. This version may be installed on EmonCMS.org for some beta-testing, (Discussed with Trystan) but it is recommended to install it on your own server.</p>
+<p><em>Do you need anything regarding test building? Just tell me and i will see what i can do.</em></p>
+<p>I will appreciate to get as much results as possible on different types of buildings (with more or less insulation/infiltration/thermal mass/solar gains ...).</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36507"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Tue, 01/12/2015 - 12:48.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Some screenshots of the last version with E/T and coheating graph.</p>
+<p>Goodfidelity, I put one point per day for the E/T graph. Is it what you are expecting ?</p>
+<p>Comment welcome !</p>
+<p>Eric</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36577"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Wed, 02/12/2015 - 11:54.</div>
+    <div class="content">
+     <p>Eric, this looks really good!</p>
+<p>It&#39;s just what it should look like. How can we get this running on my new EmonPi?</p>
+<p>I really want to get this up and running, is there any chance that we can get this into the emoncms.org server for tryouts so that we can both use the same account? I dont have a server as for now.</p>
+<p>Abouth the math and calculations i think that it could be a nice feature to choose the time from day, days, week. Because some buildings have heatpumps with accumulator tank, and they will give very strange value if the pump fills the tank one day and the heat is used another day. Otherwise this is very good!</p>
+<p>I think this will be very useful.</p>
+<p>Best regards</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38148"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8848.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="larsthiesson&#039;s picture" title="larsthiesson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8848.html" title="View user profile.">larsthiesson</a> on Mon, 11/01/2016 - 15:32.</div>
+    <div class="content">
+     <p>Hi Eric,</p>
+<p>I would like to try out your static co-heating module. It looks like its just what I am looking for. The attach file to the first post is that the most up to date version? And could you give me some hint regarding how to install it on my EmonBase?</p>
+<p>Currently I have just guessed a heating&nbsp;function dependent on external temperature. I use the function to calculate an expected kWh and compare it with measured use. Not as advanced as yours.</p>
+<p>Lars</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38154"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Mon, 11/01/2016 - 20:42.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Attached is the last version of that module. Many improvements come with it :</p>
+<ul>
+<li>filter points by day (Monday/tuesday, ..)</li>
+<li>group points per day/week/month</li>
+<li>create several lines for the E/T graph</li>
+<li>...</li>
+</ul>
+<p>Here is how I installed this&nbsp;module on my own&nbsp; EmonCMS server (V8.5.1 on shared LAMP):<br />
+&nbsp;&nbsp; 1. unzip the attached archive into the directory xxx/emoncms/Modules<br />
+&nbsp;&nbsp; 2. Log in your emoncms server as admin.<br />
+&nbsp;&nbsp; 3. Go in the admin section (top right corner)<br />
+&nbsp;&nbsp; 4. Click on the &quot;Update and check&quot; button.</p>
+<p>I don&#39;t know if this procedure works on Emonpi.</p>
+<p>Regards,</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38193"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8848.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="larsthiesson&#039;s picture" title="larsthiesson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8848.html" title="View user profile.">larsthiesson</a> on Tue, 12/01/2016 - 15:06.</div>
+    <div class="content">
+     <p>Thanks. Installed it ad your description and the &quot;Update and check&quot; created something in the database. But how is it accessed?</p>
+<p>Lars</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38240"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Thu, 14/01/2016 - 05:34.</div>
+    <div class="content">
+     <p>Really good job Eric!&nbsp;</p>
+<p>I want to install this on my emon Pi aswell! Is there anyone who knows how to do this?</p>
+<p>I am runningc&nbsp;MacOSX. Is there any easy way to get the files from my Mac to the emonPi?</p>
+<p>I found this, and its a very nice dash for building management. Keeps the E/T diagram together with accumulated energy usage and cost. It also has a small notation function that allows users to make notes if anything unusual made the graph go up or down that special day.</p>
+<p>Again, really good job!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38257"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Thu, 14/01/2016 - 19:38.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Again, I&nbsp;don&#39;t know whether it can work on EmonPi ... (the emoncms branch installed on EmonPi is different).</p>
+<p>For a trial, just install the module as explained above in my last post.&nbsp; Then, a new menu (&quot;Extras&quot; or something like that) should appear on the top navigation bar. Select the sub menu (&quot;E/T Graph and Static Coheating Graph)&nbsp;</p>
+<p>Otherwise, once logged in, you can access directly to the module with the URL:</p>
+<p><a href="http://<emonpi_ip>/statico/view" title="http://&lt;EmonPi_IP&gt;/statico/view">http://&lt;EmonPi_IP&gt;/statico/view</a> or <a href="http://<emonpi_ip>/emoncms/statico/view" title="http://&lt;EmonPi_IP&gt;/emoncms/statico/view">http://&lt;EmonPi_IP&gt;/emoncms/statico/view</a></p>
+<p>Let me know,</p>
+<p>Eric</p>
+<p>Edit : good fidelity, to transfer the files to emonPi, I guess you can use FTP. Otherwise you may directly put the Sd card on your PC/MAC.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38931"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Sun, 31/01/2016 - 13:24.</div>
+    <div class="content">
+     <p>Hi all,</p>
+<p>Trystan installed the last version of that module on Emoncms.org. Thank you Trystan !</p>
+<p>Once logged, you can access it via the following url : <a href="http://emoncms.org/statico">http://emoncms.org/statico</a></p>
+<p>Obviously, it means that your data must be present on EmonCMS.org.</p>
+<p>&nbsp;</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39104"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8848.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="larsthiesson&#039;s picture" title="larsthiesson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8848.html" title="View user profile.">larsthiesson</a> on Thu, 04/02/2016 - 11:42.</div>
+    <div class="content">
+     <p>Hi Erik,</p>
+<p>Just to show you that you program is being used. There was an period where nobody was home (skiholiday) and you can see what statico&nbsp;produce from that period.&nbsp;</p>
+<p>I think that R<sup>2=</sup>99.2 is pretty good.</p>
+<p>I have central heating so I think that all energy is eventually being use to heat the house.&nbsp;</p>
+<p>Lars&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39110"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Thu, 04/02/2016 - 12:42.</div>
+    <div class="content">
+     <p>This is fantastic.</p>
+<p>I am now trying to design som nice setup around this plugin.</p>
+<p>Would it be possible to produce iframe&nbsp;for the diagrams so that they can be easily integrated in HTML? Similar to the other graph functions of the emoncms? That would make this so good.</p>
+<p>Did you have any use for the documents i sent you with al the math and theory behind the E/T?</p>
+<p>best regards,</p>
+<p>GF</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39131"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Fri, 05/02/2016 - 15:17.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>So happy to see people using this module.</p>
+<p>LArs, thanks for sharing ! You said that all energy is eventually being use to heat the house. I dont think it&#39;s true. Your heating systeme can&#39;t be 100% efficient. Tell us more about it. How the heat is produced ? Are you using radiators or a heating floor ? How the heat is conveyed to the radiators/heating floor ...</p>
+<p>goodfidelity, I didn&#39;t receive any document form you. Please send them again. For the moment, it is not possible to produce iframe&nbsp;for the diagrams. It&#39;s a module and not a visualization. But one day ...</p>
+<p>Bye</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39132"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8848.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="larsthiesson&#039;s picture" title="larsthiesson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8848.html" title="View user profile.">larsthiesson</a> on Fri, 05/02/2016 - 16:00.</div>
+    <div class="content">
+     <p>The heat is district heating.</p>
+<p>Hot water is coming into the house and is returned colder. The energy going&nbsp;into the house is measured as the difference&nbsp;in the temperature, times the volume of the water times the heat capacity of the water. There is a heat exchanger between the primary circle (water between house and heating plant, but the lost heat is lost within the house. The secondary circle of water is pumped to the radiators. There is a loss in&nbsp;the distribution to the radiators. But again its with in the house. And yes there is both radiators and heating floor.</p>
+<p>The only loss I can see, is that the district heat is being use to produce hot water. So hot water going out into the sewer is a loss.</p>
+<p>I am not a expert in this field so please tell me if I am wrong.</p>
+<p>Lars</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39286"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Tue, 09/02/2016 - 21:04.</div>
+    <div class="content">
+     <p>Lars,</p>
+<p>OK, in your case, the overall heating efficiency must be close to 90-95%, but not 100%. (Assuming you are measuring the energy going&nbsp;into the house after the heat exchanger).</p>
+<p>One always has some losses because the heat is not delivered exactly where and when it is really required for many reasons (thermal stratification, responsiveness of the heating system, etc.)</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40141"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7723.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7723.jpg" alt="daturach&#039;s picture" title="daturach&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7723.html" title="View user profile.">daturach</a> on Sun, 06/03/2016 - 17:17.</div>
+    <div class="content">
+     <p>Excellent module, thanks a lot. I have to look at it.</p>
+<p>I have 15 years of data, recording (manually!) gas, electricity and water every week for my personal use. Temperature is available online for my region and recorded every week as an average. The department of energy gives us what we&nbsp;call here the &quot;degr&eacute;-jours&quot;.This parameter is calculated&nbsp;by week and&nbsp;by month.</p>
+<p>I would like to test this module using one year of data. I have a system running on emoncms.org. However, I would like to upload &quot;some new content&quot; in different feeds.</p>
+<p>Question: what&#39;s the best process to upload data? Thanks for your help and again thanks for the great module.</p>
+<p>Walter</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40154"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7723.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7723.jpg" alt="daturach&#039;s picture" title="daturach&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7723.html" title="View user profile.">daturach</a> on Mon, 07/03/2016 - 22:03.</div>
+    <div class="content">
+     <p>Is it possible to upload 10 years old data on emoncms.org? Something like this in step of 1 week?</p>
+<pre>
+https://emoncms.org/input/post.json?time=1150668000&amp;node=0&amp;csv=1570,20.5</pre><pre>
+https://emoncms.org/input/post.json?time=1151272800&amp;node=0&amp;csv=1580,19.5</pre><p>Thanks</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40275"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Sat, 12/03/2016 - 08:20.</div>
+    <div class="content">
+     <p>A feature for uploading historical data would be extremly useful, to create a good E/T before logging. Otherwise one whole year might be needed to establish good history.</p>
+<p>Let us know if you find out how to do it!</p>
+<p>//GF</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40279"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Sat, 12/03/2016 - 15:41.</div>
+    <div class="content">
+     <p>Hi guys!</p>
+<p>I get this funny looking graph if i extend the hours to be logged. Is anyone else getting this or am i doing something wrong?</p>
+<p>Thanks!</p>
+<p>//GF</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40344"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Tue, 15/03/2016 - 13:01.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Daturach, this is possible to upload historical data. Look for &quot;csv import&quot; in the forum.</p>
+<p>Goodfidelity, I can&#39;t figure out what&#39;s happening.</p>
+<p>&nbsp;&nbsp; - Could you please post a screenshot of the full page to let me see the parameters above the graph ?</p>
+<p>&nbsp;&nbsp; - Can you get normal graphs when not extending the start and stop time ? Again can you post a screenshot ?</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40376"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Wed, 16/03/2016 - 17:29.</div>
+    <div class="content">
+     <p>Eric, for you i don&#39;t have one picture. I have two!</p>
+<p>I just changed the time from 06h to 24h. I also tried various other numbers, but got the same result if the time period was too long.</p>
+<p>One picture of each situation, my screen is very small so i cant really see all the parameters at once. But I guess this pretty much gives you what you need:</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40414"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Fri, 18/03/2016 - 08:51.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>I can&#39;t reproduce that bug with my data, so it may come from your data. One can see only 37 points on both pictures, although your test lasts 55 days .</p>
+<p>Here is what I suspect. The linear regression seems false in the second case because one point is hidden, because the y-value is negative. This day is ignored is the first case because no data have been found.</p>
+<p>Could you please post a graph of your heating energy feed on the test period (from 2016-01-22 to 2016-03-16)?<br />
+I guess it had been reset during the test and this generated a negative value.</p>
+<p>Regarding the other missing points, I also suspect missing records in your data.</p>
+<p>If you agree, you can send me your login/passw by PM and I will have a look</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40428"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Sat, 19/03/2016 - 12:50.</div>
+    <div class="content">
+     <p>Eric, seems you are correct. I found out that for some reason the pulse counter resets itself. I think this is due to my energy meter giving 10000 pulses / kWh.</p>
+<p>Is there any way to get around this issue, or is this a problem with EmonCMS?</p>
+<p>Best regards</p>
+<p>GF</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40430"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Sat, 19/03/2016 - 14:58.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>10 000 pulses per kWh? Are you sure? Most of meter send 1000 pulses/kWh, i.e. 1 pulse per Wh.</p>
+<p>On your side, you must use the Wh accumulator process to get around this issue. This will give you an ever increasing number which won&#39;t return to zero if the raw pulse count returns to zero.&nbsp;</p>
+<p>Anyway, I will modify my code to ignore days with negative value.</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40431"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Sat, 19/03/2016 - 16:09.</div>
+    <div class="content">
+     <p>I am pretty sure about the imp/hour.</p>
+<p>We have a huge difference, from 1-10000 impulses on the energy meters. If its inside a house sometimes its 10000, and because we use electrical heating this really makes for high frequency on the LED. It looks almost like glowing constant ;)</p>
+<p>Some of the larger buildings use 1 pulse/kWh but that&#39;s not very common here. Probably 1000 pulses is normal like you say.</p>
+<p>About emoncms, that means i have to make another feed for the pulse counting thread?</p>
+<p>I will try this. Do you know if all the historical data will be transferred to the new feed, or do i have to start from 0 again?</p>
+<p>Thanks again for a nice module anyhow, happy to contribute.</p>
+<p>&nbsp;</p>
+<p>//GF</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40541"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Wed, 23/03/2016 - 17:08.</div>
+    <div class="content">
+     <p>Hi.</p>
+<p>I have never tried but I think that one can replace a &quot;log to feed&quot; process by a &quot;Wh Accumulator&quot; process&nbsp; on an existing feed. This should work <u>only</u> with a feed which is accumulating Wh. Do not try it with a kWh feed.</p>
+<p>Second, you have to know that Wh increases that corresponds to a power above 25kW will be ignored by this process.</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40785"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7723.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7723.jpg" alt="daturach&#039;s picture" title="daturach&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7723.html" title="View user profile.">daturach</a> on Thu, 31/03/2016 - 22:34.</div>
+    <div class="content">
+     <p>I have uploaded a few points on emoncms.org but I don&#39;t get any graphs. There are 2 values per week, starting on 08 Feb. 2016 to 29 Feb. 2016</p>
+<p>Unixtime &nbsp; &nbsp;gas[kWh] &nbsp;Temp [&deg;C]<br />
+1454914800, 202.0, 5.7<br />
+1455519600, 233.0, 4.4<br />
+1456124400, 244.0, 4.4<br />
+1456729200, 244.0, 4.2</p>
+<p>Question: Do we need the incremental or the differential data for the &quot;Heating energy feed&quot; ? I have uploaded the differential ones.</p>
+<p>I have uploaded a screenshot regarding my settings. Let me know if I need to change anything.</p>
+<p>Thanks again</p>
+<p><img alt="" src="../sites/default/files/co_heating_module_0.png" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40789"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Fri, 01/04/2016 - 07:05.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>You must upload the incremental kWh feed.</p>
+<p>Eric</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40790"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7723.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7723.jpg" alt="daturach&#039;s picture" title="daturach&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7723.html" title="View user profile.">daturach</a> on Fri, 01/04/2016 - 08:30.</div>
+    <div class="content">
+     <p>Ok, parfait. Just uploaded my incremental kWh values but still no graphs.</p>
+<pre>
+1454914800, 361.0, 5.7
+1455519600, 594.0, 4.4
+1456124400, 838.0, 4.4
+1456729200, 1082.0, 4.2</pre><p>Walter</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40797"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Fri, 01/04/2016 - 12:23.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>I dived into my code to understand why you don&#39;t get any point.</p>
+<p>This module expects at least two values per day (for all feeds). One value at &quot;start time&quot; (+/- 1 minute) and one value at &quot;end time&quot; (+/- 1 minute) . For each day, it calculates the X/Y values. Then you can get a graph with day/week/month view.</p>
+<p>Sorry for not having tell you that before</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40799"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7723.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7723.jpg" alt="daturach&#039;s picture" title="daturach&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Static coheating module</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7723.html" title="View user profile.">daturach</a> on Fri, 01/04/2016 - 13:59.</div>
+    <div class="content">
+     <p>Hello Eric</p>
+<p>Thanks for your quick answer.</p>
+<p>Then, I can&#39;t really use your module with my old&nbsp;(very old) data. I recorded&nbsp;my consumption and the outside temperature (average temp) once a week which is, in my point of view,&nbsp;enough to be able to make a usable &quot;linear regression&quot; with Excel.</p>
+<p>For the near future, I am going to put 2 sensors to &quot;read&quot; my gas&nbsp;meter (mostly done) and the outside temp and upload everything to emoncms.</p>
+<p>Thanks again for your great module.</p>
+<p>Walter</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/6258"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-rynhqZlzc8LuJm6N0lrd_nbwRyg8R1dsF_68Ldkj79s" value="form-rynhqZlzc8LuJm6N0lrd_nbwRyg8R1dsF_68Ldkj79s"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6258 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:47:24 GMT -->
+</html>

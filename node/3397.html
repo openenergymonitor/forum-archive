@@ -1,0 +1,430 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3397 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:23:31 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>script to download data | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">script to download data</h3>
+        <span class="submitted">Submitted by <a href="../user/4465.html" title="View user profile.">dkeach</a> on Mon, 23/12/2013 - 01:27</span>
+        <div class="content"><p>I am a ​noob, so please be gentile. &nbsp;I wrote a python script to gather the previous weeks data from each of my emoncms.org feeds. It gathers the data and then creates a csv file for each feed. &nbsp;Hope someone else can find it useful. &nbsp;criticisms are welcomed.</p>
+<p>&nbsp;</p>
+<p>import csv</p>
+<p>import time</p>
+<p>import urllib</p>
+<p>sec_per_day = 60 * 60 * 24&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # 60 seconds/min * 60 min/hr * 24 hr/day</p>
+<p># make a dictionary of feeds to create filenames<br />
+	feeds ={&quot;name1&quot;:&quot;feed1 id&quot;,&quot;name2&quot;:&quot;feed2 id&quot;,&quot;name3&quot;:&quot;feed3 id&quot;... etc} #name is what you want the file called<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # feed id is the emoncms feed id&nbsp;</p>
+<p># create a list of keys to use as filenames<br />
+	feed_list = feeds.keys()</p>
+<p>now_tstamp = int(time.time()) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# grab unix timestamp for right now<br />
+	wk_ago_tstamp = now_tstamp - (7 * sec_per_day) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # calculate the timestamp for 7 days ago</p>
+<p>now_tstamp *= 1000 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# format for emoncms<br />
+	wk_ago_tstamp *= 1000 &nbsp; &nbsp; # format for emoncms</p>
+<p>k=0</p>
+<p>for z in feeds:<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; # create a string for the url of the data<br />
+	&nbsp;&nbsp;&nbsp; data_url = &quot;http://emoncms.org/feed/data.json?id=&quot; + feeds[feed_list[k]] + &quot;&amp;start=&quot; + str(wk_ago_tstamp) + &quot;&amp;end=&quot; + str(now_tstamp) + &quot;&amp;dp=&quot;</p>
+<p>&nbsp;&nbsp;&nbsp; # read in the data from emoncms<br />
+	&nbsp;&nbsp;&nbsp; sock = urllib.urlopen(data_url)<br />
+	&nbsp;&nbsp;&nbsp; data_str = sock.read()<br />
+	&nbsp;&nbsp;&nbsp; sock.close</p>
+<p>&nbsp;&nbsp;&nbsp; # data is output as a string so we convert it to a list or lists<br />
+	&nbsp;&nbsp;&nbsp; data_list = eval(data_str)</p>
+<p>&nbsp;&nbsp;&nbsp; # open a file to save the data to<br />
+	&nbsp;&nbsp;&nbsp; j=0<br />
+	&nbsp;&nbsp;&nbsp; myfile = open(feed_list[k] + &quot;.csv&quot;,&#39;wb&#39;)<br />
+	&nbsp;&nbsp;&nbsp; wr=csv.writer(myfile,quoting=csv.QUOTE_ALL)<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; # loop though the list to format the data so libraOffice or excel can import it<br />
+	&nbsp;&nbsp;&nbsp; for i in data_list:<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wr.writerow(data_list[j])<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j += 1<br />
+	&nbsp;&nbsp;&nbsp; myfile.close()<br />
+	&nbsp;&nbsp;&nbsp; k += 1</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="4892.html" class="topic-previous" title="Go to previous forum topic">‹ RFXtrx instead of RFM12Pi</a>
+              <a href="4824.html" class="topic-next" title="Go to next forum topic">The advantage of setting warnings in preference.txt and why sleep is max 1 minute ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-17011"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/380.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-380.jpg" alt="mharizanov&#039;s picture" title="mharizanov&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/380.html" title="View user profile.">mharizanov</a> on Wed, 25/12/2013 - 14:02.</div>
+    <div class="content">
+     <p>That is useful, thanks for sharing. I&#39;d also add the API &nbsp;key in the data_url&nbsp;, now it will only work if you are logged in emoncms.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17058"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4465.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dkeach&#039;s picture" title="dkeach&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4465.html" title="View user profile.">dkeach</a> on Sat, 28/12/2013 - 01:23.</div>
+    <div class="content">
+     <p>Just changed the script to convert emoncms timestamp into readable date and time.&nbsp; I also added the API key to the URL so you won&#39;t have to be logged in.&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17261"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="patmolloy&#039;s picture" title="patmolloy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by patmolloy (not verified) on Sat, 04/01/2014 - 12:16.</div>
+    <div class="content">
+     <p>Hi there, thanks for the script !</p>
+<p>Am having various troubles runnig it .. what version of python are you using ?</p>
+<p>Pat</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17291"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4465.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dkeach&#039;s picture" title="dkeach&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4465.html" title="View user profile.">dkeach</a> on Sat, 04/01/2014 - 21:28.</div>
+    <div class="content">
+     <p>Sorry to hear you are having trouble.&nbsp; I am running python 2.7.3.&nbsp; I have not run into any trouble so far.&nbsp; Let me know if I can help.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17328"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="patmolloy&#039;s picture" title="patmolloy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by patmolloy (not verified) on Sun, 05/01/2014 - 21:22.</div>
+    <div class="content">
+     <p>Ah. I am on 3.3.2 as I suspect that is causing a heap of trouble for me I think :(</p>
+<p>And I&#39;m not Python savvy enough to figure it out (yet).&nbsp;</p>
+<p>&nbsp;</p>
+<pre>
+File &quot;emoncms.py&quot;, line 44, in main
+    data_url = &quot;http://emoncms.org/feed/data.json?id=&quot; + feeds[feed_list[k]] + &quot;
+&amp;apikey=337ec3bdc07321c9890ffc6c9f00XXXX&amp;start=&quot; + str(wk_ago_tstamp) + &quot;&amp;end=&quot;
++ str(now_tstamp) + &quot;&amp;dp=&quot;
+TypeError: &#39;dict_keys&#39; object does not support indexing</pre><p>Feeds is only one feed right now</p>
+<p>feeds = {<br />
+	&nbsp; &quot;House Power&quot;:&quot;26845&quot;<br />
+	&nbsp; }</p>
+<p>&nbsp;</p>
+<p>The only thing I can think that it does not like is ...</p>
+<pre>
+feeds[feed_list[k]]</pre><p>There *is* a change from 2 to 3 which is referenced in various places ... eg</p>
+<pre>
+&quot;py33: &#39;dict_keys&#39; object does not support indexing
+
+    In python 3, dict.keys() is a class of &#39;dict_keys&#39;, it does not
+    support indexing.
+
+    Cast the dict to list to get the &quot;first&quot; value of dict, which is
+    compatible with python 2&amp;3.
+
+&quot;</pre><p>But I&#39;m afraid I still don&#39;t know what to do !</p>
+<p>Pat</p>
+<p>(ps will install python 2.7, on the basis I can have both versions!)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17337"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4465.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dkeach&#039;s picture" title="dkeach&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4465.html" title="View user profile.">dkeach</a> on Mon, 06/01/2014 - 00:10.</div>
+    <div class="content">
+     <p>I&#39;ll see if I can re-write this to not use dictionary indexing. &nbsp;Thanks for bringing it to my attention. &nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17338"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4465.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dkeach&#039;s picture" title="dkeach&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4465.html" title="View user profile.">dkeach</a> on Mon, 06/01/2014 - 00:56.</div>
+    <div class="content">
+     <p>Hopefully this fixes it.&nbsp;</p>
+<p>Changed:</p>
+<p>feed_list = feeds.keys()</p>
+<p>To:</p>
+<p>feed_list = list(feeds.keys())</p>
+<p>This should change feed list from being an object to being a list, which can be indexed.</p>
+<p>This rev will ask you how many days you would like to download.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17344"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="patmolloy&#039;s picture" title="patmolloy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by patmolloy (not verified) on Mon, 06/01/2014 - 13:16.</div>
+    <div class="content">
+     <p>Great, will give it a shot !</p>
+<p>Thanks ever so.</p>
+<p>Pat</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17345"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="patmolloy&#039;s picture" title="patmolloy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by patmolloy (not verified) on Mon, 06/01/2014 - 13:23.</div>
+    <div class="content">
+     <p>So, it appears there are more relatively significant changes from 2 to 3 as well!</p>
+<p>&quot;raw_input&quot; does not work, but &quot;input&quot; does .. but then later on I get ..</p>
+<pre>
+How many days data would you like? 14
+Traceback (most recent call last):
+  File &quot;emoncms.py&quot;, line 71, in &lt;module&gt;
+    main()
+  File &quot;emoncms.py&quot;, line 47, in main
+    sock = urllib.urlopen(data_url)
+AttributeError: &#39;module&#39; object has no attribute &#39;urlopen&#39;</pre><p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17347"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="patmolloy&#039;s picture" title="patmolloy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by patmolloy (not verified) on Mon, 06/01/2014 - 13:44.</div>
+    <div class="content">
+     <p>Incidentally, works brilliantly well for me in python 2.7.6 !</p>
+<p>&nbsp;</p>
+<p>Pat</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17350"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Mon, 06/01/2014 - 14:50.</div>
+    <div class="content">
+     <p>There are indeed important changes from python 2.7 to python 3.</p>
+<p><a href="http://docs.python.org/3/howto/pyporting.html" title="http://docs.python.org/3/howto/pyporting.html">http://docs.python.org/3/howto/pyporting.html</a></p>
+<p><a href="http://python3porting.com/bookindex.html" title="http://python3porting.com/bookindex.html">http://python3porting.com/bookindex.html</a></p>
+<p>Note the <a href="http://docs.python.org/3/howto/pyporting.html#use-2to3">2to3</a> translation tool.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17363"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4465.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dkeach&#039;s picture" title="dkeach&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4465.html" title="View user profile.">dkeach</a> on Sat, 11/01/2014 - 21:37.</div>
+    <div class="content">
+     <p>I&#39;ve run the script through the 2to3 translator.&nbsp; Hopefully this solves all the issues.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17944"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3910.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3910.jpg" alt="mking007&#039;s picture" title="mking007&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3910.html" title="View user profile.">mking007</a> on Tue, 28/01/2014 - 11:53.</div>
+    <div class="content">
+     <p>Hi, this was exactly what I was looking for. Thanks v much :)</p>
+<p>However when I tried to run it in Python 3.3. I was still getting some errors (problems with binary file writing among them).&nbsp;</p>
+<p>Attached is the version I got working for my build. Treat this with caution lol as I&#39;m really rusty on coding! :-P</p>
+<p>There&#39;s still an odd error when emoncms seems to return null in response to the request. I&#39;ve just captured it and the program exits for now. If you run the program again then it usually works fine with a non-null return. That makes me think it&#39;s maybe a server load issue or potentially something with the timing format that goes into the request string...</p>
+<p>Thanks again :)</p>
+<p>Michael</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-20301"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5889.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="qpro&#039;s picture" title="qpro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5889.html" title="View user profile.">qpro</a> on Tue, 01/04/2014 - 15:18.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>I have use the python 2.7 script, and for any reason, the amount of downloaded data from <a href="http://www.emoncms.org/" title="www.emoncms.org">www.emoncms.org</a> is limited,</p>
+<p>I mean:</p>
+<p>&nbsp;</p>
+<ul>
+<li>
+		If i try to download one week data I receive a csv file for each feed with 10 minutes&nbsp;measurements&nbsp;(my feed is configured for log each 5 sec)<br />
+		&nbsp;</li>
+<li>
+		If i try to download one day data I receive a csv with 1.5 minutes interval&nbsp;measurements (same feed set to log each 5 sec)</li>
+</ul>
+<p>Only if i download one hour period I get the 5 sec interval measurements. It seams that the limit is in nearly over 1000 measurements per csv file.</p>
+<p>&nbsp;</p>
+<p>Has emoncms.org any kind of download limitation or is something about the script?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-20323"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4465.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dkeach&#039;s picture" title="dkeach&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: script to download data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4465.html" title="View user profile.">dkeach</a> on Tue, 01/04/2014 - 20:59.</div>
+    <div class="content">
+     <p>Using the json&nbsp;feed data call outputs 1000 data points, regardless of time span.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3397"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-jzLEhRgXKvp97UkT6vu1jD8GrpgIhDoi---0YOn0RaE" value="form-jzLEhRgXKvp97UkT6vu1jD8GrpgIhDoi---0YOn0RaE"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3397 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:23:31 GMT -->
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/79 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:06:45 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Introduction to pulse counting | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h2>Reading pulses from meters with pulse outputs..</h2>
+<p>Last updated: November 2010</p>
+<p><em><em><em>Authors: Glyn Hudson, Trystan Lea</em></em></em></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><b>A note on what this document covers</b></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Although a wealth of information about pulse counting is available, this document deals with counting pulses from as many as 12 sources, using a continuous sampling and direct port manipulation (vice interrupt driven) Arduino sketch.</p>
+<p>When counting pulses from only one or two meters, it&#39;s best to use the interrupt method. There are only two interrupt pins on the Arduino, if you wish to count pulses from more than two sources then please read on!&nbsp;</p>
+<p>How to interface with wired / switched pulse outputs is discussed also.&nbsp;</p>
+<p><a href="123.html">Interrupt method</a></p>
+<p><a href="124.html">Interrupt method sleep</a></p>
+<h2>Introduction</h2>
+<p>Many meters have pulse outputs, examples include: single phase and three phase electrical energy meters, Gas meters, Water meters.</p>
+<p>The pulse output may be a flashing LED or a switching relay (usually solid state) or both.</p>
+<p>In the case of an electricity meter, a pulse output corresponds to a defined amount of energy passing through the meter (kWh/Wh). For single-phase domestic electricity meters (e.g. the Elster A100c) each pulse usually equals one Wh (1000 pulses per kWh).&nbsp; With higher power meters (often three-phase), each pulse corresponds to a greater amount of energy e.g. 2, or even 10, Wh per pulse.&nbsp;</p>
+<p>&nbsp;</p>
+<h3>Example meter</h3>
+<p><strong><a href="http://www.elstermetering.com/en/949.html">A100C BS Single Phase Meter</a></strong></p>
+<p><img alt="" height="235" src="../sites/default/files/a100c.png" width="300" /></p>
+<h3>&nbsp;</h3>
+<h3>What is a pulse?</h3>
+<p><img alt="" height="143" src="../sites/default/files/pulse.png" width="300" /></p>
+<p><em>Figure 1</em></p>
+<p>Figure 1 illustrates a pulse output. The pulse width T_high varies depending on the meter. Some pulse output meters allow T_high to be set. T_high remains constant during operation. For the A100c meter T_high is 50ms. The time between the pulses T_low is what indicates the power measured by the meter.&nbsp;</p>
+<p><strong>Calculating Energy</strong><br />
+For the A100c meter, each pulse represents 1/1000th of a kWh, i.e. 1 Wh, of energy passing through the meter.</p>
+<p><strong>Calculating Power</strong><br />
+3600 seconds per hour = 3600J per pulse i.e. 1 Wh = 3600J<br />
+therefore, instantaneous power <strong>P = 3600 / T</strong> where T is the time between the falling edge of each pulse.&nbsp;</p>
+<p>&nbsp;</p>
+<h3><strong>Optical pulse counting: Flashing LEDs</strong></h3>
+<p>Many electricity meters do not have pulse output connections or the connections are not accessible due to restrictions imposed by the utility company. All modern meters have an optical pulse output LED. In such cases an optical sensor can be used to interface with the meter.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>The red pulse-output LED can be seen in the A100c picture above. To detect the pulses from the LED, you need a light sensor. There is a wealth of documentation on the internet on using an Arduino to detect pulsed LED output.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<ul>
+<li>An article by AirSensor: <a href="http://www.airsensor.co.uk/component/zoo/item/energy-monitor.html">Arduino Electricity Datalogger</a>&nbsp;which uses the&nbsp;TSL261 or TSL257 Light to Voltage sensor, Glyn has found the TSL257 Light to Voltage sensor to be best for detecting LED pulses from a&nbsp;Reporter 5193B meter (see notes on optical sensors below).</li>
+</ul>
+<ul>
+<li>An article by Eric Sandeen <a href="http://sandeen.net/wordpress/?p=227">Energy Monitor Proof of Concept</a>&nbsp;using an Axman photoreciever</li>
+<li>An article by Ken Boak: <a href="http://sustburbia.blogspot.com/2009/11/using-arduino-to-monitor-gas.html">Using an Arduino to measure gas consumption</a></li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>Notes on optical sensors (results of initial tests)</strong></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<div style="margin: 0px; background-color: transparent;">A <a href="http://uk.farnell.com/taos/tsl257-lf/sensor-light-voltage-converter/dp/1226886?Ntt=TSL257">TLS257 light-to-voltage converter</a> connected directly to an Arduino digital input with a 10K pull down resistor was able to detect a light pulse from Reporter 5193B meter. TLS257 detects light in the visible range. Highly affected by ambient light. Need to good ambient light shielding around sensor. Sensor has the advantage of a built in op-amp to ensure good voltage swing and allow direct Arduino connection. Low cost &pound;1.31 (22/10/10).</p>
+<p>The <a href="http://uk.farnell.com/taos/tsl261r-lf/photodiode-sensor-l-volts/dp/1182350?whydiditmatch=rel_3&amp;matchedProduct=TSL261&amp;Ntt=TSL261">TLS261 photo diode </a>was also tested. Since this sensor is IR it is not affected as much by ambient light. Was able to detect pulses from a bright LED, but not from the Reporter 5193B meter.</div>
+<p>&nbsp;</p>
+<h3><strong>Wired / Switched output pulse detection</strong></h3>
+<p>Many meters also have wired / switched pulse outputs.&nbsp;Many have connection diagrams similar to this one that comes with the A100c. The two smaller holes are the pulse output connections. I have added V<sub>in</sub> and V<sub>out</sub> labels to make it a little clearer. V<sub>in</sub> is provided by an external power supply. V<sub>out</sub> is the meter output created by toggling an internal solid state relay (like a switch between V<sub>in</sub> and V<sub>out</sub>)</p>
+<p><img alt="" height="173" src="../sites/default/files/a100conect.png" width="300" /></p>
+<p><strong>Wired / Switched output supply voltage</strong></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>From what I understand, 24V is a fairly standard supply for such meter systems, but other voltages can usually be used. Meters often have a fairly wide pulse output supply voltage range of 3 to 35V. So the 5V supply from an Arduino could be used. Higher voltages are desirable when there is more noise in the environment and the cable runs are longer.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><b>Safety</b></p>
+<p><strong>Watch out for mains connected pulse outputs:&nbsp;</strong>Make sure your meter&#39;s pulse output is not connected to the high voltage mains (within the meter). Some meters have one of the pulse output connectors connected to neutral. If your meter is one of these you will need isolation circuitry to interface with an Arduino.</p>
+<p><strong>Live wire proximity:&nbsp;</strong>The pulse outputs are usually very close to live wires, so watch out for those too!</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>Circuit</strong></p>
+<p>Pulse output meter to Arduino connection diagram:</p>
+<p><b><img alt="" height="206" src="../sites/default/files/pocircuit.png" width="400" /></b></p>
+<p>The 10k resistor keeps the digital input at GND (digital level 0) when the pulse output &#39;switch&#39; is open.&nbsp;</p>
+<h3><b>Further reading</b></h3>
+<p>Thanks to Jerry for the links and comment below.</p>
+<p><a href="http://www.btinternet.com/~jon00/electmon.shtml">http://www.btinternet.com/~jon00/electmon.shtml</a></p>
+<p><a href="http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1276096046">http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1276096046</a></p>
+<p>Single optical pulse counting using a JeeNode board and a Hope RFM12 RF module:</p>
+<p><a href="http://jeelabs.net/projects/cafe/wiki/Electricity_consumption_meter">http://jeelabs.net/projects/cafe/wiki/Electricity_consumption_meter</a></p>
+</div>
+    
+    
+      </div>
+<div id="comments">
+  <a id="comment-2326"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Introduction to pulse counting</h3>
+
+    <div class="submitted">Submitted by Guest (not verified) on Sun, 13/11/2011 - 23:24.</div>
+    <div class="content">
+     <p>The code is the most important part.<br />
+How could you forget to post it?????????????????????????????????</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-1548"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Polidano&#039;s picture" title="Polidano&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Introduction to pulse counting</h3>
+
+    <div class="submitted">Submitted by Polidano (not verified) on Thu, 17/02/2011 - 10:19.</div>
+    <div class="content">
+     <p>Seeeduino Stalker 168 ... so then you just connect this to the arduino mega..so to connect with the display if i opt to use to read the flash led...or there would be any need of other programming in order to connect???</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-1421"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric Sandeen&#039;s picture" title="Eric Sandeen&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Introduction to pulse counting</h3>
+
+    <div class="submitted">Submitted by <a href="http://sandeen.net/wordpress" rel="nofollow">Eric Sandeen</a> (not verified) on Sat, 25/09/2010 - 04:47.</div>
+    <div class="content">
+     <p>Interesting, didn't know you had a pulse-reading page too ;)</p>
+<p>I did something like this, see <a href="http://sandeen.net/wordpress/?p=227" title="http://sandeen.net/wordpress/?p=227">http://sandeen.net/wordpress/?p=227</a> - I used an interrupt-driven sketch, it's on that blog post, and probably has some bugs.  I used a Fairchild QSE156 photodetector to drive it, it's all nice and self-contained.  Mouser has them.  When I went solar, though, my new net meter only has a pulse in debug mode.  :(  So now I'm back to "mains non-invasive 3.0" ;)  It's a lot more effort, sadly.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1425"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Introduction to pulse counting</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 28/09/2010 - 10:43.</div>
+    <div class="content">
+     <p>yes good old pulse counting&nbsp;&nbsp;:) the only problem with it is it seems to be harder to get frequent and &nbsp;accurate reading for power as it requires timing the pulses accurately, although the interrupt method is better for that, its just a pain that the arduino only has the 2 interrupts. I will add your link to the page, thanks</p>
+<p>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" /></p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div><a id="comment-1418"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Nick&#039;s picture" title="Nick&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Introduction to pulse counting</h3>
+
+    <div class="submitted">Submitted by <a href="http://www.ioncube.com/" rel="nofollow">Nick</a> (not verified) on Sat, 18/09/2010 - 07:42.</div>
+    <div class="content">
+     <p>LED pulse count and interval timing works well.</p>
+<p>I've used a PIC, photo diode and RF transmitter with good success for flashing LED power measurement. My system counted pulses and also the time interval between each pulse to a high accuracy, and sent this information back to the receiver. Sending a rolling pulse count gave tolerance of lost messages and allowed the frequency of messages to be throttled, and the measurement of the interval between pulses allowed for accurate instantaneous usage readings.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-1373"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Jerry&#039;s picture" title="Jerry&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Introduction to pulse counting</h3>
+
+    <div class="submitted">Submitted by Jerry (not verified) on Sat, 07/08/2010 - 14:53.</div>
+    <div class="content">
+     <p>Lots of people have done this. It looks like most use a photodiode or phototransister to detect the LED pulses that many electric meters emit. See, for example, <a href="http://www.btinternet.com/~jon00/electmon.shtml" title="http://www.btinternet.com/~jon00/electmon.shtml">http://www.btinternet.com/~jon00/electmon.shtml</a> and <a href="http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1276096046" title="http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1276096046">http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1276096046</a> .</p>
+<p>It seems that usually one pulse corresponds to 1 or 1.25 kw.</p>
+<p>Some electric meters don't emit readable pulses. If they have a rotating aluminum disk with a black line on the edge, rotation can be detected with combination laser or LED in combination with a photodetector. One rotation usually means 7.2 kw, but the value will be stated on the face of the meter.</p>
+<p>There are even commercial products like the Black and Decker Energy Monitor that have a device that does either LED pulse or disk rotation detection, and sends the counts wirelessly to a display. They have a page that explains which meters are compatible and which aren't, at <a href="http://www.blackanddecker.com/energy/PowerMonitorCompatibility.htm?WT.mc_id=BDPowerMonitorCompChart" title="http://www.blackanddecker.com/energy/PowerMonitorCompatibility.htm?WT.mc_id=BDPowerMonitorCompChart">http://www.blackanddecker.com/energy/PowerMonitorCompatibility.htm?WT.mc...</a></p>
+<p>These are available for under $100. If someone could figure out a way to intercept the wireless signal from one of these, or get their display to output data to another device, it could be useful.</p>
+<p>Meters that don't have LED pulse output, or rotating disk, but that have a mechanical odomoter-style readout, often have a reflective circle inside the 0 or 6 on the first dial. Some people have found that this can be optically detected as it goes around. This approach can also work with some gas and water meters. Here's an example of one person that did this with an Arduino, with parts list and code, <a href="http://blog.richard.parker.name/2009/04/25/how-to-build-a-web-connected-gas-meter-with-your-arduino/" title="http://blog.richard.parker.name/2009/04/25/how-to-build-a-web-connected-gas-meter-with-your-arduino/">http://blog.richard.parker.name/2009/04/25/how-to-build-a-web-connected-...</a></p>
+<p>Many water meters have a strong rotating magnet in the meter body that is magnetically coupled to the usage counter. Rotation of the magnet can be detected with a reed switch or Hal-effect sensor. See <a href="http://www.edcheung.com/automa/water.htm" title="http://www.edcheung.com/automa/water.htm">http://www.edcheung.com/automa/water.htm</a></p>
+<p>Other meter types with rotating dials often have a magnet embedded in one of the dial shafts, which might be detectable as it spins around.</p>
+<p>Less likely to be successful is optically detecting the spin of the little pointers on a rotating dial.</p>
+<p>Some people have even played with trying to intercept the radio transmissions of various types of meters, with limited success.</p>
+<p>There are a couple limitations to all these approaches.</p>
+<p>One, the utility company tends to frown upon unauthorized equipment attached to their meters. Their field staff has no way of knowing whether your sensor will interfere with the meter or is some attempt to defraud the utility. I read one story about someone with one of the Black and Decker units, who had the unit removed, broken, and thrown away, and received a bill for several hundred dollars for a field service call.</p>
+<p>In some countries, utilities are required to provide customer-readable LED pulse outputs on their meters. </p>
+<p>Secondly, what is being measured with all of these approaches is the output of the meter, not the actual usage. If the meter is inaccurate, the data won't be reliable. This happens more than the utility companies like to admit. An independent reading of usage, for example with a Wattnode or Brultech ECM-1240 for electricity, can be more flexible and provide verification of meter and billing accuracy.</p>
+<p>Thirdly, in many cases the utility company already has data in sufficient detail for many purposes, but perhaps just won't share it. My gas and electric service is provided by the same company, which has installed "smart" meters throughout their territory. Every 15 minutes, the electric meter sends the current reading to the utility over a mesh radio network. The gas meter sends its reading once an hour. The utility stores all the readings. They won't make the data available to residential customers. Commercial customers can get access for a small fee. I've actually thought about switching to a commercial tariff just to get access to the data. While not as good as real-time readings every second or minute, it would provide enough granularity to correlate usage with the weather, time of day, and similar factors.</p>
+<p>Some utility companies do share meter data with all their customers, although it might be a daily total instead of the hourly or more frequent readings they actually have.</p>
+<p>A few utilities make the data they have available for specific customers through services like Google Powermeter or Microsoft Hohm.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1376"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Introduction to pulse counting</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 12/08/2010 - 17:11.</div>
+    <div class="content">
+     <p>Thanks&nbsp;Jerry for the info and taking the time to write! Interesting to hear about the rotating magnet type used in some water meters, didnt know about those and thanks for the links I will add those to the page.</p>
+<p>Marcel and Apoorva Garg: Have a look at the links Jerry has posted and also another link thats worth looking at: Using an arduino to monitor gas by Ken Boak:&nbsp;<a href="http://sustburbia.blogspot.com/2009/11/using-arduino-to-monitor-gas.html">http://sustburbia.blogspot.com/2009/11/using-arduino-to-monitor-gas.html</a></p>
+<p>Thanks Apoorva Garg for the offer of contribution, if you would like to document your implementation here, that would be most welcome. The photodiode/transitor method is certainly something I would like to try sometime.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div><a id="comment-1370"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Apoorva Garg&#039;s picture" title="Apoorva Garg&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Introduction to pulse counting</h3>
+
+    <div class="submitted">Submitted by Apoorva Garg (not verified) on Wed, 04/08/2010 - 16:52.</div>
+    <div class="content">
+     <p>I also thought on the same lines as Michael suggested, putting a photo-diode or LDR in front of the blinking LED and measure the energy in a non-intrusive manner. I'm sure this can be done, as we have built similar proximity sensors for robots.<br />
+Actually we started this when we tried to address the problem faced while doing automated meter reading(AMR) in India, the protocol on which the electronic meters exchange data (Over the optical port) was a proprietary one, therefore it was difficult to make your own custom solution for reading the data from meter. These LDR/Photo-diode based solution were suggested as a possible solution.<br />
+I'm still interested in doing this project and would take it up in sometime. Also if you guys are interested in doing this, let me know if there is a way in which I can contribute.<br />
+Thanks</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-1369"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Marcel&#039;s picture" title="Marcel&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Introduction to pulse counting</h3>
+
+    <div class="submitted">Submitted by <a href="http://marcellenormand.blogspot.com/" rel="nofollow">Marcel</a> (not verified) on Tue, 03/08/2010 - 22:55.</div>
+    <div class="content">
+     <p>I've been thinking about this for a little while and was thinking about using a photodiode sat in front of the flashing LED on the meter.  That way I'm not having to touch anything inside the meter - which apart from being a little hazardous (!) wouldn't probably go down well with my electricity supplier!</p>
+<p>Any thoughts?</p>
+<p>[m]</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/79 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:07:01 GMT -->
+</html>

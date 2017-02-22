@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/4036 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:20:31 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Updating the OEM Rock Solid Gateway image | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Updating the OEM Rock Solid Gateway image</h3>
+        <span class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 11/03/2014 - 00:58</span>
+        <div class="content"><p>There seems to be a problem using apt-get upgrade with the&nbsp;<a href="http://nutcom.hu/?ddownload=260">IPE-R1 image</a>&nbsp;based rock solid gateway image. Even a clean newly installed copy of ipe-r1&nbsp;alone will not upgrade.</p>
+<p>Whilst putting together a new &quot;rock solid gateway&quot; image I found the gateway would fail to update emoncms&nbsp;immediately&nbsp;after using upgrade. The issue becomes apparent because the pi is no longer able to sync its clock following the upgrade. I had time discrepancies ranging from 2 to 4 hours behind actual time despite the clock being correct prior to upgrade, this meant I was now sending current data to emoncms&nbsp;time stamped 2 to 4 hours ago when emoncms has already been receiving data during that time. leaving it overnight to catch up had no effect either.</p>
+<p><span style="font-size: 12px;">ntptime returns no errors just the incorrect time</span></p>
+<p>ntpq -p returns &quot;No association ID&#39;s returned&quot;</p>
+<p>servers appear to be present and correct in /etc/ntp.conf</p>
+<p>tz-data is set correctly</p>
+<p>UTC time is incorrect as well as local</p>
+<p>ntpd -q has no effect</p>
+<p>there is a error message immediately on boot regards drivers/rtc/hctosys.c</p>
+<p>I have emailed&nbsp;NutCom&nbsp;as I can find no source of support for ipe but have had no reply as yet.</p>
+<p>There is no doubt the ipe-r1 software works really well for our purpose but this issue does mean apt-get upgrade cannot be used to upgrade any packages on the pi which isn&#39;t ideal, it also makes it vulnerable to failure following incidental upgrade if trying to resolve another issue.</p>
+<p>I do not think this is unique to me as I have recreated using just a virgin download but I would be great if it is just something I&#39;m doing wrong and is easily fixed :-)</p>
+<h3>
+	<strong>But just to be safe please back-up your &quot;Rock solid gateway&quot; image before attempting any upgrades !!!&nbsp;</strong></h3>
+<p>In the mean time I have put together a copy of the &quot;Rock solid gateway&quot; with the following</p>
+<ul>
+<li>
+		original&nbsp;<a href="http://nutcom.hu/?ddownload=260">RPE-R1</a></li>
+<li>
+		latest <a href="https://github.com/Jerome-github/oem_gateway">oemgateway&nbsp;</a></li>
+<li>
+		<a href="https://github.com/mharizanov/avrdude-rpi">avrdude-rpi</a> &amp; <a href="https://github.com/mharizanov/RFM2Pi/tree/master/firmware/RF12_Demo_atmega328">rfm2pi&nbsp;firmware</a></li>
+</ul>
+<p>I have also installed git-core&nbsp;python-dev&nbsp;python-rpi.gpio&nbsp;python-serial&nbsp;python-configobj&nbsp;wpasupplicant<span style="font-size: 12px;">&nbsp;</span><span style="font-size: 12px;">wireless-tools&nbsp;</span><span style="font-size: 12px;">and ukmoose&#39;s&nbsp;&quot;wifi power-save fix&quot; which has made my wifi work flawlessly for days (previously unachieved)</span></p>
+<p>Everything works perfectly including the rfm2pi firmware update.&nbsp;<span style="font-size: 12px;">but if the image is upgraded it will break !!</span></p>
+<p>Does anyone know how to fix the upgrade issue or where i can get further info?</p>
+<p>here is a link to what I currently have should someone fancy investigating further.(407MB zipped)</p>
+<p><a href="https://www.dropbox.com/s/82vu37767mr0q7i/20140310_RockSolidGateway.zip">https://www.dropbox.com/s/82vu37767mr0q7i/20140310_RockSolidGateway.zip</a></p>
+<p>Paul</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5371.html" class="topic-previous" title="Go to previous forum topic">‹ Ignore nodes</a>
+              <a href="5313.html" class="topic-next" title="Go to next forum topic">EmonCMS : high availability ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-19146"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5022.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="cybergibbons&#039;s picture" title="cybergibbons&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Updating the OEM Rock Solid Gateway image</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5022.html" title="View user profile.">cybergibbons</a> on Tue, 11/03/2014 - 07:09.</div>
+    <div class="content">
+     <p>I also tried contacting Nutcom right at the new year and chased after a week with no response. I followed&nbsp;mharizanov&#39;s advice (<a href="3470.html" title="http://openenergymonitor.org/emon/node/3470">http://openenergymonitor.org/emon/node/3470</a>) and switched to Raspbian in R/O. I didn&#39;t document the process very well which is regretable.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-19150"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Updating the OEM Rock Solid Gateway image</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 11/03/2014 - 14:22.</div>
+    <div class="content">
+     <p>​cybergibbons : thanks for the links I&#39;ve had a brief look at Martin&#39;s links and concluded this probably isn&#39;t going to be straight forward, how easy did you find it to do and how has it performed? my current image works fine and I still have my previously working image as well so I&#39;m inclined to sit tight for the moment as I have so many other projects on the go right now, but if its relatively straight forward I may do it as this niggles me alittle.</p>
+<p>Also as the nutcom site has no forum, no support pages, no contact us page and even all comments are closed on all pages It strongly suggests they do not want to be contacted (I haven&#39;t had an email reply either). and although there is a news article dated 14/2/14 which mentions an &quot;upcoming IPE R1 update release &ndash; which should be Raspbian-based again&quot; it doesn&#39;t say when and suggests a possibility it won&#39;t be raspbian based. I therefore find myself wondering if it would be better to avoid relying on something as unsupported and non-mainstream as ipe. maybe we should find or create another solution.</p>
+<p>SO... Just to throw an idea out there what about a single solution for both remote and local emoncms? a hybrid between the &quot;rock solid&quot; read only forwarder and the &quot;full hdd stack&quot; emoncms server, the oem_gateway is already used in both local and remote emoncms. A raspbian based read only image on a sd card that is configurable as a forwarder only or mount a hdd with the additional server files and configure as a server.</p>
+<p>This would focus development in one direction without parts becoming less compatible or suitable, it would possibly make the server image more robust being partialy read only, it would simplify the hdd solution as the main file system will remain on the sd card, it would provide an easy upgrade path from remote to local emoncms and I think if something like this was suitable, then now may be the best time to implement with the current focus in packaging and versioning emoncms and also the development of dedicated Pi hardware.</p>
+<p>An ideal package arrangement maybe a &quot;rock solid gateway&quot; package to create the custom image from a standard fresh raspbian image (rather than downloading the whole image and maybe it can also be &quot;debianised&quot;) and an optional &quot;emoncms&quot; package to add the server files.</p>
+<p>As I am already working a custom boot to hdd image with separate partitions for data etc (and I may now be looking at sorting a gateway image) I would be happy to work on or contribute to a hybrid sd/hdd gateway design if the interest was there and the emoncms side I believe would probably be pretty much the same but I could be wrong, I&#39;ll leave that to be commented on by the emoncms guy&#39;s.</p>
+<p>Any thoughts anyone?</p>
+<p>Regards Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22252"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4268.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="threldor&#039;s picture" title="threldor&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Updating the OEM Rock Solid Gateway image</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4268.html" title="View user profile.">threldor</a> on Tue, 01/07/2014 - 13:12.</div>
+    <div class="content">
+     <p>thanks for the upgraded image Paul!!</p>
+<p>I am trying to add some 1-wire DS18B20 sensors to the oemgateway setup I have but am struggling to change the gpio pin used for w1-gpio. I was able to get the sensors to work without the RFM12PiV2 installed and using the GPIO 4 for 1-wire but I need them both going at the same time :) hence the 1-wire pin change.<br />
+	I tried&nbsp;<a href="4973.html">http://openenergymonitor.org/emon/node/4973</a>&nbsp;but this didn&#39;t work as I think this only works for kernel 3.10+ not the 3.6 which this IPE-R1 is based off.&nbsp;</p>
+<p>I understand you were having troubles with apt-get upgrade and I had these also. Do you know a way in which I could upgrade the IPE-R1&nbsp;image to use the later kernel which allows the gpio pin change for 1-wire? Or another upgrade option to accommodate my needs.</p>
+<p>cheers</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22254"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Updating the OEM Rock Solid Gateway image</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 01/07/2014 - 14:57.</div>
+    <div class="content">
+     <p>Hi, we are generally moving away from the IPE-R1. you can <a href="5331.html">install Raspbian to run in read-only mode</a> to replace IPE-R1 and then install <a href="https://github.com/Jerome-github/oem_gateway">OEM gateway</a> that you are familiar with or the replacement,&nbsp;<a href="https://github.com/emonhub/emonhub">emonHub </a>is under development. Although not officially released yet there are a couple of versions currently being trialed.</p>
+<p>See&nbsp;<a href="5289.html">http://openenergymonitor.org/emon/node/5289</a>&nbsp;for info on the version I&#39;m currently working on which can be installed <a href="https://github.com/emonhub/dev-emonhub">using a script via 1 line command</a>, it is still a development version but so far results are all positive.</p>
+<p>To find out more about emonHub&nbsp;see some of these posts&nbsp;<a href="../search/node/emonhub.html">http://openenergymonitor.org/emon/search/node/emonhub</a>.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22255"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4268.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="threldor&#039;s picture" title="threldor&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Updating the OEM Rock Solid Gateway image</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4268.html" title="View user profile.">threldor</a> on Tue, 01/07/2014 - 15:15.</div>
+    <div class="content">
+     <p>Thanks, I will give them a spin</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/4036"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-eocQfIBmrLm0gymOTQ4k_LtiPUnPLIWO-DFMXPv6PUI" value="form-eocQfIBmrLm0gymOTQ4k_LtiPUnPLIWO-DFMXPv6PUI"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/4036 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:20:33 GMT -->
+</html>

@@ -1,0 +1,139 @@
+/*
+ EmonTx CT123 + Voltage example
+ 
+ An example sketch for the emontx module for
+ CT only electricity monitoring.
+ 
+ Part of the openenergymonitor.org project
+ Licence: GNU GPL V3
+ 
+ Authors: Glyn Hudson, Trystan Lea
+ Builds upon JeeLabs RF12 library and Arduino
+ 
+ emonTx documentation: http://openenergymonitor.org/emon/modules/emontx/
+ emonTx firmware code explination: http://openenergymonitor.org/emon/modules/emontx/firmware
+ emonTx calibration instructions: http://openenergymonitor.org/emon/modules/emontx/firmware/calibration
+
+ THIS SKETCH REQUIRES:
+
+ Libraries in the standard arduino libraries folder:
+	- JeeLib		https://github.com/jcw/jeelib
+	- EmonLib		https://github.com/openenergymonitor/EmonLib.git
+
+ Other files in project directory (should appear in the arduino tabs above)
+	- emontx_lib.ino
+
+ no-RF slave mode for 3-phase added by Martin Roberts 14/10/12
+*/
+
+#define FVCAL 237  // default is 234.26
+#define FICAL 111.5 // default 111.1
+#define FPHASE 1 // default 1.7
+#define ADDRESS 3 // I2C address (=phase this slave is on)
+
+#define FILTERSETTLETIME 5000                                           //  Time (ms) to allow the filters to settle before sending data
+
+//CT 1 is always enabled
+const int CT2 = 1;                                                      // Set to 1 to enable CT channel 2
+const int CT3 = 0;                                                      // Set to 1 to enable CT channel 3
+
+const int UNO = 1;                                                      // Set to 0 if your not using the UNO bootloader (i.e using Duemilanove) - All Atmega's shipped from OpenEnergyMonitor come with Arduino Uno bootloader
+#include <avr/wdt.h>                                                    // the UNO bootloader 
+
+#include <JeeLib.h>                                                     // Download JeeLib: http://github.com/jcw/jeelib
+ISR(WDT_vect) { Sleepy::watchdogEvent(); }
+
+#include "EmonLib.h"
+EnergyMonitor ct1,ct2,ct3;                                              // Create  instances for each CT channel
+
+#include <Wire.h>
+
+typedef struct { int power1, power2, power3, Vrms; } PayloadTX;         // neat way of packaging data for RF comms
+PayloadTX emontx;
+
+const int LEDpin = 9;                                                   // On-board emonTx LED 
+
+boolean settled = false;
+
+void setup() 
+{
+  Serial.begin(9600);
+  Serial.println("emonTX CT123 Voltage example");
+  Serial.println("OpenEnergyMonitor.org");
+  Serial.print("Phase: "); 
+  Serial.println(ADDRESS,DEC);
+  //Serial.print("Node: "); 
+  //Serial.print(nodeID); 
+  //Serial.print(" Freq: "); 
+  //if (freq == RF12_433MHZ) Serial.print("433Mhz");
+  //if (freq == RF12_868MHZ) Serial.print("868Mhz");
+  //if (freq == RF12_915MHZ) Serial.print("915Mhz"); 
+  //Serial.print(" Network: "); 
+  //Serial.println(networkGroup);
+  
+  ct1.voltageTX(FVCAL, FPHASE);                                            // ct.voltageTX(calibration, phase_shift) - make sure to select correct calibration for AC-AC adapter  http://openenergymonitor.org/emon/modules/emontx/firmware/calibration
+  ct1.currentTX(1, FICAL);                                            // Setup emonTX CT channel (channel (1,2 or 3), calibration)
+                                                                      // CT Calibration factor = CT ratio / burden resistance
+  ct2.voltageTX(FVCAL, FPHASE);                                         // CT Calibration factor = (100A / 0.05A) x 18 Ohms
+  ct2.currentTX(2, FICAL);
+  
+  ct3.voltageTX(FVCAL, FPHASE);
+  ct3.currentTX(3, FICAL);
+  
+  Wire.begin(ADDRESS);
+  Wire.onRequest(requestEvent);
+  Wire.onReceive(receiveEvent);
+  
+  pinMode(LEDpin, OUTPUT);                                              // Setup indicator LED
+  digitalWrite(LEDpin, HIGH);
+  
+  if (UNO) wdt_enable(WDTO_8S);                                         // Enable anti crash (restart) watchdog if UNO bootloader is selected. Watchdog does not work with duemilanove bootloader                                                             // Restarts emonTx if sketch hangs for more than 8s
+}
+
+void loop() 
+{ 
+  // because millis() returns to zero after 50 days ! 
+  if (!settled && millis() > FILTERSETTLETIME) settled = true;
+
+  emontx_sleep(5);                                                      // sleep or delay in seconds - see emontx_lib
+}
+
+// function that executes whenever data is requested by master
+// this function is registered as an event, see setup()
+void requestEvent()
+{
+  //Serial.println("in request");
+  Wire.write((byte *)(&emontx), sizeof emontx);
+  digitalWrite(LEDpin, HIGH); delay(2); digitalWrite(LEDpin, LOW);      // flash LED
+}
+
+// function that executes whenever data is received from master
+// this function is registered as an event, see setup()
+void receiveEvent(int howMany)
+{
+  //Serial.println("in receive");
+  while(Wire.available()) Wire.read(); // clear any received data
+
+  ct1.calcVI(20,2000);                                                  // Calculate all. No.of crossings, time-out 
+  emontx.power1 = ct1.realPower;
+  Serial.print(emontx.power1); 
+  
+  emontx.Vrms = ct1.Vrms*100;                                          // AC Mains rms voltage 
+  
+  if (CT2) {  
+    ct2.calcVI(20,2000);                                               //ct.calcVI(number of crossings to sample, time out (ms) if no waveform is detected)                                         
+    emontx.power2 = ct2.realPower;
+    Serial.print("\t"); Serial.print(emontx.power2);
+    //Serial.print("\t"); Serial.print(ct2.Irms);
+    //Serial.print("\t"); Serial.print(ct2.powerFactor);
+  }
+
+  if (CT3) {
+    ct3.calcVI(20,2000);
+    emontx.power3 = ct3.realPower;
+    Serial.print("\t"); Serial.print(emontx.power3);
+  }
+  
+  Serial.print("\t"); Serial.print(ct1.Vrms);
+  Serial.println();
+}

@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11170 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:29:59 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonTH Pulse Counting - dev firmware  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonTH Pulse Counting - dev firmware </h3>
+        <span class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 25/08/2015 - 13:12</span>
+        <div class="content"><p>I have been working on adding low power pulse counting support to the emonTH. I have pushed dev firmware sketch to the emonTH development branch on GitHub:</p>
+<p><a href="http://xn--https-kt3b://github.com/openenergymonitor/emonTH/blob/development/emonTH_DHT22_DS18B20_RFM69CW/emonTH_DHT22_DS18B20_RFM69CW.ino">​https://github.com/openenergymonitor/emonTH/blob/development/emonTH_DHT22_DS18B20_RFM69CW/emonTH_DHT22_DS18B20_RFM69CW.ino</a></p>
+<p>It seems to be working well. As with the standard&nbsp;emonTH&nbsp; sensor readings are taken every 60s and data transmitted via RF. In between readings the ATmega goes into a deep sleep. If a pulse is detected (interrupt on IRQ1) then the emonTH wakes up and increments the pulse count. The current pulse count is transmitted in the RF payload once every 60s.&nbsp;</p>
+<p>However the one issue I have is when a pulse is detected and the emonTH wakes up (on external interrupt) is also then seems to execute some (not all?) of the code in the main loop before going back to sleep again. &nbsp;This results in &#39;0&#39; being transmitted via RF each time a pulse is detected. I think this could be something to do with the internal state registers not being properly restored when being suddenly awakened by a pulse interrupt?</p>
+<p>Here is the JeeLabs sleep function the emonTH&nbsp;uses:&nbsp;<a href="https://github.com/jcw/jeelib/blob/master/Ports.cpp#L1139">https://github.com/jcw/jeelib/blob/master/Ports.cpp#L1139</a></p>
+<p>Could there be issues using both a watchdog interrupt to wake from sleep and an external interrupt?&nbsp;</p>
+<p>The optical pulse sensor can be wired into the emonTH as follows:&nbsp;</p>
+<p><a href="../sites/default/files/emonth_pulse.jpg"><img alt="" src="../sites/default/files/emonth_pulse.jpg" style="width: 500px; height: 273px;" /></a></p>
+<p><a href="http://wiki.openenergymonitor.org/index.php/EmonTH_V1.5#Pulse_Sensor_Connection" title="http://wiki.openenergymonitor.org/index.php/EmonTH_V1.5#Pulse_Sensor_Connection">http://wiki.openenergymonitor.org/index.php/EmonTH_V1.5#Pulse_Sensor_Con...</a></p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11251.html" class="topic-previous" title="Go to previous forum topic">‹ EmonTH Power</a>
+              <a href="11019.html" class="topic-next" title="Go to next forum topic">AC-AC - why is this needed? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-33615"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTH Pulse Counting - dev firmware </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Wed, 26/08/2015 - 00:56.</div>
+    <div class="content">
+     <p><em>However the one issue I have is when a pulse is detected and the emonTH wakes up (on external interrupt) is also then seems to execute some (not all?) of the code in the main loop before going back to sleep again.</em></p>
+<p>Regardless of how it wakes up (wdog or external interrupt), once awake it will return from your call to dodelay(100). (By the way, it looks like you only sleep for 100msecs, but above you said 60 seconds?) &nbsp;If no pulses occurred then it will wake up 100msecs later, but if one did occur&nbsp;it wakes up at the time of that pulse. &nbsp;Either way, it should then continue to execute your main&nbsp;loop again until your next call to dodelay().</p>
+<p><em>This results in &#39;0&#39; being transmitted via RF each time a pulse is detected.</em></p>
+<p>While you&#39;re asleep,&nbsp;CLKio won&#39;t be running&nbsp;which means timer0 won&#39;t be running which means millis() and micros() will be frozen in time. &nbsp;I suspect that&#39;ll cause the&nbsp;debounce code inside in your pulse ISR to think the pulse time is too short and so not count it. &nbsp;It looks like Sleepy&#39;s loseSomeTime() attempts to fix that up, but it can only do that when it was awakened by the wdog. &nbsp;It seems if it&#39;s awakened by an external interrupt it guesses... (half the requested&nbsp;sleep interval). &nbsp;And in any case, that code runs after your ISR has returned.</p>
+<p>I&#39;m also a bit puzzled about your ADC transactions in the pulse counter ISR. &nbsp;The guts of that ISR doesn&#39;t need the ADC to be powered up does it?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33618"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTH Pulse Counting - dev firmware </h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Wed, 26/08/2015 - 07:11.</div>
+    <div class="content">
+     <p>Hy Glyn,</p>
+<p>Glad to see that you&#39;re developing such a sketch because I&#39;m also working on that point.</p>
+<p>You can find <a href="10834.html#comment-33617">here</a> the last version. It was first intended to work with a LDR but I&#39;m now using it with the optical pulse sensor from the shop. My approach is different and maybe too extricate. I hope it may help you.</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33689"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTH Pulse Counting - dev firmware </h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Sat, 29/08/2015 - 16:04.</div>
+    <div class="content">
+     <p>I have found a one wire sensor counter, that can count pulses and be addressed on the one wire sensor bus.</p>
+<p><a href="http://www.maximintegrated.com/en/products/comms/one-wire/DS2423.html">http://www.maximintegrated.com/en/products/comms/one-wire/DS2423.html</a></p>
+<p>Is it possible to use this unit for counting pulses instead of using the arduino directly? Will it save energy from the arduino? Because then the arduino can wake up every now and then and just read the state of the one wire counter and post it to the emoncms. No need to wake up on every pulse.</p>
+<p>&nbsp;</p>
+<p>Also it seems the counter has two inputs, maybe two energymeters can be read at the same time.</p>
+<p>&nbsp;</p>
+<p>Just a thought.</p>
+<p>&nbsp;</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33949"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8478.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="kirkholt&#039;s picture" title="kirkholt&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTH Pulse Counting - dev firmware </h3>
+
+    <div class="submitted">Submitted by <a href="../user/8478.html" title="View user profile.">kirkholt</a> on Tue, 08/09/2015 - 09:21.</div>
+    <div class="content">
+     <p>The DS2423&nbsp;was a brilliant little product, Unfortunately it is no longer available.&nbsp;</p>
+<p>This i stated in the link you refer to</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33950"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTH Pulse Counting - dev firmware </h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Sun, 13/09/2015 - 15:54.</div>
+    <div class="content">
+     <blockquote><p>The DS2423&nbsp;was a brilliant little product, Unfortunately it is no longer available.&nbsp;</p>
+<p>This i stated in the link you refer to</p>
+</blockquote>
+<p>&nbsp;</p>
+<p>Ah.&nbsp;</p>
+<p>Didnt&nbsp;quite see that when i read it. Thats a real shame. I think that the one wire chip for this might be a good solution for many problems.</p>
+<p>Does anyone know if there is replacement for this functionality?</p>
+<p>&nbsp;</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34115"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTH Pulse Counting - dev firmware </h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Sun, 13/09/2015 - 15:55.</div>
+    <div class="content">
+     <p>Glyn!</p>
+<p>&nbsp;</p>
+<p>I have some questions, is it possible to hook up two pulse counters to one emonTH?</p>
+<p>Is there a wiring diagram for the LED reader, with the rear mounted LED? I would be happy to add the same feature to my setup, as i have only the LED reader and no verification led on the back which i found very clever.</p>
+<p>&nbsp;</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11170"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-fR_ggvglrQnNiK_Q5OYHzF6XxMBqiZ-P9p0mAVhfZKE" value="form-fR_ggvglrQnNiK_Q5OYHzF6XxMBqiZ-P9p0mAVhfZKE"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11170 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:30:00 GMT -->
+</html>

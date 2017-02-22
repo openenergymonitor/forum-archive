@@ -1,0 +1,419 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/708 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:05:08 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>EMON batch VARIABLES INIT? | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">EMON batch VARIABLES INIT?</h3>
+        <span class="submitted">Submitted by Guest on Wed, 30/05/2012 - 07:55</span>
+        <div class="content"><p>at the begin of the procedure , inside the measuring loop of</p>
+<p>EnergyMonitor::calcVI&nbsp;&nbsp;&nbsp;&nbsp; the variables</p>
+<p>sampleV, sampleI, filteredV, filteredI</p>
+<p>are not set but&nbsp; stored to their LASTxxx memory.</p>
+<p>&nbsp;</p>
+<p>at the end of the batch only</p>
+<p>&nbsp; sumV = 0;&nbsp; sumI = 0;&nbsp; sumP = 0;<br />
+	&nbsp;are reset.</p>
+<p>at first use of this procedure this variables might be &quot;0.0&quot;</p>
+<p>at the next batch they contain values from last batch / in my case even from an other current line ( same&nbsp; emon instance )</p>
+<p>( tested with diagnostic print )</p>
+<p>even with the &quot;FULL WAVE EMON&quot; this problem might be much smaller now, i think a VARIABLE INIT is required!</p>
+<p>one way could be at condition<strong> numberOfSamples==1</strong></p>
+<p><strong>WAY A:</strong></p>
+<blockquote><p>&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+		&nbsp;&nbsp;&nbsp; // A) Read in raw voltage and current samples<br />
+		&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+		&nbsp;&nbsp;&nbsp; lastSampleV=sampleV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for digital high pass filter<br />
+		&nbsp;&nbsp;&nbsp; lastSampleI=sampleI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; //Used for digital high pass filter</p>
+<p>		&nbsp;&nbsp;&nbsp; sampleV = analogRead(inPinV);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Read in raw voltage signal<br />
+		&nbsp;&nbsp;&nbsp; sampleI = analogRead(inPinI);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; //Read in raw current signal</p>
+<p>		&nbsp;&nbsp;&nbsp; if (numberOfSamples==1) {<br />
+		&nbsp;&nbsp;&nbsp; lastSampleV=sampleV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for digital high pass filter<br />
+		&nbsp;&nbsp;&nbsp; lastSampleI=sampleI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for digital high pass filter<br />
+		&nbsp;&nbsp;&nbsp; filteredV = sampleV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; //Used for offset removal<br />
+		&nbsp;&nbsp;&nbsp; filteredI = sampleI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp; //Used for offset removal&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br />
+		&nbsp;&nbsp;&nbsp; }&nbsp;&nbsp; &nbsp;</p>
+<p>		&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+		&nbsp;&nbsp;&nbsp; // B) Apply digital high pass filters to remove 2.5V DC offset (centered on 0V).<br />
+		&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+		&nbsp;&nbsp;&nbsp; lastFilteredV = filteredV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for offset removal<br />
+		&nbsp;&nbsp;&nbsp; lastFilteredI = filteredI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; //Used for offset removal&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br />
+		&nbsp;&nbsp; &nbsp;<br />
+		&nbsp;&nbsp;&nbsp; filteredV = 0.996*(lastFilteredV+sampleV-lastSampleV);<br />
+		&nbsp;&nbsp;&nbsp; filteredI = 0.996*(lastFilteredI+sampleI-lastSampleI);<br />
+		&nbsp; &nbsp;<br />
+		&nbsp;</p>
+</blockquote>
+<p>but a more elegant way could be to do this remembering and sampling and filtering already&nbsp; while&nbsp; wait for the waveform to be close to &#39;zero&#39;,</p>
+<p>so when the batch start a good INIT should be done already,</p>
+<p><strong>WAY B:</strong></p>
+<blockquote><p>&nbsp; while(st==false)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //the while loop...<br />
+		&nbsp; {<br />
+		&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+		&nbsp;&nbsp;&nbsp; // A) Read in raw voltage and current samples<br />
+		&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+		&nbsp;&nbsp;&nbsp; lastSampleV=sampleV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for digital high pass filter<br />
+		&nbsp;&nbsp;&nbsp; lastSampleI=sampleI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for digital high pass filter</p>
+<p>		&nbsp;&nbsp;&nbsp; sampleV = analogRead(inPinV);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Read in raw voltage signal<br />
+		&nbsp;&nbsp;&nbsp; sampleI = analogRead(inPinI);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Read in raw current signal</p>
+<p>		&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+		&nbsp;&nbsp;&nbsp; // B) Apply digital high pass filters to remove 2.5V DC offset (centered on 0V).<br />
+		&nbsp;&nbsp;&nbsp; //-----------------------------------------------------------------------------<br />
+		&nbsp;&nbsp;&nbsp; lastFilteredV = filteredV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for offset removal<br />
+		&nbsp;&nbsp;&nbsp; lastFilteredI = filteredI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for offset removal&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br />
+		&nbsp;&nbsp; &nbsp;<br />
+		&nbsp;&nbsp;&nbsp; filteredV = 0.996*(lastFilteredV+sampleV-lastSampleV);<br />
+		&nbsp;&nbsp;&nbsp; filteredI = 0.996*(lastFilteredI+sampleI-lastSampleI);<br />
+		&nbsp;&nbsp; &nbsp;<br />
+		//&nbsp;&nbsp;&nbsp;&nbsp; startV = analogRead(inPinV);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //using the voltage waveform<br />
+		//&nbsp;&nbsp;&nbsp;&nbsp; if ((startV &lt; 550) &amp;&amp; (startV &gt; 440)) st=true;&nbsp; //check its within range<br />
+		&nbsp;&nbsp;&nbsp;&nbsp; if ((sampleV &lt; 550) &amp;&amp; (sampleV &gt; 440)) st=true;&nbsp; //check its within range<br />
+		&nbsp;&nbsp;&nbsp;&nbsp; if ((millis()-start)&gt;timeout) st = true;<br />
+		&nbsp; }<br />
+		startV = sampleV;</p>
+</blockquote>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="942.html" class="topic-previous" title="Go to previous forum topic">‹ emonGLCD not programmable</a>
+              <a href="939.html" class="topic-next" title="Go to next forum topic">EmonGLCD - wont work ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-4633"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMON batch VARIABLES INIT?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 30/05/2012 - 11:38.</div>
+    <div class="content">
+     <p>The time constant of the filter</p>
+<blockquote><pre>
+filteredV = 0.996*(lastFilteredV+sampleV-lastSampleV);</pre></blockquote>
+<p>is long compared to the number of samples so it is necessary to carry over the values from one call to <em>calcVI</em> to the next.</p>
+<p>The purpose of the section of code marked</p>
+<blockquote><p><em>1) Waits for the waveform to be close to &#39;zero&#39;</em></p>
+</blockquote>
+<p>is to assure that you start sampling at a recognisable place, and that a whole number of cycles are sampled. If you start sampling and filtering at a random place each time you call <em>calcVI</em>, and if you do not stop at the equivalent place on the wave an integral number of cycles later, you will introduce a level shift each time and the filter will never settle. The resulting &quot;d.c.&quot; will give you the wrong value in the r.m.s calculations.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4634"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="kllsamui&#039;s picture" title="kllsamui&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMON batch VARIABLES INIT?</h3>
+
+    <div class="submitted">Submitted by kllsamui (not verified) on Wed, 30/05/2012 - 13:36.</div>
+    <div class="content">
+     <p>thanks for fast answer, but i can not follow?</p>
+<p>you want to say that sampleV, sampleI from batchend must be used at batchstart?</p>
+<p>and my idea a INIT is needed would be wrong?</p>
+<p>&nbsp;</p>
+<p>in case of the FULL WAVE EMON ( and a exact start of batch at zero crossing )</p>
+<p>Vfiltered , I filtered, and also V shifted&nbsp; start values should be set to &quot;0&quot;&nbsp; pls see</p>
+<p><a href="http://www.editgrid.com/user/kll/EMONsimulation">http://www.editgrid.com/user/kll/EMONsimulation</a></p>
+<p>a intentionally use of the values from end of last batch?</p>
+<p>pls tell me how old you think these values are?</p>
+<p>minimum the calculation time for the results, serial print and loop back<em> ( 100ms== 5 waves??)</em></p>
+<p>plus max half wave for search zero crossing,</p>
+<p><sub>and i dont run EMON batch after batch, there is a time adjustable call routine because have other things to do,</sub></p>
+<p><sub>and i use same instance of emon on 5 current lines ( same volt ) </sub></p>
+<p><sub>( 5 EMON instances would mean 5 times all variables ? correct?)</sub></p>
+<p>&nbsp;</p>
+<p>but anyhow , the suggested WAY B, doing same,</p>
+<p>use batchend values at start and already do sampling and filtering while search next zero crossing</p>
+<p>this actually must be used if you are right, could call it a SOFTSTART of the batch.</p>
+<p>&nbsp;</p>
+<p>The init of the LASTxxx variables with the first reading at batchstart, would be WAY A.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4636"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMON batch VARIABLES INIT?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 30/05/2012 - 23:41.</div>
+    <div class="content">
+     <blockquote><p>&quot;and i use same instance of emon on 5 current lines ( same volt )&quot;</p>
+</blockquote>
+<p>This is <strong>WRONG.</strong> You must have an instance for each input, otherwise - as you are have found - you create problems. All your problems will go away when you create separate instances of EnergyMonitor.</p>
+<p>The cost in extra variables is not great, 19 doubles, 8 integers and 2 boolean = 94 bytes&nbsp; x 4 more instances?</p>
+<p>There are many, many people using the software as it was written and when you use it correctly,&nbsp; <strong><em>it works.</em></strong></p>
+<p>You will find a description of the software filter at <a href="https://en.wikipedia.org/wiki/High-pass_filter" title="https://en.wikipedia.org/wiki/High-pass_filter">https://en.wikipedia.org/wiki/High-pass_filter</a> - scroll down to <span class="mw-headline" id="Discrete-time_realization">Discrete-time realization.</span></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4637"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="kllsamui&#039;s picture" title="kllsamui&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMON batch VARIABLES INIT?</h3>
+
+    <div class="submitted">Submitted by kllsamui (not verified) on Thu, 31/05/2012 - 00:41.</div>
+    <div class="content">
+     <p>thanks, i will try.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4642"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMON batch VARIABLES INIT?</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 31/05/2012 - 19:38.</div>
+    <div class="content">
+     <p>OK, expanding on my last answer:</p>
+<p>The <strong><em>time constant</em></strong> of the filter is the sample period x 0.996 / (1 - 0.996).&nbsp; The sample period will depend a little on any extra instructions you have put in the loop, I measured 53 samples in 20 mS, therefore the time constant works out at 94 mS. This is the time it takes for the step change to reach 63% of the final value.&nbsp; A general rule says you need 5 x time constant ( = 0.5 s) to reach within 1% of the final value, and to get a stable value to within 0.1% (1 count), you need to wait rather more than this. Any reading you make before the filter has settled will be wrong.</p>
+<p>Now if you connect the input of the filter to different sensors, each will be at a different d.c voltage because the bias components will not all be exactly the correct value, so you will introduce a step each time and you must allow the filter to settle before you use the reading.</p>
+<p>However, when you have one filter for each sensor, the filter &quot;goes to sleep&quot; while you read the remaining sensors, and continues where it left off when you next read that sensor, so it continues to settle and when it has done so (after about 8 time constants, but interrupted while the program goes away and reads other sensors) then you can use the result immediately. But you still need to discard the readings for the first 10 - 15 seconds or so after powering up while the filters settle and the reading stabilises.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-5537"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="kllsamui&#039;s picture" title="kllsamui&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMON batch VARIABLES INIT?</h3>
+
+    <div class="submitted">Submitted by kllsamui (not verified) on Mon, 06/08/2012 - 06:57.</div>
+    <div class="content">
+     <p>sorry , i have to bring up the EMON INIT Problem again.</p>
+<p>the EMON batch uses 4 memory variables,</p>
+<p>&nbsp;&nbsp;&nbsp; lastSampleV=sampleV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for digital high pass filter<br />
+&nbsp;&nbsp;&nbsp; lastSampleI=sampleI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for digital high pass filter<br />
+&nbsp;&nbsp;&nbsp; <br />
+&nbsp;&nbsp;&nbsp; lastFilteredV = filteredV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for offset removal<br />
+&nbsp;&nbsp;&nbsp; lastFilteredI = filteredI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used for offset removal&nbsp;&nbsp;&nbsp; <br />
+&nbsp;&nbsp;&nbsp; <br />
+at Program Start sampleX and filteredX are 0.<br />
+this leads to a<strong> first batch result what can not be used</strong>.</p>
+<p>at batch begin is a procedure what searches for the Volt signal to be near its zero,</p>
+<p>if ((startV &lt; 550) &amp;&amp; (startV &gt; 440)) st=true;</p>
+<p>at the end of the loop inside the batch this value is used again to detect a zero crossing</p>
+<p>&nbsp;&nbsp;&nbsp; if (sampleV &gt; startV) checkVCross = true; <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else checkVCross = false;<br />
+&nbsp;&nbsp;&nbsp; if (numberOfSamples==1) lastVCross = checkVCross;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+&nbsp;&nbsp;&nbsp; if (lastVCross != checkVCross) crossCount++; <br />
+&nbsp;&nbsp;&nbsp; <br />
+&nbsp;&nbsp;&nbsp; <br />
+<strong>&nbsp;It will result in, that its undefined if we start at a positive half wave or not,<br />
+&nbsp;and that the used Start values ( from end of last batch ) come also from a positive half wave or not.<br />
+&nbsp;So the Start values are jumping sometimes between positive or negative values.<br />
+&nbsp;And the start range (440 ..550 ) allows a wide phase angle<br />
+&nbsp;The Call of the procedure <br />
+&nbsp;&nbsp; emon1.calcVI(40,2000); <br />
+&nbsp;actually means 40 half waves and not 40 sinus and was required to be a even number.</strong><br />
+&nbsp;<br />
+pls see att. EMON_problem.jpg<br />
+&nbsp;<br />
+&nbsp;</p>
+<!--break--><!--break--><p>
+&nbsp;<br />
+&nbsp;I recommend following changes:<br />
+&nbsp;<br />
+&nbsp;1. change to <strong>FULL WAVE </strong><br />
+&nbsp;( in Volt detect loop and in wave count loop )<br />
+&nbsp;<br />
+&nbsp;2. detect a program start and <strong>replace the sampleX values (0) by actual readings, </strong><br />
+&nbsp;just at batch start on a positive sinus wave of volt.<br />
+&nbsp;</p>
+<p>
+<strong>&nbsp;code1</strong><br />
+&nbsp;&nbsp; while(st==false)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //the while loop...<br />
+&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp; startV = analogRead(inPinV);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //using the voltage waveform<br />
+//&nbsp;&nbsp;&nbsp;&nbsp; if ((startV &lt; 550) &amp;&amp; (startV &gt; 440)) st=true;&nbsp; //check its within range<br />
+&nbsp;&nbsp;&nbsp;&nbsp; if ((millis()-start)&gt;timeout) st = true;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // check on timeout<br />
+&nbsp;&nbsp;&nbsp;&nbsp; <br />
+// KLL new full wave search<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( !minuswave ) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( startV &lt; 440 ) { minuswave = true; }&nbsp; // wait for sinus is in minus<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( minuswave )&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( startV &gt; 511 ) { pluswave = true; }&nbsp; // and wait, now the positiv sinus starts<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( minuswave &amp;&amp; pluswave ) {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // could max need 1 sinus<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minuswave = false;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pluswave = false;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; st = true;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // only do it one time per batch<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; crossCount=0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // counting full waves<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; numberOfSamples = 0;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp; // sinus starts<br />
+&nbsp; }&nbsp; // END st&nbsp; <br />
+&nbsp; <br />
+<strong>&nbsp; code2</strong><br />
+&nbsp;&nbsp;&nbsp; // program start detect:<br />
+&nbsp; if (sampleV == 0 ) {&nbsp;&nbsp; // program start&nbsp; ( or no hardware connected )<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sampleV = analogRead(inPinV);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // new program init not use &quot;0&quot; at program start<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sampleI = analogRead(inPinI);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+&nbsp; // batch start <br />
+&nbsp; <br />
+<strong>&nbsp; code3</strong><br />
+&nbsp; <br />
+//&nbsp;&nbsp;&nbsp; lastVCross = checkVCross;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+//&nbsp;&nbsp;&nbsp; if (sampleV &gt; startV) checkVCross = true; <br />
+//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else checkVCross = false;<br />
+//&nbsp;&nbsp;&nbsp; if (numberOfSamples==1) lastVCross = checkVCross;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+//&nbsp;&nbsp;&nbsp; if (lastVCross != checkVCross) crossCount++;<br />
+// KLL new full wave search<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( !minuswave ) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( sampleV &lt; 440 ) { minuswave = true; }&nbsp;&nbsp; // wait for sinus is in minus<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( minuswave )&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( sampleV &gt; 511 ) { pluswave = true; }&nbsp; // and wait, now the positiv sinus starts<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( minuswave &amp;&amp; pluswave ) {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; crossCount++;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minuswave = false;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pluswave = false;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp; // next sinus starts</p>
+<p>
+&nbsp;<br />
+&nbsp;<br />
+&nbsp;<br />
+pls see att.&nbsp; FULL_WAVE_EMON.jpg<br />
+&nbsp;<br />
+&nbsp;pls find testresult, diagnostic code, full wave emon code as ZIP file<br />
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-5643"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="kllsamui&#039;s picture" title="kllsamui&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EMON batch VARIABLES INIT?</h3>
+
+    <div class="submitted">Submitted by kllsamui (not verified) on Sat, 11/08/2012 - 01:16.</div>
+    <div class="content">
+     <p>FULL&nbsp;WAVE SHORT&nbsp;FORM</p>
+<p>change:</p>
+<p>delete all boolean memory,</p>
+<p>in code1 use a add. int memory for startV: laststartV</p>
+<p>&nbsp;</p>
+<p><strong> &nbsp; &nbsp; &nbsp; laststartV = startV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // remember old value<br />
+&nbsp; &nbsp; &nbsp; startV = analogRead(inPinV);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; //using the voltage waveform<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( laststartV &lt; 511 &amp;&amp; laststartV &gt; 0 &amp;&amp; startV &gt;= 511 ) {&nbsp; st = true;&nbsp; }&nbsp;&nbsp;&nbsp; // sinus starts and NOT programstart<br />
+</strong></p>
+<p>in&nbsp; code3&nbsp; ( the init is taken care of in code 2 )</p>
+<p><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ( lastSampleV &lt; 511 &amp;&amp; sampleV &gt;= 511 ) { crossCount++;&nbsp; }&nbsp;&nbsp;&nbsp; // next sinus starts<br />
+</strong></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/708"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-dB5_QwA5vNswiHQ9EDYQhI_-vlWpNKjoMBWqEVSEhlY" value="form-dB5_QwA5vNswiHQ9EDYQhI_-vlWpNKjoMBWqEVSEhlY"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/708 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:05:08 GMT -->
+</html>

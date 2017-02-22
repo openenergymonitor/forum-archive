@@ -1,0 +1,244 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3710 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:21:16 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>multiple ds18b20 emontx v3 | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">multiple ds18b20 emontx v3</h3>
+        <span class="submitted">Submitted by <a href="../user/5350.html" title="View user profile.">roedfjel</a> on Sat, 25/01/2014 - 10:40</span>
+        <div class="content"><p>I want to messure&nbsp;temp from 5 diffrent sensor.&nbsp;</p>
+<p>I can get one sensor temp.</p>
+<p>I can also connect 5sensor and i se that the serial monitor see that 5 i connected.</p>
+<p>&nbsp;</p>
+<p>But i can not get them printet&nbsp;to emoncms or in serial monitor with any temperatur. I just get tem&oslash; from one sensor.</p>
+<p>Anyone that can give me a hint og an example sketch for sensing and sending more than one ds18b20 sensor?</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1638.html" class="topic-previous" title="Go to previous forum topic">‹ Arduino Due (ARM CPU at 84 MHz) + emonTx Shield</a>
+              <a href="3713.html" class="topic-next" title="Go to next forum topic">Outdoor temperature sensing ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-17882"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: multiple ds18b20 emontx v3</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 25/01/2014 - 14:44.</div>
+    <div class="content">
+     <p>A quick look at the default sketch for the emonTx V3 tells me that it will send only one temperature. You must change the sketch so that it sends all 5 temperatures.</p>
+<p>What to change:</p>
+<p>In</p>
+<pre>
+typedef struct { int power1, power2, power3, power4, Vrms, temp; } PayloadTX;
+  PayloadTX emontx;</pre><p>add the extra temperatures&nbsp; ... Vrms, temp0, temp1, temp2, temp3, temp4; }</p>
+<p>In the conditional&nbsp;&nbsp; if (DS18B20_STATUS==1) { .... }&nbsp; where it reads the temperature sensor, you must do this 5 times:</p>
+<pre class="rteindent1">
+float temp0=(sensors.getTempC(allAddress[0]));
+float temp1=(sensors.getTempC(allAddress[1]));
+float temp2=(sensors.getTempC(allAddress[2]));
+float temp3=(sensors.getTempC(allAddress[3]));
+float temp4=(sensors.getTempC(allAddress[4]));</pre><p>then convert the temperatures 5 times and put them into the struct</p>
+<pre class="rteindent1">
+if ((temp0&lt;125.0) &amp;&amp; (temp0&gt;-40.0)) emontx.temp0=(temp0*10);  
+if ((temp1&lt;125.0) &amp;&amp; (temp1&gt;-40.0)) emontx.temp1=(temp1*10);
+if ((temp2&lt;125.0) &amp;&amp; (temp2&gt;-40.0)) emontx.temp2=(temp2*10);
+if ((temp3&lt;125.0) &amp;&amp; (temp3&gt;-40.0)) emontx.temp3=(temp3*10);
+if ((tem4p&lt;125.0) &amp;&amp; (temp4&gt;-40.0)) emontx.temp4=(temp4*10);</pre><p>This is not the best way to do it but the simplest to explain, and it should work - I don&#39;t have 5 sensors to test with!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17888"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5350.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="roedfjel&#039;s picture" title="roedfjel&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: multiple ds18b20 emontx v3</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5350.html" title="View user profile.">roedfjel</a> on Sat, 25/01/2014 - 17:24.</div>
+    <div class="content">
+     <p>tnx robert.</p>
+<p>&nbsp;</p>
+<p>I tested your guide and it works ok with 4 sensor. but with 5sensor connected the debug serial output that its find 5 ds18b20&nbsp;but only give me messurements&nbsp;on 4 sensor. the last one is 0in temp.</p>
+<p>&nbsp;</p>
+<p>Is there anyting that wrong in this sketch that does not give me the last reading on the sensor.</p>
+<p>&nbsp;</p>
+<p>the sketch i attached.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17898"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: multiple ds18b20 emontx v3</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 25/01/2014 - 21:07.</div>
+    <div class="content">
+     <p>Ah! I missed this bit - sorry:</p>
+<pre class="rteindent1">
+int numSensors;
+//addresses of sensors, MAX 4!!&nbsp;
+byte allAddress [4][8];&nbsp; // 8 bytes per address</pre><p>That appears to be an artificial limit, the library indicates it is good to 64 devices on the same bus. I suggest you increase the array to 5 x 8.</p>
+<p>But it may be a good idea to check the free memory - for that you need the &quot;MemoryFree&quot; library.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17902"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5350.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="roedfjel&#039;s picture" title="roedfjel&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: multiple ds18b20 emontx v3</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5350.html" title="View user profile.">roedfjel</a> on Sat, 25/01/2014 - 23:45.</div>
+    <div class="content">
+     <p>tnx again for &nbsp;the help Robert.</p>
+<p>I had allready change that array, but the fault was that the serial console did not come &nbsp;with any signal on that sensor. but the emoncms gets it :).</p>
+<p>&nbsp;</p>
+<p>As you maybe know im not good in this but learning. tnx again for a good tips and guides.<br />
+	im now searching info about that memoryfree&nbsp;and how to get that work.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17908"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: multiple ds18b20 emontx v3</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 26/01/2014 - 16:14.</div>
+    <div class="content">
+     <p>I cannot see a good reason why the serial monitor did not show the last temperature, unless it was low on memory. You could save some memory by doing this:</p>
+<p>if (debug==1)<br />
+	{<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;temperature1: &quot;); Serial.println(emontx.temp*0.1);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;temperature2: &quot;); Serial.println(emontx.temp1*0.1);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;temperature3: &quot;); Serial.println(emontx.temp2*0.1);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;temperature4: &quot;); Serial.println(emontx.temp3*0.1);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;temperature5: &quot;); Serial.println(emontx.temp4*0.1);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; delay(100);<br />
+	}</p>
+<p>You might also save some memory by using an array instead of 5 separate variables for the temperature, and then process them in loops:</p>
+<pre>
+typedef struct { int power1, power2, power3, power4, Vrms, temp[5]; } PayloadTX;</pre><p>...</p>
+<pre>
+float temp[5];
+for(int j=0; j&lt;5; j++)
+     temp[j] = sensors.getTempC(allAddress[j]);
+digitalWrite(DS18B20_PWR, LOW);
+for(int j=0; j&lt;5; j++)
+{
+       //if reading is within range for the sensor convert float to int ready to send via RF
+     if ((temp[j]&lt;125.0) &amp;&amp; (temp[j]&gt;-40.0)) emontx.temp[j]=(temp[j]*10);           
+     if (debug==1) 
+     {
+           Serial.print(&quot;temperature&quot;); Serial.print(j+1); Serial.print(&quot;: &quot;); 
+           Serial.println(emontx.temp[j]*0.1); delay(20);
+     }
+}</pre><p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3710"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-ljeJqFtp1cXFv8ZTVqeDCkjVFyTPR2Lllx8HAWn6lJ4" value="form-ljeJqFtp1cXFv8ZTVqeDCkjVFyTPR2Lllx8HAWn6lJ4"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3710 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:21:16 GMT -->
+</html>

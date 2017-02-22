@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12382 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:04:50 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Cloudflare: running emoncms over SSL | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Cloudflare: running emoncms over SSL</h3>
+        <span class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 22/03/2016 - 17:51</span>
+        <div class="content"><p>I&#39;ve just started using Cloudflare to provide a secure SSL conection for visitors to my Raspberry Pi server, and it seems to work very well, so I thought I&#39;d share the process.</p>
+<p><strong>Setup Cloudflare</strong><br />
+Firstly visit <a href="https://www.cloudflare.com/">cloudflare.com</a> &amp; sign up for an account.</p>
+<p>Then follow the easy guides to add your website, this will take a couple of minutes as Cloudflare will automatically scan your DNS records, and create the necessary Cloudflare settings. You will then be asked to select a free or paid plan (free is more than adequate for most users).Cloudflare will then ask you to change your &#39;domain&#39; nameservers, to Cloudflare&#39;s nameservers, which is done by editing your domain registrar&#39;s settings, such as 1&amp;1, GoDaddy, 123-Reg, etc.</p>
+<p>There is no site downtime when you do this, and once this change becomes active, visitors to your domain name will be directed to Cloudflare&#39;s servers, who will then request the data from your server, so Cloudflare sits between you and your site visitors.</p>
+<p>At this stage, you will be accessing your site as always via http, as it takes a day or so for Cloudflare to get you your free SSL certificate. Once it has been obtained (check it&#39;s status in the &#39;Crypto&#39; tab) visitors can also access your site via https, and they should see the familiar green padlock showing in the browser confirming a secure connection.</p>
+<p>Keeping the http access route open is probably not a good idea, but this can easily be changed by going to the &#39;Page Rules&#39; tab, and create a rule to direct all http traffic to https, so for example, the URL pattern should be <a href="http://*mydomain.co.uk/*" title="http://*mydomain.co.uk/*">http://*mydomain.co.uk/*</a> to capture both www and non-www visitors, and add the rule &#39;Always use https&#39;.</p>
+<p>Also you may find (as I did) that emoncms&#39;s javascript does not work well with Cloudflaire&#39;s &#39;Rocket-Loader&#39; (see under the &#39;speed&#39; tab), which is activated by default, so needs switching off, otherwise you may find it difficult to log in to emoncms.</p>
+<p><strong>Automatically update IP address</strong><br />
+If your internet provider gives you a dynamically assigned IP address, which changes your public IP address frequently, you will need some process to update Cloudflair with your current IP address, so it knows where to find you.</p>
+<p>There are many ways to do this, but <a href="https://github.com/LINKIWI/cloudflare-ddns-client">I&#39;ve found this well written script</a> works very well and is easy to set up.</p>
+<p>Once installed it can be run as a cron job or as I have done, via node-red using a quick and easy node-red flow (attached) to run it.</p>
+<p><strong>Summary</strong><br />
+You will note that the only changes that are made to your Pi is running the script to update your Cloudflair&nbsp;account&nbsp;with your IP address, everything else is done &#39;in the cloud&#39;, so if you don&#39;t like it you only have to stop running the script and reset your domain nameservers.</p>
+<p>There is however one issue with Cloudflare, in that it does not support websockets (yet), so you will not be able to access node-red via your https connection, and only via your local IP (localhost). However, that doesn&#39;t cause me any concern because I don&#39;t open up the node-red port for external access anyway.</p>
+<p>Hope this is of interest</p>
+<p>&nbsp;</p>
+<p>Paul</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12403.html" class="topic-previous" title="Go to previous forum topic">‹ Getting help</a>
+              <a href="12267.html" class="topic-next" title="Go to next forum topic">New Raspberry Pi 3 B launched ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-40526"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Cloudflare: running emoncms over SSL</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Tue, 22/03/2016 - 20:39.</div>
+    <div class="content">
+     <p>Good article, but just a point to note - although Cloudflare provides encryption over HTTPS - it terminates at the cloudflare servers, so the connection from them to your&nbsp;PI is NOT encrypted.</p>
+<p>If you want end to end encryption take a look at the&nbsp;https://letsencrypt.org/ project for free SSL certs.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40528"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Cloudflare: running emoncms over SSL</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 22/03/2016 - 22:26.</div>
+    <div class="content">
+     <p>Letsencrypt is very good, and is used by the oem website, but is more difficult to set up, and as the certificates only last 3 months they need constant renewing, although that can be automated via their api.</p>
+<p>I agree that end to end encryption is definitely&nbsp;the most secure&nbsp;option, but I&#39;m putting Cloudflare forward as a quick &amp;&nbsp;easy option for those who don&#39;t want to make too many changes to their Pi, and leave the certificate renewals etc for&nbsp;Cloudflare to manage. Also although Cloudflare is not end-to-end, it does provide numerous other security measures as standard, such as their Firewall, page rules, etc, see <a href="https://www.cloudflare.com/overview/">this link for details</a>.</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40532"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Cloudflare: running emoncms over SSL</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Wed, 23/03/2016 - 09:41.</div>
+    <div class="content">
+     <p>Thanks, good write up. I wonder if cloud flare would be suitable for Emoncms.org? We have recently used LetsEncrypts&nbsp;which worked well to easily&nbsp;enable SSL</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40534"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Cloudflare: running emoncms over SSL</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Wed, 23/03/2016 - 12:27.</div>
+    <div class="content">
+     <p>Just another point if you are following this Cloudflare is that you also need to lock down your PI/Home router to only accept traffic from Cloudflare - otherwise you can just by-pass Cloudflare and jump to the original home IP which wouldn&#39;t give you any benefit</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40535"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Cloudflare: running emoncms over SSL</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Wed, 23/03/2016 - 13:17.</div>
+    <div class="content">
+     <p>Stuart, but how could someone find my IP address to bypass Cloudflare, it doesn&#39;t show in route trace as its blocked by Cloudflares firewall. For example, can you locate my home IP, from the domain digitalnut.co.uk (my public IP&#39;s last three digits are 121).</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40538"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3426.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3426.jpg" alt="Bill Thomson&#039;s picture" title="Bill Thomson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Cloudflare: running emoncms over SSL</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3426.html" title="View user profile.">Bill Thomson</a> on Wed, 23/03/2016 - 16:00.</div>
+    <div class="content">
+     <p><em>I wonder if cloud flare would be suitable for Emoncms.org?</em></p>
+<p>Hi Glyn,</p>
+<p>We use the <strong>free</strong> version of CF at aluminumalloyboats.com. Typical bandwidth served by CF runs between 30 and 40%</p>
+<p>Analytics show that it <em>helps</em> keep out the &quot;bad guys&quot; i.e. spammers and such.</p>
+<p>I haven&#39;t set up SSL yet. We changed hosts a couple of weeks ago, and I haven&#39;t gotten round to implementing it yet. Overall, it seems to be a great deal for the price. <strong>;-)</strong></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40540"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Cloudflare: running emoncms over SSL</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Wed, 23/03/2016 - 16:46.</div>
+    <div class="content">
+     <p>I&#39;m thinking more of the random drive by scanners - you&#39;ve probably seen how many times your home IP address gets hit by a random scanner.</p>
+<p>Additionally, folks may run their own email server (or SSH) and update DNS to point to that, as Cloudflare doesn&#39;t mask the MX records in DNS, that can also &quot;point&nbsp;home&quot;.</p>
+<p>For instance, your domain appears to be using 1and1.co.uk based on the DNS records.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/12382"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-vrg7IzS60SSjGyQ8uZFhoABDn06i13KyowCWxIFo6xk" value="form-vrg7IzS60SSjGyQ8uZFhoABDn06i13KyowCWxIFo6xk"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12382 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:04:50 GMT -->
+</html>

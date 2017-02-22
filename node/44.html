@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>USB Data Logger | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h2>How to add USB pen drive data logging</h2>
+<p><img alt="" height="300" src="https://openenergymonitor.org/emon/sites/default/files/vdip1.JPG" width="400" /></p>
+<p>If you want to add USB pen drive data logging to your system the Vinculum VDIP1 USB host controller works really well.</p>
+<p>There are a couple of places you can get the board, <a href="https://uk.farnell.com/ftdi/vdip1/development-module-for-vnc1l/dp/1329313">farnell stock them for &pound;13.94.</a></p>
+<p>There are some good guides on using the board with an Arduino. I found these two most useful. I recommend reading these to get an idea of how it all works. I&#39;ve added a couple of things to increase the functionality and get rid of write errors, which are documented below.</p>
+<p><strong>Guide 1 -</strong> <a href="https://www.arduino.cc/playground/Main/UsbMemory">Writing data to Usb Memory Stick</a> &ndash; by Nick on the Arduino playground.</p>
+<p><strong>Guide 2 &ndash;</strong> <a href="https://www.unlogic.co.uk/2009/03/usb-storage-and-arduino/">Usb Storage and Arduino</a> &ndash; by Sven Steinbauer</p>
+<h3>Additions</h3>
+<p><strong>Wait for &#39;ok&#39; response</strong></p>
+<p>The Vinculum board is controlled using DOS commands. Every time you send a command, if the command is executed successfully, the board sends a &ldquo;<em>D:\&gt; </em>&rdquo; response that indicates it&#39;s ready for the next command. Commands sent faster than the board can execute them, and not waiting for the &ldquo;<em>D:\&gt; </em>&rdquo;response resulted in stored data errors and sometimes a crash.</p>
+<p>To solve this, the Arduino sketch listens for a response from the board after it sends each command, if it receives &ldquo;<em>D:\&gt; </em>&rdquo; then it can send the next command. If it receives &ldquo;No disk&rdquo; it stops trying to write to a non existent disk and waits until a disk is inserted and the start write button is pressed.</p>
+<p><strong>Start/stop write button and led indicator</strong></p>
+<p>Just a simple start/stop write button. To start writing hold the button down for 2 seconds. The LED illuminates to indicate writing. To stop writing, hold it down again for 2s, and the led turns off. If the Arduino receives a &#39;no disk&#39; response. The LED is automatically turned off.</p>
+<h3>Hardware</h3>
+<p><strong>Vinculum VDIP1 wiring diagram:</strong></p>
+<p><img alt="" height="438" src="https://openenergymonitor.org/emon/sites/default/files/vdip connection.png" width="400" /></p>
+<p><strong>Start/stop push button and LED indicator circuit diagram:</strong></p>
+<p><img alt="" height="218" src="https://openenergymonitor.org/emon/sites/default/files/dlswitch.png" width="400" /></p>
+<p><strong>Layout suggestions</strong></p>
+<p><strong>A piece of stripboard to mount the Vinculum VDIP1.</strong></p>
+<p><img align="left" alt="" height="188" hspace="5" src="https://openenergymonitor.org/emon/sites/default/files/dltop.JPG" width="250" /><img alt="" height="188" hspace="5" src="https://openenergymonitor.org/emon/sites/default/files/dlbot.JPG" width="250" /></p>
+<p><strong>Start/stop push button and LED indicator</strong></p>
+<p><img align="left" alt="" height="188" hspace="5" src="https://openenergymonitor.org/emon/sites/default/files/dlpbtop.JPG" width="250" /><img alt="" height="188" hspace="5" src="https://openenergymonitor.org/emon/sites/default/files/dlpbbot.JPG" width="250" /></p>
+<p><strong>Installation example in the home energy monitor main unit</strong></p>
+<p><img alt="" height="383" hspace="5" src="https://openenergymonitor.org/emon/sites/default/files/dlinst2.JPG" width="510" /></p>
+<h3>Arduino software:</h3>
+<p>The Arduino sketch works with the board independently of any other energy monitor hardware and code. It writes the values set in the variable declaration, to the board as an example.</p>
+<ol>
+<li>Download the <a href="https://openenergymonitor.org/emon/sites/default/files/SAusbmemory.tar.gz">Data logger Arduino sketch</a></li>
+<li>Compile and upload the Arduino sketch. For a guide on compiling and uploading the sketch, have a look <a href="https://openenergymonitor.org/emon/node/12">here</a>.</li>
+<li>Check your Arduino serial monitor for write status. Once you have pressed the button you should see the following output if it&#39;s working correctly:</li>
+</ol>
+<p class="rteindent1"><em>Started<br />
+O D:\&gt;<br />
+W D:\&gt;<br />
+C D:\&gt;<br />
+O D:\&gt;<br />
+W D:\&gt;<br />
+C D:\&gt;&nbsp;</em></p>
+<p>If you see the correct responses (as above), press the button again to stop writing. You should see &quot;stopped&quot; on the serial monitor. Check the USB pen to verify the data is there.</p>
+</div>
+    
+    
+      </div>
+<div id="comments">
+  <a id="comment-2643"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/608" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Dawn&#039;s picture" title="Dawn&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: USB Data Logger</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/608" title="View user profile.">Dawn</a> on Wed, 04/01/2012 - 19:42.</div>
+    <div class="content">
+     <p>Just changed the amount of spaces from 7 to 4 in Datalogger before program could work correctly.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-2077"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: USB Data Logger</h3>
+
+    <div class="submitted">Submitted by Guest (not verified) on Wed, 07/09/2011 - 20:02.</div>
+    <div class="content">
+     <p>could you estimate wrining data transfer speed?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-1683"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: USB Data Logger</h3>
+
+    <div class="submitted">Submitted by Guest (not verified) on Tue, 03/05/2011 - 08:32.</div>
+    <div class="content">
+     <p>so if i can understand correctly, than you should use the same arduino used in the measurement board with the same supply. however the two codes have to be programmed to work together.<br />
+ THanks a lot</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1698"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: USB Data Logger</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Fri, 06/05/2011 - 21:53.</div>
+    <div class="content">
+     <p>&nbsp;are you refering to joining the code of mains ac v3 with usb datalogging? if so and I have understood your question then yes</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div><a id="comment-1636"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: USB Data Logger</h3>
+
+    <div class="submitted">Submitted by Guest (not verified) on Wed, 30/03/2011 - 21:40.</div>
+    <div class="content">
+     <p>hello,<br />
+how fast are you able to write to the usb? I want to use it in another project with quite big data transfer.<br />
+have you experienced the problem with the buffer loosing data cause of the bridge hack in cts and rts lines to control flow ??<br />
+do you know how big this buffer is?</p>
+<p>thanks a lot !!</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1640"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: USB Data Logger</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Sat, 02/04/2011 - 07:39.</div>
+    <div class="content">
+     <p>Im not sure, it was a while back when I did this. It wasnt super fast if I remember. Roughly about 1-10 times a second rather than hundreds of times. The code I wrote checks for an ready reply from the VDIP to make sure data is not lost and this does take more time, Although stability is very much affected without it. It would be good to do a proper analysis of performance wouldnt it!</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div><a id="comment-1564"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Paul&#039;s picture" title="Paul&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: USB Data Logger</h3>
+
+    <div class="submitted">Submitted by Paul (not verified) on Wed, 23/02/2011 - 03:56.</div>
+    <div class="content">
+     <p>Trystan,</p>
+<p>I am a little confused on how to wire the Vinculum VDIP1 to the Ardruino and energy monitor.  Isn't the energy monitor already using the 5v in the Ardruino?  Are you using two Arduinos?</p>
+<p>Thanks,</p>
+<p>Paul.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1567"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: USB Data Logger</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Fri, 25/02/2011 - 12:57.</div>
+    <div class="content">
+     <p>&nbsp;Hello Paul, I just broke out the 5V wire into two ends one for the VDIP and the other for the energy monitor, using just the one arduino.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div><a id="comment-1526"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: USB Data Logger</h3>
+
+    <div class="submitted">Submitted by Guest (not verified) on Sun, 06/02/2011 - 22:13.</div>
+    <div class="content">
+     <p>hello, thanks a lot for this information!!</p>
+<p>I have build your power monitor 3.0, would it be possible for you to upload the sketch of power monitoring with USB storage all the code working together?</p>
+<p>I have my arduino connected with the ethernet shield to internet to upload values to mysql database each 10 seconds, but sometimes it crashes and it goes offline, i loose all the data for that time. I would like to save that data to the usb so that later i can update the mysql database with the missing data.</p>
+<p>thanks a lot !!!</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1528"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: USB Data Logger</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Mon, 07/02/2011 - 17:11.</div>
+    <div class="content">
+     <p>Hey, Can I challenge you to have a go at bringing both pieces of code together? They should fit together without too much trouble. If you have a go and it doesnt work, send me your code and I will have a look.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div><div class="item-list"><ul class="pager"><li class="pager-current first">1</li>
+<li class="pager-item"><a href="/emon/buildingblocks/usb-data-logger?page=1" title="Go to page 2" class="active">2</a></li>
+<li class="pager-next"><a href="/emon/buildingblocks/usb-data-logger?page=1" title="Go to next page" class="active">next ›</a></li>
+<li class="pager-last last"><a href="/emon/buildingblocks/usb-data-logger?page=1" title="Go to last page" class="active">last »</a></li>
+</ul></div></div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

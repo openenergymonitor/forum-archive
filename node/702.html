@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/702 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:07:06 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Pulse Counter Single feed | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Pulse Counter Single feed</h3>
+        <span class="submitted">Submitted by Guest on Sat, 26/05/2012 - 11:36</span>
+        <div class="content"><p>Can&#39;t seem to get basic Pulse Counter working, tried everything. I set up arduino with led flashing every 200ms. After failing to get Pulse sketch working I tried simple code from &quot;OpenEnergyMeter Understanding Code part 5. Output prints ok on coms but getting zero. When I jack out I get spurious readings.</p>
+<p>Setup</p>
+<p>Wired optical sensor to plug as per guide diagram assuming&nbsp; &quot;Data&quot; on plug connects to&nbsp; &quot;OUT&quot; on sensor.&nbsp; <strong>Is this correct?</strong></p>
+<p><strong><u>code</u></strong></p>
+<p>long pulseCount = 0;<br />
+	unsigned long pulseTime,lastTime; // Used to measure time between pulses<br />
+	double power;<br />
+	int ppwh = 1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // pulses per watt hour - found or set on the meter.</p>
+<p>	void setup()<br />
+	{<br />
+	&nbsp; Serial.begin(9600);<br />
+	&nbsp;<br />
+	&nbsp; // pulse detection interrupt (emontx pulse channel - IRQ0 D3)<br />
+	&nbsp; attachInterrupt(1, onPulse, FALLING);<br />
+	}</p>
+<p>	void loop()<br />
+	{<br />
+	&nbsp; Serial.print(power);<br />
+	&nbsp; Serial.print(&#39; &#39;);<br />
+	&nbsp; Serial.println(pulseCount * ppwh);&nbsp; // watt hour elapsed<br />
+	&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; delay(1000);<br />
+	}</p>
+<p>	// The interrupt routine - runs each time a falling edge of a pulse is detected<br />
+	void onPulse()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br />
+	{<br />
+	&nbsp; lastTime = pulseTime;<br />
+	&nbsp; pulseTime = micros();<br />
+	&nbsp; pulseCount++;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // count pulse&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br />
+	&nbsp; power = int((3600000000.0 / (pulseTime - lastTime))/ppwh);&nbsp; // calculate power<br />
+	}</p>
+<p><u><strong>Coms</strong></u></p>
+<p>0.00 0<br />
+	0.00 0<br />
+	0.00 0<br />
+	0.00 0<br />
+	0.00 0<br />
+	0.00 0</p>
+<p>
+	&nbsp;</p>
+<p>see attached pic for setup</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1248.html" class="topic-previous" title="Go to previous forum topic">‹ Can not save my dashboard work.</a>
+              <a href="1234.html" class="topic-next" title="Go to next forum topic">getting emoncms to listen to arduino ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-4600"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Pulse Counter Single feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sat, 26/05/2012 - 20:12.</div>
+    <div class="content">
+     <p>Try&nbsp;verifying&nbsp;that the pulse sensor is working by doing a digital read on Dig 3. It should be 1 when the sensor is exposed to light and 0 in the dark. What sensor are you using?&nbsp;</p>
+<p>Are you using an emonTx? If so you will need to solder the solder jumper to connect the pulse counting port Vcc to either 5V or 3.3V. I recommend&nbsp;5V if you powering the emonTx from a usb/ftdi&nbsp;cable.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4606"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="PeterN&#039;s picture" title="PeterN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Pulse Counter Single feed</h3>
+
+    <div class="submitted">Submitted by PeterN (not verified) on Sun, 27/05/2012 - 11:43.</div>
+    <div class="content">
+     <p>Thanks Glyn,</p>
+<p>I&#39;m using Emontx and haven&#39;t added solder jumper yet. Can you please guide me on where to put jumper, assume 3.2V as I&#39;ll be using batteries. I&#39;ve attached picture of connections I think are relevant. It probably obvious to the more experienced guys but I couldn&#39;t seem to find where to place jumper anywhere on build guide or forum.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4615"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Pulse Counter Single feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sun, 27/05/2012 - 22:21.</div>
+    <div class="content">
+     <p>Sorry, I think this is our faut for not explaining this better. Calling it a &#39;jumper&#39; is perhaps a bit misleading. It&#39;s more of a solder link. You need to link the middle pad to the right pad using a blob of solder to select 3,3V.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4616"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="PeterN&#039;s picture" title="PeterN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Pulse Counter Single feed</h3>
+
+    <div class="submitted">Submitted by PeterN (not verified) on Sun, 27/05/2012 - 23:21.</div>
+    <div class="content">
+     <p>Soldered link and the pulse sensor is working fine, tried simple sketch and read Pin 3 as you suggested&nbsp; and also when using test led from Arduino for pulses varying between 10-1000ms duration. Will try&nbsp; 3 X CT and&nbsp; 1 X pulse sketch tomorrow - I&#39;ll keep you posted. Many Thanks Glyn</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4620"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="PeterN&#039;s picture" title="PeterN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Pulse Counter Single feed</h3>
+
+    <div class="submitted">Submitted by PeterN (not verified) on Mon, 28/05/2012 - 21:20.</div>
+    <div class="content">
+     <p>My target configuration for one&nbsp;emontx is&nbsp;3&nbsp;X CTs and&nbsp;1 X pulse. My&nbsp;method is&nbsp;to mix&nbsp;and match code from&nbsp;emontx_CT123 and&nbsp;emontx&nbsp;pulse (see&nbsp;attached). It works fine for&nbsp;CT123 and&nbsp;Pulse count. However the power reading is negative (see attached&nbsp;screenshot). I tried latest emontx.Pulse and I get negative value for power also.</p>
+<p><a href="../sites/default/files/cms_Ashford.jpg"><img alt="" src="../sites/default/files/cms_Ashford.jpg" style="width: 600px; height: 178px; " /></a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4622"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="PeterN&#039;s picture" title="PeterN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Pulse Counter Single feed</h3>
+
+    <div class="submitted">Submitted by PeterN (not verified) on Tue, 29/05/2012 - 07:51.</div>
+    <div class="content">
+     <p>Tried some basic testing and found the following results using arduino basics blinking sketch to flash led and only changed delay timer to get pulse rates below. Used pulse sketch below - only change was to add line to print to coms.</p>
+<table border="1" cellpadding="1" cellspacing="1" style="width: 500px;">
+<tbody>
+<tr>
+<td>
+				On m/s</td>
+<td>
+				off m/s</td>
+<td style="width: 145px;">
+				No. Pulses</td>
+<td style="width: 210px;">
+				Power</td>
+<td style="width: 210px;">
+				comment</td>
+</tr>
+<tr>
+<td>
+				1000</td>
+<td>
+				1000</td>
+<td style="width: 145px;">
+				5</td>
+<td style="width: 210px;">
+				1800</td>
+<td style="width: 210px;">
+				consistent - ok</td>
+</tr>
+<tr>
+<td>
+				100</td>
+<td>
+				100</td>
+<td style="width: 145px;">
+				50</td>
+<td style="width: 210px;">
+				18083</td>
+<td style="width: 210px;">
+				consistent - ok</td>
+</tr>
+<tr>
+<td>
+				50</td>
+<td>
+				50</td>
+<td style="width: 145px;">
+				100</td>
+<td style="width: 210px;">
+				-29186</td>
+<td style="width: 210px;">
+				inconsistent - power calc wrong -pulse ok</td>
+</tr>
+<tr>
+<td>
+				20</td>
+<td>
+				20</td>
+<td style="width: 145px;">
+				257</td>
+<td style="width: 210px;">
+				26752</td>
+<td style="width: 210px;">
+				consistent&nbsp; - power calc wrong - pulse ok</td>
+</tr>
+</tbody>
+</table>
+<p>For the purpose of my project the pulse rate is below 50 so I&#39;m ok with above issue. I&#39;m curious to know possible reason for wrong power calculations at 100 pulse per second and above as it is a simple calculation. My thoughts is it must be something to do with timer for last pulse.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4629"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="PeterN&#039;s picture" title="PeterN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Pulse Counter Single feed</h3>
+
+    <div class="submitted">Submitted by PeterN (not verified) on Tue, 29/05/2012 - 18:28.</div>
+    <div class="content">
+     <p>I plan to use pulse counts only and not calculate power.</p>
+<p>It would be useful to produce hourly and daily totals based on accumulating pulses&nbsp; Could input processing tool be used to this end?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6898"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Pulse Counter Single feed</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sat, 27/10/2012 - 15:05.</div>
+    <div class="content">
+     <p>As building a pulse counter for my air-to-air heatpump rpm counter (which is needed to calculate output kw) I searched for pulse counting introduction. When reading this it occured into my mind that if trying to use millis within interrupt function its possible that it does not work correctly. Vaguely recall that millis() itself may generate an &quot;interrupt&quot; which prevents reading the time incorrectly or alternatively can cause the program to fail.</p>
+<p>Therefore decided to implement this function differently;</p>
+<p>void onPulse() {rpmcount++;}</p>
+<p>void loop()<br />
+	{</p>
+<p>....</p>
+<p>&nbsp;&nbsp;&nbsp; //<br />
+	&nbsp;&nbsp;&nbsp; // Calculate rpm by using how many times the interrupt has been called<br />
+	&nbsp;&nbsp;&nbsp; //<br />
+	&nbsp;&nbsp;&nbsp; if (LED_rpm !=0) {if (rpmcount &gt;= 5) {digitalWrite(LED_rpm,LOW);} else&nbsp; {digitalWrite(LED_rpm,HIGH);}}&nbsp; // first blink the led<br />
+	&nbsp;&nbsp;&nbsp; if (rpmcount &gt;= 10)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // then calculate the rpm<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; rpm =&nbsp;1000/(millis() - timeold)*rpmcount;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; timeold = millis();<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; rpmcount=0;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; emontx.rpmhp = rpm;<br />
+	&nbsp;&nbsp;&nbsp; }</p>
+<p>....</p>
+<p>}</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/702"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-1spmbrVfafgetAu8DhbZvjW8DEaGZjkVvlTu92-TOFk" value="form-1spmbrVfafgetAu8DhbZvjW8DEaGZjkVvlTu92-TOFk"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/702 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:07:11 GMT -->
+</html>

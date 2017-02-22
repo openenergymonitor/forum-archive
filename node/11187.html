@@ -1,0 +1,364 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11187 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:44:22 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>switching fixed load on when surplus pv passes programmed amount. | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">switching fixed load on when surplus pv passes programmed amount.</h3>
+        <span class="submitted">Submitted by <a href="../user/8593.html" title="View user profile.">saggers</a> on Mon, 31/08/2015 - 15:40</span>
+        <div class="content"><p>Hi.</p>
+<p>I&#39;ve acquired some lead acid batteries and want to experiment with PV storage. I understand someone on here has used a robin mk2 diverter to operate a number of battery chargers in sequence to charge his storage.</p>
+<p>I&#39;m not looking for something as complicated as this at this stage, and would like a simple on or off load when surplus power passes a fixed amount. My thinking is to use say 400w charger, when surplus power passes say 450w it will switch the charging load on until it drops below this level.</p>
+<p>I have had a look for some type of current monitoring with programmable switching, but unable to find something suitable.</p>
+<p>Does anyone have any ideas I could use.</p>
+<p>&nbsp;</p>
+<p>thanks</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10680.html" class="topic-previous" title="Go to previous forum topic">‹ Energy Diverter - PLL or the MK2</a>
+              <a href="6084.html" class="topic-next" title="Go to next forum topic">emonhub&#039;s data buffers ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-33740"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 31/08/2015 - 16:32.</div>
+    <div class="content">
+     <p>If you're measuring nett grid power, there's an immediate problem with your algorithm. You need to add hysteresis, i.e. you can switch the charger on at 450 W or greater export, but you must turn it off when the export falls below 0 W (Otherwise, as soon as your charger switches on, export will fall to 50 W and it will promptly switch off again.)</p>
+<p>All you need for that is to calculate nett grid power - using emonLib and calcVI(...), something like:</p>
+<p>Grid_CT.calcVI(no_of_half_wavelengths,timeout);<br />
+if (Grid_CT.realPower > 450) digitalWrite(CHARGERPIN, ON);<br />
+if (Grid_CT.realPower < 0) digitalWrite(CHARGERPIN, OFF);</p>
+<p>Assuming of course you've declared/defined everything properly - see the demo sketches for that. In fact, you can pretty much use the demo sketch as-is, and just add that bit in the appropriate place.</p>
+<p>You can still use Robin's/Martin's triac output stage to switch the charger on and off. What other hardware did you have in mind?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33742"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8066.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="firefox7518&#039;s picture" title="firefox7518&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8066.html" title="View user profile.">firefox7518</a> on Mon, 31/08/2015 - 18:30.</div>
+    <div class="content">
+     <p>It all depends how you can&nbsp;measure it. I can&#39;t use the clamps on my installation so I use a LED/S0 sensor which counts the pulses.&nbsp;My meter for example does stop to pulse the LED/S0 and therefore just shows 0 if you are delivering into the grid. If you want to achieve the, of course correct, way of Robert you will need to know if your meter stops pulsing or if you are able to use a modbus or RS485 (which my house meters don&#39;t support)&nbsp;connection to get all the information you need. A nett calculation in that case is almost impossible as you don&#39;t have all the info to do the calculation.</p>
+<p>In that case I would propose to install an SDM630 or similar into the PV AC line to that you know the input of the PV and use the house meter to check if it is still 0 after switching it on. Of course in this situation the things are a little bit more complex using this. If money is not the issue (it never is, I know) then you could install two SDM630 meters and one is for the house grid and the other is just connected to the PV grid. Then of course you always know how much the house is consuming and how much the PV is delivering. Doing then the math is easy to get the nett grid delivery.</p>
+<p>So it really depends on how to get the data from the meter.</p>
+<p>I&#39;m using FHEM&nbsp;to control my house. FHEM is using the feeds from EmonCMS to switch on Fan&#39;s or pumps for the pont for example. I also let FHEM send information about what device&nbsp;is on and what not. So you can even build a dashboard which then tells you if the e.g. pont pump is working or not :-) Cool new world :-)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33743"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 31/08/2015 - 19:02.</div>
+    <div class="content">
+     <p>firefox7518: Can you explain what you're referring to here? What relevance does Modbus and an invasive 3-phase meter that has to be connected by a registered electrician have to the original question?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33754"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8066.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="firefox7518&#039;s picture" title="firefox7518&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8066.html" title="View user profile.">firefox7518</a> on Tue, 01/09/2015 - 05:29.</div>
+    <div class="content">
+     <p>In Switzerland I&#39;m not allowed to&nbsp;&nbsp;use CT Clamps or similar on the house installation from the meter to the installation panel. Often also the meters and the fuse panels&nbsp;are sealed and you even can&#39;t use RS485/Modbus or an S0 output on&nbsp;the house&nbsp;meters to get the power information.</p>
+<p>So how should one&nbsp;measure the total power consumption or pv production when there is no CT Clamp possibility or a direct Meter read out?</p>
+<p>That&#39;s why I just showed how I did it (had to do it) with a SDM630 meter. This unit has RS485/Modbus connection. Putting that in the line from the original meter to the house installation fuse panel gives you this possibility to get the information. Of course&nbsp;it has to be done by an electrician. All changes to the electrical installations have to be done AND documented by an electrician here anyway. It&#39;s really annoying but it is our law.</p>
+<p>No all country are that easy when it comes to electrical installations or changes to it. CT clamps maybe are&nbsp;invasive for you but still not allowed here ;-) So I just showed an other way, knowing that it is more complex but will achieve the same.</p>
+<p>Is it forbidden to show other possible solutions here? The forums entries are indexed by search machines. Maybe someone wants to achieve the same thing like the OP but has the limitations I have. I will stop posting from now on if its that big of an issue.....</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33767"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Tue, 01/09/2015 - 12:12.</div>
+    <div class="content">
+     <p>If you have a pair of meters which can detect when fixed amounts of energy are imported or exported from the premises, then some control mechanism could no doubt be devised which would divert surplus energy tolerably well.&nbsp;</p>
+<p>Unfortunately, the performance could never be as good as when using a clip-on CT sensor because information via the meters&#39; LEDs would always be just too late.&nbsp; The CT allows the load to be adjusted in advance of any charge or penalty being applied by the meter.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33772"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 01/09/2015 - 20:16.</div>
+    <div class="content">
+     <p>firefox7518:</p>
+<p><i>"if its that big of an issue....."</i></p>
+<p>The issue is not that you posted an alternative suggestion, but that you omitted to explain the background that gave rise to your suggestion <i>"In Switzerland I'm not allowed to  use CT Clamps or similar on the house installation from the meter to the installation panel. Often also the meters and the fuse panels are sealed and you even can't use RS485/Modbus or an S0 output on the house meters to get the power information."</i></p>
+<p>I happen to know that the O.P. is in the UK where Swiss law does not apply, and the clue that you could have picked up was him mentioning the MK2 PV Router. As he asked for something simpler than that, then in fairness that is what he wanted. I don't think (and one of my moderator colleagues thinks likewise) that wiring in a 3-phase meter, then a Modbus connection to some other piece of hardware that actually performed the switching operation, without an explanation for why it might be needed, was very helpful. In fact, I felt it was quite confusing. My colleague's comment was rather more forthright.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33888"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8593.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="saggers&#039;s picture" title="saggers&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8593.html" title="View user profile.">saggers</a> on Sat, 05/09/2015 - 18:42.</div>
+    <div class="content">
+     <p>Hi, sorry for the long delay.</p>
+<p>I was initially thinking of taking the battery charger off before the main consumer unit and ct clamp so it wouldn&#39;t effect the reading, but if I was to use a program like mentioned above this would not be an issue.</p>
+<p>My brief plan was to power a small grid tied inverter maybe 200-300w. At dusk the inverter would turn on until the batteries ran low. This would cover my background electrical consumption.</p>
+<p>I only currently have 100A at 24v of storage but this would just be an experiment and could be increased later along with charging capacity.</p>
+<p>I guess I would need to limit the current into the inverter or would the inverter limit its self?</p>
+<p>If I used Robins diverter would this be able to also run excess power to the immersion as well as the charging side, or would I need 2 separate units?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33893"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 05/09/2015 - 20:19.</div>
+    <div class="content">
+     <p><i>"I was initially thinking of taking the battery charger off before the main consumer unit..."</i><br />
+I wouldn't advise that unless you know exactly what you're doing. It could give you some interesting protection problems.</p>
+<p><i>"This would cover my background electrical consumption"</i><br />
+It would also export your valuable stored energy to the grid if your consumption was less than the inverter output. Do you want to allow that? (The alternative is likely to be a complicated and possibly expensive change-over arrangement.)</p>
+<p><i>"would the inverter limit its self?"</i><br />
+The inverter will draw whatever current its load demands, up to its maximum. In this case, I think it will produce its maximum output until the battery is exhausted.</p>
+<p><i>"If I used Robins diverter..."</i><br />
+You would need two independent output stages, and you would need to adjust the control algorithm to do as you require, which implies modifications to the sketch.<br />
+What you'd do is let the immersion heater mop up surplus energy below 450 W (say), then switch on the charger. The surplus would immediately fall to 50 W and the immersion feed would adjust to absorb that. When the batteries were fully charged, the charger would draw only its quiescent power (say 10 W) and the immersion would still adjust to take whatever surplus was available. If you haven't spotted the problem, you'd need to change the rules so that the charger switches off at a very small import (say -5 W surplus) and you'd probably need to adjust that to get stable operation.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33899"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sat, 05/09/2015 - 21:19.</div>
+    <div class="content">
+     <p>This is my take on how to operate battery chargers on (mostly) surplus power</p>
+<p><a href="5391.html">http://openenergymonitor.org/emon/node/5391</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37727"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8593.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="saggers&#039;s picture" title="saggers&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8593.html" title="View user profile.">saggers</a> on Fri, 01/01/2016 - 18:53.</div>
+    <div class="content">
+     <p>I&#39;ve had a little attempt at programming using the help above, and other sketches and the fact the compiler points out errors. Can anyone see any errors as I can&#39;t test it as currently away from home. The idea is to turn a charger on above 450w export, then turn off when export hits 0w, i&#39;ve added a 30 second delay on turning off.</p>
+<p>&nbsp;</p>
+<p>#include &quot;EmonLib.h&quot;</p>
+<p>EnergyMonitor ct1, ct2, ct3, ct4;</p>
+<p>int chargerPin = 13;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Charger connected to digital pin 13</p>
+<p>void setup()<br />
+{<br />
+&nbsp; pinMode(chargerPin, OUTPUT);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // sets the digital pin as output<br />
+&nbsp;<br />
+&nbsp;&nbsp; // Calibration factor = CT ratio / burden resistance = (100A / 0.05A) / 33 Ohms = 60.606<br />
+&nbsp; ct1.current(1, 60.606);<br />
+&nbsp;<br />
+&nbsp; // (ADC input, calibration, phase_shift)<br />
+&nbsp; ct1.voltage(0, 300.6, 1.7);<br />
+}</p>
+<p>void loop() {</p>
+<p>&nbsp; ct1.calcVI(20,2000);<br />
+&nbsp; if (ct1.realPower &gt; 450) digitalWrite(chargerPin, HIGH);<br />
+if (ct1.realPower &lt; 0) digitalWrite(chargerPin, LOW);<br />
+delay(30000);</p>
+<p>}</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37731"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 01/01/2016 - 21:09.</div>
+    <div class="content">
+     <p>I think it stands a chance - provided your charger draws less than 450 W. Incidentally, there's no need to define ct2, ct3 &amp; ct4 if you're not using them. They're doing you no good - but not doing any harm either.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37736"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sat, 02/01/2016 - 09:33.</div>
+    <div class="content">
+     <p><em>The idea is to turn a charger on above 450w export, then turn off when export hits 0w, i&#39;ve added a 30 second delay on turning off.</em></p>
+<p>With the code as above, the 30-second delay will occur in every loop.&nbsp; To make it work as described, an extra pair of brackets would be needed to make the &quot;action to be taken&quot; into a single block.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37752"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 02/01/2016 - 12:32.</div>
+    <div class="content">
+     <p>Robin, I understand what you're saying - the delay occurs every time you measure the current, whether the load is turned on, off or nothing changes is irrelevant. But does it matter? If that's all the sketch is doing, it makes no difference. If Saggers wants to other things as well, or perhaps a more sophisticated approach like making sure the availability (or absence) of power is consistent before making the decision, then a totally different approach is necessary. </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37764"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: switching fixed load on when surplus pv passes programmed amount.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sat, 02/01/2016 - 17:25.</div>
+    <div class="content">
+     <p>Agreed, Robert, I was just pointing out that the code as posted will not behave as the author has described.&nbsp; Whilst the absence of brackets does not upset the compiler in this case, unintended consequences can all too easily result.</p>
+<p>Happy New Year to one and all!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11187"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-hNM2waLijESRxlENlmLroeJMjMnNpk35edlN6m2WTuM" value="form-hNM2waLijESRxlENlmLroeJMjMnNpk35edlN6m2WTuM"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11187 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:44:22 GMT -->
+</html>

@@ -1,0 +1,1272 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10900 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:58:23 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Data loss due to RF packets getting corrupted | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Data loss due to RF packets getting corrupted</h3>
+        <span class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Wed, 24/06/2015 - 21:55</span>
+        <div class="content"><p>Hi there,</p>
+<p>I have the emonTX v3.4, 2 CT&#39;s for PV and Grid, Raspberry Pi with RFM69Pi uploading to emoncms.org, and I thought it was all working pretty well, until one day, the graphs in emoncms showed some flat lines indicating identical values for far too long, and after a bit of digging, I found that I was losing data packets (which appear as flat lines due to the &quot;skip missing&quot; setting)</p>
+<p>So, I have narrowed down the problem, and it appears to be the RF packets from emonTX to RPi where the problem occurs, but I haven&#39;t been able to solve it, and so I am hoping for some help.</p>
+<p>Using the USB/UART cable I connected to the emonTX, and could see that it was generating data every 10 seconds as expected, but the LED on the RFM69 on the Pi was not flashing every time, indicating some packets are not being received by the RPi. It looks like I am losing about 40% of packet transmissions.</p>
+<p>I set logging level to Debug in emonhub.conf, and then also set quiet = false, and then I could see lots of packets arriving at the Pi from different node ID&#39;s, but I only have one node - my emonTX, so this can&#39;t be my data. I also saw that some packets that look like my data (node ID =10) were being discarded due to &quot;unreliable content&quot;, and so I presume this is my real data that is being dropped.</p>
+<p>Initially the RSSI was quite poor - around -85, so I tried moving the RPi closer to the emonTX and the RSSI improved, but didn&#39;t fix the data loss. Yesterday I had the RPi 60cm away from the emonTX, RSSI was -34, but still the data loss occurs.</p>
+<p>Last night I removed and reseated the RFM69CW module, but it has made no difference. I have tried setting thre group to 0 as mentioned in this <a href="10826.html">post </a>to see if another group ID would be better, but I couldn&#39;t tell which byte was showing the group, so not sure how to interpret the results.</p>
+<p>Any thoughts?</p>
+<p>I am wondering whether the other packets are legitimate, and are swamping my packets from my emonTX, or could either the&nbsp;emonTX be generating additional rogue packets, or maybe the&nbsp;RFM69Pi is creating the spurious packets due to a hardware problem?&nbsp; Could I use the emonTX to &#39;listen&#39; for RF packets, to narrow down whether I really am surrounded by other RF packets, or whether either my emonTX or RFM69Pi is generating the noise?</p>
+<p>I am using the stock discrete sampling firmware on the emoTX only modified to change the VCAL as part of calibration. The Pi is running the emonSD-13-03-15. And I don&#39;t know if this is related, but I am getting a constant value of 297 on Key 12 in emoncms, which I believe is supposed to be T6, but I have no temperature sensors at all, so this is more rogue data, but I don&#39;t know when this started, as I don&#39;t log it to a feed, so I don&#39;t think I can tell when it started. I have tried deleting the key from the Inputs tab, but it reappears.</p>
+<p>sample from&nbsp; emonhub.log attached (hopefully)</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11514.html" class="topic-previous" title="Go to previous forum topic">‹ Distance, protocols, antennas, poll rate... </a>
+              <a href="11500.html" class="topic-next" title="Go to next forum topic">Raspberry pi data to Emoncms.org ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-31681"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 24/06/2015 - 23:41.</div>
+    <div class="content">
+     <p>I do start to wonder if the super sensitivity of the rfm69 maybe a bit of a&nbsp;hindrance in high traffic areas, I wonder if it can be attenuated???&nbsp;</p>
+<p>As you can see in emonhub&nbsp;all the good packets start &quot;OK&quot; followed by&nbsp;a node id, bad packets start with a question&nbsp;mark. But I believe all of these are seen to belong to the group you are operating with. <a href="https://github.com/openenergymonitor/RFM2Pi/blob/master/firmware/RFM69CW_RF_Demo_ATmega328/RFM69CW_RF12_Demo_ATmega328/RFM69CW_RF12_Demo_ATmega328.ino#L636-L638">If you set the group id to 0 you should see a change in format that begins with the group id identified by the letter G prefix</a>&nbsp;(<span style="line-height: 20.7999992370605px;">I believe) the packet will not pass through emonHub as it isn&#39;t geared up for that format, but you may be able to highlight a small range of numbers&nbsp;between&nbsp;g1 and g212 (or g255 depending on model and firmware etc) that is getting less traffic that you can set up camp in the middle of.</span></p>
+<p><span style="line-height: 20.7999992370605px;">It&#39;s not an exact science (well it probably is, just not to mere&nbsp;mortals like myself)&nbsp;but it&#39;s the best I can think of, bar trial and error.</span></p>
+<p>I&#39;m surprised to see incomplete &quot;node 10 &quot; frames with a rssi&nbsp;of -57, I would of thought once the data was in transit it would complete unless very weak or knocked out by a very strong signal, which could be happening just not visable if that strong signal isn&#39;t passing crc or group checks (I&#39;m speculating a bit here as I&#39;m not sure of the inner workings) but I do believe totally missing packets maybe caused if the transmitter doesn&#39;t see an opportunity&nbsp;to send, As i understand it the sender will pause sending if it detects a &quot;busy network&quot; how long it will wait before giving up I don&#39;t know nor what happens when the next packet is ready to send.</p>
+<p>You can load the RFM2Pi firmware to an emonTx&nbsp;(check your pin numbers etc) whether that will help I don&#39;t know, the hi-gain ant may pull in even more, maybe that would shed some light?? you may find it easier to work with the serial output directly rather than emonhub as the frames print clearer rather than&nbsp;get lost in the logfile, that is a&nbsp;little&nbsp;easier to do with a usb ftdi&nbsp;programmer and&nbsp;emonTx&nbsp;I guess.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31712"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Thu, 25/06/2015 - 23:23.</div>
+    <div class="content">
+     <p>Paul,</p>
+<p>Thanks for your response. I did think about changing the group ID, but I thought that if the &quot;problem&quot; is able to corrupt my valid node 10 packets, I suspected that problem would persist even if I changed the Group ID.</p>
+<p>I&#39;ve just thought of one simple test I can do to see if my emonTX is generating the bad packets - turn off the emon TX and see what the RPi receives ! So I did this, and with the emonTX powered off, the RPi is still receiving lots of packets from sources, so I can rule out the emonTX as being the source of the noise.</p>
+<p>I was then looking at options for doing the reverse, to put the emonTX into receive mode, and see if the same amount of noise existed (and if not, it indicates the RPi as the source of the noise). This lead me to read some documents from the Jeelib site, and this seems to confirm what you and others have written, that setting the group ID to 0 should enable promiscuous mode, and allow me to see which groups the other devices are using, and then choose a group that isn&#39;t in use.</p>
+<p>So I have been playing with this, and hitting more problems: According to <a href="http://jeelabs.net/projects/jeelib/wiki/RF12demo" title="http://jeelabs.net/projects/jeelib/wiki/RF12demo">http://jeelabs.net/projects/jeelib/wiki/RF12demo</a> it says &quot;Set the net group used by the radio - only nodes in the same group can see each other.&quot; If this is true, then all the noise must be in the same group as my RPi (210) ? What&#39;s the chance that someone nearby is using the sane group ?</p>
+<p>So, I set the group to zero on the RPi, to see what other groups are in use, and the log would suggest there are loads of groups in use, as the first byte in the packet is almost always different - although I am not convinced that the log is actually showing the group ID as the first packet, due to the sheer number of variations, and perhaps more worrying, my emonTX which is using group 210 never appears in the log when the RPi is in promiscuous mode (see file emonhub_group0.txt)</p>
+<p>I also tried this using minicom in case the emonhub code was modifying the log output, but this also showed group was always 0, and my group 210 packets never appeared. (see file emonhub_group0_minicom.txt)</p>
+<p>So now I don&#39;t know whether to trust the output from promiscuous mode?</p>
+<p>Anyway, I tried changing the emonTX and RPi to use group 200, but it made no difference - still high packet loss where the log shows the packet arrives at the RPi but is marked as invalid usually being a couple of bytes short.</p>
+<p>I&#39;ve tried turning off electrical items in case they are flooding the ether with noise (Fridge Freezer, Low energy lights, Powerline network adaptor) but still no good.</p>
+<p>It&#39;s late and time to sleep - any ideas from anyone would be appreciated.</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31718"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 26/06/2015 - 08:11.</div>
+    <div class="content">
+     <p>Ok that&#39;s bizarre! The received packets should not all start with zero, If you take a look at <a href="https://github.com/openenergymonitor/RFM2Pi/blob/master/firmware/RFM69CW_RF_Demo_ATmega328/RFM69CW_RF12_Demo_ATmega328/RFM69CW_RF12_Demo_ATmega328.ino#L636-L638">the code</a></p>
+<blockquote><p>if (config.group == 0) {<br />
+&nbsp; &nbsp; showString(PSTR(&quot; G&quot;));<br />
+&nbsp; &nbsp; showByte(rf12_grp);<br />
+}</p>
+</blockquote>
+<p>When group 0 is set the&nbsp;if (config.group == 0) must be true as you see the &quot; G&quot; which means rf12_grp is 0, which cannot be the case as rf12_grp is a pointer directly to the &quot;group id&quot; byte of the received packet, which if it was the case that no packets had a group id of 210 because they are all 0 you&nbsp;would see any data when the group is set to 210.</p>
+<p>That doesn&#39;t make sense to me, maybe someone can jump in and confirm my logic as I&#39;m not overly confident and maybe missing something. All the current&nbsp;rfm2pi,&nbsp;rfm69pi and jeelab&nbsp;rf12demo&nbsp;sketches (except emonPi)&nbsp;seem to share that same code.</p>
+<p>You could try updating the rfm69pi&nbsp;firmware as the hex file was recently recomplied&nbsp;using the updated jeelib library.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31719"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Fri, 26/06/2015 - 08:55.</div>
+    <div class="content">
+     <p>Paul,</p>
+<p>I also looked at that code, and it saw that rf12_grp should be the group ID, but I couldn&#39;t see that defined anywhere in the program. I assumed it&#39;s probably defined in a library somewhere, but I haven&#39;t proved that yet.</p>
+<p>I&#39;ll try the new firmware for the rfm69pi next</p>
+<p>&nbsp;</p>
+<p>And thanks for your support with this ;-)</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31722"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Fri, 26/06/2015 - 09:48.</div>
+    <div class="content">
+     <p>I&#39;ve updated the rfm69cw firmware in the RPi, but it doesn&#39;t seem to have changed anything. Although I&#39;m not sure how I can confirm that the new firmware was installed? I followed these <a href="http://wiki.openenergymonitor.org/index.php/RFM69Pi_V3#Upgrading_RFM69Pi_Firmware_Direct_from_the_Pi">instructions</a> which worked perfectly, I&#39;m just not sure how I can be certain it pulled updated code, as the version is still RF12demo.12.</p>
+<p>I have noticed that when in promiscuous mode, the first byte (which is supposed to be group ID) is always less than 32, so it really looks like it&#39;s the node-ID, and not the group ID. So maybe somehow the groupID is just not being displayed? Although even if true, it still doesn&#39;t explain why I never see my real packets from nodeID 10 / groupID 210 when I am in promiscuous mode. (unless groupID of zero isn&#39;t working as promiscuous mode as expected, and it&#39;s only showing packets that have groupID set as 0 ?)</p>
+<p>I&#39;ve tried changing the group to other values in Minicom, e.g. 1, 2, 209, 208, and there is always data arriving, so it almost looks like every group is in use - is this realistic? I live on the edge of a small town, with a handful of house in the cul-de-sac and farmers fields behind the house. I would be surprised if I was surrounded by real devices al using 433Mhz.</p>
+<p>I still wonder if I have a hardware problem with my RPi or RFM69pi. I bought the RFM69pi from the shop, along with the emonTX and CT&#39;s, but I already had the RPi, so I just added the RFM69pi. I have removed and reseated it, but this made no difference. I have noticed that where the aerial is connected to the RFM69, the solder on the underside of the board protrudes and is very close to the GPIO pin on the RPi. I can&#39;t tell if it&#39;s touching, but it&#39;s very close. Could this be generating &#39;noise&#39;?</p>
+<p>I think I need to get the emonTX running as a receiver, and see if it shows the same amount of noise - if it doesn&#39;t it points to a problem with my RPi</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31723"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Fri, 26/06/2015 - 10:43.</div>
+    <div class="content">
+     <p>It may well be noise from either a bad electrical connection or problems with the aerial.</p>
+<p>Is the aerial the correct length (exactly?) I&#39;ve had problems with this in the past.</p>
+<p>I also had issues when the sender and receiver were very close to each other.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31724"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 26/06/2015 - 11:32.</div>
+    <div class="content">
+     <p>If it is still reporting version 12 I suspect it hasn&#39;t worked&nbsp;as although it is still&nbsp;version, 12 Glyn&nbsp;bumped the version number to 13 so it could was distinguishable as being the recompiled v12 see&nbsp;<a href="5549.html#comment-31196">RFM12PI receiver goes hard down sometimes</a>&nbsp;for details.</p>
+<blockquote><p><em>&quot;I have noticed that when in promiscuous mode, the first byte (which is supposed to be group ID) is always less than 32, &quot;</em></p>
+</blockquote>
+<p>I&#39;m not&nbsp;seeing that, your logs show lines starting</p>
+<blockquote><p>? G0 135 69 .....<br />
+? G0 130 224 160 .......<br />
+? G0 10 50 21 .....</p>
+</blockquote>
+<p>The G0 should be the group number and the next value the node id so a genuine packet from group 210 node 10 should look like&nbsp;</p>
+<blockquote><p>OK G210 10 9 0 9 255 0 0 0 0 147 92 0 0 0 0 0 0 0 0 0 0 0 0 0 0 (-53)</p>
+</blockquote>
+<p>IMO it&#39;s very unlikely (but not impossible) to be the Pi and if the rfm board is that close to cause concern you should do something about that to be sure, either trim the protruding solder joint back slightly or as a temp measure to just rule it out put a thin piece&nbsp;of plastic in between the board and the&nbsp;gpio pins in question (cut a small piece of something like plastic packaging or bottle) or even just slide the board up the pins a mil or two that end.</p>
+<p>Since the code that is directly related to the issue you are experiencing isn&#39;t working correctly it maybe a little too soon to assume it&#39;s root is elsewhere.</p>
+<p>Looking a little closer at the 58&nbsp;frames in your minicom&nbsp;log some observations (and a loose conclusion or 2)</p>
+<p>54 of them have the same length, (which is 4&nbsp;bytes short of a correct packet).</p>
+<p>of those 54, only 3 have a rssi and node id that matches the good packet.</p>
+<p>There are also 54 packets in total in the&nbsp;rssi range -74 to -83 and only 4 in the range -52 to -55.</p>
+<p>So I suspect most of&nbsp;the rogue data is&nbsp;coming&nbsp;from a single origin.</p>
+<p>only 1 &quot;OK&quot; but there are 6 node 10&#39;s, 4 of which also match the rogue length,</p>
+<p>and of those 4, 3 have a similar value&nbsp;signature as the good packet just cut short&nbsp;by 4 bytes</p>
+<p>But 2&nbsp;node 10&#39;s have the rogue rssi&nbsp;and very different values if they made it to emoncms they would contaminate your data with incorrect&nbsp;values.</p>
+<p>Can you see any difference in the speed or quantity of packets when selecting group 0? Is it possible exactly the same data is being shown but with &quot;G0&quot; added? if so it is possible promiscuous mode isn&#39;t even being initiated and the other&nbsp;groups are not being shown</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31733"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Fri, 26/06/2015 - 17:30.</div>
+    <div class="content">
+     <p>I&#39;ve updated the RFM69 firmware to version 13 (thanks for the link Paul) but it hasn&#39;t changed the output in emonhub.log or via minicom, and some packets from my emonTX are still flagged as corrupt.<br />
+&gt; 0v<br />
+[RF12demo.13] O i15 g0 @ 433 MHz<br />
+&nbsp;? G0 26 169 226 12 133 196 130 131 223 50 161 100 162 131 70 179 115 48 40 110 27 (-78)<br />
+&nbsp;? G0 0 97 154 160 46 6 134 100 77 219 63 194 39 23 10 12 25 77 98 45 240 (-78)<br />
+&nbsp;? G0 8 36 214 100 20 138 108 50 23 140 139 2 169 227 13 36 197 22 227 137 141 (-82)<br />
+&nbsp;? G0 30 88 133 206 221 43 29 203 225 139 102 92 158 169 3 141 108 220 140 (-81)<br />
+&nbsp;? G0 28 198 0 187 183 113 194 88 32 122 33 8 220 248 165 248 77 47 (-80)<br />
+&nbsp;? G0 2 216 11 247 68 244 235 135 77 19 39 83 197 56 200 2 120 188 105 75 10 (-78)<br />
+&nbsp;? G0 26 96 1 69 6 222 107 76 213 4 72 192 160 252 139 118 102 193 204 161 85 (-80)<br />
+&nbsp;? G0 17 11 103 140 97 61 150 102 47 148 145 221 202 139 129 180 132 241 72 129 24 (-78)<br />
+&nbsp;? G0 13 135 200 187 93 142 0 150 (-79)<br />
+&nbsp;? G0 29 4 40 42 36 132 17 47 93 35 206 182 16 31 154 70 229 8 76 185 212 (-81)<br />
+&nbsp;? G0 20 210 47 239 233 14 173 169 148 229 25 214 175 154 204 4 4 216 66 12 55 (-77)<br />
+&nbsp;? G0 29 70 71 102 51 74 190 120 235 72 37 62 5 201 243 61 225 158 209 32 108 (-74)<br />
+&nbsp;? G0 8 106 75 41 66 76 60 231 162 62 91 210 66 97 68 149 53 64 56 35 159 (-78)<br />
+&nbsp;? G0 11 124 47 142 101 184 213 253 16 94 186 41 145 159 95 72 158 193 195 116 58 (-78)<br />
+&nbsp;? G0 9 208 185 244 223 180 236 68 11 221 143 5 216 118 155 158 72 5 63 227 198 (-77)<br />
+&nbsp;? G0 10 102 246 62 46 200 83 131 13 192 10 184 224 11 178 150 154 15 130 156 88 (-80)<br />
+&nbsp;? G0 14 174 160 215 208 20 225 176 7 126 20 131 242 127 35 86 215 246 228 252 214 (-78)<br />
+&nbsp;? G0 16 174 87 56 126 210 72 157 153 143 26 166 213 128 21 2 222 53 249 212 41 (-79)<br />
+&nbsp;? G0 12 112 231 55 162 241 128 151 241 128 158 112 96 200 248 205 77 169 250 124 71 (-79)<br />
+&nbsp;? G0 24 61 173 197 152 84 138 214 152 214 30 27 48 71 56 214 143 240 102 128 80 (-81)<br />
+&nbsp;? G0 4 209 131 136 40 53 192 90 104 35 244 83 236 92 169 15 32 55 236 22 184 (-79)<br />
+&nbsp;? G0 4 25 197 24 75 169 144 34 194 74 120 228 58 245 66 248 52 194 68 248 55 (-80)<br />
+&nbsp;? G0 0 167 2 185 145 143 208 196 64 104 126 132 49 214 153 99 167 79 184 199 10 (-76)<br />
+&nbsp;? G0 7 80 (-79)<br />
+&nbsp;? G0 3 192 193 24 129 235 140 251 174 164 52 147 188 72 26 16 242 74 108 16 213 (-78)<br />
+&nbsp;? G0 10 24 47 137 221 18 133 19 144 38 115 35 192 240 176 80 123 237 61 122 32 (-76)<br />
+&nbsp;? G0 20 183 16 47 36 171 24 66 105 71 63 25 149 119 109 91 87 196 81 168 225 (-79)<br />
+&nbsp;? G0 27 123 53 176 134 165 194 169 239 136 194 217 69 87 7 22 202 94 31 218 71 (-79)<br />
+&nbsp;? G0 31 115 233 1 180 205 98 55 68 201 29 81 168 97 138 205 89 193 169 47 65 (-76)<br />
+&nbsp;? G0 9 25 11 51 249 58 177 53 237 (-81)<br />
+&nbsp;? G0 3 55 206 144 0 43 238 3 84 78 212 174 70 8 131 0 39 206 166 69 129 (-78)</p>
+<p>@Paul, you were right that some of the entries my previous attached files showed a first byte with a value greater than 31, but today, all of the output I have looked at shows a value of 31 or less. So maybe my first attempt at updating the firmware did &quot;something&quot;. However, even with V13, promiscuous mode still doesn&#39;t show me my packets from my emonTX (node 10), or anything with an RSSI close to my emonTX (now -51)</p>
+<blockquote><p>Can you see any difference in the speed or quantity of packets when selecting group 0? Is it possible exactly the same data is being shown but with &quot;G0&quot; added? if so it is possible promiscuous mode isn&#39;t even being initiated and the other&nbsp;groups are not being shown</p>
+</blockquote>
+<p>The quantity and speed of packets is about the same when using group 210, or using group 0, or using any group number at all for that matter, and the RSSI values are the same, usually between -74 and&nbsp; -82.So I agree with you - it looks like group 0 is not having the effect we are expecting. About the only difference I can notice is that when I select group 210, I can then see the data from the emonTX as well as lots of other data. If I change the group, I see lots of other data except group 210. It almost looks to me as though group 0 is only showing me data that does not have a groupID, (hence it excludes my group 210 traffic), but when I set group 210, I get my group 210 as well as everything else.</p>
+<p>&nbsp;</p>
+<p>I have tried lifting the RFM69 slightly to leave more gap between the RFM69 and the GPIO pins, and also inserted a piece of plastic as suggested, but the MiniCom output looks about the same. I restarted the RPi but this made no difference.</p>
+<blockquote><p>Is the aerial the correct length (exactly?) I&#39;ve had problems with this in the past.</p>
+</blockquote>
+<p>It looks like it&#39;s about 15.5 - 16cm - slightly hard to be accurate as it&#39;s slightly curved where it is soldered to the RFM69, and I don&#39;t want to risk damaging the connection. Is this close enough to the 164.7mm&nbsp; or do I need to measure more accurately?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31735"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 26/06/2015 - 18:27.</div>
+    <div class="content">
+     <p>At some&nbsp;point over the weekend I will try and set something up to run some proper tests, but I just tried a jeelink that has&nbsp;the rf69pi sketch on it and found the same problem with the group 0 setting.</p>
+<p>I do not really have an&nbsp;rf issue, but I do lose&nbsp;more emonTH&nbsp;packets than I would like but most do get though.</p>
+<p>via a serial monitor with standard settings I could see my usual packets and nothing unusual.</p>
+<p>selected 0g and it was like the aerial had been cut off, nothing received at all (so my known good packets do not get through in&nbsp;promiscuous mode)</p>
+<p>selected 210g&nbsp;and it sprang back into life!! tried it a few times in case it was a fluke, it wasn&#39;t!!</p>
+<p>back to standard settings I tried 0q and found as expected a few rogue entries in addition to the valid frames.</p>
+<p>Selected 0g while 0q was still in place and the flood gates opened to loads of rogue entries all of which showed &quot;G0&quot;&nbsp;and not a single valid packet in sight!</p>
+<p>So it seems like promiscuous mode blocks valid packets or packets with any group defined (it can&#39;t block group&nbsp;210 as when set to 0g there is no reference to 210)</p>
+<p>Promiscuous mode does however, remove the &quot;filter by group&quot; as the flow of invalid packets increases significantly when switching to 0g.</p>
+<p>I will need to digest that some more and run some tests but I think we can say with some certainty &quot;it ain&#39;t right!!!&quot;</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31738"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 26/06/2015 - 19:24.</div>
+    <div class="content">
+     <p>Attached is about 45-60&nbsp;mins of log, still no good packets getting through though. My &quot;live&quot;&nbsp;emonHub base and my emonPi are still receiving the same packets so the good packets are getting lost in the jeelink&nbsp;firmware not in the air, apparently due to setting 0g.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31741"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Fri, 26/06/2015 - 20:43.</div>
+    <div class="content">
+     <p>My interpretation of the logs is that there is a relatively weak RF noise source that is causing most of the problem.</p>
+<p>Here is the logic:</p>
+<p>The RFM69 series has a more sensitive receiver than the&nbsp; RFM12B.&nbsp; Its state machine is designed to work on complete packets, rather than the previous byte-level host interaction.&nbsp; The packet engine is triggered by some criteria that happen very early in the packet reception, namely some preamble arriving, the &quot;snapshot&quot; RSSI &gt; the settable threshold and a valid SYNC pattern matched.&nbsp; This pattern is a magic byte (0x2D) concatenated with the group byte.</p>
+<p>A noise source sitting somewhere in the receive channel is likely to decode as a random bit stream <strong>continuously</strong> once the RSSI threshold is exceeded.&nbsp; At some small probability (~ 16th power of 0.5), that stream will look like the beginning of a <strong>valid</strong> packet by matching the magic byte and group number. The packet engine will start stuffing the buffer with junk...&nbsp; The CRC naturally fails and the &quot;packet&quot; is trashed.&nbsp; However, the Rx section is essentially &quot;blinded&quot; during this time to the arrival of a valid packet start - the state engine is already past the packet preamble recognition stage and will not look again until the junk packet reception is terminated and the Rx section put back into Rx ready.</p>
+<p>This can be verified by tweaking the RSSI threshold to a value higher than reported by that stream of junk packets. The good packets are way stronger, so there is considerable wiggle room to try.&nbsp;</p>
+<p>In RF69.cpp there is an initialisation section early on that looks something like this:</p>
+<p>
+0x25, 0x80, // DioMapping1 = SyncAddress (Rx, Packet Mode)<br />
+0x26, 0x07, // DioMapping2 = Disable ClkOut, POR = Fxtal/32<br />
+0x29, 0xB4, // RSSI threshold&nbsp;&nbsp;&nbsp;&nbsp;<br />
+0x2E, 0x88, // SyncConfig = sync on, sync size = 2&nbsp;&nbsp; &nbsp;<br />
+0x2F, 0x2D, // SyncValue1 = 0x2D&nbsp;&nbsp; &nbsp;<br />
+&nbsp; // 0x30, 0x05, // SyncValue2 set at runtime</p>
+<p>&nbsp;</p>
+<p>Just for the diagnosis, change 0x29 to a less sensitive level, (it is - RssiThreshold / 2 dBm) E.g. 0x80 would allow the good packets through, but not trigger on the noise.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31745"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Fri, 26/06/2015 - 23:14.</div>
+    <div class="content">
+     <p>Hi Emjay</p>
+<p>I follow what you are saying, and it could explain the large amount of &quot;noise&quot;, but why would it also affect real packets from a valid node? My logs show that some of the real data packets are received, but discarded, and these are usually 4 bytes short, so presumably fail the checksum test. If the RX process is filling the buffer for a valid packet, why wouldn&#39;t all the bytes get loaded ?</p>
+<p>I&#39;ll try to work out how to make the change to the RF69.cpp file you suggested</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31746"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Fri, 26/06/2015 - 23:38.</div>
+    <div class="content">
+     <p>I&#39;ve just been looking at RF69.cpp, and notice the following at line 153:</p>
+<p>void RF69::configure_compat () {</p>
+<p>initRadio(configRegs_compat);</p>
+<p>// FIXME doesn&#39;t seem to work, nothing comes in but noise for group 0</p>
+<p>// writeReg(REG_SYNCCONFIG, group ? 0x88 : 0x80);</p>
+<p>writeReg(REG_SYNCVALUE2, group);</p>
+<p>So maybe this is a known problem?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31747"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 26/06/2015 - 23:44.</div>
+    <div class="content">
+     <p>Thanks for jumping in emjay.</p>
+<p>So basically if I understand correctly&nbsp;the receiver is committing itself to processing what it thought was&nbsp;a good&nbsp;packet,&nbsp;before realizing&nbsp;it&#39;s only&nbsp;fluked&nbsp;the initial checks and it cannot move on to another packet&nbsp;until it&#39;s fully processed and disposed of the bad one.</p>
+<p>When it&#39;s ready for another packet any good packet already in progress will be seen as a partial packet with the all important first part including group missing so it also fails, only the good packets that happen to arrive after a packet is completely processed and the receiver is ready for it&nbsp;but before another (bad) packet turns up, will make it through.</p>
+<p>And by setting promiscuous mode the flood of bad packet pretty much eliminates any chance of that happening.</p>
+<p>&quot;Just for the diagnosis, change 0x29 to a less sensitive level, (it is - RssiThreshold / 2 dBm) E.g. 0x80 would allow the good packets through, but not trigger on the noise.&quot; by this are you&nbsp;suggesting reducing the noise so that the stronger packets are able to be&nbsp;seen to identify&nbsp;a quieter group?</p>
+<p>presumably&nbsp;with less &quot;noise&quot; or junk the good packets will show the correct group number? that&#39;s the part that really threw me and made the code &quot;appear at fault&quot;&nbsp;</p>
+<p>In my first post on this thread I said <em>&quot;I do start to wonder if the super sensitivity of the rfm69 maybe a bit of a&nbsp;hindrance in high traffic areas, I wonder if it can be attenuated??? &quot;&nbsp;</em>is it feasible&nbsp;to tone down the reception using the rssi&nbsp;threshold in high traffic on a more permanent&nbsp;basis by making it a user setting?</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31748"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 26/06/2015 - 23:49.</div>
+    <div class="content">
+     <p>Interesting find Ian,</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31749"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Sat, 27/06/2015 - 01:12.</div>
+    <div class="content">
+     <p>Ah yes, the dangers of a quick FIXME LATER patch.&nbsp; The required fix is actually an adaptive RSSI threshold, then to be really confusing, that two line patch introduces a new bug!&nbsp; The code is fine for a non-zero&nbsp; <em>group</em> . The state machine uses a two byte match to the pattern of magic number + <em>group</em> as expected.</p>
+<p>Setting <em>group</em> to zero unfortunately leaves the byte match count at two, with pattern of magic number + 0. &nbsp; Not good, the only &quot;packets&quot; that can match are noise packets, hence never seeing a &quot;good&quot; packet in the last promiscuous log.</p>
+<p>This secondary bug is easily fixed by uncommenting the writeReg(REG_SYNCCONFIG, group ? 0x88 : 0x80) but the background EMI versus the RSSI threshold remains as the likely root cause here.</p>
+<p><em>&nbsp; &gt; is it feasible&nbsp;to tone down the reception using the rssi&nbsp;threshold</em> ?</p>
+<p>Yes indeed - IMHO this should be tied to Tx level back off.&nbsp; If your received signals are 20 - 30 dB above the noise floor, then that is more than enough for error-free bit decoding with the standard packet size; higher suggests turning down the Tx level, saving power and being neighbourly in the ISM band.&nbsp;&nbsp; This needs a dynamic evaluation of the noise floor (which may well vary by time of day etc), setting the RSSI threshold sensibly above that, then adding a protocol to say &quot;your last n sent packets were well above the level I need to decode&quot;&nbsp;&nbsp; Feasible, but perhaps a bit onerous for what is meant to be a lightweight driver, perhaps best left for a userspace implementation with some assist from the driver.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32089"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 09/07/2015 - 22:45.</div>
+    <div class="content">
+     <p>How did you get on with this Ian,&nbsp;any joy?</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32112"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Fri, 10/07/2015 - 21:58.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>Not yet - last week I was trying to work out how to change the code (I am a newbie with Arduino and the IDE and C++), and eventually decided to get a Jeelink to give me another option for testing the changes. The Jeelink arrived yesterday, and tonight I will start playing with it. I&#39;ll update if I make any progress.</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32188"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Mon, 13/07/2015 - 22:53.</div>
+    <div class="content">
+     <p>An update.</p>
+<p>I have been testing changes to the&nbsp;RSSI&nbsp;Threshold&nbsp;as suggested by emjay, but it&#39;s not having the effect I was expecting. To avoid the testing affecting my&nbsp;data that is processed by the&nbsp;RPi, I bought a Jeelink, which is connected to my Windows 7 laptop, and is now working (after the fun and games described <a href="10973.html#comment-32153">here</a>).</p>
+<p>So, I modified&nbsp;RF69.cpp and&nbsp;changed the line&nbsp;</p>
+<p>// 0x29, 0xDC, // RssiThresh ...</p>
+<p>to</p>
+<p>0x29, 0x40, // RssiThresh - changed to exclude noise</p>
+<p>and then compiled and uploaded just fine, but no data appeared in Serial Monitor to the Jeelink. I know there is data being transmitted as my RPi is receiving the&nbsp;data from the emonTX. I re-read and spotted emjay said the value is divided by 2, so &#39;&#39;x40 would be 64 / 2 = 32, too low for my RSSI (~50).&nbsp;So I played around with&nbsp;the Threshold&nbsp;value, increasing it from 0x40 to 0xC0&nbsp;at&nbsp;various intervals. Once I reached 0x70, data started to appear in the monitor, but none was from my emonTX, and the RSSI was around -79 to&nbsp;-84.&nbsp;</p>
+<p>When I changed the value to 0xA0, finally I get to see the data from my emomTX, with RSSI around -59, but I still see the other traffic with lower&nbsp;RSSI&nbsp;(i.e. -92 to -98). I thought the purpose of the threshold was to exclude the weaker signals,&nbsp;but in fact it seems to be excluding the stronger signals - the opposite of what I thought we were trying to achieve?&nbsp;</p>
+<p>I couldn&#39;t actually see anything in RF69.cpp that compares the RSSI of a packet to the constant, and rejects or allows the packet, so I guess this check is done in some other code somewhere?</p>
+<p>I attach the sample results, in case I am interpreting it incorrectly.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32226"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Tue, 14/07/2015 - 18:29.</div>
+    <div class="content">
+     <p>The RSSI threshold value is used internally by the RFM69 state engine as the very first criteria for deciding if incoming reception is worth processing further.&nbsp; The reported RSSI value is taken later in the process after the AGC and AFC adjustments are made.&nbsp;&nbsp; For a real packet, on frequency, the initial and final value will agree within a few db.</p>
+<p>The results suggest there is a noise source in the channel that&nbsp; has a short duration - it is strong enough to trigger the decode process, but has faded away by the time the reported RSSI value is evaluated. The packet contents are as you might expect, just junk.</p>
+<p>Another suggestion from the results is that the emonTx and the monitoring JeeLink do not agree on what is 433 MHz i.e. the Rx uses the AFC to correct a static error between the two crystals involved.&nbsp; If you have a recent rfm12 demo loaded, there is an O command for introducing an offset to the carrier frequency.&nbsp; You can use this to sweep across a range (say +/- 200 KHz) around the default carrier frequency and see the transition from almost no emonTx packets - good reception - almost no packets.&nbsp; The midpoint of that is a good approximation to the carrier offset.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32459"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8472.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="AK_emon&#039;s picture" title="AK_emon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8472.html" title="View user profile.">AK_emon</a> on Wed, 22/07/2015 - 07:12.</div>
+    <div class="content">
+     <p>I am a new emon user. Just hooked everything up this evening. I have the same setup as Ian was describing and I am having the same problem. I was wondering if Ian (or anyone else) was able to figure out the issue?</p>
+<p>Some good RX frames, but mostly bad RX frames.<br />
+Screen shot of emonhub.log attached.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32488"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Thu, 23/07/2015 - 02:33.</div>
+    <div class="content">
+     <p>@AK,</p>
+<p>Could you capture a few more of the failing packets that have the RSSI value ~54 ?&nbsp; The contents appear reasonable, but the CRC has clearly failed.&nbsp; Are the &#39;missing&#39; four bytes of payload just an artifact of the debug output?</p>
+<p>The other failing packets appear radically different - junk contents and much lower received signal strength ~90. This suggests an interferer on or close to the selected channel.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32500"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 23/07/2015 - 11:19.</div>
+    <div class="content">
+     <p>Hi emjay,</p>
+<p>​I think the &quot;missing&quot; 4bytes&nbsp;may be quite significant as&nbsp;I have seen the same characteristics.</p>
+<p>IMO it is unlikely to be&nbsp;a&nbsp;debug characteristic as most of the rf &quot;base station&quot; sketches are based on the RFdemo.12 sketch and the &quot;raw&quot; packet is logged unprocessed in emonhub.&nbsp;</p>
+<p>If you noticed in my <a href="10900.html#comment-31724">observations of Ian&#39;s logs&nbsp;above</a>&nbsp;he has many weaker frames that are 4bytes smaller but more importantly he has some apparently good strong packet that even look to be carrying similar values but they are both 4bytes short and rejected.</p>
+<p>Ian is using a RFM69Pi&nbsp;add-on board which is a rfm69 and 328 on a GPIO&nbsp;connected board running <a href="https://github.com/openenergymonitor/RFM2Pi/blob/master/firmware/RFM69CW_RF_Demo_ATmega328/RFM69CW_RF12_Demo_ATmega328/RFM69CW_RF12_Demo_ATmega328.ino">&quot;RFM69CW_RF12_Demo_ATmega328.ino&quot;</a>&nbsp;and &quot;stock&quot;&nbsp;emonhub&nbsp;v1.2.on the Pi where as&nbsp;AK is running a&nbsp;<span style="line-height: 20.7999992370605px;">significantly different&nbsp;</span><span style="line-height: 1.6;">&quot;</span>emon-pi<span style="line-height: 1.6;">&quot; variant of </span>emonhub<span style="line-height: 1.6;">&nbsp;which means he may also&nbsp;using the <a href="https://github.com/openenergymonitor/emonpi/tree/master/Atmega328/emonPi_RFM69CW_RF12Demo_DiscreteSampling">emonPi&nbsp;RFdemo.12 based sketches</a>&nbsp;(or possibly a RFM2Pi or RFM69Pi).</span></p>
+<p><span style="line-height: 1.6;">Confirmation of the HW plus some longer logs from AK would be helpful.</span></p>
+<p>I wish I had more time (and the knowledge) to look into this myself&nbsp;<span style="line-height: 20.7999992370605px;">but have not been able to,&nbsp;</span><span style="line-height: 1.6;">I am now losing a&nbsp;</span><span style="line-height: 20.7999992370605px;">significant number of packets</span><span style="line-height: 1.6;">&nbsp;too , I did try </span><a href="10972.html" style="line-height: 1.6;">&quot;Adding a trace_mode to rfm2pi firmware&quot;</a><span style="line-height: 1.6;">&nbsp;aside from the same &quot;lack of full </span><span style="line-height: 1.6;">promiscuous mode &quot; limits&nbsp;it seems to work but involves continuously switching groups to get a better picture, but it&#39;s not really sufficient to monitor&nbsp;individual&nbsp;channels (groups).</span></p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32505"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Thu, 23/07/2015 - 14:15.</div>
+    <div class="content">
+     <p>@Paul,</p>
+<p>Thanks for the definitive links.&nbsp; That nails the truncated CRC error case I think:</p>
+<p>&nbsp; (Line 652): showString(PSTR(&quot; ?&quot;));</p>
+<p>&nbsp; (Line 653): if (n &gt; 20) n = 20; // print at most 20 bytes if crc is wrong</p>
+<p>Some longer logging with this 20 limit commented out would be useful.</p>
+<p>Also, for testing, is it relatively simple to stuff a couple of 0xAA&#39;s spaced out towards the end of the packet overwriting a couple of those 0x00 bytes?&nbsp; The long string of constant zeros is putting a strain on the Rx clock recovery.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32509"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 23/07/2015 - 14:18.</div>
+    <div class="content">
+     <p>Ahh ok! that&#39;s makes sense, the packets that fail crc are truncated TO 20bytes&nbsp;(data only) not BY 4 bytes, that is just&nbsp;coincidence due to the same (or similar) remote sketch being used which happens to be a 24byte payload,&nbsp;</p>
+<p>That explains the output but not why they fail the crc checks, I had thought the checks failed due to being&nbsp;incomplete packets.</p>
+<p>Perhaps Ian can also try commenting out <a href="https://github.com/openenergymonitor/RFM2Pi/blob/master/firmware/RFM69CW_RF_Demo_ATmega328/RFM69CW_RF12_Demo_ATmega328/RFM69CW_RF12_Demo_ATmega328.ino#L653-L654">line 653 and 654 of the RFM69Pi&nbsp;sketch</a>&nbsp;and provide a log too as his errors seem&nbsp;to be&nbsp;quite&nbsp;consistent.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32510"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Thu, 23/07/2015 - 14:51.</div>
+    <div class="content">
+     <p>Hmm - overriding <em>n</em> to 25 or 60 something for the failing CRC case might be safer...</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32517"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 23/07/2015 - 15:32.</div>
+    <div class="content">
+     <p>I had similar thoughts but assumed there would be a 66byte cut-off somewhere, would it not be better to be sure we are seeing all of the payload rather than a truncated one, to hopefully spot why it fails the crc?</p>
+<p>Perhaps replace those 2 lines with something like</p>
+<blockquote><p>if (n &gt; 70) {<br />
+&nbsp; &nbsp;&nbsp;showString(PSTR(&quot; Only 20&nbsp;of&nbsp;&quot;));<br />
+&nbsp; &nbsp;&nbsp;showByte(n);<br />
+&nbsp; &nbsp; showString(PSTR(&quot; bytes shown&quot;));<br />
+&nbsp; &nbsp;&nbsp;n = 20;<br />
+}</p>
+</blockquote>
+<p>to prevent run away or grossly over size packets while retaining scope for up&nbsp;to&nbsp;a full 66byte payload plus a few bytes.</p>
+<p>Paul</p>
+<p>EDIT - I&#39;m thinking more of a permanent&nbsp;change to the firmware for the benifit&nbsp;of&nbsp;future users rather than just a temp change for&nbsp;this 24byte&nbsp;case, not all users have the set-up for playing with sketches on the rfm2pi&#39;s&nbsp;so G&amp;T provide compiled hex files&nbsp;(plus it&#39;s a pain in the backside keep changing sketches)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32554"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Thu, 23/07/2015 - 21:16.</div>
+    <div class="content">
+     <p>Hi guys, sorry I have been quiet on this lately, just been too busy. However, I will try and find time to do the testing suggested and will post back.&nbsp;</p>
+<p>Oh, I forgot to say that I did try emjay&#39;s suggestion of changing the frequency offset, but it didn&#39;t really help. I can post the log from the test if required, otherwise i&#39;ll try and focus on the code change suggested today</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32567"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Thu, 23/07/2015 - 23:11.</div>
+    <div class="content">
+     <p>OK guys, I managed to do some testing, but I&#39;m not sure it helps much. However, it&#39;s quite late, and I might have made some simple mistake, so feel free to groan if you spat anything simple...</p>
+<p>As a reminder, I am doing my testing on my Jeelink connected into my windows 7 laptop, to avoid affecting my RPi. My laptop / jeelink is in the same room as the RPi so distance to emonTX is similar.</p>
+<p>I started by using the existing RF12demo.12 that I last used in the Jeelink, and commenting out the two lines that would truncate bad packets to 20 bytes. The results are in&nbsp;filename =&nbsp;rf12demo with crc truncation bypassed.txt</p>
+<p>There are a few&nbsp;things interesting in this test - 1) the size of some of the bad packets is huge. 2) There are no bad packets from my emonTX (which is node 10), and 3) in most of the bad packets, there is a common string towards the end of the packet &quot;0 45 1 0 0 232 3 0 0 0 0 0 0 197 0 196 0 192 0 193 0 194 0 198 0 1 0 0 58 62&quot;. It can&#39;t be coincidence, but equally it might not be significant. Also, the Jeelink is picking up fewer packets (good or bad) than&nbsp;the RPi, but I guess this could be due to differences between the two devices as emjay mentioned&nbsp;previously.</p>
+<p>However, Paul asked me to use the new RF69 sketch, so I downloaded, compiled, and loaded into the Jeelink. The results are in&nbsp;filename = RFM69CW_RF12_Demo_ATmega328_1.txt&nbsp;This also showed no bad packets for my node 10, and again not many packets at all compared to what the RPi was seeing during the same time period.</p>
+<p>I then commented out the two lines, to mirror the test I&nbsp;had done with my original rf12demo sketch, and the results look very similar. However, there are two packets that look like valid node 10 packets except the last but one byte has changed from 115 to 230.</p>
+<p>? 10 9 0 43 255 0 0 0 0 27 94 0 0 0 0 0 0 0 0 0 0 0 0 230 0 (-61)</p>
+<p>OK 10 10 0 45 255 0 0 0 0 37 94 0 0 0 0 0 0 0 0 0 0 0 0 115 0 (-60)&nbsp;</p>
+<p>? 10 10 0 110 255 0 0 0 0 4 94 0 0 0 0 0 0 0 0 0 0 0 0 230 0 (-56)&nbsp;</p>
+<p>OK 10 9 0 57 255 0 0 0 0 233 93 0 0 0 0 0 0 0 0 0 0 0 0 115 0 (-57)&nbsp;</p>
+<p>(RSSI is different as I had to move the laptop to plug in to power supply!)</p>
+<p>Now, 230 is exactly double 115, and I don&#39;t believe in coincidences !</p>
+<p>This also got me wondering - what is this 115 value? I logged in to emoncms, and this is value is showing up on the Input screen ay key 12 - which I believe is supposed to be a temperature sensor, but I don&#39;t have any such sensors !</p>
+<p>I&#39;ve run out of time to try Pauls&nbsp;mod to print only&nbsp;70 bytes of bad packets, but let me know if you think it will help, and i&#39;ll&nbsp;get to it.</p>
+<p>Ian</p>
+<p>P.S. I&#39;ve just looked bak at the console, and am seeing a few more of the rejected packets where the &quot;115&quot; has become &quot;230&quot;</p>
+<p>OK 10 11 0 73 255 0 0 0 0 106 94 0 0 0 0 0 0 0 0 0 0 0 0 115 0 (-51)&nbsp;<br />
+&nbsp;? 10 10 0 53 255 0 0 0 0 104 94 0 0 0 0 0 0 0 0 0 0 0 0 230 1 (-51)&nbsp;</p>
+<p>? 10 12 0 70 255 0 0 0 0 77 94 0 0 0 0 0 0 0 0 0 0 0 0 230 1 (-51)&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32575"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Fri, 24/07/2015 - 05:41.</div>
+    <div class="content">
+     <p>@Ian,</p>
+<p>Well spotted ref the 115/230, that is the key to resolving one issue. A quick diversion into how FSK receivers work.</p>
+<p>On the transmit side, you define how fast the stream of bits is stamped on the carrier - in this case, the Tx baud rate. How precise is that? The clock used is based on some divider ratio off the main on-module crystal, itself accurate to ~20 ppm.&nbsp; The corresponding RF is launched through the air and processed by a Rx section.&nbsp; Extracting the bit stream requires a matching data clock, derived from the <strong>different</strong> on-module crystal - so a potential mismatch of ~2 x 20 ppm if the tolerances are in opposite senses.&nbsp; Not too bad, but even with exactly matching clocks, we are forgetting the phase - is the Rx clock <em>leading</em> or <em>lagging</em> the Tx clock?&nbsp;</p>
+<p>This classic problem is solved in the Rx bit slicer section by using the actual data bit transitions to drag the two clocks into pseudo synch. For various reasons, there is considerable jitter on the bit transitions, so this is done by some phase lock loop equivalent that starts with the data clock estimate, then tweaks it slightly faster or slower.&nbsp; Some timing slop is acceptable as long as it is less that 0.5 x bit time anywhere during the packet reception.</p>
+<p>Note that this relies on the packet contents having frequent bit transitions for the bit slicer to lock on to - guaranteed at a packet start due to the preamble (alternating bits) and then various flags/headers.&nbsp; But <strong>not</strong> guaranteed in the packet payload as you see from that string of null bytes after 37, 94.</p>
+<p>From the trace, we see that the sampling clock is running a bit slow - since MSB is sent first, when the error exceeds 0.5 x bit time, this has the effect of shifting the bit pattern one position left - effectively promoting the perceived value in that byte by x 2.&nbsp; The 115 becomes 230.</p>
+<p>So how about the <strong>next</strong> byte? How does 0 get promoted to 1?&nbsp; Remember that there are two further bytes in the packet that are not put into the Rx buffer - the CRC 16bit check value.&nbsp; Well, by chance the MSB of the first CRC byte is a one - this gets promoted to be the LSB in the <strong>previous</strong> byte, the last byte of the payload.</p>
+<p>Now the picture should be clearer - the mismatched clock is messing up the bytes right at the end of the packet by a single bit shift left, <strong>including the hidden CRC value</strong>.&nbsp; The packet has to fail the CRC check.</p>
+<p>Can this be verified?&nbsp; Sure - give the bit slicer a far chance to do its job by inserting some bit transitions in that &#39;empty&#39; part of the payload.&nbsp; Ideally a couple of 0xAA spaced out replacing a couple of nulls - but if this is inconvenient on the application side, then at least replace several 0x00 by 0xFF and filter them out as flags later.</p>
+<p>If we get this issue wrapped up, then the logs will clean up and the symptoms should be clearer - there is at least one more issue to resolved.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32576"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Fri, 24/07/2015 - 09:04.</div>
+    <div class="content">
+     <p>@Ian,</p>
+<ul>
+<li>There are a few&nbsp;things interesting in this test - 1) the size of some of the bad packets is huge</li>
+</ul>
+<p>This is just an artifact - remember there are two classes of bad packets.&nbsp; The junk packets and the almost correct node 10 packets.&nbsp; A bit circular, but my reasoning is that if we can trust the buffer contents at all when CRC is failing, then we can trust the received length. NodeID and early bytes are matching a known good packet, so it is reasonable to print out based on the <em>received n.</em></p>
+<p>The converse is true for the junk packets - the contents are all noise, including the received n value.&nbsp; Printing out beyond the buffer length is not useful and indeed may show some consistent pattern since this is dragging data from some undefined memory area. Luckily it is a read operation, so no harm done.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32583"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 24/07/2015 - 13:55.</div>
+    <div class="content">
+     <p>@Ian</p>
+<p>I have altered&nbsp;a copy of the latest <a href="https://github.com/openenergymonitor/emonTxFirmware/blob/master/emonTxV3/RFM/emonTxV3.4/emonTxV3_4_DiscreteSampling/emonTxV3_4_DiscreteSampling.ino">emonTxV3_4_DiscreteSampling.ino</a>&nbsp;v1.8 sketch to use &quot;out of scope -&nbsp;fall back&nbsp;values&quot; so the temperture&nbsp;values should only ever read zero&nbsp;when the temperture is 0&deg;C. (attached)</p>
+<p>MartinR&#39;s&nbsp;sketches use this concept so&nbsp;it is obvious when a sensor develops a fault or isn&#39;t connected.</p>
+<p>The current emonTx sketches tend to set the unused ct readings to zero and some users even use a &quot;if less than&quot; algorithm to zero the solar inverter ct overnight. I think this conditioning should be done at emoncms as&nbsp;sometimes the info is useful (eg if the inverter isn&#39;t showing 10w overnight maybe there&#39;s a problem). If this resolves this RF issue (which I expect it will) maybe we should try and avoid forcing zero values.</p>
+<p>This probably won&#39;t effect you if you are not using the temp sensors but the 300/301 &#39;statuses&#39; can be ignored by using &quot;-300&quot;, &quot;allow neg&quot;, &quot;+300&quot; processes in the input processlist&nbsp;this could be than the current method in that it will not record a&nbsp;0 to a feed. So if we were to unplug a sensor for an hour and plug it back in, the data recorded would reflect the temp then and now&nbsp;rather than an incorrect 0&deg;c throughout the&nbsp;hour.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32584"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8483.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="alexr&#039;s picture" title="alexr&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8483.html" title="View user profile.">alexr</a> on Fri, 24/07/2015 - 14:28.</div>
+    <div class="content">
+     <p>Hi all,</p>
+<p>I too had noticed this behaviour&nbsp;on my recently purchased emonPi + emonTx setup, and had&nbsp;had a similar hunch to what @emjay&nbsp;explained above about FSK and clock synchronisation. When my programmer arrived, I changed the emonTx&nbsp;sketch to hardcode some&nbsp;temparature values and can confirm that this greatly&nbsp;increased the success rate of packets being received by the emonPi.</p>
+<p><strong>Setup:</strong><br />
+emonTx 3.4 + emonPi&nbsp;about 30cm from each other, emonTx powered from 9V AC adapter and other sensors connected. Recently ordered so I&#39;m presuming running latest versions.</p>
+<p><strong>Before / After:</strong><br />
+With stock firmware the success rate of packets getting through was about 1 in 3. Hardcoding the temperatures transmitted by emonTx&nbsp;to (randomly picked) 0, 100, 200, 300, 400, and 500 (/10 degrees)&nbsp;changed the success rate of packets getting through to about 1240 in 1250 (logged over 20 mins).</p>
+<p><strong>What remains:</strong><br />
+I managed to snapshot a log of one of the remaining failed packets (attached). Looking at the binary equivalents it seems that there was&nbsp;an off-by-one-bit type error before the voltage got transmitted (I had no current sensors connected, hence a long series of zeros for the current readings).</p>
+<p><strong>Thoughts:</strong><br />
+I&#39;ve heard of techniques (I think they are called line coding) which exist to get round this sort of problem. Afaik&nbsp;they encode data in a particular way such that there no long streams of 0&#39;s or 1&#39;s in the transmitted signal and then decode on the other end to recover the original&nbsp;data. A software implementation of one of these may be useful in this case. Alternatively, stuffing 0xAA bytes in suitably frequently etc would also work albeit arguably less elegant.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32585"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Fri, 24/07/2015 - 16:14.</div>
+    <div class="content">
+     <p>@Paul,&nbsp; thanks - just inserting the non-zero temperatures <s>should</s> might be enough bit transitions to knock the Rx bit clock drift on the head.&nbsp;&nbsp; The next logs should be illuminating.</p>
+<p>A reasonable question is why was this phenomenon not seen with the RFM12B Rx section?&nbsp; Turns out the RFM69 bit slicer claims a much shorter lock in time - the downside is that increased sensitivity allows it to drift off faster.</p>
+<p>The better solution is to turn on data whitening, then there is no payload content dependency.&nbsp; Unfortunately, a change of RF packet format would be disruptive to the installed base (and no, I don&#39;t think it is possible to detect dynamically in the general case). &nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32586"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 24/07/2015 - 16:06.</div>
+    <div class="content">
+     <p>Thanks Alex, it&#39;s always reassuring when independent debugging arrives at the same place&nbsp;:-)</p>
+<p>I don&#39;t think we can implement a change in encoding (easily) but I see we have 2 easy options 1 is to just alternate the &quot;rarely zero&quot; and &quot;may be zeroed&quot; values to avoid the long strings, (4ct&#39;s = 8bytes = 64 zeros) which isn&#39;t&nbsp;&quot;organised&quot; (or pretty) or just not zero the&nbsp;results, The main&nbsp;reason they get zeroed is so that users that do not have ct&#39;s connected can see only zero&#39;s rather than noise, if there is a ct connected but not &quot;active&quot; there will be noise and that noise could prevent this RF issue, without effecting use of said ct channels and those not being used can just be ignored.</p>
+<p>The same &quot;out of scope&quot;&nbsp;method won&#39;t work for ct&#39;s&nbsp;as they can use the full range.</p>
+<p>@emjay - yes,&nbsp;<span style="line-height: 20.7999992370605px;">I&#39;m quite keen to see what we have left too</span></p>
+<p><em>&quot;A reasonable question is why was this phenome</em><em style="line-height: 1.6;">non not seen with the RFM12B Rx section?&quot;&nbsp;</em><span style="line-height: 1.6;">another contributing&nbsp;factor maybe that&nbsp;the 6x&nbsp;unused&nbsp;temperature&nbsp;values (96 consecutive bits) were not previously included by default and far more temp channels go unused than ct channels so that alters the odds too.</span></p>
+<p><span style="line-height: 1.6;">Paul</span></p>
+<p><span style="line-height: 1.6;">PS Do you think there likely to be any fix to the 0g issue in JeeLib? or can you think of a workaround ?</span></p>
+<p><span style="line-height: 1.6;">update - I&#39;ve just tried lifting some of the &quot;if ct connected&quot; logic in that sketch and even with all the channels reading but not connected I cannot get any noise (sods law), so that knocks that idea on the head!!</span></p>
+<p><span style="line-height: 1.6;">to be fair it&#39;s quite uncommon to have a emontx&nbsp;running without ant ct&#39;s at all.</span></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32588"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 24/07/2015 - 20:02.</div>
+    <div class="content">
+     <p>CTs:</p>
+<p>The present emonTx design grounds the input when no plug is present, this 0 count input is detected and disables the processing on that input. However, the data structure is always initialised to zeros, and that's where the zero values come from. </p>
+<p>If you disable the disabling 'if', and process the input just the same, then the filters adjust down from their initial state of 512 counts and output zero after about 5 blocks of 200 ms, so both ways you get zero output.</p>
+<p>A quick and easy work-round would be to define dummy bytes (or words) in known positions in the data structure, stuff them with 0x0A or 0xAA, and that would provide something to synchronise to, and could easily be ignored in emonCMS.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32594"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Fri, 24/07/2015 - 23:57.</div>
+    <div class="content">
+     <p>@Paul, I have uploaded your modified sketch, and will run overnight, and check in the morning. But very early indications look good. Thanks to emjay&nbsp;Alex, and Robert for your support so far.&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32597"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Sat, 25/07/2015 - 07:51.</div>
+    <div class="content">
+     <p>I&#39;ve just been having a look at the data from overnight, and there are still quite a lot of null entries in emoncms. I&#39;ll need more to determine how much improvement iwe have&nbsp;made, and will update later - might be tomorrow as I have a busy day today</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32607"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Sat, 25/07/2015 - 17:32.</div>
+    <div class="content">
+     <p>Initial analysis of the performance shows a big improvement - in the 12 hours since using the updated program (which fills the temperature values with &quot;3010&quot;), emoncms shows null&nbsp;</p>
+<p>The updated code has now been running in the emonTX for half a day, and so I compared the 12 hours from before the update with the 12 hours after the update. The number of null packets reported by emoncms has reduced from 29% to 17%, so a good reduction, but I hope we can still improve further. I&#39;ll pull some logs from the RPi next, and upload soon.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32610"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 25/07/2015 - 18:29.</div>
+    <div class="content">
+     <p>Glad your making progress Ian. How are you counting &quot;null packets&quot;? I&#39;m not sure if counting&nbsp;the null datapoints on&nbsp;a fixed interval feed is accurate&nbsp;unless the two independent intervals&nbsp;are synced somehow,</p>
+<p>Try adding an accumulating&nbsp;phptimeseries&nbsp;feed to&nbsp;one of the temp&nbsp;sensor input processing chains (before the filter) when you look at the graph you should see a regular stepped increment and any missed packets will stand out as a longer horizontal between verticals.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32639"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Sun, 26/07/2015 - 15:51.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>I am counting the packets within emoncms. I am using the Input panel, selecting my CT1, and the Data Viewer then shows a graph. I then set the start and end time to show a 12 hour period, untick&nbsp;&quot;skip missing&quot;&nbsp;and then hit the &quot;Show CSV Output&quot;&nbsp;button to display the values. I then copy &amp; paste into excel and use a Filter to count the entries with null. I have now attached the file. I expect this will provide the same results as your suggestion, but I will try that as well, in case it shows any differences.</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32662"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Mon, 27/07/2015 - 13:47.</div>
+    <div class="content">
+     <p>@<s>Paul</s> Ian, no packet dump?&nbsp; I&#39;m a low level guy, need feeding a bit stream to function ;-)</p>
+<p>BTW, what is the power arrangement on the Pi ?&nbsp; There is a solid RF ground reference for the negative rail? Assuming that the power brick will do this for you can be fallacious.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32678"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 27/07/2015 - 10:17.</div>
+    <div class="content">
+     <p>@Ian, I would assume that method is pretty accurate and certainly gives you a good overall &#39;end to end&#39; success rate, which is what you are trying to improve overall, The results indicate that 17% of the datapoints&nbsp;recorded by emoncms were null <em>for one reason or another </em>and that 83% will have recorded a value due to <em>being updated at least once</em> during the 10s interval.</p>
+<p>The 17% could indeed reflect only dropped packets, but could also include packets lost in transit or&nbsp;filtered for some reason or just delayed before being issued a timestamp, possibly leaving a +10s interval.</p>
+<p>Possibly, none of these will have an impact, I just suggested using the phptimeseries to be sure to show every packet recorded by emoncms with a timestamp that may (or may not)&nbsp;reveal any time patterns.</p>
+<p>@emjay, A serial&nbsp;console&nbsp;is currently the easiest&nbsp;place to see&nbsp;a stream of data, I have previously had&nbsp;emonHub&nbsp;outputting all packets to a csv file which could be opened directly by excel, I found excel extremely useful for byte level debugging and it is so much easier on the eye too when data is displayed in columns.</p>
+<p>I have never looked that closely at a Pi in way, and have never thought to question&nbsp;the power/ground plane relationship, the Pi&#39;s get powered by a wide variety of power sources (as do&nbsp;emonTx&#39;s), I recall&nbsp;some users have added ground plane &quot;tentacles&quot; but I&nbsp;wouldn&#39;t comment on the science behind it beyond accepting that it&nbsp;is normal practice for &quot;CB&quot; and &quot;Ham radio&quot; antennae&nbsp;to have&nbsp;ground plain&nbsp;radials.</p>
+<p>Ian&#39;s comment about the signal strength&nbsp;of the Pi +&nbsp;RFM2Pi compared to the PC +&nbsp;JeeLink <em>might</em> suggest his particular Pi set up is reasonably well matched?</p>
+<p>(Although it&#39;s along way from tuning &quot;SWR&quot; and the likes,the visual&nbsp;<a href="10972.html">&quot;trace_mode&quot;</a> I added to the RFM2Pi&nbsp;firmware could help &quot;tune&quot; reception.)</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32685"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Mon, 27/07/2015 - 14:02.</div>
+    <div class="content">
+     <p>@Paul,</p>
+<p>I&#39;m assuming we can move on to the next stage of debugging soon viz. what is that disruptive noise source popping up in the channel?&nbsp;&nbsp; The RSSI values for the wanted signal are good - that&#39;s coupling in to the Rx section just fine.&nbsp; But the noise floor is not so good - could be just location or (the reason for the GND question) unexpected <strong>very</strong> local hash. &nbsp; Once you have switching power bricks involved, some attention is needed to what is defining the RF ground.<br />
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32687"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 27/07/2015 - 14:58.</div>
+    <div class="content">
+     <p><em>&quot;what is that disruptive noise source popping up in the channel?&quot; </em>Which data&nbsp;are you looking at?</p>
+<p>and what do you refer to as the &quot;noise floor&quot;? the consistent&nbsp;background noise (minus any spurious peaks) or the max level of any&nbsp;unwanted signal<span style="line-height: 20.7999992370605px;">&nbsp;</span><span style="line-height: 20.7999992370605px;">or the average</span><span style="line-height: 1.6;">&nbsp;?</span></p>
+<p><span style="line-height: 1.6;">Paul</span></p>
+<p>edit - It would be nice to see a fresh &quot;minicom output&quot; from Ian to see what&#39;s&nbsp;left.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32691"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Mon, 27/07/2015 - 16:12.</div>
+    <div class="content">
+     <p>@Paul,</p>
+<p>Sorry, I&#39;m being less than clear.&nbsp;&nbsp; Assuming the mis-decoded real packets are now better behaved, that leaves the frequent trash packets that are interleaving (and sometimes keeping the Rx section busy when a correct packet is due in).</p>
+<p>Their reported behaviour when the RSSI threshold was swept across a reasonable range was odd, appearing when the reported RSSI value was well <strong>below</strong> the threshold.&nbsp;&nbsp; Definitely needs some more packet level trace to get to the bottom of this.</p>
+<p>RSSI threshold is as per the spec sheet - basically the trigger level for the packet engine to do <strong>any</strong> processing on what may turn out to be a packet.</p>
+<p>I&#39;m using &#39;Noise floor&#39; as the general background hash seen by the Rx section - it is a combination of energy coming in between the ANT pin and RF GND + internally generated noise (mostly LNA). &nbsp; Better than -90 dBm is typical for a reasonably &quot;quiet&quot; environment.</p>
+<p>This noise is typically following a Gaussian distribution (so there is a significant probability of short lived peaks) - best seen on a spectrum analyzer as a distinct lower band of constant activity.&nbsp; Once an FSK signal is about 20db above this fuzz, it will decode correctly for the packet lengths we are looking at, when the important knobs are set reasonably (RxBw to match Tx deviation etc).</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32716"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Mon, 27/07/2015 - 23:33.</div>
+    <div class="content">
+     <p>Hi&nbsp;guys, I&#39;ve been looking at the results tonight, and trying not to get too excited... but I think you&#39;ve fixed the RF problem&nbsp;!</p>
+<p>I know emjay wanted some proper debug output, and as Paul noted, the results I provided from&nbsp;emonCMS&nbsp;was the end-to-end view, and data could have been getting lost after it arrived at the RPi, so&nbsp;I thought I would start by looking at the emonhub log from the RPi to get a feel for the data, and the numbers of error packets, and frequency of errors. As I was reviewing the log file from today, I just wasn&#39;t seeing the gaps in valid data that I could normally spot by reviewing the logs.</p>
+<p>So I went to emoncms&nbsp;and took a look at the phptimeseries&nbsp;that Paul had&nbsp;suggested I setup to track the dummy data provided from the unused&nbsp;temperature sensor, and the graph was a perfectly smooth line. But as I zoomed in and with &quot;skip missing&quot; unticked, I eventually saw gaps in the graph, as confirmed by the CSV data, which showed null entries.</p>
+<p>But these null entries didn&#39;t quite tie up with the emonhub.log. So I took a different approach. As the emonhub.log file gets rolled automatically (looks like when it gets to 5MB?) I copied the backup log (emonhub.log.1) off the RPi to analyse in Excel. The log covered 6 hours 18 minutes and 47 seconds from 15:08 to 21:27 today.</p>
+<p>Reviewing the log showed the following: all of the entries from my Node 10 were complete - no errors! Although there were entries that appeared to be from node 10, when I checked them, they were clearly random noise, as the other bytes did not match my node 10 packets (e.g. CT3 &amp; CT4 were not zero, and the Temperature sensor bytes were not 194 and 11). So I have 2107 valid looking packets from 6Hr 18 min&nbsp;47secs of log. At one packet every 10 seconds I would expect 2272 packets, but the emonhub log shows that the interval between packets is between 10 and 11 seconds - in fact it&#39;s more often 11 seconds between each packet. At an 11 second interval, I would expect 2066 packets, so the 2107 is nicely between the 10 and 11 second interval.</p>
+<p>I have *just* worked out how I can process this file further, and look for any gaps greater than 11 seconds, but that will have to wait until tomorrow.&nbsp;</p>
+<p>So, this seems to be great news on the RF problem. Oh, and to to test this, I reloaded the normal sketch into the emonTX, and watched the Terminal output, and saw packets being received by the RPi, and some were flagged as corrupt. I reloaded Paul&#39;s sketch with dummy temperature values, and those corruptions stop. Result !!!!</p>
+<p>The only snag, is it doesn&#39;t yet explain why emonCMS is still showing null packets. I was thinking it could be due to the interval not matching the 10 or 11 seconds seen at emonhub, and I was trying to understand that, but decided to document and share the great news first, and come back to emonCMS tomorrow with fresh eyes.</p>
+<p>I think you guys have solved the RF problem, and it was fascinating as you explained how the Rx timing works, and how clever and subtle the processing is! It&#39;s been a wonderful education learning from you!&nbsp;</p>
+<p>Right, I&#39;m off to bed. Night</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32753"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 28/07/2015 - 22:24.</div>
+    <div class="content">
+     <p>It would be useful to see the latest minicom output Ian, the &quot;gaps&quot; in the timeseries&nbsp;feed may be due to the node 10&#39;s without a zero ct3&amp;4 value, perhaps the &quot;255 0 0 0 0&quot; part of a valid frame is also a problem for the syncing on occasions, 8x1&#39;s&nbsp;will have the same effect as 8 x 0&#39;s, I would hazard a guess that hardcoding a choice value (21845 would be good)&nbsp;into the sketch for ct3&amp;4 may make a difference as if there is a full &#39;0 1&#39; cycle after the 8 x1&#39;s it may pull back into sync if it&#39;s less than 1/2 a bit out at that point.</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32837"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8057.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8057.jpg" alt="Ian Davies&#039;s picture" title="Ian Davies&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8057.html" title="View user profile.">Ian Davies</a> on Thu, 30/07/2015 - 23:00.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>As requested, here is some Minicom output for about 4 minutes, but I don&#39;t think it shows any problems. From another analysis of the emonhub.log.1 file, which covers just over 6 hours, and by comparing the timestamp between each successive packet, I see 22 missing packets out of 2070, just under 1% error. That is a massive improvement, hence I think you have fixed the RF problem, with your updated program that fills the empty temp byes. I have now turned quiet mode back on, so the emonhub.log should hopefully capture a full&nbsp;24 hours of traffic, and I&#39;ll check the data loss again.&nbsp;</p>
+<p>The remaining problem that I was referring to in my previous post, is that although the RPi is now successfully&nbsp;receiving 99% of the packets, the number of null entries in the emoncms&nbsp;DB seem much higher, even though the emonhub log shows that all of the uploads to emoncms.org are successful. I&#39;m not sure if I was clear last time that I am using emoncms.org and not a local emoncms.</p>
+<p>So to try and understand where this problem might be appearing, I tried to compare the data from emonhub.log with the data in emoncms.org, using the timestamp to match and compare. One point that was immediately visible is that the interval between packets arriving at the RPi is often 11 seconds, but as emoncms.org is expecting 10 seconds, I wondered if the nulls displayed in emoncms is just a mismatch caused by emoncms expecting a 10 second interval, but the data sometimes being delivered every 11 seconds, leading to &quot;gaps&quot; appearing in the graphs?</p>
+<p>I am also aware that I started this topic to discuss the RF packet loss, and this thread is already pretty big, so I suggest I should start a separate thread to discuss this part of the problem. After all, assuming you are happy that the RF problem is fixed, maybe there should be discussion about adopting or developing this fix to help others?</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32839"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 30/07/2015 - 23:50.</div>
+    <div class="content">
+     <p>That&#39;s good to see, the log entries show a strong difference between the background noise/interference and the valid signals +20dB and all the strong pass and all the weaker fail, I would say that looks pretty&nbsp;successful and the credit for that should go to emjay, his help has been invaluable.</p>
+<p>The ~11secs&nbsp;interval is not an&nbsp;uncommon thing, most looping sketches either &quot;sleep nSecs&quot; or use a &quot;if x&nbsp;&gt; nSecs&quot;&nbsp;so the loop duration plays a&nbsp;part, but 11secs&nbsp;vs 10secs should not cause that many nulls in emoncms&nbsp;(in theory) as the 2 cycles rotate it would only rarely cause a whole 10sec interval to pass without a update,</p>
+<p>That is as you say a different discussion,&nbsp;but at least you can now do some real tests with a fairly consistent&nbsp;post rate. Try putting a phptimeseries&nbsp;and phpfina&nbsp;feeds one after the other on a spare input (temp?) and compare after a few days perhaps.</p>
+<p>I will submit a pull request and see how G&amp;T feel about&nbsp;the modded sketch</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33900"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8538.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="321liftoff&#039;s picture" title="321liftoff&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8538.html" title="View user profile.">321liftoff</a> on Sat, 05/09/2015 - 21:31.</div>
+    <div class="content">
+     <p>Just read this&nbsp;thread (Paul, thanks for the reference)&nbsp;and I&#39;m having the same issue. &nbsp;It appears that there is a solution, but it has not been implemented into github yet. &nbsp;Can you confirm that using the modified&nbsp;emonTxV3_4_DiscreteSampling.ino in the post above on July 24 solves this?</p>
+<p>I don&#39;t have a USB to UART cable, but it looks like that needs to go on the wishlist!</p>
+<p>Any reason why this has not been posted to GitHub?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33901"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 05/09/2015 - 22:15.</div>
+    <div class="content">
+     <p>To&nbsp;my knowledge, this was the only &quot;known&quot; case (since diagnosed)&nbsp;so it may get implemented if there is a demand. In this instance, Ian wasn&#39;t using the temp sensors, so there was no feedback on using the &quot;positive error reporting.&quot; He just needed them to not.be zero.</p>
+<p>I haven&#39;t looked at the sketch recently. So off-hand, I do not know if we need to re-introduce the mods to an up to date sketch, or if the attached is still valid. It will certainly prove the point, and/or the mods are no big deal to add into a sketch either way.</p>
+<p>The mod to the rfm2pi firmware is not so straightforward unless you have the environment set up for it. The rfm2pi can be programmed direct from the Pi if you can access the arduino IDE on a GUI (screen and keyboard or remote desktop) or you will need to compile on another machine and transfer the hex to the Pi to upload to the rfm2pi. Either way, you will need the modified avrdude to upload to the rfm2pi, see the rfm2pi wiki for details.</p>
+<p>It sounds a lot&nbsp;worse&nbsp;than it actually&nbsp;is. If you want to try updating the rfm2pi firmware while you wait for the usb programmer, in&nbsp;fact&nbsp;once you have the environment setup for the rfm2pi you could also use it for the emontx&nbsp;if you have a couple of link wires to go from the gpio to the 6pin&nbsp;ftdi&nbsp;header on the emonTx.</p>
+<p>Paul</p>
+<p>EDIT - just added a link to the previous posts for completeness <a href="11062.html#comment-33869">(emonTH Unreliable reading timing?)</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33933"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7218.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="emjay&#039;s picture" title="emjay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7218.html" title="View user profile.">emjay</a> on Mon, 07/09/2015 - 11:44.</div>
+    <div class="content">
+     <p>Yes, looks like a mild case of the same issue - the bit-slicer is drifting out of synch due the that long string of null bytes in the packet.&nbsp; The bit failure(s) are mostly hidden since they are to the right of where a bad-CRC packet gets truncated.</p>
+<p>The fairly frequent but much weaker bad packets are essentially noise.&nbsp;&nbsp; I&#39;d like to work on this area too (probably affects more users that the bit-synch slip), but it requires a driver change on the Rx side. I appreciate not all are set up to rebuild that image.&nbsp; Anyone game to try?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33974"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8538.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="321liftoff&#039;s picture" title="321liftoff&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8538.html" title="View user profile.">321liftoff</a> on Wed, 09/09/2015 - 07:39.</div>
+    <div class="content">
+     <p>Thanks for the responses. &nbsp;It will be a few weeks til I get a programmer, but at that time, I&#39;d be willing to help improve the driver of the rfm2pi.</p>
+<p>Paul, to what changes to rfm2pi are you referring? &nbsp;I don&#39;t recall reading in the thread suggested changes to rfm2pi, other than modifying the encoding scheme to ensure that a string of zeros are never possible.</p>
+<p>The latest emonTx&nbsp;sketches just have some updates to the pulse counter code, so I&#39;ll give your sketch a go and see how it improves thigs. &nbsp;That will be another datapoint to help determine if this should be implemented in github. &nbsp;I, too, am not using the temperature sensors, so I expect to see similar positive results.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34106"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8496.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8496.jpg" alt="djh95&#039;s picture" title="djh95&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8496.html" title="View user profile.">djh95</a> on Sun, 13/09/2015 - 10:00.</div>
+    <div class="content">
+     <p>Hi, this is my first post.&nbsp; I&#39;ve just received my first emonTX and RFM69Pi and have spent a good part of the weekend trying to get them working together with an old Raspberry Pi, and with limited success!</p>
+<p>The data loss, as described here is plaguing me too. &nbsp; I&#39;m a newbie so this thread has been fascinating reading - I see I have lots to learn!&nbsp;</p>
+<p>Out-of-interest - am I correct in thinking that a quick fix might be to purchase/install a temperature sensor on the emonTX?&nbsp;&nbsp;</p>
+<p>Anyway, big thanks to everyone who is working on this issue!&nbsp; This is a great open source project.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34112"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 13/09/2015 - 12:31.</div>
+    <div class="content">
+     <p>That <i>might</i> provide a solution. To my way of thinking, if you have a programmer, the far better solution would be to edit your emonTx sketch (and the RPi to suit if necessary) so that the rf payload consists of only the quantities that are actually being used - so the bit stream transmitted is not filled with a (useless to you) string of zero bits.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34116"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 13/09/2015 - 15:46.</div>
+    <div class="content">
+     <p>Yes, adding a single sensor only&nbsp;<em>might&nbsp;</em>reduce the issue as&nbsp;adding one sensor only reduces the 6positions&nbsp;* 2byte * 8bits&nbsp;(96&nbsp;all&nbsp;zeros bits) to 5 unused&nbsp;positions&nbsp;(80 bits) since the positions get populated in order, you could be fairly confident about 2 or 3 sensors reducing the run to a manageable level as when the 4 cts are&nbsp;unused (64 bits)&nbsp;it is not <em>known</em> to cause an issue.</p>
+<p>...and should the sensor(s) happen to be&nbsp;a location that is ever&nbsp;around 0&deg;C the issue could reoccur.</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35515"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8538.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="321liftoff&#039;s picture" title="321liftoff&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Data loss due to RF packets getting corrupted</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8538.html" title="View user profile.">321liftoff</a> on Fri, 30/10/2015 - 11:27.</div>
+    <div class="content">
+     <p>I finally bought a USB-UART cable, got my environment setup, and tested uploading code to the emonTx.&nbsp;To my surprise, the <a href="https://github.com/openenergymonitor/emonTxFirmware/commit/dcd78d16960f5c48823124b30ac380fd10675335#diff-cc34a2e0facd0edd406878d14c68a356">github code was updated on Oct 24</a> to include changing the default temp values from 0 to 3000, so my test upload also fixed the issues I was having!</p>
+<p>Thanks for your help, Paul.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10900"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-9e7Nl45JpwoM6urU25GNIQx_wmrbmO_PySZgjcJ_3o8" value="form-9e7Nl45JpwoM6urU25GNIQx_wmrbmO_PySZgjcJ_3o8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10900 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:58:24 GMT -->
+</html>

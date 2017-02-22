@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3585 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:27:04 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>GLCD Control module for emonCMS | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">GLCD Control module for emonCMS</h3>
+        <span class="submitted">Submitted by <a href="../user/5045.html" title="View user profile.">mdbigg</a> on Thu, 09/01/2014 - 23:09</span>
+        <div class="content"><p>Hello everyone, I&#39;ve been working on a GLCD control module for emonCMS for a few weeks and thought I&#39;d share.</p>
+<p>The idea is that, rather than hard-coding the information to display on the GLCD, I&#39;ve created an interface that allows the GLCD to be configured via an emonCMS front-end. It also means that the GLCD&nbsp;<em>requests</em> the time from my Raspberry Pi rather than the RPi&nbsp;dumbly broadcasting it every few minutes.</p>
+<p><span style="font-size: 12px;">It&#39;s not very elegant and there are a few bugs to be ironed out but I think it works as a proof of concept.</span></p>
+<p><span style="font-size: 12px;">The add-on works by setting up the GLCD to broadcast requests to the Raspberry Pi. The RPi then pings back its response while the GLCD waits. Once emonCMS know that it is &quot;feeding&quot; a GLCD node it regularly broadcasts the current &quot;feed&quot;. The buttons on the GLCD enable it to request the next/previous feed. The feeds to be broadcast to the GLCD&nbsp;are configured via the emonCMS front end.</span></p>
+<p><span style="font-size: 12px;">Feeds can be configured as &quot;primary&quot; or &quot;secondary&quot; depending on where they might appear on the GLCD unit.</span></p>
+<p><span style="font-size: 12px;">To get it to work you&#39;ll need to create a table in your emonCMS database:</span></p>
+<p><span style="font-size: 12px;">CREATE TABLE IF NOT EXISTS `glcd_control` (</span></p>
+<p><span style="font-size: 12px;">&nbsp; `id` int(10) unsigned NOT NULL AUTO_INCREMENT,<br />
+	&nbsp; `nodeId` int(10) unsigned DEFAULT NULL,<br />
+	&nbsp; `feedId` int(10) unsigned DEFAULT NULL,<br />
+	&nbsp; `feed_name_display` char(20) DEFAULT &#39;None&#39;,<br />
+	&nbsp; `feed_unit` char(3) DEFAULT NULL,<br />
+	&nbsp; `feed_multiplier` int(10) DEFAULT &#39;100&#39;,<br />
+	&nbsp; `feed_timestamp` tinyint(1) DEFAULT &#39;0&#39;,<br />
+	&nbsp; `feed_precision` int(11) NOT NULL DEFAULT &#39;1&#39;,<br />
+	&nbsp; `feed_primary` tinyint(1) NOT NULL DEFAULT &#39;1&#39;,<br />
+	&nbsp; `feed_secondary` tinyint(1) NOT NULL DEFAULT &#39;0&#39;,<br />
+	&nbsp; PRIMARY KEY (`id`),<br />
+	&nbsp; UNIQUE KEY `id` (`id`)<br />
+	) ENGINE=InnoDB&nbsp; DEFAULT CHARSET=latin1 AUTO_INCREMENT=12 ;</span></p>
+<p>&nbsp;</p>
+<p><span style="font-size: 12px;">You&#39;ll also need the GLCDcontrol module within emonCMS (attached).</span></p>
+<p>At the GLCD end you&#39;ll need to upload the attached sketch (based on the standard home energy monitor)</p>
+<p>&nbsp;</p>
+<p>Finally, you&#39;ll need to mod raspberrypi_run.php and add the following (full file attached):</p>
+<p><strong>near the beginning</strong></p>
+<p>include &quot;Modules/GLCDcontrol/GLCDcontrol_model.php&quot;;<br />
+	&nbsp; $GLCDcontrol = new GLCDcontrol($mysqli);</p>
+<p><strong>where it starts handling RF data its received</strong></p>
+<p>echo &quot;DATA RX:&quot;.$data;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $values = explode(&#39; &#39;,$data);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (isset($values[1]) &amp;&amp; is_numeric($values[1]))<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $nodeid = (int) $values[1];<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; if (chr($values[2]) == &quot;T&quot; &amp;&amp; chr($values[3]) == &quot;X&quot;) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // emonbase Request ident<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // TX request received<br />
+	&nbsp;&nbsp;&nbsp; $strToSend = $GLCDcontrol-&gt;respond($nodeid, $values[4], $feed, intval($values[5]));<br />
+	//&nbsp;&nbsp; echo $strToSend . &quot;\n&quot;;<br />
+	&nbsp;&nbsp;&nbsp; fprintf($f,$strToSend . &quot;,00s&quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; usleep(1000);&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp; } else { &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// This bit handles normal RF receipt</p>
+<p>&nbsp;</p>
+<p><strong>After the control packet sending section</strong></p>
+<p>// Send current feed update<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($GLCDcontrol-&gt;sendingFeeds &amp;&amp; ((time()-$GLCDcontrol-&gt;lastFeed) &gt; $GLCDcontrol-&gt;feedInterval))<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {</p>
+<p>	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $GLCDcontrol-&gt;lastFeed = time();<br />
+	&nbsp; $feedArray = $GLCDcontrol-&gt;feedNodeArray;</p>
+<p>	&nbsp; for ($i=0; $i&lt;count($feedArray); $i++) {<br />
+	&nbsp;&nbsp; echo &quot;Sending feed to node &quot; . $feedArray[$i] . &quot;\n&quot;;<br />
+	&nbsp;&nbsp; foreach ($GLCDcontrol-&gt;feedId[$feedArray[$i]] as $primary =&gt; $feedId) {<br />
+	&nbsp;&nbsp;&nbsp; if ($feedId != 0) {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; $str = $GLCDcontrol-&gt;sendFeedValue($feedArray[$i], $feed, $primary);<br />
+	//&nbsp;&nbsp;&nbsp; echo $str . &quot;\n&quot;;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fprintf($f,$str.&quot;,s&quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; usleep(100);<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp; }<br />
+	&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Any comments and feed back welcome!</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="3531.html" class="topic-previous" title="Go to previous forum topic">‹ git pull causes message I do not understand </a>
+              <a href="3439.html" class="topic-next" title="Go to next forum topic">Difficulty in &quot;Building the full emoncms on the raspberrypi software stack&quot;. ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-17470"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: GLCD Control module for emonCMS</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Thu, 09/01/2014 - 23:13.</div>
+    <div class="content">
+     <p>Wow! This sounds pretty cool. Trystan is away on holiday this week. I shall point him at this when he get&#39;s back. Maybe we can get it up on the emoncms&nbsp;modules github on the development branch so other can contribute easily</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17471"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5045.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mdbigg&#039;s picture" title="mdbigg&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: GLCD Control module for emonCMS</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5045.html" title="View user profile.">mdbigg</a> on Thu, 09/01/2014 - 23:35.</div>
+    <div class="content">
+     <p>To do:</p>
+<ol>
+<li>
+		Tidy up the front end</li>
+<li>
+		Sort out handling of kWhd feeds (these break it at the moment...)</li>
+</ol>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3585"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-MMa9bCaRUgKXeeKvaSAdcY2rr0zmWm-aTm9Z9rRiHOE" value="form-MMa9bCaRUgKXeeKvaSAdcY2rr0zmWm-aTm9Z9rRiHOE"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3585 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:27:04 GMT -->
+</html>

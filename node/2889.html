@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2889 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:28:25 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Query about kWh from W calculation in emonGLCD | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Query about kWh from W calculation in emonGLCD</h3>
+        <span class="submitted">Submitted by <a href="../user/3594.html" title="View user profile.">nothing clever</a> on Tue, 01/10/2013 - 18:25</span>
+        <div class="content"><p>Can someone tell me why the formulea given in emonGLCD for converting W to kWh is given as ...</p>
+<p>usekwh += (emontx.power1 * 0.2) / 3600000;</p>
+<p>As emonTx seems to transmit data every 5 secs, surely the formulea should be</p>
+<p>usekwh += (emontx.power1 / 720) / 1000;</p>
+<p>kWh = W * hours / 1000. The above two formulea are not the same thing expressed differently.</p>
+<p>I know someone will reply to this and make me look a complete idiot, but I can&#39;t see the flaw in my logic.</p>
+<p>If power1 is 1 the first gives 5.5555e-8 whereas the second gives 1.38888e-6 which is a HUGE difference, so does power1 hold Watts or is it something else ?</p>
+<p>I know I will regret this, but here goes...</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2325.html" class="topic-previous" title="Go to previous forum topic">‹ Multigraph not displaying correctly on Android</a>
+              <a href="2887.html" class="topic-next" title="Go to next forum topic">HTML in dashboards ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-15532"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Query about kWh from W calculation in emonGLCD</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 01/10/2013 - 21:30.</div>
+    <div class="content">
+     <p>I&#39;ve just looked at two emonGLCD sketches and both have the same formula, which is essentially:</p>
+<p class="rteindent1">Wh += emontx.power1&nbsp; * ((time - lasttime)/3600000.0);</p>
+<p>which, as time is in ms and energy is in Wh (not kWh) looks correct to me.</p>
+<p>Your mistake is your basic assumption - the 5 s update. The formula you quote is from a third sketch and it is inside a fast loop that is executed a lot more often than 5 s&nbsp; -&nbsp; 200 ms in fact.&nbsp; Does that explain it?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15534"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3594.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3594.jpg" alt="nothing clever&#039;s picture" title="nothing clever&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Query about kWh from W calculation in emonGLCD</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3594.html" title="View user profile.">nothing clever</a> on Tue, 01/10/2013 - 21:48.</div>
+    <div class="content">
+     <p>Yep. Thanks.</p>
+<p>It had to be something obvious - I just couldn&#39;t see it.</p>
+<p>&nbsp;</p>
+<p>Thanks.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15536"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Query about kWh from W calculation in emonGLCD</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 01/10/2013 - 22:14.</div>
+    <div class="content">
+     <p>So although the emonTx updates every 5 s, the loop uses the same value 25 times (every 0.2 s) to increment the kWh reading, then it uses the new value from the emonTx another 25 times. It makes the display change smoothly, but it doesn&#39;t improve the accuracy.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2889"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-MRkMQw_qFNELFYOi3Guqd9VLTrYs4uWiHUXVVVwgGJo" value="form-MRkMQw_qFNELFYOi3Guqd9VLTrYs4uWiHUXVVVwgGJo"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2889 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:28:25 GMT -->
+</html>

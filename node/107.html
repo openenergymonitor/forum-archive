@@ -1,0 +1,409 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Using JQuery AJAX and php to fetch data from a mysql database | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h2>Using JQuery AJAX and php to fetch data from a mysql database</h2>
+<p><em>Created: 8 December 2010 : by Trystan Lea</em></p>
+<p>This is a brief example for fetching data from a mysql database using JQuery AJAX and php.&nbsp;JQuery AJAX allows us to update a page&#39;s content without reloading the page:</p>
+<p><strong>How it works</strong></p>
+<ol>
+<li>First you access a content file on the server here I have called the file client.php.</li>
+<li>This file is downloaded to your computer and the html is displayed by your browser.</li>
+<li>Client.php contains javascript which is also downloaded to your computer.</li>
+<li>The jquery javascript then executes and creates its own request to a script on the server that has access to the mysql database. It does this using AJAX. This script in this example is php and is called<em> api.php</em></li>
+<li>api.php executes and gets the data from the mysql database and returns it via a json string to the listening client.php script.</li>
+<li>The client.php script recieves this data and finally updates the html content on the page dynamically!</li>
+</ol>
+<p><strong>You will need</strong></p>
+<ul>
+<li>A <strong>LAMP (Linux-Apache-MYSQL-PHP)</strong>&nbsp;server or XAMP server to work with. There&#39;s loads of tutorials out there on installing LAMP on Ubuntu.</li>
+<li>The jquery library inserted in the same directory as the scripts below</li>
+<li><strong>Download JQuery <a href="http://docs.jquery.com/Downloading_jQuery">here</a></strong>: quick link :<a href="http://code.jquery.com/jquery-1.4.4.js">&nbsp;jquery-1.4.4.js</a></li>
+</ul>
+<h3>1) Create a database to store variable data</h3>
+<ol>
+<li>Create a mysql <strong>database</strong> called <em>ajax01</em></li>
+<li>Create a <strong>table</strong> called <em>variables</em> with 2 fields: <em>id</em> and <em>name</em></li>
+<li>Insert an example variable:</li>
+</ol>
+<p class="rteindent1"><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/table.png" /></p>
+<h3>2) Create a php script to receive http requests and fetch data from the database</h3>
+<ol>
+<li>Create a php script called <strong>api.php</strong> on your server</li>
+<li>Copy and paste the example below and save it:</li>
+</ol>
+<pre>
+&lt;?php 
+
+  //--------------------------------------------------------------------------
+  // Example php script for fetching data from mysql database
+  //--------------------------------------------------------------------------
+  $host = &quot;localhost&quot;;
+  $user = &quot;root&quot;;
+  $pass = &quot;root&quot;;
+
+  $databaseName = &quot;ajax01&quot;;
+  $tableName = &quot;variables&quot;;
+
+  //--------------------------------------------------------------------------
+  // 1) Connect to mysql database
+  //--------------------------------------------------------------------------
+  include &#39;DB.php&#39;;
+  $con = mysql_connect($host,$user,$pass);
+  $dbs = mysql_select_db($databaseName, $con);
+
+  //--------------------------------------------------------------------------
+  // 2) Query database for data
+  //--------------------------------------------------------------------------
+  $result = mysql_query(&quot;SELECT * FROM $tableName&quot;);          //query
+  $array = mysql_fetch_row($result);                          //fetch result    
+
+  //--------------------------------------------------------------------------
+  // 3) echo result as json 
+  //--------------------------------------------------------------------------
+  echo json_encode($array);
+
+?&gt;
+</pre><h3>3) Create a client script to fetch data from the API script using JQuery AJAX</h3>
+<ol>
+<li>Create a html script called <strong>client.php</strong>&nbsp;in the same directory with the following content in it:</li>
+</ol>
+<pre width="600px">
+&lt;!---------------------------------------------------------------------------
+Example client script for JQUERY:AJAX -&gt; PHP:MYSQL example
+----------------------------------------------------------------------------&gt;
+
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;script language=&quot;javascript&quot; type=&quot;text/javascript&quot; src=&quot;jquery.js&quot;&gt;&lt;/script&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+
+  &lt;!-------------------------------------------------------------------------
+  1) Create some html content that can be accessed by jquery
+  --------------------------------------------------------------------------&gt;
+  &lt;h2&gt; Client example &lt;/h2&gt;
+  &lt;h3&gt;Output: &lt;/h3&gt;
+  &lt;div id=&quot;output&quot;&gt;this element will be accessed by jquery and this text replaced&lt;/div&gt;
+
+  &lt;script id=&quot;source&quot; language=&quot;javascript&quot; type=&quot;text/javascript&quot;&gt;
+
+  $(function () 
+  {
+    //-----------------------------------------------------------------------
+    // 2) Send a http request with AJAX <a href="http://api.jquery.com/jQuery.ajax/" title="http://api.jquery.com/jQuery.ajax/">http://api.jquery.com/jQuery.ajax/</a>
+    //-----------------------------------------------------------------------
+    $.ajax({                                      
+      url: &#39;api.php&#39;,                  //the script to call to get data          
+      data: &quot;&quot;,                        //you can insert url argumnets here to pass to api.php
+                                       //for example &quot;id=5&amp;parent=6&quot;
+      dataType: &#39;json&#39;,                //data format      
+      success: function(data)          //on recieve of reply
+      {
+        var id = data[0];              //get id
+        var vname = data[1];           //get name
+        //--------------------------------------------------------------------
+        // 3) Update html content
+        //--------------------------------------------------------------------
+        $(&#39;#output&#39;).html(&quot;&lt;b&gt;id: &lt;/b&gt;&quot;+id+&quot;&lt;b&gt; name: &lt;/b&gt;&quot;+vname); //Set output element html
+        //recommend reading up on jquery selectors they are awesome 
+        // <a href="http://api.jquery.com/category/selectors/" title="http://api.jquery.com/category/selectors/">http://api.jquery.com/category/selectors/</a>
+      } 
+    });
+  }); 
+
+  &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</pre><h3>4) Test it!</h3>
+<ol>
+<li>Goto <em>client.php</em>&nbsp;in your browser, if all is well you should see the following:</li>
+</ol>
+<p><img alt="" height="127" src="http://openenergymonitor.org/emon/sites/default/files/browserOutput.png" width="400" /></p>
+<p>and thats it! a basic example for using jquery ajax and php for fetching data from a database.</p>
+<p><strong>Download source files: </strong><a href="http://openenergymonitor.org/emon/sites/default/files/ajax01.tar.gz">ajax01.tar.gz</a></p>
+<p>If you don&#39;t see anything check that you have javascript enabled in your browser.</p>
+</div>
+    
+    
+      </div>
+<div id="comments">
+  <a id="comment-2286"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using JQuery AJAX and php to fetch data from a mysql database</h3>
+
+    <div class="submitted">Submitted by Guest (not verified) on Sat, 05/11/2011 - 11:35.</div>
+    <div class="content">
+     <p>To get info from rows other than the first row</p>
+<p><a href="http://stackoverflow.com/questions/8019489/simple-ajax-jquery-script-how-can-i-get-information-for-each-of-the-rows-in-the" title="http://stackoverflow.com/questions/8019489/simple-ajax-jquery-script-how-can-i-get-information-for-each-of-the-rows-in-the">http://stackoverflow.com/questions/8019489/simple-ajax-jquery-script-how...</a></p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-2283"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using JQuery AJAX and php to fetch data from a mysql database</h3>
+
+    <div class="submitted">Submitted by Guest (not verified) on Sat, 05/11/2011 - 07:56.</div>
+    <div class="content">
+     <p>Just to make it clear for the real beginners.<br />
+If you were wondering what DB.php was, it is the below code.</p>
+<p><?php </p>
+<p>  //--------------------------------------------------------------------------<br />
+  // Example php script for fetching data from mysql database<br />
+  //--------------------------------------------------------------------------<br />
+  $host = "localhost";<br />
+  $user = "username";<br />
+  $pass = "userpw";</p>
+<p>  $databaseName = "ajax01";<br />
+  $tableName = "variables";<br />
+?></p>
+<p>You should remove it from the api.php and put it in another file called DB.php</p>
+<p>Leave     <?php       and      ?>    in the api.php file though.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-2038"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Matt&#039;s picture" title="Matt&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using JQuery AJAX and php to fetch data from a mysql database</h3>
+
+    <div class="submitted">Submitted by Matt (not verified) on Sat, 27/08/2011 - 08:08.</div>
+    <div class="content">
+     <p>HI,</p>
+<p>This is really a nice script. How can I display multiple rows ? I need a while in my PHP, this is doable but what to do in Jquery ?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-2031"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using JQuery AJAX and php to fetch data from a mysql database</h3>
+
+    <div class="submitted">Submitted by Guest (not verified) on Tue, 23/08/2011 - 10:26.</div>
+    <div class="content">
+     <p>use this: </p>
+<p>while($row = mysql_fetch_row($result)){<br />
+   $table_data[]= array("id=>"$row['id'],name=>$row['name']);<br />
+}<br />
+echo json_encode($table_data);</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-1800"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Srini&#039;s picture" title="Srini&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using JQuery AJAX and php to fetch data from a mysql database</h3>
+
+    <div class="submitted">Submitted by Srini (not verified) on Fri, 27/05/2011 - 10:22.</div>
+    <div class="content">
+     <p>Hi,<br />
+Interesting and a helpful post :)<br />
+I'm a beginner in PHP and jQuery.<br />
+I have this application which retrieves details of students from a MySQL database and displays in a tables made of
+<div>.And the number of rows might change every time.</p>
+<p>So I need to know how to extend your code to achieve this.<br />
+I tried getting the total number of rows using mysql_fetch_row() and run a for loop till all the rows are printed.<br />
+But I couldn't get the row-results and number of rows from the success:function().So I also want to know how to do that.</p>
+<p>this what i have tried to just print a single row of the table.But it didn't work :(</p>
+<div class="table">
+<div class="row">
+<script type="text/javascript">
+	$(document).ready(function(){
+
+		$.ajax({
+	
+			url: 'retrieveUser.php' ,
+			data:"",
+			dataType: 'json',
+			success:function(data){
+				var id = data[0];
+				var fname = data[1];
+				var lname = data[2];
+				var age = data[3];
+				var class1 = data[4];
+				
+			$('<div class="cell">id</div>'); 
+			$('<div class="cell">fname</div>'); 
+			$('<div class="cell">lname</div>'); 
+			$('<div class="cell">class</div>'); 
+			$('<div class="cell">age</div>'); 
+				
+			
+		}
+	
+	});
+
+});
+
+ </script></div>
+</div>
+<p>I would appreciate your help in this.<br />
+Thanks in advance :)<br />
+Cheers....!!!! </p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1823"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using JQuery AJAX and php to fetch data from a mysql database</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Mon, 06/06/2011 - 13:52.</div>
+    <div class="content">
+     <p>Hello Sirini, do you think you could post up the code that you have tired. Is this what you need?</p>
+<p>&nbsp; $result = result of MYSQL query</p>
+<p>&nbsp;while($row = mysql_fetch_array($result))<br />
+&nbsp; {<br />
+&nbsp; } </p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2045"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="elf&#039;s picture" title="elf&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using JQuery AJAX and php to fetch data from a mysql database</h3>
+
+    <div class="submitted">Submitted by <a href="http://bookingelf.com/" rel="nofollow">elf</a> (not verified) on Wed, 31/08/2011 - 10:21.</div>
+    <div class="content">
+     <p>:( I am also new to jquery and I am stucked with the multiple lines</p>
+<p>I am using this code in the api.php file:</p>
+<p>while($row = mysql_fetch_row($result)){<br />
+$table_data[]= array("id"=>$row['id'],"name"=>$row['name']);<br />
+}<br />
+echo json_encode($table_data);</p>
+<p>----<br />
+and the closest thing I managed to get was only one result displayed in the "client.php". </p>
+<p>If I check the "api.php" in the browser it displays the following:<br />
+[{"id":value,"name":value},{"id":value,"name":value},{"id":value,"name":value},{"id":value,"name":value},{"id":value,"name":value},{"id":value,"name":value},{"id":value,"name":value},{"id":value,"name":value},{"id":value,"name":value}]</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div></div><a id="comment-1642"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="afro360&#039;s picture" title="afro360&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using JQuery AJAX and php to fetch data from a mysql database</h3>
+
+    <div class="submitted">Submitted by <a href="http://google.com" rel="nofollow">afro360</a> (not verified) on Sun, 03/04/2011 - 04:15.</div>
+    <div class="content">
+     <p>This is cool. How can this be used to update a html table with multiple mysql records or insert the latest row into the table?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-1532"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using JQuery AJAX and php to fetch data from a mysql database</h3>
+
+    <div class="submitted">Submitted by Guest (not verified) on Sun, 13/02/2011 - 00:44.</div>
+    <div class="content">
+     <p>Hi very nice write up!</p>
+<p>It would be nice to see an example of JSON + php + ajax + FLOT graph + mysql</p>
+<p>In a way that instead of loading the whole graph every 10 seconds, it queries a mysql table, and if the value has changes from last time (ie, there is a new registry in the database) then the flot graph is updated with that point without having to load everything agian.</p>
+<p>Is it at all possible?</p>
+<p>Thanks</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1538"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Using JQuery AJAX and php to fetch data from a mysql database</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Tue, 15/02/2011 - 09:00.</div>
+    <div class="content">
+     <p>&nbsp;Sure, yes the example here does this:&nbsp;<a href="http://openenergymonitor.org/emon/node/88">http://openenergymonitor.org/emon/node/88</a></p>
+<p>&nbsp;</p>
+<p>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" /></p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div></div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

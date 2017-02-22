@@ -1,0 +1,641 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11803 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:47:47 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>log file deleting / rotation? /var/log mounted in tmpfs  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">log file deleting / rotation? /var/log mounted in tmpfs </h3>
+        <span class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Mon, 14/12/2015 - 14:19</span>
+        <div class="content"><p>I&#39;m been working on a new release of our <a href="11799.html">pre-built emonPi / emonBase SD card image</a>. We have been trying to take precautions&nbsp;(e.g read-only file system) to make the system as robust as possible for long-term logging.&nbsp;</p>
+<p>The folders /tmp and /var/log are mounted in the RAM as tmpfs as 25Mb and 30Mb respectively. I&#39;m worried&nbsp;that after sometime the the tmpfs logging folders will fill&nbsp;up the allocated space. Are there any Linux tools available&nbsp;(e.g logrotate) that we can use to delete old log files to stay below the size limit?&nbsp;</p>
+<p>Any advice /&nbsp;recommendation? This must be a common problem that must have been solved before! &nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12340.html" class="topic-previous" title="Go to previous forum topic">‹ Emonpi: Atmega328 build process?</a>
+              <a href="12336.html" class="topic-next" title="Go to next forum topic">Unable to remove invalid data from feed ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-36992"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 14/12/2015 - 14:49.</div>
+    <div class="content">
+     <p>Hi Glyn,</p>
+<p>I agree this would be a good step, it&#39;s something I have wanted to look at for awhile but never seem to get to. Although&nbsp;logging&nbsp;does seem ok most of the time, I have seen instances where a fault condition has filled the log partition in ram&nbsp;and a quite serious consequence&nbsp;of that is it can stop the cron&nbsp;tasks&nbsp;running. I haven&#39;t looked into whether it can be avoided or even exactly why it occurs yet. But it does mean a simple cron based rotate or housekeep may be vulnerable&nbsp;unless unaffected by a full log. I suspect cron&nbsp;stops if it cannot output so a simple redirection to /dev/null maybe all that&#39;s needed.</p>
+<p>My first thought was &quot;logrotate&quot; too and had also wondered if it would be possible to &quot;rotate&quot; the logs out of ram on to the sd card at regular interval so as to not lose all logs at reboot without impacting the SD card life too heavily, if the logs are kept small by&nbsp;rotation the current log file may&nbsp;also be able to be persisted at shutdown using rsync.</p>
+<p>It maybe worth increasing the size too, 30mb&nbsp;isn&#39;t much, emonhub alone can use&nbsp;up&nbsp;to&nbsp;a max of&nbsp;10mb&nbsp;as it&#39;s in-built log&nbsp;rotation&nbsp;has a file size of 5mb each.&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36994"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Mon, 14/12/2015 - 15:41.</div>
+    <div class="content">
+     <p>How long do you think would be e decent time to keep logs for? I think it&#39;s good having debug turned on my default since users and quickly look at the log in Emoncms&nbsp;to check all is working however this degug log does not need to be kept longer than a few days. What do you think?</p>
+<p>What&#39;s needed is some sort of service to delete logs to keep the size of /var/log below&nbsp;(80-90%?) of being full. Could logrotate perform this task? I will investigate.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36998"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 14/12/2015 - 16:17.</div>
+    <div class="content">
+     <p>I think size is a better measure than time, at&nbsp;&quot;WARNING&quot;&nbsp;loglevel emonhub&nbsp;could run forever with less than 6 lines if no problems are encountered, where as any runaway issue could completely fill the 30mb in no time at all. if the logs are managed by size we can better estimate the total posible&nbsp;size for the ram partition, and if the file can be rotated out of ram to the sdcard the max amount of ram required&nbsp;is halved.&nbsp;</p>
+<p>Doing it by time alone could mean &quot;too short&quot; and useful data is overwritten too frequently and &quot;too long&quot; leaves the door open to maxing out the logs too easily. rsync&nbsp;could allow &quot;back-ups&quot; daily or hourly even. So if we estimate a total&nbsp;file size of ~50mb, we should set 30mb ram aside, rotated with upto&nbsp;30mb on the sdcard plus an additional &quot;rsync&quot; back-up&nbsp;of upto&nbsp;30mb on the sdcard. OR&nbsp;at least 60mb&nbsp;of ram with zero persistence.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37001"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3426.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3426.jpg" alt="Bill Thomson&#039;s picture" title="Bill Thomson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3426.html" title="View user profile.">Bill Thomson</a> on Mon, 14/12/2015 - 17:02.</div>
+    <div class="content">
+     <p><em>What&#39;s needed is some sort of service to delete logs to keep the size of /var/log below&nbsp;(80-90%?) of being full. Could logrotate perform this task?</em></p>
+<p>Hi Glyn,</p>
+<p>Yes. Logrotate can do its job based on log <em>size</em> as well as age.</p>
+<p>From the page linked below:</p>
+<p><em>You can specify a file size that logrotate will check when determining whether or not to perform a rotation by using the &ldquo;size&rdquo; command. The format of the command tells logrotate what units you&rsquo;re using to specify the size:</em></p>
+<p><em>size 100k<br />
+size 100M<br />
+size 100G</em></p>
+<p><em>The first example would rotate the log if it gets larger than 100 kilobytes, the second if it&rsquo;s larger than 100 megabytes, and the third if it&rsquo;s over 100 gigabytes. I don&rsquo;t recommend using a limit of 100G, mind you, the example just got a little out of hand there.</em></p>
+<p><em>The size command takes priority over and replaces a rotation interval if both are set.</em></p>
+<p><a href="http://www.rackspace.com/knowledge_center/article/understanding-logrotate-utility">www.rackspace.com/knowledge_center/article/understanding-logrotate-utility</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37020"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 14/12/2015 - 22:55.</div>
+    <div class="content">
+     <p>Thanks for the link Bill,&nbsp;</p>
+<p>A size time combo would be ideal and the &quot;postrotate&quot; function to call a script&nbsp;at rotatation&nbsp;could switch to RW mode move the older file out of ram to sdcard and set&nbsp;RO again.</p>
+<p>Using rsync could be combined with the ntp-backup&nbsp;so that all the logs are &quot;rsync&#39;d&quot; every hour and at shutdown whilst the time is backed up with minimal extra code or&nbsp;disc writes.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37031"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 15/12/2015 - 16:52.</div>
+    <div class="content">
+     <p>Thanks for your help. I think I&#39;ve got this running nicely today.</p>
+<p>I&#39;ve configured logrotate&nbsp;to check all files in /var/log hourly and rotate is any log file &gt; 1Mb. Four rotations are kept file.log.1 etc. After four rotates (size taken 4 x 1Mb = 4Mb) the log are deleted. I&#39;ve also increased the max size of /var/log in tmpfs to 50Mb. Not all of this is allocated at once, apparently it&#39;s dynamically allocated in the RAM as it&#39;s needed up to a max of 50Mb. Pi2 has 1GB so we should be fine :-)&nbsp;</p>
+<p>The config for logrotate is as follows:&nbsp;</p>
+<pre>
+# check size of log files hourly 
+hourly
+# default is daily move cron script to make this happen hourly:
+# sudo mv /etc/cron.daily/logrotate /etc/cron.hourly/logrotate
+
+# keep 4 rotations  worth of backlogs (size x 4)
+rotate 4
+
+# Max size of log file (rotate log file when this size is reached)
+size 1M
+
+# Truncate  the  original log file in place after creating a copy
+copytruncate
+
+# append rotated logs with date 
+dateext
+dateformat -%Y%m%d
+
+# log owners
+su root
+
+# Include all logs including 1 level deep subdirectorys
+/var/log/* {} 
+/var/log/*/*{}</pre><p>&nbsp;</p>
+<p>logrotate.conf has been added to ~/emonpi git repo and symlinked to /etc/logrotate.conf for easy updating if needed.</p>
+<p><a href="https://github.com/openenergymonitor/emonpi/blob/master/logrotate.conf">https://github.com/openenergymonitor/emonpi/blob/master/logrotate.conf</a></p>
+<p>If you want to install on your setup:</p>
+<pre>
+sudo apt-get install logrotate
+sudo rm /etc/logrotate.conf
+sudo ln -s /home/pi/emonpi/logrotate.conf /etc/logrotate.conf
+suco chown root /home/pi/emonpi/logrotate.conf&nbsp;
+sudo rm /etc/cron.daily/logrotate​ /etc/cron.hourly/logrotate
+sudo touch /etc/cron.daily/logrotate​
+​sudo ln -s /home/pi/emonpi/logrotate /etc/cron.hourly/logrotate​</pre><p>When setting up set -d to debug (verbose logs and don&#39;t edit) or -v (verbose logs AND makes changes to disk) in&nbsp;/home/pi/emonpi/logrotate&nbsp;simlinked&nbsp;cron&nbsp;file</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37033"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3426.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3426.jpg" alt="Bill Thomson&#039;s picture" title="Bill Thomson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3426.html" title="View user profile.">Bill Thomson</a> on Tue, 15/12/2015 - 17:14.</div>
+    <div class="content">
+     <p>Hi Glyn,</p>
+<p>Something to be aware of regarding logrotate.</p>
+<p>Taken from:<br />
+<a href="http://unix.stackexchange.com/questions/29574/how-can-i-set-up-logrotate-to-rotate-logs-hourly">http://unix.stackexchange.com/questions/29574/how-can-i-set-up-logrotate-to-rotate-logs-hourly</a></p>
+<p><em>Depending on your OS. Some (all?) Linux distributions have a directory /etc/cron.hourly where you can put cron jobs to be executed every hour.</em></p>
+<p><em>Others have a directory /etc/cron.d/. There you can put cron-jobs that are to be executed as any special user with the usual cron-settings of a crontab entry (and you have to specify the username).</em></p>
+<p><strong><em>If you use either of these instead of the standard log rotatation script in /etc/cron.daily/ you should copy that script there and cp /dev/null to the original position. Else it will be reactivated by a logrotate patch-update.</em></strong></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37041"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 15/12/2015 - 17:46.</div>
+    <div class="content">
+     <p>Thanks Bill, good find.</p>
+<p>So&nbsp;given that I&#39;ve moved logrotate from cron.daily to cron.hourly, what you&#39;re saying is I should put an empty logrotate file back in cron.daily to ensure it&#39;s not reactivated by a logrotate patch update?&nbsp;&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37042"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3426.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3426.jpg" alt="Bill Thomson&#039;s picture" title="Bill Thomson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3426.html" title="View user profile.">Bill Thomson</a> on Tue, 15/12/2015 - 18:19.</div>
+    <div class="content">
+     <p>Spot on.</p>
+<p><em><strong>touch /path/to/filename</strong></em> will give you a zero length file.<br />
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37046"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 15/12/2015 - 19:59.</div>
+    <div class="content">
+     <p>Paul (pb66) mentioned above about the possibility of writing the logs to the SD card at shutdown. Don&#39;t know if&nbsp;you are considering this or not Glyn, but if so you may want to <a href="http://www.tremende.com/ramlog/">take a look at Ramlog</a>&nbsp;and how they achieve it.</p>
+<p><strong>Description</strong><br />
+Ramlog act as a system daemon. On startup it creates ramdisk, it copies files from /var/log into ramdisk and mounts ramdisk as /var/log. All logs after that will be updated on ramdisk. Logs on harddrive are kept in folder /var/log.hdd which is updated when ramlog is restarted or stopped. On shutdown it saves log files back to harddisk so logs are consistent. Ramlog 2.x is using tmpfs by default, ramfs and kernel ramdisk are suppored as well. Program rsync is used for log synchronization.&nbsp;</p>
+<p>I briefly&nbsp;tried Ramlog whilst editing&nbsp;the low-write guide and it works really well</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37047"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3426.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3426.jpg" alt="Bill Thomson&#039;s picture" title="Bill Thomson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3426.html" title="View user profile.">Bill Thomson</a> on Tue, 15/12/2015 - 20:12.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>I suggested Ramlog back in June of this year, and was more or less blown off.<br />
+<a href="10773.html#comment-31091">http://openenergymonitor.org/emon/node/10773#comment-31091</a></p>
+<p>Hope you have better luck than I had!</p>
+<p>As you mentioned, it works well, and is free.</p>
+<p>Bill</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37063"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Wed, 16/12/2015 - 00:46.</div>
+    <div class="content">
+     <p>Thanks for the link ramlog looks like a tidy package. However, IMHO I can&#39;t see&nbsp;benefit to have the logs saved between boots. I actually&nbsp;like starting with the fresh&nbsp;logs on first boot, occasionally I cycle a reboot just to achieve a nice empty /var/log!</p>
+<p>If a problem which we are trying to debug by looking at the logs can&#39;t be replicated between boots then it&#39;s probably not a problem!&nbsp;</p>
+<p>Agree, on a serious busy web server having log preservation&nbsp;is valuable but many emonPi&#39;s&nbsp;will just be used just as an Emoncms forwarding gateways.&nbsp;Having verbose logs is very nice for the user to see via Emoncms viewer and good for us if we have to debug user problems however the logged data quickly&nbsp;looses its&nbsp;value over time. &nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37078"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Wed, 16/12/2015 - 10:59.</div>
+    <div class="content">
+     <p><em>If a problem which we are trying to debug by looking at the logs can&#39;t be replicated between boots then it&#39;s probably not a problem!&nbsp;</em></p>
+<p>I came to the same conclusion...<br />
+Do you think that we need to include logrotate&nbsp;in the emonbase&nbsp;low-write too?</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37084"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Wed, 16/12/2015 - 12:37.</div>
+    <div class="content">
+     <p>The same pre-built SD card&nbsp;image will work for both emonPi and emonBase&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37085"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Wed, 16/12/2015 - 12:38.</div>
+    <div class="content">
+     <p>I was meaning the self build guide</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37086"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Wed, 16/12/2015 - 12:46.</div>
+    <div class="content">
+     <p>Ah yes, good idea. Instructions are above and in the emonPi install script:<a href="https://github.com/openenergymonitor/emonpi/blob/master/install#L124">&nbsp;https://github.com/openenergymonitor/emonpi/blob/master/install#L124</a>.</p>
+<p>Config&nbsp;file may be tweaked as I&#39;m still testing but I think the install procedure is good.&nbsp;</p>
+<p>Thanks.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37117"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Thu, 17/12/2015 - 01:04.</div>
+    <div class="content">
+     <p>Not sure if you&#39;re talking about os logs or emoncms logs.</p>
+<p>Anyway, in Lib/Emonlogger.php there is a log file limit restriction hardcoded to 250mb.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37118"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Thu, 17/12/2015 - 01:29.</div>
+    <div class="content">
+     <p>Both! Good to heat there is a limit on emonlogger. However the 50Mb&nbsp;tmpfs&nbsp;/var/log limit on the emonPi would be hit long before the hardcoaded restriction. This discussion only relates to running emoncms on Raspberrry Pi with a limited size /var/log mounted in ram as&nbsp;tmpfs.&nbsp;&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37124"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 17/12/2015 - 09:07.</div>
+    <div class="content">
+     <p>Would it be a big job to move the emoncms.log file to /var/log ?<br />
+If it were moved to that location, it would enable emoncms logging to remain running, despite being in low-write mode as it would be writing to tmpfs&nbsp;(if mounted). Also, logrotate&nbsp;could then do the emoncms.log housekeeping, rotating and keeping the log size within an allocation.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37125"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Thu, 17/12/2015 - 11:05.</div>
+    <div class="content">
+     <p>Is the emoncms.log not already in /var/log? It is on my emonPi&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37126"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 17/12/2015 - 11:09.</div>
+    <div class="content">
+     <p>No, as a standard installation, its;</p>
+<p>/var/www/emoncms/emoncms.log</p>
+<p>Are you referring to the emonhub log?</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37127"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 17/12/2015 - 11:19.</div>
+    <div class="content">
+     <p>The &quot;$log_filename&quot; has been set to /var/log/emoncms.log in the default.emonpi.settings.php&nbsp;file but in the &quot;default.settings.php&quot; file it uses the installed directory name and &quot;/emoncms.log&quot;. It would be good to see a common location of /var/log/<em>dirname</em>/emoncms.log. The extra directory name based folder level is good housekeeping both for devs with more than one instance and for keeping rotated logs in one place.</p>
+<p>Paul&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37128"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 17/12/2015 - 11:27.</div>
+    <div class="content">
+     <p>I agree Paul, I suppose that by changing the log location from /emoncms/emoncms.log in settings&nbsp;would have implications for the log viewer on page Administration &gt; View log</p>
+<p>(not at home right now so can&#39;t check)</p>
+<p>&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37129"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 17/12/2015 - 11:33.</div>
+    <div class="content">
+     <p>I don&#39;t have a local emoncms&nbsp;right now so I can&#39;t check either but &quot;in theory&quot; if it works for emonPi with just the setting changed&nbsp;I would expect&nbsp;It to be&nbsp;good .</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37131"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 17/12/2015 - 13:05.</div>
+    <div class="content">
+     <p>Just tried moving the emoncms.log to to /var/log and yes it sort of works!</p>
+<p>Well it works when you manually create the log file and set it&#39;s permissions, but of course because it&#39;s held in RAM, it doesn&#39;t survive a reboot, and users then need to re-create the log file and again set permissions.</p>
+<pre>
+touch /var/log/emoncms.log
+chmod 666 /var/log/emoncms.log</pre><p>I need to look how this is dealt with in emonPi, when I get more time.</p>
+<p>Paul<br />
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37134"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 17/12/2015 - 13:38.</div>
+    <div class="content">
+     <p>This is exactly the issue I had with emonhub.log when it was first written. The RO wiping the logs did create a problem as the /var/log permissions can prevent a emon+++.log being created automatically and the folder doesn&#39;t get&nbsp;created.</p>
+<p>In emonhub the solution was to add the emonhub subfolder creation to the init script, so that at every restart it checks for the /var/log/emonhub folder and creates it if it&#39;s not there and set the folders&nbsp;permission for emonhub.py to be able to automatically create the logs and rotate as required.</p>
+<p>Since the log and subfolder deletion only occurs to the read-only&nbsp;file&nbsp;system the same can be done by the feedwriter script in emoncms&nbsp;as only the &quot;low-write&quot; mode will usually be used with a RO file system.</p>
+<p>For consistency&nbsp;all the install guides should just tell the user to create the folder and add permissions as usual, this will remain in place for normal read-write installs and be replaced if required by the feedwriter init script if RO.</p>
+<p>Only if the full version (no feedwriter) is used on a read-only OS will there be an issue. But even that would be covered if&nbsp;a complete ramlog/logrotation&nbsp;scheme was used.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37223"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sat, 19/12/2015 - 10:07.</div>
+    <div class="content">
+     <p>emonPi (the new image) sets up the logs on boot, see rc.local:&nbsp;<a href="https://github.com/openenergymonitor/emonpi/blob/master/rc.local">https://github.com/openenergymonitor/emonpi/blob/master/rc.local</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37225"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 19/12/2015 - 10:32.</div>
+    <div class="content">
+     <p>Thanks Glyn. I'm almost there with this now. And will let you have some proposed changes in the next few days to consider.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37247"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sat, 19/12/2015 - 17:07.</div>
+    <div class="content">
+     <p>emonpi default is /var/www/emoncms.log&nbsp;</p>
+<p><a href="https://github.com/emoncms/emoncms/blob/stable/default.emonpi.settings.php#L121" title="https://github.com/emoncms/emoncms/blob/stable/default.emonpi.settings.php#L121">https://github.com/emoncms/emoncms/blob/stable/default.emonpi.settings.p...</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40296"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9049.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="adpeace&#039;s picture" title="adpeace&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: log file deleting / rotation? /var/log mounted in tmpfs </h3>
+
+    <div class="submitted">Submitted by <a href="../user/9049.html" title="View user profile.">adpeace</a> on Sun, 13/03/2016 - 14:44.</div>
+    <div class="content">
+     <p>Found this thread after realising that my base station using the pre-built SD card (oldish one from last July I think?) periodically needs rebooting and that the reason was the /var/log had filled up.</p>
+<p>Most of the logging was around firewall stuff, multicast igmp packets that were OK on my network but were logged as blocked by UFW.  Fair enough.</p>
+<p>I looked and it seems that we already have logrotate installed, but the default configuration breaks because of the permission on /var/log being too permissive.  If you change the permissions to the expected values (755) then the standard logrotate configuration seems to work.  Wouldn't it be better to keep this, and add new config files under /etc/logrotate.d for the emon-specific configs?</p>
+<p>(BTW I think generally I fall into the camp of preferring a read-write flash image and reducing writes than having a lot of special-casing for read-only, but I'm also trying to stay close to the 'stock' config for better support, etc.)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11803"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-UNQS2a4YQsfu4svjHnjOzb-UhdtpUVhdZ2qGxa4U_Cg" value="form-UNQS2a4YQsfu4svjHnjOzb-UhdtpUVhdZ2qGxa4U_Cg"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11803 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:47:48 GMT -->
+</html>

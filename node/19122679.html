@@ -1,0 +1,480 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Mk2i PV Router, interrupt-based | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/3">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Mk2i PV Router, interrupt-based</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Mon, 14/01/2013 - 15:48</span>
+        <div class="content"><p>Just a few hours after posting my last version of Mk2a, the same code was returned to me having been converted to run on an interrupt-basis.&nbsp; Although <a href="http://openenergymonitor.org/emon/user/1332" title="View user profile.">JBecker</a> was not able to check this himself, it worked perfectly at the first attempt.&nbsp; My heater flicked on and off just as before.&nbsp;</p>
+<p>But was this new version really any better than the previous one, and did I actually want to go down the route of interrupts?&nbsp; After a bit of rearrangement, I got TALLYMODE working again and the true benefit of this new scheme became immediately apparent.&nbsp; With my previous version, I was seeing around 89 samples per mains cycle.&nbsp; But with this alternative arrangement, that value had increased to 96.&nbsp;&nbsp; Before, the main processor used to wait in a while() loop until the ADC had set a particular bit in the ADCSRA register.&nbsp; Only then could it reconfigure and restart the ADC.&nbsp; But when in free-running mode, the ADC restarts automatically, which is clearly a much better arrangement.</p>
+<p>A second interrupt-based scheme soon appeared from the same source.&nbsp; This version uses a hardware timer of a specified duration.&nbsp; By this means, the sampling rate can be varied to suit the workload of the system.&nbsp; Perfect for anyone who wants to add lots of extra functionality.</p>
+<p>But how much spare time is there.&nbsp; My SPEEDCHECK facility no longer worked with these new arrangements, but J&ouml;rg soon came up with a nifty routine which determines how much spare processing capacity is available.&nbsp; This is achieved by introducing an increasing amount of per-loop delay using delayMicroseconds() until all available time is used up.&nbsp; By repeating each stage several times (my contribution!), minimal disruption to the underlying measurement system is caused and the numbers are easier to see.&nbsp; This mechanism has been included in Mk2i&nbsp; as WORKLOAD_CHECK. &nbsp;</p>
+<p>So, who might want to use this latest version?</p>
+<p>For anyone who simply wants a system for diverting surplus power, as do I, the free-running version of Mk2i should be ideal.&nbsp; This runs faster than any previous version and the sampling rate should be nice and steady.&nbsp; In this mode, WORKLOAD_CHECK reveals that the amount of spare time per sample pair is around 120uS, so the main processor is only busy for approx 60% of the time.&nbsp; Occasional serial statements are OK with this setup.</p>
+<p>For anyone who wants a system that can divert surplus power but must also do other tasks as well, the timer-based version of Mk2i may be better.&nbsp; By increasing the duration of the timer, the amount of spare processing capacity can be increased as necessary.&nbsp; With a timer duration of 200uS, i.e. 50 sample pairs per mains cycle, the amount of spare time per sample pair is around 300uS.&nbsp; The Arduino&#39;s main processor is therefore idle for around 75% of the time. &nbsp;</p>
+<p>Only one ADC mode may be enabled at a time.&nbsp; This is ensured by the use of #error flags at the compiler stage.&nbsp; When using the ADC_TIMER mode, the standard library directory Timer1 must be available (for TimerOne.cpp).</p>
+<p>TALLYMODE and WORKLOAD_CHECK are extra features, only one of which may be enabled at a time.&nbsp; Again, this requirement is enforced at compile time.&nbsp; TALLYMODE now displays the mid-point value of each tally rather than the value of its index.&nbsp; This makes it much easier to display such data on a spreadheet.</p>
+<p>ANTI_FLICKER mode is still available as in Mk2a rev3.&nbsp; It is activated by changing the value of operatingMode near the top of the code.&nbsp; The Serial monitor now displays the version and basic details of the code that is being run.&nbsp; So never again will I have to worry about which version is actually running in the garage!</p>
+<p>A spreadsheet with two pages of tallymode results is attached.&nbsp; All results are for runs of 10-seconds only.&nbsp; On the first sheet, powers of 0W and 60W are shown as measured using the free-running ADC mode.&nbsp; One of the raw data files is attached in which the number of sample pairs per mains cycle is shown as 96 (integer rounded).&nbsp; The second sheet compares the results of measuring a 60W load using four different settings:&nbsp; free-running (x1), and timer-based (x3) with durations of 125uS, 150uS and 200uS.&nbsp; The same graph, at an enlarged scale, is attached to this posting.</p>
+<p>If you find any bugs or typos, or there is obviously a better way of doing something in the code, do please let me know.&nbsp; Cheers J&ouml;rg, IOU a bier!</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/5780" class="topic-previous" title="Go to previous forum topic">‹ best placement of temp sensor</a>
+              <a href="/emon/node/5749" class="topic-next" title="Go to next forum topic">how much space does logging take? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-22197"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Thu, 26/06/2014 - 13:50.</div>
+    <div class="content">
+     <p>Yes, that&#39;s one way to do it.</p>
+<p>Another way would be to reconfigure your hardware to match the multi-load sketch from my website.&nbsp; For this you would just need to:</p>
+<p>1.&nbsp; plug the wire from your voltage sensor into A3 rather than A2;</p>
+<p>2.&nbsp; plug the wire from your current sensor into A5 rather than A1</p>
+<p>3.&nbsp; plug the wire that controls your output stage into D4 rather than D9</p>
+<p>Having made these changes, all of the other output pins will be available for your use.&nbsp; They are all defined in the sketch, so you won&#39;t need to alter the software at all.&nbsp;&nbsp;</p>
+<p>Don&#39;t worry about the IO pins which drive the display; they can just rattle up and down in the background.&nbsp;&nbsp; If you wanted to use the display for its intended purpose, you would need to provide a second current sensor + CT.</p>
+<p>OK?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22198"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Thu, 26/06/2014 - 14:31.</div>
+    <div class="content">
+     <p>Don, let me know which way you want to go. If you&#39;re happy making the changes Robin suggests, that&#39;s fine by me. Otherwise, I&#39;ll look at adding the second output drive to your existing sketch (always assuming it is still as published and you have not changed anything).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22207"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1704" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Keith Walker&#039;s picture" title="Keith Walker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1704" title="View user profile.">Keith Walker</a> on Fri, 27/06/2014 - 11:38.</div>
+    <div class="content">
+     <p>Hi Dom,</p>
+<p>
+	The sketches can look scary but they are well written and easy to change.</p>
+<p>I use two loads and the changes I made to Mk2i_PV_Router_rev5a can be found on the&nbsp;Talking Solar website.</p>
+<p><a href="http://www.talkingsolar.co.uk/index.php/forum/7-arduino-circuit-discussions/1784-multiple-loads" title="http://www.talkingsolar.co.uk/index.php/forum/7-arduino-circuit-discussions/1784-multiple-loads">http://www.talkingsolar.co.uk/index.php/forum/7-arduino-circuit-discussi...</a></p>
+<p>I&#39;m now using&nbsp; rev5c but the changes are still the same for my set up.</p>
+<p>I hope this helps.</p>
+<p>Regards, Keith</p>
+<p>[Duplicate post deleted - Moderator (RW)]</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22235"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3602" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="thewaver&#039;s picture" title="thewaver&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3602" title="View user profile.">thewaver</a> on Sat, 28/06/2014 - 13:21.</div>
+    <div class="content">
+     <p>Hi Keith,</p>
+<p>This is exactly what I was looking for, fantastic.</p>
+<p>I have moded&nbsp;Mk2i_PV_Router_rev5c to your instructions and tested with the following results.</p>
+<p>With my primary load connected to digi pin 9 and nothing to digi pin 10, the LED flickers when the primary load is satisfied (I must be producing more PV than I am using). If I move my primary to digi pin 10 and nothing connected to digi&nbsp;9, the LED stays on solid when the primary load is satisfied (I know that I am producing more PV than I am using). I would have expected it to flicker the same as when connected to digi pin 9. In both situations, when the primary is using all my PV, the LED stays off, Is this normal or do I need to have both primary and secondary connected for the LED to flicker when they are both satisfied?</p>
+<p>Thanks for help, Don.....</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22236"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3602" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="thewaver&#039;s picture" title="thewaver&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3602" title="View user profile.">thewaver</a> on Sat, 28/06/2014 - 13:27.</div>
+    <div class="content">
+     <p>Hi Robin,</p>
+<p>Thank you for your help with modifying my pin connections to match your coding, which does make things a lot easier. The reason I have gone with Keith Walkers solution of modifying your Mk2i_Rev5c, is I cannot see any LED on your sketch to indicate when I am producing surplus PV. I do rely on the excess LED indicator.</p>
+<p>Hi Robert Wall,</p>
+<p>Thank you for your kind offer, it is greatly appreciated. Keith Walker has already added extra coding to make my sketch work the way I really want.</p>
+<p>Cheers Don....</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22241"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sat, 28/06/2014 - 22:29.</div>
+    <div class="content">
+     <p>Don, there are two reasons why the sketches on my website (and hence the latest versions of tmy Mk2i code) do not support an LED:</p>
+<p>1. When the RF module and the 4-digit display are both in use, there aren&#39;t any spare IO pins, and</p>
+<p>2. A neon does the job just as well.&nbsp; In fact, it does the job better because a neon will also come on if the load is activated via a manual override switch.</p>
+<p>If you really want an LED to show when the load is on, an LED and series resistor can be simply connected in parallel with the trigger.&nbsp; The processor&#39;s IO pin will then drive both circuits in parallel.</p>
+<p>If you only have one load, it should behave exactly the same when connected to either of the control pins.&nbsp; If your system is not behaving like this, then something is wrong with it, IMHO.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22462"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3602" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="thewaver&#039;s picture" title="thewaver&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3602" title="View user profile.">thewaver</a> on Fri, 11/07/2014 - 16:16.</div>
+    <div class="content">
+     <p>Hi Robin, just wanted to say thanks for all your help in getting my objective met. I also got help from Keith walker and have my rig running on your mk2i_rev5c with the sketch mods provided by Keith.<br />
+Cheers Don...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22514"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sun, 13/07/2014 - 17:15.</div>
+    <div class="content">
+     <p>While looking through the power-diversion logic in rev5d, the function <em>decreaseLoadIfPossible() </em>did not appear to be structured as I had intended it to be. &nbsp; I suspect cut-and-paste errors. &nbsp;</p>
+<p>It is possible that this code does work OK in practice, but the upgraded version (rev5e) looks better to me, as attached.</p>
+<p>The sketch Mk2i_PV_Router_rev5e.ino has been proven on a test rig today with two physical loads, so I am happy this this code is working as intended.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23416"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1704" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Keith Walker&#039;s picture" title="Keith Walker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1704" title="View user profile.">Keith Walker</a> on Fri, 29/08/2014 - 10:47.</div>
+    <div class="content">
+     <p>Hi All,</p>
+<p>These are the additions/changes that&nbsp;I made for two local loads.</p>
+<p>&nbsp;</p>
+<p><u><strong>NUMBER OF DUMP LOADS</strong></u></p>
+<p>I&#39;ve added an extra dump load for the second physical load.</p>
+<p>1 = first physical load</p>
+<p>2 = remote load - not used</p>
+<p>3 = second physical load</p>
+<p><strong>const byte noOfDumploads = 3;</strong></p>
+<p>&nbsp;</p>
+<p><u><strong>SURPLUS PV LED</strong></u></p>
+<p>I&#39;m not using the wireless pins so I&#39;ve used the standard pin for the surplus PV led.</p>
+<p>// const byte surplusPV_LED = 8;</p>
+<p>&nbsp; <strong>const byte surplusPV_LED = 13</strong>;</p>
+<p>&nbsp;</p>
+<p><u><strong>PIN FOR SECOND PHYSICAL LOAD</strong></u></p>
+<p>I&#39;m not using the remote load but I need to have a pin for the second physical load.</p>
+<p>const byte physicalLoad_0_pin = 9; // for trigger (active low)</p>
+<p><strong>const byte physicalLoad_2_pin = 10;</strong></p>
+<p>&nbsp;</p>
+<p><u><strong>FORCE LOAD OFF DURING START UP</strong></u></p>
+<p>digitalWrite(physicalLoad_0_pin, physicalLoadState[0]); // force the load to be &quot;off&quot; during start-up period</p>
+<p><strong>digitalWrite(physicalLoad_2_pin, physicalLoadState[2]);</strong></p>
+<p>&nbsp;</p>
+<p><u><strong>UPDATE PHYSICAL LOADS</strong></u></p>
+<p>// update all other physical loads</p>
+<p>digitalWrite(physicalLoad_0_pin, physicalLoadState[0]);</p>
+<p><strong>digitalWrite(physicalLoad_2_pin, physicalLoadState[2]);</strong></p>
+<p>&nbsp;</p>
+<p>Regards, Keith</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23418"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1704" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Keith Walker&#039;s picture" title="Keith Walker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1704" title="View user profile.">Keith Walker</a> on Fri, 29/08/2014 - 11:02.</div>
+    <div class="content">
+     <p><strong>ACTARIS ACE 1000 METER ISSUES</strong></p>
+<p>This meter is a real pain and has a smaller sweet zone than the standard 3600 joules. I&#39;ve been running with a bucket size of 1800 joules and a change to postMidPointCrossingDelayForAF_cycles, from 25 to 10.</p>
+<p>I used to have a tank of hot water and had used 0.5 kWh which I put down to my lodger&nbsp;getting home form work earlier than me.</p>
+<p>My lodger left but the 0.5 kWh was still be consumed even on the&nbsp;sunniest of days.</p>
+<p>To get over this I&#39;ve had to reduce the bucket size down to 360 joules.</p>
+<p>So if you have the same meter it might be worth checking your meter readings&nbsp;on a sunny day when the house is empty.</p>
+<p>Regards, Keith</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23422"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Fri, 29/08/2014 - 11:59.</div>
+    <div class="content">
+     <p>When running a Mk2 system in &#39;normal&#39; mode, no consumption should be registered by the meter while surplus power is being diverted.&nbsp; The meter will always allow a small amount of &#39;free&#39; consumption within its anti-creep mode, so this should accommodate any small amount of residual drift between the two measurement systems (router and meter).</p>
+<p>When running in &#39;anti-flicker&#39; mode, the same situation should apply.&nbsp; Having said which, any AF setting is less safe than when running in &#39;normal&#39; mode.&nbsp; The easiest way to establish an &#39;optimal&#39; AF setting is to slacken the AF criterion until the meter is clearly no longer ignoring the see-saw flow, and then tighten it until the meter is happy again. &nbsp; Then apply a safety margin to suit one&#39;s approach to risk (faster transitions = less risk of financial penalty). &nbsp; By this simple approach, it should be possible to get a Mk2 system working in AF mode just as effectively as if it were in the ultra-safe normal mode.</p>
+<p>Just a reminder that the definition for JOULES_PER_WATT_HOUR 3600 should never be changed.&nbsp; The capacity of the energy bucket can be adjusted using SWEETZONE_IN_JOULES.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23424"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1704" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Keith Walker&#039;s picture" title="Keith Walker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1704" title="View user profile.">Keith Walker</a> on Fri, 29/08/2014 - 12:54.</div>
+    <div class="content">
+     <p>Hi Robin,</p>
+<p>It is the sweet zone that I&#39;ve changed and I am running in anti-flicker mode. I&#39;m getting zero creep with the sweet zone of 360 joules. I just wanted to share my issues with the meter from hell. It wasn&#39;t until my lodger had left that I knew I was getting any meter creep.</p>
+<p>is there any disadvantage of&nbsp;having my sweet zone set so low?</p>
+<p>Also, when using anti-flicker mode, should I be calibrating my system or will the defaults be fine.</p>
+<p>Thanks, Keith</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23438"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Fri, 29/08/2014 - 18:54.</div>
+    <div class="content">
+     <p><em>when using anti-flicker mode, should I be calibrating my system or will the defaults be fine.</em></p>
+<p>As have posted on many occasions, calibration is not necessary when running a Mk2 Router in &quot;normal&quot; mode.&nbsp;</p>
+<p>If using an AF mode which has two energy thresholds (which is probably all versions except Mk2i Rev 5), it is the separation of those thresholds which determines the switching rate.&nbsp; Setting the sweet-zone range to any particular value only makes sense when the system is calibrated.&nbsp; The switching thresholds need to lie well within the meter&#39;s sweet zone, that&#39;s what the offset parameter is for.&nbsp; Typically this is set at 0.1 which means that only 20% of the sweet-zone is actually being used.&nbsp;&nbsp; It&#39;s up to the user to find the optimal value for their circumstances.</p>
+<pre>
+float offsetOfEnergyThresholdsInAFmode = 0.1; // &lt;-- must not exceeed 0.5</pre><p>If running my alternative AF system which has only a single energy AF threshold (as used in Mk2i_rev5), accurate calibration is no longer required.&nbsp; That&#39;s because this alternative system only relies on its knowledge of time, and the 50/60 Hz mains frequency can be relied on without need for calibration.&nbsp;&nbsp; This system works particularly well when multiple loads are in use.&nbsp; When using this AF scheme, it&#39;s the delay that&#39;s applied after the mid-point of the energy bucket has been crossed which needs to be adjusted in order to obtain the optimal setting.</p>
+<pre>
+const int postMidPointCrossingDelayForAF_cycles = 25; // in 20 ms counts</pre><p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23442"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2888" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Tinbum&#039;s picture" title="Tinbum&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2888" title="View user profile.">Tinbum</a> on Fri, 29/08/2014 - 21:50.</div>
+    <div class="content">
+     <p>This was the meter that i had. It should run fine with a sweet zone of 1100 if you have everything set up right. I used af with it as well.</p>
+<p>You certainly need to calibrate if using af&nbsp;with the early version sketches.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23475"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1704" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Keith Walker&#039;s picture" title="Keith Walker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1704" title="View user profile.">Keith Walker</a> on Sun, 31/08/2014 - 22:28.</div>
+    <div class="content">
+     <p>I&#39;m using version 5 in anti-flicker mode. I thought all was good until the lodger left and no one was in the house all day. I&#39;m just passing on my experiences with that meter. Thanks for confirming that I don&#39;t need to calibrate.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23497"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Mon, 01/09/2014 - 13:55.</div>
+    <div class="content">
+     <p><em>Thanks for confirming that I don&#39;t need to calibrate.</em></p>
+<p>For Rev5 (only) of my Mk2i code, the AF algorithm is based around the systems&#39;s knowledge of&nbsp; <strong>the passage of&nbsp; time </strong>rather that its measurements of&nbsp; <strong>the flow of energy</strong>.&nbsp; During a particular period of time, the maximum amount of energy that the dump-load can consume is determined by its rating.&nbsp; The AF mechanism can be adjusted by altering the &#39;hold-off&#39; delay&nbsp; which is applied whenever the mid-point of the energy bucket is crossed.</p>
+<p>With this particular AF algorithm, the value of <em>powerCal </em>has no effect on the system&#39;s behaviour, hence my claim that the system does not need to be calibrated.&nbsp; However, to ensure that the energy state of the premises is maintained within the penalty-free zone, the hold-off delay does need to be set appropriately for the type of meter that is present.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23864"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 17/09/2014 - 11:42.</div>
+    <div class="content">
+     <p>Ever since its first release, my Mk2 PV Router code has included the &#39;long&#39; variable <em><strong>cycleCount</strong></em>.&nbsp; Its purpose is to count the number of mains cycles that have occurred since the system was started.&nbsp; This provides a simple time-base without the need to repeatedly call millis().&nbsp;</p>
+<p>Initially, this variable was only used for trivial tasks such as displaying data every second.&nbsp; Within the Mk2i code, however, <em>cycleCount</em> has gradually become used for more significant purposes.&nbsp;&nbsp; During the first 1.5 years of operation or so, everything should be fine.&nbsp; But when this variable eventually overflows, there could be some unpredictable effects.&nbsp;</p>
+<p>Some modified sketches have just been posted on the Downloads page of my <a href="http://mk2pvrouter.co.uk/">website</a>.&nbsp;&nbsp; They contain alternative logic which will not suffer from this effect.&nbsp; The same changes would be useful for&nbsp; the equivalent code that has already been posted on this forum.</p>
+<p>The <strong>Mk2i rev5</strong> code on this forum is similar to the&nbsp; &quot;Mk2_multiLoad_CAT5_<strong>n</strong>&quot;&nbsp; sketches on my website.&nbsp; The <strong>_2 to_3</strong> update of my website code is for the<em> cycleCount</em> fix.&nbsp; Both of these versions are available on the Downloads page.</p>
+<p>The<strong> Mk2i rev6</strong> code on the OEM forum is similar to the&nbsp; &quot;Mk2_RFdatalog_<strong>n</strong>&quot;&nbsp; sketches on my website.&nbsp;&nbsp; Again, the <strong>_2</strong> to<strong>_3</strong> update of my website code is for the <em>cycleCount</em> fix.&nbsp; Both of these versions are available on the Downloads page.</p>
+<p>These latest versions have been checked using my own PCB-based hardware.&nbsp; The Mk2i PV Router code on the forum is intended for use on the emonTx V2 which has different pin-allocations and which I no longer use.&nbsp; I am therefore not intending to post updated versions of the Mk2i code.&nbsp;</p>
+<p>If anyone wants to upgrade their Mk2i code in this way, and needs any assistance, just send me a PM.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23867"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Wed, 17/09/2014 - 12:04.</div>
+    <div class="content">
+     <p>You&#39;re assuming uninterrupted use for 1.5 years!&nbsp;</p>
+<p>If the system is turned off or reset, or there&#39;s simply a power failure at some point, the clock starts ticking all over again. If that&#39;s unlikely, then the upgrade becomes a good idea.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23868"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2i PV Router, interrupt-based</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 17/09/2014 - 12:23.</div>
+    <div class="content">
+     <p><em>You&#39;re assuming uninterrupted use for 1.5 years!</em></p>
+<p>Sure, but that&#39;s how many Mk2 systems (including my own) are likely to be used.&nbsp;</p>
+<p>If it ain&#39;t broke, why bother to ever reset it? ;)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<div class="item-list"><ul class="pager"><li class="pager-first first"><a href="/emon/node/1912" title="Go to first page" class="active">« first</a></li>
+<li class="pager-previous"><a href="/emon/node/1912" title="Go to previous page" class="active">‹ previous</a></li>
+<li class="pager-item"><a href="/emon/node/1912" title="Go to page 1" class="active">1</a></li>
+<li class="pager-current last">2</li>
+</ul></div><form action="/emon/node/1912?page=1"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-msUB0vBbKORwDP3GxZcoKZoypHYKVepViBlyihOGitg" value="form-msUB0vBbKORwDP3GxZcoKZoypHYKVepViBlyihOGitg"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11922 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:09 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Logfile - change of location | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Logfile - change of location</h3>
+        <span class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 02/01/2016 - 21:50</span>
+        <div class="content"><p>A number of recent changes has taken place to have greater control over emoncms logfiles, including being able to specify different levels of logging from within the emoncms settings.php, and now for emonbase&nbsp;users,&nbsp;the logfile location has been moved from the emoncms installation directory to /var/log/<br />
+The reasons for this are;</p>
+<ul>
+<li>/var/log is the established location for logfiles, and where people expect them to be</li>
+<li>Logrotate will then be able to manage the emoncms log, rotating, and limiting it&#39;s size</li>
+<li>In low-write mode, /var/log is placed into tmpfs (RAM) and therefore emoncms logging can continue to run without disk-writes</li>
+</ul>
+<p>Following a git pull,the implications for emonbase users are; (does not apply to emonPi&nbsp;- as emonPi&nbsp;already uses /var/log for it&#39;s logfile)</p>
+<p><strong>Existing Installations (not in low-write mode)</strong><br />
+Emoncms is unable to create a logfile, only write to one, therefore it&#39;s necessary to create the logfile and set it&#39;s permissions in it&#39;s new location - just like what was done during the initial installation:</p>
+<pre>
+touch /var/log/emoncms.log
+​chmod 666 /var/log/emoncms.log</pre><p>Emoncms will then commence logging at /var/log/emoncms.log and be managed by Logrotate.</p>
+<p><strong>Existing Installations in low-write mode (Raspberry Pi&#39;s)</strong><br />
+Following a git update, it will be necessary to run an update script, to make a number of required changes:</p>
+<pre>
+cd /var/www/emoncms/scripts/logger/ &amp;&amp; sudo chmod +x install.sh
+sudo ./install.sh</pre><p>A more detailed explanation of what changes the script makes <a href="https://github.com/emoncms/emoncms/tree/master/scripts/logger">can be found here</a>.</p>
+<p><strong>New Installations</strong><br />
+The Raspberry Pi&nbsp;<a href="https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/Low-write-mode.md">low-write guide</a> has been updated to reflect these changes.</p>
+<p>Feedback as always appreciated.</p>
+<p>Paul</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10919.html" class="topic-previous" title="Go to previous forum topic">‹ Multi Stacked Barchart</a>
+              <a href="11882.html" class="topic-next" title="Go to next forum topic">problem with daily charts after 9.2 update ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-37776"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8839.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="joyrider3774&#039;s picture" title="joyrider3774&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8839.html" title="View user profile.">joyrider3774</a> on Sat, 02/01/2016 - 22:51.</div>
+    <div class="content">
+     <p abp="764">since i&#39;m using windows i have no /var/log so i&#39;m just mentioning the previous value that was in settings.php to make the log save inside emoncms installation folder in case anyone not running linux needs it. It was $log_filename = dirname(__FILE__).&#39;/&#39; . &#39;emoncms.log&#39;;</p>
+<p abp="764">i have not tried it yet, but i do wonder where the log file would be saved if i just wrote $log_filename =&nbsp;&#39;emoncms.log&#39;; will check it out once i update.</p>
+<p abp="764">also i&#39;m guessing logrotate is to make sure the log file size doesn&#39;t explode and i&#39;m wondering if logrotate is not used (since i&#39;m on windows)&nbsp;would the log file keep growing ? currently mine is 85 MB but i can&#39;t remember if there is / was something inside the php files code that would delete the log file if it had grown over a certain size.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37777"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 02/01/2016 - 23:22.</div>
+    <div class="content">
+     <p>Good point about the /var/log location in Windows, that needs to be covered within the Windows installation guide.</p>
+<p>Regarding the logfile size - yes there is a 250mb&nbsp;limit set in&nbsp;Lib/Emonlogger.php but that is far too high when the logs are placed in tmpfs (low write),&nbsp;as only 30mb&nbsp;is allocated for the entire /var/log tmpfs directory to preserve RAM.</p>
+<p>Logrotate&nbsp;really only applies to Raspberry Pi&nbsp;&nbsp;installations, its not enforced in code, and unless you are directing your logfiles to tmpfs, it will use whatever Log Management System is installed by your OS by default.</p>
+<p>In Windows, I doubt that you will notice any changes, other than the change of logfile location.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37781"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Sun, 03/01/2016 - 00:49.</div>
+    <div class="content">
+     <p>Paul - I am not sure if this is related, but I get this error when running an <strong>emonPi Update</strong>.</p>
+<blockquote><p>Emoncms update started</p>
+<p>Sat &nbsp;2 Jan 18:43:16 CST 2016</p>
+<p>git pull /var/www/emoncms<br />
+error: insufficient permission for adding an object to repository database .git/objects<br />
+fatal: failed to write object<br />
+fatal: unpack-objects failed</p>
+<p>git pull /var/www/emoncms/Modules/nodes<br />
+Already up-to-date.</p>
+</blockquote>
+<p>I tried rebooting the emonPi&nbsp;but got the same error.</p>
+<p>Emoncms &nbsp; &nbsp;Version &nbsp; &nbsp;low-write 9.2 | 2015.12.11</p>
+<p>emonPi formware 2.0</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37786"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 03/01/2016 - 09:54.</div>
+    <div class="content">
+     <p>Jon, emonpi&#39;s&nbsp;should&nbsp;obtain their updates via the &#39;stable&#39; branch, which has not been merged with development (master) yet. Also, these changes will not affect the emonpi&#39;s as they already write their logs to /var/log so these changes are really aligning the &#39;emonbase&#39; logging to how &#39;emonpi&#39;s&#39; already operate. So no, yours will be a separate issue, probably needing it&#39;s own thread. Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37810"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Sun, 03/01/2016 - 19:39.</div>
+    <div class="content">
+     <p>Thank you Paul!</p>
+<p>moved to new thread -&nbsp;<a href="11926.html"><strong>emonPi Update error for emoncms (git pull /var/www/emoncms)</strong></a>&nbsp;http://openenergymonitor.org/emon/node/11926</p>
+<p>Jon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37840"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Mon, 04/01/2016 - 15:46.</div>
+    <div class="content">
+     <p>Hi Paul,&nbsp;</p>
+<p>Thanks a lot for packaging&nbsp;this up in a tidy way. I&#39;m planning one more iteration on the new image before launch. I&#39;ll merge in these changes so the emonPi&nbsp;image setup will be inline with your RasPi&nbsp;Emoncms install notes.&nbsp;&nbsp;&nbsp;&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37857"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Mon, 04/01/2016 - 18:23.</div>
+    <div class="content">
+     <p>Just tried with the new logfile, after running ./install.sh&nbsp;something seems to have gone wrong, my log file consists of:</p>
+<p>pi@emonpi:/var/log$ cat &nbsp;emoncms.log<br />
+2016-01-04 18:15:30.649|INFO|feedwriter.php|Starting feedwriter script<br />
+2016-01-04 18:15:30.791|INFO|feed_model.php|EngineClass() Autoloaded new instance of &#39;RedisBuffer&#39;.<br />
+2016-01-04 18:15:41.729|INFO|feed_model.php|EngineClass() Autoloaded new instance of &#39;PHPFina&#39;.<br />
+2016-01-04 18:15:41.760|INFO|PHPFina.php|lastvalue() 1<br />
+2016-01-04 18:15:41.777|INFO|PHPFina.php|lastvalue() 2<br />
+2016-01-04 18:15:41.788|INFO|PHPFina.php|lastvalue() 3<br />
+2016-01-04 18:15:41.798|INFO|PHPFina.php|lastvalue() 4<br />
+2016-01-04 18:15:41.807|INFO|PHPFina.php|lastvalue() 5<br />
+2016-01-04 18:15:41.816|INFO|PHPFina.php|lastvalue() 6<br />
+2016-01-04 18:15:41.824|INFO|PHPFina.php|lastvalue() 7<br />
+2016-01-04 18:15:41.834|INFO|PHPFina.php|lastvalue() 8<br />
+2016-01-04 18:15:41.843|INFO|PHPFina.php|lastvalue() 9<br />
+2016-01-04 18:15:41.852|INFO|PHPFina.php|lastvalue() 10<br />
+2016-01-04 18:15:41.860|INFO|PHPFina.php|lastvalue() 11<br />
+2016-01-04 18:15:41.877|INFO|PHPFina.php|lastvalue() 12<br />
+2016-01-04 18:15:41.886|INFO|PHPFina.php|lastvalue() 23<br />
+2016-01-04 18:15:41.892|INFO|PHPFina.php|lastvalue() 24<br />
+2016-01-04 18:15:41.899|INFO|PHPFina.php|lastvalue() 25<br />
+2016-01-04 18:15:41.907|INFO|PHPFina.php|lastvalue() 26<br />
+2016-01-04 18:15:41.917|INFO|PHPFina.php|lastvalue() 27</p>
+<p>Have I missed something?&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37858"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Mon, 04/01/2016 - 18:47.</div>
+    <div class="content">
+     <p>That&#39;s strange, it must be something unique to the emonpi configuration...</p>
+<p>Following a reboot on a new emonbase&nbsp;installation running Jessie, I get;</p>
+<p>pi@ejessy:~ $ &nbsp;cat /var/log/emoncms.log<br />
+2016-01-04 18:34:11.646|INFO|feed_model.php|insert_data() feedid=2 updatetime=1451932436 feedtime=1451932436 value=411 arg=<br />
+2016-01-04 18:34:12.183|INFO|feed_model.php|EngineClass() Autoloaded new instance of &#39;RedisBuffer&#39;.<br />
+2016-01-04 18:34:12.206|INFO|feed_model.php|insert_data() feedid=3 updatetime=1451932436 feedtime=1451932436 value=0 arg=<br />
+2016-01-04 18:34:12.224|INFO|feed_model.php|insert_data() feedid=4 updatetime=1451932436 feedtime=1451932436 value=0 arg=<br />
+2016-01-04 18:34:12.263|INFO|feed_model.php|insert_data() feedid=5 updatetime=1451932436 feedtime=1451932436 value=24179 arg=<br />
+2016-01-04 18:34:12.283|INFO|feed_model.php|insert_data() feedid=6 updatetime=1451932436 feedtime=1451932436 value=1250 arg=<br />
+2016-01-04 18:34:14.995|INFO|feed_model.php|insert_data() feedid=9 updatetime=1451932454 feedtime=1451932454 value=184 arg=</p>
+<p>...and again following a reboot of another pi emonbase running Wheezy:</p>
+<p>pi@raspberrypi ~ $ cat /var/log/emoncms.log<br />
+2016-01-04 18:41:40.161|INFO|feed_model.php|insert_data() feedid=13 updatetime=1451932899 feedtime=1451932899 value=332 arg=<br />
+2016-01-04 18:41:38.986|INFO|phpmqtt_input.php|Starting MQTT Input script<br />
+2016-01-04 18:41:40.426|INFO|feed_model.php|EngineClass() Autoloaded new instance of &#39;PHPFiwa&#39;.<br />
+2016-01-04 18:41:40.427|INFO|PHPFiwa.php|PHPFiwa:post id=13 timestamp=1451932899 value=332<br />
+2016-01-04 18:41:40.633|INFO|feed_model.php|insert_data() feedid=14 updatetime=1451932899 feedtime=1451932899 value=332 arg=<br />
+2016-01-04 18:41:40.638|INFO|PHPFiwa.php|PHPFiwa:post id=14 timestamp=1451932899 value=332<br />
+2016-01-04 18:41:40.658|INFO|feed_model.php|insert_data() feedid=33 updatetime=1451932900 feedtime=1451932900 value=0 arg=<br />
+2016-01-04 18:41:40.681|INFO|feed_model.php|EngineClass() Autoloaded new instance of &#39;PHPFiwa&#39;.<br />
+2016-01-04 18:41:40.682|INFO|PHPFiwa.php|PHPFiwa:post id=33 timestamp=1451932900 value=0</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38064"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/689.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-689.jpg" alt="tgmaxx&#039;s picture" title="tgmaxx&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/689.html" title="View user profile.">tgmaxx</a> on Sat, 09/01/2016 - 14:41.</div>
+    <div class="content">
+     <p>I am running a Wheezy configuration and noticed INFO msgs&nbsp;like the following are now appearing&nbsp;in my emoncms.log. Why am I getting these? Is there a possible problem?</p>
+<p>2016-01-09 14:18:12.624|INFO|process_processlist.php|power_to_kwhd() feedid=61 last_kwh=0.0016374155555564 kwh_inc=4.5E-7 new_kwh=0.0016378655555564 last_slot=1452315600 current_slot=1452315600<br />
+2016-01-09 14:18:12.688|INFO|feed_model.php|insert_data() feedid=67 updatetime=1452349092 feedtime=1452349092 value=1 arg=<br />
+2016-01-09 14:19:12.689|INFO|feed_model.php|insert_data() feedid=60 updatetime=1452349152 feedtime=1452349152 value=0.018 arg=</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38065"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 09/01/2016 - 14:57.</div>
+    <div class="content">
+     <p>When did you last update?&nbsp;</p>
+<p>I <a href="https://github.com/emoncms/emoncms/commit/760fdb1a2706b617fcd7d9a6f97fe61fcec1bb80">merged a fix</a> a few days ago&nbsp;which sorts the issue.</p>
+<p>If you update, you can then set your preferred&nbsp;logging level in settings.php (default is WARN).</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38067"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/689.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-689.jpg" alt="tgmaxx&#039;s picture" title="tgmaxx&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/689.html" title="View user profile.">tgmaxx</a> on Sat, 09/01/2016 - 15:22.</div>
+    <div class="content">
+     <p>Hi Paul, I just updated about 12 hrs ago so I have your latest commit. But I still don&#39;t understand the meaning of the msgs.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38068"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 09/01/2016 - 15:40.</div>
+    <div class="content">
+     <p>The messages are just what emoncms is doing under the hood. It's showing you what emoncms is doing with the data inputs, and calculating your daily values.<br />
+Im not at home now so can't check, but if you git pull, does it say that you are up to date - nothing to do?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38069"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/689.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-689.jpg" alt="tgmaxx&#039;s picture" title="tgmaxx&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Logfile - change of location</h3>
+
+    <div class="submitted">Submitted by <a href="../user/689.html" title="View user profile.">tgmaxx</a> on Sat, 09/01/2016 - 15:57.</div>
+    <div class="content">
+     <p>Paul, I rebooted and I am not getting the messages anymore (with $log_enabled =&nbsp;true, and $log_level = 2). On git pull, I get &quot;Already up-to-date.&quot; &nbsp;Everything appears to be OK for&nbsp;now.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11922"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-o485JanHe6LMrFfL9tcXqMMnj9aU-87-G7qTgaZzYCk" value="form-o485JanHe6LMrFfL9tcXqMMnj9aU-87-G7qTgaZzYCk"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11922 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:09 GMT -->
+</html>

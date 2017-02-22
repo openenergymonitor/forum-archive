@@ -1,0 +1,606 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3868 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:24:23 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Emoncms development | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Emoncms development</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 18/02/2014 - 18:36</span>
+        <div class="content"><p>I&#39;m working on a couple of new features for emoncms, there&#39;s still a fair way to go but I thought Id share where I&#39;ve got to so far.</p>
+<h2>
+	Nodes</h2>
+<p><a href="../sites/default/files/nodes-2.png"><img alt="" src="../sites/default/files/nodes-2.png" style="width: 500px; height: 366px;" /></a></p>
+<p>A new interface designed around rfm12b based nodes allowing for decoding of packets that contain different datatypes: integers, longs implemented so far, doubles unsigned int, long etc would be great too.</p>
+<p>This is needed to send total watt hours from an emontx to emoncms as the maximum value that can be sent with integer datatypes is -32,768 to 32,767 enough for a couple of days if your sending watt hours which would be the resolution that would be best for home electric.&nbsp; Sending total watt hours as a long would allow -2,147,483,648 to 2,147,483,647 which is enough for 650 years at 3300 kWh per year. This also applies to total pulse count in pulse counting applications</p>
+<p>Through the nodes interface you can either select pre defined decoders that work with the standard OEM emontx, emonth firmware/sketches which automatically apply all the right datatypes, scaling, units, input names, recommended feed intervals or create your own custom decoders, this works in a similar way to the packetgen module and could potentially merge with it to make one module that both receives and sends packets via the struct definition approach used with rfm12b.</p>
+<h2>
+	Input config</h2>
+<p><img alt="" src="../sites/default/files/nodeconfig.png" style="width: 500px; height: 280px;" /></p>
+<p>A rework of the input processing config interface both to make better use of javascript and to provide more information on what each input process does, so integrating the input processing documentation in the input processing interface. There is also the option to create feeds in the different feed engines although I think this would be disabled as default so as not to over complicate with options, possible to enable if you want more advanced functionality.</p>
+<p>I want to make this step easier to get started with so that there is information on the input config page on how to configure the input if its power, temperature or a pulse count.</p>
+<p>&nbsp;</p>
+<h2>
+	Improved feed engine</h2>
+<ul>
+<li>
+		Port of timestore to PHP so that installation is easier on all platforms and possible on Windows which was a problem with the last version.</li>
+</ul>
+<ul>
+<li>
+		Plus an improvement to the way the timestore averaging is calculated so that the averaging is aligned to the actual minute/hour/day rather than the start time of the feed. This will make creating visualizations, exports, analysis, that need to be aligned exactly to these intervals much easier, maybe it could help with the multi rate billing feature idea being discussed here: <a href="2499.html">http://openenergymonitor.org/emon/node/2499</a></li>
+</ul>
+<ul>
+<li>
+		There seems to be a stability problem with the original timestore when under heavy load, it keeps locking up. The PHP timestore port appears to be stable with no locking and its a bit faster too reaching ~5000 posts per second on my machine vs 3636 post per second with the original timestore. This is probably because it doesn&#39;t have the overhead of the webservice and encryption that timestore comes with. But then the port is in PHP while the original Timestore is in C. That said by now I&#39;ve realised that the language isnt really the determining factor for performance in feed storage, the limiting factor is disk IO speed and the potential for improvement going forward from here is by introducing buffering of writes and in memory caching.</li>
+</ul>
+<h2>
+	&nbsp;</h2>
+<h2>
+	Password reset</h2>
+<p>There&#39;s now the much needed password reset feature:</p>
+<p><img alt="" src="../sites/default/files/passwordreset.png" style="width: 300px; height: 210px;" /></p>
+<p>There are a couple of other features Id like to add in the next release:</p>
+<ul>
+<li>
+		A data export interface for exporting csv data at requested intervals and over a selected time range.</li>
+<li>
+		A pre configured dashboard interface for home energy monitoring and solar pv monitoring that works well when viewed on a mobile.</li>
+<li>
+		Id like to look at how it could be possible to make redis optional so as to simplify installation on windows.</li>
+</ul>
+<p>All the code for what you can see in the screenshots above plus the php timestore based engines is in the rework development branch here <a href="https://github.com/emoncms/emoncms/tree/rework">https://github.com/emoncms/emoncms/tree/rework</a></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="3918.html" class="topic-previous" title="Go to previous forum topic">‹ Emoncms Temperature widget</a>
+              <a href="3700.html" class="topic-next" title="Go to next forum topic">Lost Wifi and Mouse in GUI after updating ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-18522"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3862.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="GJPickard&#039;s picture" title="GJPickard&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3862.html" title="View user profile.">GJPickard</a> on Tue, 18/02/2014 - 22:32.</div>
+    <div class="content">
+     <p>Trystan</p>
+<p>Some really good looking changes - looks like I need to make the jump to V7 sooner rather than later!</p>
+<p>Can I make a couple of suggestions for making emonCMS more user friendly:</p>
+<p>1.&nbsp; Some sort of simple backup/restore option that can be accessed from the web interface.&nbsp; At the moment I am taking SD card images and dropping the contents of the key directories to my PC&#39;s hard drive with FileZilla every now and again.&nbsp;&nbsp; If at all possible it would be good to have a USB flash drive plugged into a RPi port as a target for the backup/restore.</p>
+<p>2.&nbsp; Syncing between a local emonCMS install and remote emoncms.org to save needing to set up inputs/feeds etc twice.&nbsp; It would be good if this could be set up with sync direction and automatic or manual options - that way you can play with one version and if all goes well then choose to replicate the changes (or even roll them back by syncing from the untouched version).</p>
+<p>Keep up the good work - and thanks to everyone else that is working hard on emonCMS</p>
+<p>Gary</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18539"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5190.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5190.html" title="View user profile.">Schism</a> on Wed, 19/02/2014 - 13:37.</div>
+    <div class="content">
+     <p>This looks great, especially the ability to define the node as a complete unit, rather than working at the input level. I think that will be a lot more intuitive for less advanced users.</p>
+<p>If you set up a node, does this just create the underlying input processing / feeds in one shot? (i.e. allowing the input processing to be tweaked if desired)</p>
+<p>@GJPickard - this wouldn&#39;t help with syncing installations, but couldn&#39;t you use a SQL dump of your local database to back things up?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18558"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 19/02/2014 - 19:36.</div>
+    <div class="content">
+     <p>Gary: I would wait to upgrade and skip to v8 (wish I had choosen smaller version increments at the start)<br />
+	A backup/restore feature that works like you describe would be nice I agree!</p>
+<p>Schism: The node implementation of packed decoding and applying of a scale factor is completely separate from the inputs/input processing implementation, but Im thinking that as it develops there may be some merging of interfaces when creating feeds and so on. Im also thinking that it might be nice to transfer some of the node interface features to inputs such as the units and possibly the scaling too.</p>
+<p>To backup you also need the feed data files which are separate from mysql. There is an export implementation at the moment its just not that easy to use and it requires the use of a terminal script.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18560"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Wed, 19/02/2014 - 20:05.</div>
+    <div class="content">
+     <p>Trystan, with a new version imminent, perhaps you may consider including the version number in the emoncms&nbsp;page footer so users know what version they have installed. This has been raised many times before, and could help when forum members encounter problems.</p>
+<p>Plan B could be to add a txt file to the emoncms&nbsp;folder containing the version number, and users could simply;</p>
+<p>$ cat version</p>
+<p>to get the info.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18561"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Wed, 19/02/2014 - 20:43.</div>
+    <div class="content">
+     <p>Great improvements ! In particular the data export interface that is a must feature according to me.</p>
+<p>I made some suggestion during the last weeks. Did you read this <a href="3574.html">one </a> ?&nbsp; My purpose is to make my students be able to work on EmonCMS with my feeds without making them be able to delete my feeds. To implement that feature, I could be necessary to add a column in the user table to define the user whom feeds can be read.&nbsp; Not sure, it is the best way to do it. Let me know.</p>
+<p>I have some other suggestions regarding the input processing.</p>
+<ol>
+<li>
+		As I would like to perform co-heating tests, I need to be able to perform complex calculation in EmonCMS, like this one : RESULT = (input1 + input2 x input3) / ( input5-input4). According to my understanding, it is not possible to do it now in EmonCMS as the bracket are not available.</li>
+<li>
+		I also would like to be able to add conditions in the input processing regarding the input value (&quot;if input1 &lt; x &quot;) and the time (&quot;if time&lt;8 and time&gt;22&quot;) . My purpose is to store my gas consumption only when the heat pump is running and only during the night. For co-heating test too.</li>
+</ol>
+<p>For the moment, I do this complex calculation directly into the Tx sketch, but it&#39;s not always possible when the inputs come form different nodes So if you can add these two feature in the V8 or in the next release ...</p>
+<p>&nbsp;</p>
+<p>As I planned to install EmonCMS on several servers in the coming weeks, I would like to know whether the V8 will be available soon.&nbsp; Do you have any rough idea of the release date ?</p>
+<p>Regards,</p>
+<p>eric</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18572"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Thu, 20/02/2014 - 08:23.</div>
+    <div class="content">
+     <blockquote><p>As I would like to perform co-heating tests, I need to be able to perform complex calculation in EmonCMS, like this one : RESULT = (input1 + input2 x input3) / ( input5-input4). According to my understanding, it is not possible to do it now in EmonCMS as the bracket are not available.</p>
+</blockquote>
+<p>I think here&#39;s a workaround:</p>
+<p>input5 - input4 -&gt; log to feed &quot;dummy&quot;</p>
+<p>input2 x input3 + input1 / &quot;dummy&quot; feed -&gt; log to feed &quot;what you want&quot;</p>
+<p>This records a useless feed, but I believe it should work.</p>
+<blockquote><p>I also would like to be able to add conditions in the input processing regarding the input value (&quot;if input1 &lt; x &quot;) and the time (&quot;if time&lt;8 and time&gt;22&quot;) . My purpose is to store my gas consumption only when the heat pump is running and only during the night. For co-heating test too.</p>
+</blockquote>
+<p>I don&#39;t think you can do that right now, but I believe it is easy to implement.</p>
+<p>I&#39;ve been working on another feature, that was never finished and integrated, and I needed the possibility to stop the processing by letting a processing function return NULL:</p>
+<p><a href="https://github.com/Jerome-github/emoncms_emoncms/commit/e27251563c0241598ce2b2c5d4c4fed6bccfbf2c" title="https://github.com/Jerome-github/emoncms_emoncms/commit/e27251563c0241598ce2b2c5d4c4fed6bccfbf2c">https://github.com/Jerome-github/emoncms_emoncms/commit/e27251563c024159...</a></p>
+<p>You (or anyone) could do this, and add a test function like &quot;greater_than()&quot; that would check the input value and return either the input value itself or NULL, with the threshold value as argument. Same for &quot;lower_than()&quot;. And two other functions time_greater_than() and time_lower_than() (beware of timezones !). Looks easy.</p>
+<p>I haven&#39;t been checking recently but last time I checked, the function list in the processing definition GUI in the emoncms page was kind of a mess. If more are to be added, it may be worth considering sorting the functions. Like unary, binary, loggers/non loggers, arithmetic +-*/, comparators, accumulators, etc. Could be worth opening an issue on Github to discuss the categories before implementing.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18573"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5190.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5190.html" title="View user profile.">Schism</a> on Thu, 20/02/2014 - 08:51.</div>
+    <div class="content">
+     <p>Eric - I need to log pulses to different feeds depending on the time of day too. This way I will separate out my gas consumption for space heating from DHW; I&#39;ll post a topic when I get this working.</p>
+<p>There are a few &#39;missing&#39; processes I think, and/or ones which could do with being rebranded / explained at more length. I had to dig into the code to understand that &quot;kWh to kWh/d&quot; is a generic &quot;log the increase of any accumulator to a daily feed&quot;, very handy for pulses for water or gas. (It&#39;s effortless to understand if you look at the code, but this shouldn&#39;t be a requirement really)</p>
+<p>Trystan - how do you decide on versioning and deploying changes to emoncms.org ? It&#39;s not clear from github quite what&#39;s going on, with changes committed onto master that don&#39;t correspond with any sort of changelog&nbsp;(just commit messages).</p>
+<p>I&#39;m asking because when I do come up with a process to selectively log during specific hours of the day, I&#39;d hope to be able to mirror that on emoncms.org as well as a local install. Does that mean making a pull request against a future version 9? Not quite clear how you&#39;re working, but I definitely want to make some contributions.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18574"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5410.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5410.jpg" alt="batulzii&#039;s picture" title="batulzii&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5410.html" title="View user profile.">batulzii</a> on Thu, 20/02/2014 - 09:15.</div>
+    <div class="content">
+     <p>Thanks for improvements! Any plan on https (SSL/TLS)connection?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18581"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Thu, 20/02/2014 - 09:59.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Jerome, the workaround you described with the dummy feed is not possible. Maybe I&#39;m wrong (I hope so !) but the processing&nbsp; &quot; / feed x&quot; is not available. (only &quot; / input x &quot; is possible). Anyway, for physical purposes, the brackets and the 1/x processing should be available.</p>
+<p>I would be glad to take part into the discussion about how to implement the new processing list but I don&#39;t know how to handle issues on github. If someone can start the process, I will commit myself to it.</p>
+<p>Eric</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18583"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 20/02/2014 - 10:37.</div>
+    <div class="content">
+     <p>Paul, good idea on showing the version number, I&#39;ve added a $emoncms_version variable to index.php this then gets displayed in the theme footer and on the admin page:</p>
+<p><img alt="" src="../sites/default/files/versioning.png" style="width: 400px; height: 206px;" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18588"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Thu, 20/02/2014 - 13:28.</div>
+    <div class="content">
+     <blockquote><p>Jerome, the workaround you described with the dummy feed is not possible. Maybe I&#39;m wrong (I hope so !) but the processing&nbsp; &quot; / feed x&quot; is not available. (only &quot; / input x &quot; is possible). Anyway, for physical purposes, the brackets and the 1/x processing should be available.</p>
+</blockquote>
+<p>Granted. One limitation here, for the brackets, is the fact that a processing function, by design of the GUI, can only have one parameter, which is annoying for other use cases.</p>
+<blockquote><p>I would be glad to take part into the discussion about how to implement the new processing list but I don&#39;t know how to handle issues on github. If someone can start the process, I will commit myself to it.</p>
+</blockquote>
+<p>Create a Github account, then you can comment / open issues here:</p>
+<p><a href="https://github.com/emoncms/emoncms/issues" title="https://github.com/emoncms/emoncms/issues">https://github.com/emoncms/emoncms/issues</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18609"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Fri, 21/02/2014 - 08:31.</div>
+    <div class="content">
+     <p>Eric, Not sure about release date, I would say on the 1-2 weeks scale for clean installs, longer for a full release that can be upgraded too, it all depends on making sure that the feed engine is stable enough.</p>
+<p>Schism: At the moment there&#39;s no change log, just the github commit history, I usually branch or/and create a new version when there is a large enough change to the code that needs thorough testing and may present a risk for people if they routinely pull the latest changes from the master branch. Making the development process clearer: versioning, what&#39;s being worked on next is something Id definitely like to improve. Part of that I hope is this forum thread.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18612"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Fri, 21/02/2014 - 09:35.</div>
+    <div class="content">
+     <p>So Im working this morning on the new (Fixed Interval With Averaging - FIWA) feed engine implementation. The main difference compared to the existing timestore implementation is that averages are aligned to actual UNIX time hours, minutes and days rather than hours, minutes and days from the start time of the feed which may have been for example: 6:30am on its first day meaning that all subsequent averages are aligned to this start time.</p>
+<p>The averaged layer feature is useful as it makes fetching data at wide timescales both fast and most importantly representative of the underlying data.</p>
+<p>Lets say we want to create a graph of a years temperature data, we probably dont want more than around 800 to 1000 datapoints to create our graph as above that we may be getting close to the pixel width of the graph/display.</p>
+<p>If the temperature data was recorded every 10s there are 3153600 temperature datapoints in that year, pulling all those datapoints into the browser would be very slow. If we want 1000 datapoints then one approach is to pull out a datapoint every 3153 datapoints this is what the mysql (variable interval no averaging), phptimeseries (variable interval no averaging) and phpfina engines do (fina - fixed interval no averaging).</p>
+<p>The other approach is to calculate the average of those 3153 datapoints and so return data that is representative of all those 3153 datapoints not just a random datapoint out of every 3153. Doing this on the fly would also likely be very slow as youd need to load 3153600 datapoints into memory and then calculate 1000x 3153 datapoint averages.</p>
+<p>So the timestore approach is to pre-compute averaged layers so that we dont have to do all the averaging work every time we want to see a graph.</p>
+<p>Up to this point timestore (as used in emoncms) has had its decimation set too: 20, 6, 6, 4, 7.<br />
+	So layer 1 is an average of 20 datapoints from layer 0, layer 2 is an average of 6 datapoints of layer 1 and so on.<br />
+	At the time when I first added timestore to emoncms I didnt look into what levels of decimation/averaging would be most appropriate.</p>
+<p>If your logging at 5 seconds: Layer1: 20 x 5 = 100s, Layer2: 20 x 6 x 5 = 10 mins, Layer3: 20 x 6 x 6 x 5 = 1 hour, Layer4: 20 x 6 x 6 x 4 x 5 = 4 hours, Layer5: 20 x 6 x 6 x 4 x 7 x 5 = 28 hours</p>
+<p>Im thinking that rather than fix the decimation for all base post rates it should instead be fixed to provide daily and hourly averages at a minimum because these are useful analysis/export time scales.</p>
+<p>If we&#39;re logging at 5 seconds then the decimation level for an hour is 720 (3600/5), the next step if daily is 24. 720 is a large decimation step size and will probably create slow graph load times if your trying to view graphs whose time between datapoints is just less than an hour.</p>
+<pre>
+5s, 3600s, 86400s
+  720x   24x
+</pre><p>If we add another layer with minute averages things improve quite a bit so:</p>
+<pre>
+5s, 60s, 3600s, 86400s
+  12x, 60x,   24x</pre><p>This seems to provide pretty quick graph load times on my machine &lt;10ms, but then its not under heavy load and its got an SSD.</p>
+<p>A 60x step is still quite large, it means that at most on the fly averaging will be performed on 60000 datapoints to produce 1000.</p>
+<p>Every layer that is added adds an additional file open, write, close when posting but then it also reduces the number of reads needed when posting for the generation of averages, then again there is scope for changing that with an improved post implementation.</p>
+<p>It all gets quite complex.</p>
+<p>So the development question I&#39;m grappling with is what is the ideal number of averaged layers and what should the decimation/average step between layers be.</p>
+<p>Latest commit: <a href="https://github.com/emoncms/emoncms/commit/1f6a1e7f81b2096e81ba668eb0a5ae3681473083" title="https://github.com/emoncms/emoncms/commit/1f6a1e7f81b2096e81ba668eb0a5ae3681473083">https://github.com/emoncms/emoncms/commit/1f6a1e7f81b2096e81ba668eb0a5ae...</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18614"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Fri, 21/02/2014 - 10:05.</div>
+    <div class="content">
+     <p>A note of interest for feed engine choice on SD cards:</p>
+<p>Because SD Cards need the number of writes per datapoint to be as low as possible in order to preserve lifespan, the best feed engine would be one without averaging as every averaged layer adds at least 1 additional open, write, close per post. The number of writes could also be reduced by potentially using php&#39;s filesize function rather than storing the number of datapoint in the feed in a meta file as is currently done in timestore and I&#39;ve copied in the php ports and adaptations so far, I&#39;m not sure if there are any caveats to that approach though. Interested to hear anyones thoughts on all of this.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18619"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1741.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1741.jpg" alt="ukmoose&#039;s picture" title="ukmoose&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1741.html" title="View user profile.">ukmoose</a> on Fri, 21/02/2014 - 11:49.</div>
+    <div class="content">
+     <p>This started off as a couple of points ;)</p>
+<p>- Version Number - fantastic to see this, But it needs to be carried through to all modules, so that from one place you can see what modules are installed and what version of code they are all at.<br />
+	It would also be good to have as a line in the Arduino&nbsp;scripts (recognising it won&#39;t be reported in EmonCMS&nbsp;but at least it would help in support).<br />
+	It would be good if a request for this information&nbsp;was added to the blank forum post i.e. top of this page&nbsp;http://openenergymonitor.org/emon/node/add/forum/0&nbsp;, so that it was included in the initial question, rather than an a first response back.</p>
+<p>- Averaging - if we mean mean, can we call it mean?</p>
+<p>- Support&nbsp;Schism&#39;s comment about documentation of what the processes are doing. &nbsp;It needs to be easier to understand what processes are actually doing.</p>
+<p>-Timestore decimation/averaging, I might have got the wrong end of the stick as I haven&#39;t managed to install timestore on my dev environment. &nbsp;It would be good to be able to get mean values out emoncms as a feed. &nbsp;</p>
+<p>-Timestore - struggle to see value of 28 hour &quot;average&quot;</p>
+<p>-Timestore - can see value of 4 hour &quot;average&quot; e.g evenings energy use</p>
+<p>(e.g. Nodered controlled LED light colour based on current power / gas use&nbsp; in comparison to evenings mean usage over past month)</p>
+<p>I&#39;m not convinced that the capabilities of the system should be constrained&nbsp;by unsuitability of utilising SD cards. &nbsp;</p>
+<p>Openenergymonitor and EMonCMS have evolved past its original use case and what doesn&#39;t make as much sense for electricity monitoring might make more sense within an integrated energy/house/hive/weather monitoring system.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18636"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Fri, 21/02/2014 - 17:14.</div>
+    <div class="content">
+     <p>ukmoose, Il get back to you on the version numbers, Il get this feed engine work done first.</p>
+<p>Yes mean values is the output, you can request a mean of any interval that is an integer multiple of the post rate, you can do this on timestore now, you will also be able to do this on the new engines.</p>
+<p>Yes agree that system should not be constrained by SD cards, i was just making the point that when selecting a feed engine to use on particular hardware that one may choose one over the other.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18641"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Fri, 21/02/2014 - 17:58.</div>
+    <div class="content">
+     <p>I&#39;ve carried out a little benchmarking in order to shed some more light on the question of the choice of layer intervals, i.e how many datapoints the arithmetic mean average should be calculated over when generating a downsampled layer.</p>
+<p>Given that the feed engines are fixed interval the benchmark needs to post to enough feeds so that a post to a particular feed doesnt happen more quickly than its fixed post rate. So if our feeds are set to 5s post intervals and the post takes 0.00018 seconds to complete then we would need to post to 5 / 0.000183 just over 27000 feeds in that 5 seconds so that we dont post to any one feed more quickly than once every 5 seconds.</p>
+<p>All benchmarks where carried out with a four core machine with the CPU fixed to 2GHz, 8GB Mem and an SSD</p>
+<p><strong>PHPFiwa engine (fixed interval with averaging)</strong></p>
+<p><strong>Feed layer intervals: 1,60,3600,</strong><strong>86400s</strong><br />
+	Posting 20000 took around 3.6s = 0.00018 seconds per post ~ 5555 posts per second<br />
+	adjusting post number to 6000&nbsp; time taken is now 0.000171 seconds per post 5848 posts per second</p>
+<p><strong>Feed layer intervals: 5,60,3600,86400s</strong><br />
+	Posting 30000 took ~ 5.5s = 0.000183 seconds per post ~ (5454 posts/s)</p>
+<p><strong>Adjusting the layer intervals to 5,60,600,</strong><strong>3600s</strong><br />
+	Posting 30000 still took ~ 5.5-5.6s = 0.000187 seconds per post (5347 posts/s)</p>
+<p><strong>Adjusting the layer intervals to 10,60,600,3600s</strong><br />
+	Posting 55555 took ~ 10.5s = 0.000189 seconds per post (5291 posts/s)</p>
+<p><strong>Removing a layer: 5,60,3600s</strong><br />
+	Posting 35000 takes 5.6s = 0.000160 seconds per post (6250 posts/s)</p>
+<p><strong>Removing another layer: 5,60s</strong><br />
+	Posting 45000 takes 5.8s = 0.000129 seconds per post (7752 posts/s)</p>
+<p><strong>Removing another layer:</strong> <strong>5</strong> (only one layer equivalent to PHPFina engine, Fixed interval no averaging)<br />
+	Posting 460000 takes 5.5s = 0.000092 seconds per post, (10870 posts/s)</p>
+<p><strong>PHPFina (Fixed interval no averaging)</strong></p>
+<p>Interval 5<br />
+	Posting 100000 takes ~9.4s = 0.000094&nbsp; seconds per post (10638 posts/s)</p>
+<p>Interval 5 using filesize instead of writing the npoints to disk<br />
+	Posting 100000 takes ~10s = 0.000100&nbsp; seconds per post (10000 posts/s)</p>
+<p>
+	<strong>PHPTimestore</strong></p>
+<p>Posting 30000 takes 6.5s ~ 0.000217 seconds per post (4615 posts/s)<br />
+	Posting 25000 takes 5.1 ~ 0.000204 seconds per post(4902 posts/s)</p>
+<p><strong>Timestore</strong></p>
+<p>Although a single post can take 0.000275 seconds (3636 posts/s), testing again today I could not get it to run continuously at a stable post rate at anything much faster than 310 posts per second 0.00323 seconds per post. The emoncms.org server has also reached a similar post rate and its seeing the same unstable slow down effect.</p>
+<p><strong>Conclusion</strong></p>
+<p>It looks like the exact choice of the number of datapoints to calculate the mean of per layer in the range tested does not have a really significant difference on post rate. Removing layers gives us a more substantial post rate improvement as we would expect.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18677"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 23/02/2014 - 10:44.</div>
+    <div class="content">
+     <p>I&#39;ve started the process of moving emoncms.org over to the php port of timestore, so far the load stability / feed post processing time has improved significantly. If anyone see&#39;s anything amiss with their feeds please let me know.</p>
+<p>On the question of what the ideal number of layers and what the interval&#39;s of each layer should be, I&#39;m leaning towards the following standard configuration:</p>
+<p>Feed with 5s, 10s, 15s, 20s or 30s fixed interval post rate<br />
+	- Layer 0: 5s, 10s, 15s, 20s or 30s<br />
+	- Layer 1: 60s<br />
+	- Layer 2: 600s<br />
+	- Layer 3: 3600s</p>
+<p>Feed with 60s fixed interval post rate<br />
+	- Layer 0: 60s<br />
+	- Layer 1: 600s<br />
+	- Layer 2: 3600s</p>
+<p>Feed with 2 or 5min fixed interval post rate<br />
+	- Layer 0: 120s or 300s<br />
+	- Layer 1: 600s<br />
+	- Layer 2: 3600s</p>
+<p>Feed with 10,20,30 min fixed interval post rate<br />
+	- Layer 0: 600s, 1200s or 1800s<br />
+	- Layer 1: 3600s</p>
+<p>Then maybe cap the maximum fixed interval post rate at 1 hour.</p>
+<p>If a particular use case required a longer post interval the phptimeseries engine could be used which is a variable interval engine in that you can post at any interval. A variable interval engine is also useful for when the application only requires an entry sporadically i.e in response to a state change such as counting the number of times the internet goes offline on a basestation.</p>
+<p>By missing out a daily mean layer any request for daily mean&#39;s can be generated from the hourly layer, the daily mean for any timezone can then easily be requested.</p>
+<p>The request times for the above are all around 9-24ms with a feed that has around 2 and a bit years of data in it. A point to note is the memory use per request, at the moment if you had 10 years of data and you zoomed out to see the full range with the 1000 datapoints needed for the graph being generated from the hour layer, this would require an averaging of 24*365*10 = 87600 datapoints.</p>
+<p>The current implementation of get_data reads the datapoints into an array which uses a fair bit of memory:</p>
+<p>2300dp 1280kb&nbsp; (1.4ms)<br />
+	5000dp 1792kb (2.7ms)<br />
+	10000dp 2304kb (4.8ms)<br />
+	15000dp 3072kb (8.3ms)<br />
+	20000dp 4096kb (10.6ms)</p>
+<p>(Times are php get_data function execution time vs the 9-24ms time which is the browser request time)</p>
+<p>But I think it shouldn&#39;t be too hard to change the implementation to read in blocks to reduce memory or add another layer if the calculation time becomes too slow. Adding another layer could be added at a later date when the feed starts to reach + 5 years of data.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18694"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5190.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5190.html" title="View user profile.">Schism</a> on Sun, 23/02/2014 - 20:44.</div>
+    <div class="content">
+     <p>This sounds good. The question that remains in my mind is how you&#39;d view a bar graph of the average of a feed (i.e. display a deeper layer of the feed than the raw data). This is a solid solution to viewing, say, daily average temps. I suspect this isn&#39;t currently supported in the UI?</p>
+<p>If a new layer is added at a later date, how do you back-populate that interval for the previous X years? Some kind of offline process? It might be worth adding layers down to the day just because you get a 24x reduction in datapoints and it&#39;s also a common (perhaps even the most common?) interval that people may want to export for use in a variety of cases. However, if it&#39;s no big deal, no need to worry just now.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18702"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 24/02/2014 - 08:24.</div>
+    <div class="content">
+     <p>Thanks Schism, There&#39;s a daily average vis called timestoredaily but that&#39;s as much as there is so far.</p>
+<p>	There doesn&#39;t appear to be a problem with calculation time on 24 hours from the 1 hour layer yet and its a convenient way of getting around the timezone issue, but yes would be worth keeping an eye on it. Adding a new layer to existing data would be a background process, processed in a queue if there was a lot of feeds to convert.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18706"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5190.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms development</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5190.html" title="View user profile.">Schism</a> on Mon, 24/02/2014 - 09:32.</div>
+    <div class="content">
+     <p>Hmm, when I try timestoredaily for our internal temperature feed I get 0.35 to 0.4 per day (it&#39;s cold, but not that cold!) so I assumed it did something else (feed 33211 if you want to give it a try).</p>
+<p>The nice thing about open source is that everyone can try to scratch their own itch, but I do think that it would be beneficial to have a little bit more structure in terms of who is working on what, timescales and so on. I don&#39;t want to suggest anything in particular but I think it could be an easier project to get into than it is - especially for people who are less comfortable about diving into the code, but for developers too.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3868"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-iDHKhazM1eDrD6ztSqA9ndIs4PutfNCK6W7xUX3Ad3Y" value="form-iDHKhazM1eDrD6ztSqA9ndIs4PutfNCK6W7xUX3Ad3Y"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3868 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:24:26 GMT -->
+</html>

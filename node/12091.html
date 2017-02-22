@@ -1,0 +1,297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12091 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:43:43 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonhub emon-pi variant MQTT support &amp; Emoncms MQTT input service   | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonhub emon-pi variant MQTT support &amp; Emoncms MQTT input service  </h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 27/01/2016 - 15:55</span>
+        <div class="content"><p>As you may know Glyn&#39;s been working on adding nodered and OpenHAB to the next emonpi image alongside emoncms. Both of these make use of MQTT for their messaging. Emoncms and Emonhub on the emonpi have been using MQTT now for some time however the message format is a little harder to use beyond the emoncms nodes module.</p>
+<p>I&#39;ve added a second format option to the EmonHubMqttInterfacer in the emon-pi variant of emonhub. Its now possible to publish individual node/variables to MQTT, i.e:</p>
+<p><em>&nbsp;&nbsp;&nbsp; topic: <strong>basetopic/emontx/power1</strong><br />
+&nbsp;&nbsp;&nbsp; message: 100</em></p>
+<p>Its possible to use this with the emoncms/scripts/phpmqtt_input.php script. The basetopic has been changed from rx/# to nodes/# in phpmqtt_input.php.</p>
+<p>There are a couple of new configuration options in emonhub.conf:</p>
+<p><em>[[MQTT]]<br />
+&nbsp;&nbsp;&nbsp; Type = EmonHubMqttInterfacer<br />
+&nbsp;&nbsp;&nbsp; [[[init_settings]]]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mqtt_host = 127.0.0.1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mqtt_port = 1883<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mqtt_user = emonpi<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mqtt_passwd = emonpimqtt2016</em></p>
+<p><em>&nbsp;&nbsp;&nbsp; [[[runtimesettings]]]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pubchannels = ToRFM12,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; subchannels = ToEmonCMS,</em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # emonhub/rx/10/values format - default emoncms nodes module<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>&nbsp;&nbsp; node_format_enable = 1<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; node_format_basetopic = emonhub/</strong></em></p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # nodes/emontx/power1 format<br />
+<strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nodevar_format_enable = 0<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nodevar_format_basetopic = nodes/</strong></em></p>
+<p>By setting nodevar_format_enable = 1 its possible to send messages with this new format or/and its possible to send messages with the node only format.</p>
+<p>By default existing systems will not have these lines in emonhub.conf instead the runtime settings looks like this:</p>
+<p>&nbsp;&nbsp;&nbsp; [[[runtimesettings]]]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pubchannels = ToRFM12,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; subchannels = ToEmonCMS,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; basetopic = emonhub/</p>
+<p>Pulling in the latest emonhub.conf will not change emonhub operation as long as the basetopic was emonhub/ prior to the update - which should be most emonpi systems. <strong>If you have changed the basetopic</strong> please update your emonhub.conf with the new configuration settings in bold above.</p>
+<p>I&#39;ve also added a section on this to the new <a href="https://github.com/openenergymonitor/emonhub/blob/emon-pi/configuration.md">emonhub configuration documentation page</a></p>
+<p><strong>Emoncms&nbsp;MQTT&nbsp;Input Script&nbsp;</strong></p>
+<p>To import the new MQTT&nbsp;feeds into Emoncms the<a href="https://github.com/emoncms/emoncms/blob/scripts/phpmqtt_input.php"> Emoncms&nbsp;MQTT&nbsp;input script</a> has been updated to subscribe to base topic &#39;nodes/#&#39;. Be sure to pull in the latest changes (pushed to Emoncms stable branch)&nbsp;</p>
+<p>The Emoncms MQTT input service needs to be installed <a href="https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/MQTT.md">following these instructions</a> to run the script as a daemon. Here are some example of how the Emocms MQTT input script can be used:</p>
+<ul>
+<li>&nbsp; &nbsp;create an input from emonTx node called power with value 10:</li>
+</ul>
+<p>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; <em>nodes/emontx/power 10</em><br />
+&nbsp;&nbsp; &nbsp;&nbsp;</p>
+<ul>
+<li>&nbsp;&nbsp; &nbsp; create an input from node 10 called power with value 10 : &nbsp;</li>
+</ul>
+<p>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; <em>nodes/10/power 10</em><br />
+&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<ul>
+<li>&nbsp;&nbsp; &nbsp; create input from emontx with key 0 of value 10</li>
+</ul>
+<p>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; <em>nodes/emontx 10</em><br />
+&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<ul>
+<li>&nbsp;&nbsp; &nbsp; create input from emontx with key 0 of value 10, key 1 of value 11 and key 2 of value 11:</li>
+</ul>
+<p>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; <em>nodes/emontx 10,11,12&nbsp;</em></p>
+<p><strong>Reliability: </strong>There is a question about the reliability of the MQTT messages perhaps on the phpMQTT client end, it was detected to a degree in the <strong>RF testing</strong>.&nbsp;But with a higher volume of messages it may be worse. Id be interested to hear other&#39;s experience with it.&nbsp;<strong>Update: we did initially test this on the old July 2015 emonPi&nbsp;SD card image, Glyn has since tested with the latest version of Mosquitto&nbsp;(1.4.7)&nbsp;on Raspbian&nbsp;Jessie Lite where reliability appears much better: transmission from RFM69Pi / emonPi &gt; Serial &gt; emonHub &gt; Emocms Inputs.</strong></p>
+<p>If further testing is positive we will consider using this MQTT structure for the new pre-built SD card image.&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11985.html" class="topic-previous" title="Go to previous forum topic">‹ Move emoncms.org data to local install of emoncms</a>
+              <a href="12124.html" class="topic-next" title="Go to next forum topic">Guide: How to enable Samba server on the Pi&#039;s read only file system ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-38826"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonhub emon-pi variant MQTT support & Emoncms MQTT input service  </h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 28/01/2016 - 11:07.</div>
+    <div class="content">
+     <p>Its possible to upgrade mosquitto on the July 2015 image to version 1.4.7 by following the steps here:</p>
+<p><a href="http://mosquitto.org/2013/01/mosquitto-debian-repository/" title="http://mosquitto.org/2013/01/mosquitto-debian-repository/">http://mosquitto.org/2013/01/mosquitto-debian-repository/</a></p>
+<p><s>It does seem to be much more reliable.</s> spoke too soon.. it seems that phpMQTT.php may not support qos=2 and qos=0 still misses messages..</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38840"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonhub emon-pi variant MQTT support & Emoncms MQTT input service  </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Thu, 28/01/2016 - 17:43.</div>
+    <div class="content">
+     <p>It seems the PHP MQTT library we have been using from&nbsp;<a href="https://github.com/bluerhinos/phpMQTT">https://github.com/bluerhinos/phpMQTT</a>&nbsp;buggy. It does not like to accept a QOS higher than 0.&nbsp;</p>
+<p>Has anyone got experience&nbsp;with&nbsp;Mosquitto-PHP with<a href="https://github.com/mgdm/">&nbsp;https://github.com/mgdm/</a>? It looks promising, I tried to give it a go but having install issues on Raspberry Pi:&nbsp;<a href="https://github.com/mgdm/Mosquitto-PHP/issues/19">https://github.com/mgdm/Mosquitto-PHP/issues/19</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38871"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonhub emon-pi variant MQTT support & Emoncms MQTT input service  </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Fri, 29/01/2016 - 13:21.</div>
+    <div class="content">
+     <p>Progress.&nbsp;Managed&nbsp;to get&nbsp;&nbsp;https://github.com/mgdm/Mosquitto-PHP&nbsp;installed. It requires pacakge&nbsp;libmosquitto-dev to be installed. Initial testing indicates&nbsp;improved php&nbsp;mqtt&nbsp;performance&nbsp;over the old library.&nbsp;</p>
+<p>&nbsp;</p>
+<p>Here are the install steps to setup a test using the new MQTT&nbsp;data structure&nbsp;</p>
+<p><em>rpi-rw</em></p>
+<p><em>sudo apt-get install libmosquitto-dev​<br />
+pecl install Mosquitto-alpha</em></p>
+<p><em>(​Hit enter to autodetect&nbsp;libmosquitto&nbsp;location)<br />
+sudo sh -c &#39;echo &quot;extension=mosquitto.so&quot; &gt; /etc/php5/cli/conf.d/20-mosquitto.ini&#39;<br />
+sudo sh -c &#39;echo &quot;extension=mosquitto.so&quot; &gt; /etc/php5/apache2/conf.d/20-mosquitto.ini&#39;</em></p>
+<p>Copy new emonhub.conf with the changes Trystan posted above:</p>
+<p><em>cd ~/emonpi/conf</em></p>
+<p><em>git pull<br />
+cp emonhub.conf ~/data/emonhub.conf</em></p>
+<p>turn on new format and turn off the old format MQTT data structure&nbsp;</p>
+<p><em>&nbsp; &nbsp; &nbsp; &nbsp; # emonhub/rx/10/values format - default emoncms nodes module<br />
+&nbsp; &nbsp; &nbsp; &nbsp; node_format_enable = 0<br />
+&nbsp; &nbsp; &nbsp; &nbsp;node_format_basetopic = emonhub/</em></p>
+<p><em>&nbsp; &nbsp; &nbsp; &nbsp; # nodes/emontx/power1 format<br />
+&nbsp; &nbsp; &nbsp; &nbsp;nodevar_format_enable = 1<br />
+&nbsp; &nbsp; &nbsp; &nbsp;nodevar_format_basetopic = nodes/</em></p>
+<p><em>sudo service emonhub restart</em></p>
+<p>Check emonHub is posting to MQTT using new structure:</p>
+<p><em>mosquitto_sub -v -u &#39;emonpi&#39; -P &#39;emonpimqtt2016&#39; -t &#39;nodes/#&#39;</em></p>
+<p>You should see:</p>
+<p><em>nodes/emonPi/power1 303<br />
+nodes/emonPi/power2 0<br />
+nodes/emonPi/power1_plus_power2 303<br />
+nodes/emonPi/Vrms 237.55<br />
+nodes/emonPi/T1 0<br />
+nodes/emonPi/T2 0<br />
+nodes/emonPi/T3 0<br />
+nodes/emonPi/T4 0<br />
+nodes/emonPi/T5 0<br />
+nodes/emonPi/T6 0<br />
+nodes/emonPi/pulseCount 0<br />
+nodes/emonPi/rssi 0</em></p>
+<p>Now switch new&nbsp;dev-mosquitto-php emocms branch and run php mqtt input script&nbsp;</p>
+<p><em>cd /var/ww/emoncms</em></p>
+<p><em>git checkout&nbsp;dev-mosquitto-php</em></p>
+<p><em>cd /var/www/emoncms/scripts&nbsp;</em></p>
+<p>Run script manually with:&nbsp;</p>
+<p><em>php phpmqtt_input.php</em></p>
+<p>You should see something like:</p>
+<p><em>pi@emonpi:/var/www/emoncms/scripts$ php phpmqtt_input.php&nbsp;<br />
+Subscribing to: nodes/#<br />
+I got code 0 and message Connection Accepted.<br />
+Subscribed to a topic<br />
+nodes/emonPi/power1 261<br />
+set_timevalue<br />
+nodes/emonPi/power2 0<br />
+set_timevalue<br />
+nodes/emonPi/power1_plus_power2 261<br />
+set_timevalue<br />
+nodes/emonPi/Vrms 238.47</em></p>
+<p>Run as service at startup follow <a href="https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/MQTT.md">these instructions</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39058"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9160.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hschroyen&#039;s picture" title="hschroyen&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonhub emon-pi variant MQTT support & Emoncms MQTT input service  </h3>
+
+    <div class="submitted">Submitted by <a href="../user/9160.html" title="View user profile.">hschroyen</a> on Wed, 03/02/2016 - 09:45.</div>
+    <div class="content">
+     <p>Looks great.</p>
+<p>Any idea if I can be using this with Ubuntu?</p>
+<p>see <a href="11851.html">http://openenergymonitor.org/emon/node/11851</a> in which I more or less understood that MQTT is not working on rc1.2 ubuntu...</p>
+<p>Thanks and keep up the great work</p>
+<p>Regards</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39074"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonhub emon-pi variant MQTT support & Emoncms MQTT input service  </h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Wed, 03/02/2016 - 13:19.</div>
+    <div class="content">
+     <p>Yes, this should work great on Ubuntu since the Nodes module is not required. The Nodes module was written for the RaspberryPi&nbsp;(emonPi / emonBase), there is no reason why the Nodes module could not be made to work on general linux but currently there are paths hard coded&nbsp;for the emonPi.&nbsp;</p>
+<p>Using the mqtt input scrpt service with the new node variable MQTT topic structure the data goes straight from emonHub&nbsp;&gt; MQTT &gt; emoncms inputs without requiring the Nodes module.&nbsp;</p>
+<p>Follow the MQTT setup guide, currently on the MQTT dev branch. This will be merged into master today hopefully&nbsp;</p>
+<p><a href="https://github.com/emoncms/emoncms/blob/dev-mosquitto-php/docs/RaspberryPi/MQTT.md" title="https://github.com/emoncms/emoncms/blob/dev-mosquitto-php/docs/RaspberryPi/MQTT.md">https://github.com/emoncms/emoncms/blob/dev-mosquitto-php/docs/Raspberry...</a></p>
+<p><a href="https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/MQTT.md" title="https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/MQTT.md">https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/MQTT.md</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/12091"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-4Vu98lAImspaABbR7B-mU0Lk5cDkXhSaXGCtQ6odouw" value="form-4Vu98lAImspaABbR7B-mU0Lk5cDkXhSaXGCtQ6odouw"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12091 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:43:43 GMT -->
+</html>

@@ -1,0 +1,801 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Mk2a PV Router (lean, mean and fast!!) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/3">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Mk2a PV Router (lean, mean and fast!!)</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Mon, 17/12/2012 - 20:40</span>
+        <div class="content"><p>With my Mk2 thread bursting at the seams, it must be time for a fresh start.&nbsp; Just in time for Christmas, here is the goody-filled Mk2a.</p>
+<p>	This version is well suited to hardware that has independent voltage references, such as emonTx.&nbsp; That&#39;s because it has two independent HP filters rather than the single LPF that I used in Mk2.&nbsp; Because the secondary coils of both input sensors are free to adjust their balance points according to the waveforms that they are monitoring, I think it&#39;s best for their outputs to be filtered independently.&nbsp; Having said which, the prototype Mk2 rig in our garage still works fine, weather permitting.</p>
+<p>	The speed of this new version has been greatly improved.&nbsp; Apart from the user-interface, all floating point arithmetic has been replaced with integer maths which is many times faster.&nbsp; By this means, the time taken up by general processing has been reduced by around 60%.&nbsp;</p>
+<p>	The big breakthrough came when it was pointed out to me (thanks J&ouml;rg!) that useful processing can take place while ADC conversions are in progress.&nbsp; With all general processing now being hidden away within ADC conversion periods, the regularity of the sampling process has been much improved.&nbsp; The code is at least 50% faster than before, its speed now only being limited by that of the ADC sub-processor.&nbsp; The Arduino is now idle for around 50% of the time, and is much more tolerant of Serial operations.</p>
+<p>	A new feature with this version is TALLYMODE.&nbsp; This is a pre-processor option which can be #defined in or out at compile time.&nbsp; Although intended to supply high-quality data for test purposes, this mode of operation makes calibration of the system very easy.&nbsp; The user enters a value for the run-time (in seconds, for up to 10 mins) and also the Min and Max power values to be recorded. The system then runs as normal except that the energy content of every half mains cycle is monitored or &#39;tallied&#39;.&nbsp;</p>
+<p>	After the run has finished, &#39;tally&#39; data is sent to the Serial monitor.&nbsp; By this means, the effect of balancing surplus PV power against a dump load (or anything else of interest) can be examined in detail.&nbsp; TALLYMODE data is easy to import into a spreedsheet.&nbsp; An Excel workbook + graph are attached to show some results when monitoring a 2kW room heater on each of its three power settings.</p>
+<p>	Calibration still uses the floating point variable, powerCal, which has exactly the same effect as before.&nbsp; For most rigs, its value is likely to be around 0.05.&nbsp; Its tiny value is because a small number of Amps normally correspond to a large number of ADC steps.&nbsp; Full details about calibration can be found near the top of the sketch.<br />
+	&nbsp; Regardless of its state of calibration, you can feel confident that the Mk2a Router, just like its predecessor, will continue to divert power reliably :-)&nbsp;</p>
+<p>	For efficient use of integer maths, certain aspects of the code have been changed.&nbsp; The energy bucket no longer has a fixed capacity of 3600J.&nbsp; Previously, every individual energy contribution had to be re-scaled, which was a terrible waste of processing time.&nbsp; Now, it is the capacity of the BUCKET which is pre-scaled using powerCal; just once, at startup.</p>
+<p>	The safety margin has been removed because it didn&#39;t seem to have any useful purpose.&nbsp; As supplied, the sketch is in TALLYMODE mode because I feel sure that this feature will be of benefit to most users.</p>
+<p>19/12/12: Sketch updated to Rev2 to fix a couple of bugs.&nbsp; SPEEDCHECK mode added, details at top of sketch.</p>
+<p>03/01/13: Sketch updated to Rev3: simplified treatment of DC offset, and anti-flicker mode added. The rev3 sketch is at <a href="http://openenergymonitor.org/emon/sites/default/files/Mk2a_PV_Router_rev3.ino_.zip" title="http://openenergymonitor.org/emon/sites/default/files/Mk2a_PV_Router_rev3.ino_.zip">http://openenergymonitor.org/emon/sites/default/files/Mk2a_PV_Router_rev...</a></p>
+<p>
+	&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/2501" class="topic-previous" title="Go to previous forum topic">‹ Putting in the infrastructure</a>
+              <a href="/emon/node/2467" class="topic-next" title="Go to next forum topic">calibration at a distance from voltage sensor and CT clamp ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-8315"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1165" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="richmc&#039;s picture" title="richmc&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1165" title="View user profile.">richmc</a> on Mon, 17/12/2012 - 20:55.</div>
+    <div class="content">
+     <p>Good stuff Robin, although I know jack about programing the Arduino&nbsp;I will&nbsp;upload the new code in the next day or two. As a dick h**d is there anything else I need to know?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8317"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Mon, 17/12/2012 - 23:46.</div>
+    <div class="content">
+     <p>Don&#39;t suppose it&#39;ll (in time) also feed a GLCD+gateway, as well as doing the mk2 stuff?</p>
+<p>There seems to be a lot of &#39;hybrid&#39; work going on at the moment, and it appears to be the way forward (it seems to be the holy grail many are looking for).</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8319"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1332" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1332" title="View user profile.">JBecker</a> on Tue, 18/12/2012 - 02:21.</div>
+    <div class="content">
+     <p>Very nice structure, very clear code and very well documented!</p>
+<p>A real christmas present for the community.</p>
+<p>Congratulations, Robin!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8321"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Tue, 18/12/2012 - 07:51.</div>
+    <div class="content">
+     <p>Hi guys, and thanks for the positive feedback.</p>
+<p>Oh dear, the first bug in my code hasn&#39;t taken long to appear: the on-screen formula which explains the scaling of the energy bucket is wrong!&nbsp; So much for my last-minute attempts to be helpful.&nbsp; The calibration term should be should as (1/powerCal), then the numbers will match.</p>
+<p>A revised version of the code will appear soon.&nbsp; There are no doubt a few other refinements which could be usefully included.&nbsp; All feedback welcome.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8334"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Tue, 18/12/2012 - 13:34.</div>
+    <div class="content">
+     <p></p>
+<p><em>is there anything else I need to know?</em></p>
+<p>Well Rich, I&#39;m sure you&#39;ll glad to know that the Mk2a code operates on the same hardware as before; I don&#39;t think I&#39;d actually mentioned that detail anywhere.&nbsp; More importantly, is there still time for PCBs by Christmas ???</p>
+<p>I&#39;m pleased to report that the new code does indeed appear to behave as intended.&nbsp; I&#39;d not actually tried it out for real before posting - it&#39;s far too chilly in the garage! &nbsp; First trial results are <span class="watch-page-link">at: <a href="http://youtu.be/epozcslYPRs">http://youtu.be/epozcslYPRs</a></span></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8348"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1165" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="richmc&#039;s picture" title="richmc&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1165" title="View user profile.">richmc</a> on Thu, 11/04/2013 - 15:52.</div>
+    <div class="content">
+     <p>I do have some &quot;non work&quot; days before Christmas, and have components for three built up board sets, and can brave the garage to etch more boards if needed, so anyone who is eager can PM me to make an order. I have had to add some P&amp;P to cover costs.</p>
+<p>PM me for availability -</p>
+<p>Price options for the Mk2 unit.</p>
+<p>Two etched and drilled boards &pound;10</p>
+<p>Two boards and kit of parts &pound;35 +pp &pound;3.70</p>
+<p>Two built up boards &pound;45 +pp &pound;3.15 +pp &pound;3.70</p>
+<p>The made up boards are the no soldering option and have flying leads for the Arduino and an LED to work with pin 13, and a pre wired jack socket for the CT. No hardware, Arduino CT etc will be supplied with this option but I can point you in the right direction to source them.</p>
+<p>I must add that what you do with this device is up to you, I cannot endorse connecting it to your domestic system<br />
+	or using it to save shed loads of cash off your energy bills.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8365"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Tue, 18/12/2012 - 18:26.</div>
+    <div class="content">
+     <p>Hi Rich, mi old mate, how&#39;s business these days?&nbsp; Nod nod, wink wink, know wodda mean ...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8368"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Tue, 18/12/2012 - 19:32.</div>
+    <div class="content">
+     <p>Business? I can&#39;t believe Rich is making a profit for hand made kit at those prices.</p>
+<p>P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8392"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1165" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="richmc&#039;s picture" title="richmc&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1165" title="View user profile.">richmc</a> on Wed, 19/12/2012 - 09:20.</div>
+    <div class="content">
+     <p>Too right Paul I do it for love, and enjoyment of putting them together. Works out at 15 customers, 22 units of one type or another. One nice guy with a three phase water turbine is my star customer (I think you know who!).</p>
+<p>And I can confidently say my Mk2 has been paid for.</p>
+<p>Thank you all for the orders and input and Robin for his inspired design. Have a great Christmas and a prosperous and FIT new year.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8395"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1399" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1399.jpg" alt="Series530&#039;s picture" title="Series530&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1399" title="View user profile.">Series530</a> on Wed, 19/12/2012 - 10:06.</div>
+    <div class="content">
+     <p><em>Don&#39;t suppose it&#39;ll (in time) also feed a GLCD+gateway, as well as doing the mk2 stuff?</em></p>
+<p><em>There seems to be a lot of &#39;hybrid&#39; work going on at the moment, and it appears to be the way forward (it seems to be the holy grail many are looking for).</em></p>
+<p><em>P.</em></p>
+<p>&nbsp;</p>
+<p>It&#39;s work in progress Paul .... or it will be when the bits arrive and I find the time.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8401"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 19/12/2012 - 12:35.</div>
+    <div class="content">
+     <p>I&#39;ve just posted a Rev_2 version at the top of this thread, so do please use that one.&nbsp; The original .zip file is still there, but is no longer &#39;listed&#39;.</p>
+<p>	- The size of the energy bucket is now displayed correctly.</p>
+<p>	- A bug with the Min power level to be recorded in TALLYMODE has been fixed (int changed to long).</p>
+<p>	- A flag-based mechanism for checking whether processing has been completed within the ADC conversion time has been added.&nbsp; Although the detection side of this logic is always active, the results are only processed and displayed if the pre-compiler flag, SPEEDCHECK, is #included.&nbsp; If the code ever needs to be changed, this facility will provide a sensitive indication of whether the underlying timing has been disturbed.</p>
+<p>	- A few general comments have been updated.</p>
+<p>I think that&#39;s all for now :-)</p>
+<p>Robin</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8538"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2584" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="theproff&#039;s picture" title="theproff&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2584" title="View user profile.">theproff</a> on Fri, 21/12/2012 - 14:36.</div>
+    <div class="content">
+     <p>hi Robin</p>
+<p>is there anyway of displaying some useful data on an LCD, like the current energy bucket size, maybe also the power consumption used and/or exported to the heater.&nbsp;</p>
+<p>i have a graphics display connected to the Arduino, but uncertain of what parameters you have that could be used..</p>
+<p>thanks</p>
+<p>tony</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8545"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1165" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="richmc&#039;s picture" title="richmc&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1165" title="View user profile.">richmc</a> on Fri, 21/12/2012 - 16:23.</div>
+    <div class="content">
+     <p>Hi Tony there are threads where others have melded the Mk2 with displays, but robin taught me one great thing, if the LED is off there&#39;s not enough to export, if its flashing it&#39;s exporting, if it&#39;s solid on it&#39;s done its job and the stat is open. All you need to know. But have a look around the threads there are a few around. All you will end up doing is staring at the display instead of watching TV.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8547"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1399" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1399.jpg" alt="Series530&#039;s picture" title="Series530&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1399" title="View user profile.">Series530</a> on Fri, 21/12/2012 - 16:40.</div>
+    <div class="content">
+     <p>Tony,</p>
+<p>My fusion sketch does pretty well all of the things that you have requested and some more besides. ... but it used GLCD which may or may not be an issue for you.</p>
+<p>&nbsp;</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8548"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2584" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="theproff&#039;s picture" title="theproff&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2584" title="View user profile.">theproff</a> on Fri, 21/12/2012 - 16:42.</div>
+    <div class="content">
+     <p>thanks for the info Richmc, i&#39;ll spread my wings..</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8549"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2584" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="theproff&#039;s picture" title="theproff&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2584" title="View user profile.">theproff</a> on Fri, 21/12/2012 - 18:16.</div>
+    <div class="content">
+     <p>that sounds great Ian, thank. &nbsp;i use the GLCD library files now, where can i find the Fusion sketch..</p>
+<p>&nbsp;</p>
+<p>edit: i found it Ian, very complex, brilliant system though</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8565"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Fri, 21/12/2012 - 20:07.</div>
+    <div class="content">
+     <p>Hi Tony, when you talk about displaying &quot;the current energy bucket size&quot;, I presume you mean its level - how full it currently is, rather than its maximum capacity.&nbsp;</p>
+<p>That variable used to be called <em>energyInBucket</em>, and was the value in Joules.&nbsp; With integer maths, the scaling is entirely different.&nbsp; I think the equivalent variable is now called <em>energyInBucket</em>_long.&nbsp; The capacity of the bucket itself is displayed at startup to the Serial monitor.</p>
+<p>As it stands, the Mk2a version does all of its processing within the two ADC conversion periods per loop.&nbsp; There seems to be quite a bit of spare processing time at present, so some additional display code could presumably be added without disturbing the underlying sequence routine measurements.&nbsp; The SPEEDCHECK option should reveal at each stage whether new code is running entirely within the ADC periods or not.</p>
+<p>As Rich and others have pointed out, watching the level of the bucket may be a novelty, but this value is not really of much practical use.&nbsp; If you want to know how much energy has been diverted, just count the number of times that the triac has fired.&nbsp; At 50Hz, an unsigned int would hold this value for 20 minutes.&nbsp; A &#39;long&#39; should be good for a lifetime, well almost.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8582"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/2584" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="theproff&#039;s picture" title="theproff&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/2584" title="View user profile.">theproff</a> on Sat, 22/12/2012 - 09:10.</div>
+    <div class="content">
+     <p>thanks Robin, im going to try and integrate&nbsp;some of Ian&#39;s code into your new code and maybe come up with a solution, i want &nbsp; Ians&nbsp;Fusion but without the EmonTx board. ill get there with the help of you guys..</p>
+<p>tony</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8738"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sat, 29/12/2012 - 12:24.</div>
+    <div class="content">
+     <p><em><a href="../user/2584" title="View user profile.">theproff</a> im going to try and integrate&nbsp;some of Ian&#39;s code into your new code and maybe come up with a solution, i want &nbsp; Ians&nbsp;Fusion but without the EmonTx board.&nbsp; </em></p>
+<p>I wonder what particular displays you are looking for?&nbsp; If you&#39;re only interested in monitoring &quot;real power&quot; - which is what the meter displays - then the amount of extra code that would need to be added to my Mk2a sketch should be minimal.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8841"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Thu, 03/01/2013 - 13:28.</div>
+    <div class="content">
+     <p>My Mk2a code is now at rev3.&nbsp; This includes an anti-flicker mode as per the tool I posted on another thread.&nbsp; A video showing the operation of this facility, in the latest Mk2a code, is <span class="watch-page-link">at: <a href="http://youtu.be/BcZON8YFabw">http://youtu.be/BcZON8YFabw</a></span></p>
+<p>For the purpose of calculating real power, it turns out that there&#39;s no need to remove any DC offset from the current stream.&nbsp; Providing that DC content is correctly removed from one of the components (either V or I), any fixed offset in the other stream gets nicely cancelled out in the maths when taken over each whole cycle of the mains.&nbsp;</p>
+<p>For the rev3 version, DC offset in the voltage stream is identified using a LPF that is updated once per mains cycle, and then subtracted from each raw voltage sample.&nbsp; This is just as in my Mk2 code except that the HPF has been omitted.&nbsp; Preventing the LPF output from straying too far from the 512 mid-point works just as well and is much simpler.</p>
+<p>A nominal DC offset of 512 is subtracted from each current sample.&nbsp; This prevents the system from becoming over-sensitive to noise or any imbalance.&nbsp; The precise value, however, is not important.</p>
+<p>The SPEEDCHECK facility confirms that all general processing is still reliably hidden away within the two ADC conversion periods per loop. &nbsp; Using a pair of delayMicrosecond() statements, it appears that the main processor is idle for around 100uS during every loop.&nbsp; With the code as posted, I have never seen SPEEDCHECK to fail. &nbsp; Short of moving to an interrupt-based approach, I believe the sampling process is now as regular as it can be.</p>
+<p>The anti-flicker mode uses two thresholds for the energy bucket, these being at the 20% and 80% levels.&nbsp; Once activated, the triac remains on until the lower threshold&nbsp; is reached whereupon it always goes off immediately.&nbsp; Whenever the upper threshold is reached, the triac is activated provided that a sufficient duration has elapsed since the previous activation event.&nbsp; As posted, this minimum duration is set to 5 seconds which is a very stringent requirement.&nbsp;&nbsp; Any value above approx 3 seconds is likely to cause the bucket to overflow (&gt;100%) with consequent loss of surplus power to the grid.&nbsp; The on-board LED (pin 13) now indicates whenever the energy bucket overflows; it is no longer used to show when the triac is on.</p>
+<p>Accurate calibration is **essential** when operating in anti-flicker mode.&nbsp; Thankfully, this is really easy to achieve when using the TALLYMODE pre-compiler option.&nbsp; This works just as before except that it now records the power content in whole mains cycles rather than half cycles.&nbsp; Half cycle data is only meaningful if DC offset is accurately removed from both sample streams.&nbsp; When using non-invasive sensors, this is easier said than done.&nbsp;&nbsp;</p>
+<p>Unless any bugs appear, this could well be the final release of my &quot;Mk2&quot; code.&nbsp; As a self-standing item, the Mk2a PV router now seems to be working as effectively and comprehensively as it can.&nbsp; I look forward to hearing how other developers are able to modify it for their own purposes.&nbsp; Just make sure than SPEEDCHECK is enabled, and watch out for any numbers other than zero.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8946"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1774" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1774.jpg" alt="PaulOckenden&#039;s picture" title="PaulOckenden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1774" title="View user profile.">PaulOckenden</a> on Mon, 07/01/2013 - 20:16.</div>
+    <div class="content">
+     <p>With the new anti-flicker mode, now that the switching frequency is so greatly reduced, does the panel think that it has at last become feasible to use RF rather than a cable between the CU and the immersion heater?</p>
+<p>It&#39;s the running of a big fat mains cable (or even a thin data cable) that&#39;s a big obstacle for many people, so doing it via RF seems like an attractive option.</p>
+<p>I know the question was asked previously, and always met an answer of &quot;No, it won&#39;t keep up, and you&#39;ll flood the area with RF&quot;. Perhaps that&#39;s changed now?</p>
+<p>I&#39;m guessing it would need an SSR&nbsp;at the immersion end to guarantee zero point switching, as the latency of an RF connection would be too much for a simple triac circuit to cope with.</p>
+<p>Or am I peeing in the wind here....</p>
+<p>	P.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8947"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Mon, 07/01/2013 - 20:24.</div>
+    <div class="content">
+     <p>Here&#39;s some footage of the latest Mk2a code (Rev3) working for real with the proper dump load.&nbsp; With no real PV available, I needed to resort to the simulated equivalent.&nbsp; But to all intents and purposes, the kit works just the same in both cases - it&#39;s just that solar power is free.</p>
+<p>	With the anti-flicker parameter reduced to 3 seconds rather than 5, energy is no longer lost due to bucket overflow.&nbsp; And with the triac&#39;s cyclic rate being never greater than 0.33Hz, this outcome will hopefully satisfy all users.</p>
+<p>	At 18 mins, this video is somewhat longer than I intended, but hopefully covers all the relevant points.&nbsp; The rather shaky original has been greatly improved by Youtube&#39;s post-processing facility - I&#39;m impressed.&nbsp; Needless to say, there are a few deliberate mistakes on the sound track ...</p>
+<p>	As always, any feedback will be most welcome.</p>
+<p>	<a href="http://www.youtube.com/watch?v=BcdDrFkTOt0&amp;feature=youtu.be" title="http://www.youtube.com/watch?v=BcdDrFkTOt0&amp;feature=youtu.be">http://www.youtube.com/watch?v=BcdDrFkTOt0&amp;feature=youtu.be</a></p>
+<p>	&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8949"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Mon, 07/01/2013 - 20:38.</div>
+    <div class="content">
+     <p><em>With the new anti-flicker mode, now that the switching frequency is so greatly reduced, does the panel think that it has at last become feasible to use RF rather than a cable between the CU and the immersion heater?</em></p>
+<p>An interesting point, my gut feeling is &quot;yes&quot;.&nbsp; The triac/SSR at the remote end could presumably still be operated by the same zero-crossing trigger, so there should be no difficulty with synching its operation to the mains.&nbsp; If the moment of switch-on/off were to be delayed by a cycle or two due to latency in the RF control link, I don&#39;t see that as being a problem.</p>
+<p>The rest of &quot;the panel&quot;, however, may of course think otherwise ...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8951"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1658" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1658.jpg" alt="RobP&#039;s picture" title="RobP&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1658" title="View user profile.">RobP</a> on Mon, 07/01/2013 - 21:28.</div>
+    <div class="content">
+     <p>Hi Robin</p>
+<p>I guess you have to try it.  Not being on 'the panel' I cannot comment as well as others on the technical feasability. But as a potential user (and one with a very distributed system - inverters >25m from DNO connection and immersion somewhere in the middle) I would consider this option most desirable.</p>
+<p>Having said that and after much cable pulling I've almost got it all wired up now!</p>
+<p>Thanks for your excellent documentation, informative videos and willingness to share this fascinating work.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8952"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Mon, 07/01/2013 - 21:31.</div>
+    <div class="content">
+     <p>I think the obvious place to do the split is between the Arduino output and the driver IC input. The most critical timing (the zero crossing) is then independent of vagaries of the rf transmission path and, well, if you gain or lose a cycle of energy in a few seconds worth, then so what? I suspect that to reduce the amount of rf traffic, you&#39;d need to issue &quot;on&quot; and &quot;off&quot; commands and latch the state in between, presumably then the controller should reissue the command (because it can measure to know whether it has been acted on) if the transmission fails to get through. The rf packet can be very small - if you read the JeeLabs documentation carefully there are 9 bytes of overhead, so with a 1 byte payload, and with the transmission rate of about 50 k bits/sec, the transmission should take 1.6 ms. At that, you could afford to send three messages and go by the majority vote in the receiver.</p>
+<p>Methinks feasible.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-8960"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Tue, 08/01/2013 - 09:02.</div>
+    <div class="content">
+     <p><em>Not being on &#39;the panel&#39; I cannot comment as well as others on the technical feasability.&nbsp; </em></p>
+<p>Panel?&nbsp; I thought the idea was that we all just chip in to help move things along.&nbsp; Perhaps the official invitations are still on the drawing board ;)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9476"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="ljfaragher&#039;s picture" title="ljfaragher&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by ljfaragher (not verified) on Mon, 28/01/2013 - 17:34.</div>
+    <div class="content">
+     <p>This is my first post on this forum thread.&nbsp; I have PM some contributors including &nbsp;Robin.&nbsp;&nbsp; Details about me are in my profile.<br />
+	I have had a MK2 prototype running on breadboard for many months now.&nbsp;&nbsp; I originally ordered PCB&#39;s from Rich but was disappointed they were not Arduino Shields.&nbsp; I hooked them up initially to a UNO but then took a different approach due to my background.&nbsp;&nbsp; I followed all the discussion on the forum but carried on regardless.&nbsp;&nbsp;<br />
+	My approach was that I did not want to tie up an Arduino for each project so I breadboarded the MK2 design with just the Atmega328p chip.&nbsp;&nbsp;&nbsp; That has been running faultlessly for months.&nbsp; Well done Robin for the work and stablecode (sketch).&nbsp;&nbsp; I have the latest incarnation from Robin and will try the interrupt driven sketch in&nbsp; good time.&nbsp;&nbsp;&nbsp; I added hardware&nbsp;connector &nbsp;to allow &quot;Arduino USB serial light&quot; adapter to upload to breadboard prototype.&nbsp;&nbsp;&nbsp; This uses the original PCB mounting transformer to supply 5v to Atmega328 chip and the other 9v winding as AC voltage sensor.&nbsp; All works well even though I have only estimated PHASECAL.<br />
+	I avoided the Phase Angle version as I am a Radio Amateur and know what RF interference can occur when controlling large loads on mains with phase angle control.&nbsp; (Also know havoc can be caused by mains Ethernet controllers!).&nbsp;&nbsp;&nbsp; I had commented to Robin that RF control of remote zero crossing Triac would flood that RF band when flickering.&nbsp;&nbsp; With the advent of ANTI-FLICKER mode it&#39;s a different story (well done Robin again.&nbsp; You have my deepest respect for your ideas)..<br />
+	With ANTIFLICKER mode in mind I have been looking at RF control.&nbsp;&nbsp; I have many ideas and it is early days yet.&nbsp;&nbsp; Ideally I&#39;d like Wireless so that each Arduino can talk full duplex (acknowledge that instruction has been received and change of state has occurred), To be able to talk to and or get data back to a PC, etc etc.&nbsp; Cost is a limiting factor and for this project, cheapness is a priority.&nbsp;&nbsp; With all this in mind I have ordered&nbsp;several really cheap&nbsp;RF modules from a big Chinese electronics company (when I say cheap we are talking &pound;0.77 each when you buy 10 [inc postage!]).&nbsp; Aerial is on PCB so may well be naff but I&nbsp;hope to rectify that&nbsp;&nbsp;with a small wire aerial if range is too limited.&nbsp;&nbsp; I ordered one module with a small external[rubber duck] antenna.&nbsp; At &pound;7.70 this could be a solution for anyone not wanting to modify the cheaper module.<br />
+	I am designing a PCB for all this, and a few other simple requirements I have.<br />
+	For example my Solar Inverter consumes 50watts even during the dark.&nbsp; That equates to approx. 200 KWhrs per year&nbsp;of needless&nbsp;power from the grid.&nbsp;&nbsp; I have breadboarded a Light Dependent Resistor (LDR) and&nbsp; a Solid State Relay (SSR) [25amp from China] to switch inverter on/off at dawn/dusk.&nbsp;&nbsp; Again stand alone Atmega chip design.&nbsp; Working seamlessly.</p>
+<p>So all this plus MK2 on a pcb without need for &pound;20 Arduino.&nbsp;&nbsp; If all goes well the whole MK2 should cost&nbsp;not a lot more than&nbsp;&pound;20.</p>
+<p>If anyone has any further ideas I&#39;d be only too&nbsp;happy to oblige.</p>
+<p>Schematic and PCB design are done with open source tools and will be freely available.</p>
+<p>My main motivation is not to save costs but to maximize use of renewable energy and minimize consumption of non green energy.&nbsp;&nbsp; I am not interested in making a profit but only to cover costs of manufacturing PCB.&nbsp; My time I give willingly and freely. I openly embrace the Open Source philosophy.&nbsp;&nbsp; I am passionate about renewable energy and preserving resources/recycling.</p>
+<p>Laurence</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9517"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1704" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Keith Walker&#039;s picture" title="Keith Walker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1704" title="View user profile.">Keith Walker</a> on Tue, 29/01/2013 - 23:56.</div>
+    <div class="content">
+     <p>Hi Laurence,</p>
+<p>A very&nbsp;interesting post.</p>
+<p>I might be able to help with one of your comments.</p>
+<p>&quot;For example my Solar Inverter consumes 50watts even during the dark.&nbsp; That equates to approx. 200 KWhrs per year of needless power from the grid.&quot;</p>
+<p>I&#39;ve seen this mentioned before. Some folks think that it&#39;s inductive current and is not consuming any real power.</p>
+<p>See <a href="http://talkingsolar.co.uk/index.php/forum/4-circuit-discussions/531-inveter-power-consumption-night">http://talkingsolar.co.uk/index.php/forum/4-circuit-discussions/531-inveter-power-consumption-night</a>&nbsp;for a discussion about this.</p>
+<p>Cheers, Keith</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9518"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Wed, 30/01/2013 - 01:08.</div>
+    <div class="content">
+     <p>If you monitor both current and voltage, the emonTx with the &quot;emonTx_CT123_Voltage&quot; sketch will show you pretty much everything you need to know to work out the amounts of Watts, VA and vars (assuming there&#39;s enough to measure with reasonable accuracy).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9526"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 30/01/2013 - 13:51.</div>
+    <div class="content">
+     <p>Hi Keith,</p>
+<p>Please could you remind me of my username for the &#39;other place&#39;.&nbsp; It won&#39;t let me in, and there is something that has been written (about me!) that need to be corrected.</p>
+<p>Thanks, Robin</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9527"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="ljfaragher&#039;s picture" title="ljfaragher&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by ljfaragher (not verified) on Wed, 30/01/2013 - 14:08.</div>
+    <div class="content">
+     <p>Glad you found my post&nbsp; &quot;interesting&quot; Keith.&nbsp;&nbsp;&nbsp;I hate to bore people accidentally.&nbsp; I like to do that deliberately if needed!&nbsp; They tell me I have a good sense of humor and people often laugh at my quips so I can&#39;t be as boring as my kids would have me believe.&nbsp;&nbsp; So that&#39;s a little more of my background to put everything into perspective (yawn).<br />
+	Interesting extract by markcarter10.&nbsp; I understand power factor. I have insufficient technical details of my inverter to inspect and no longer have the tools (Scope etc) to quantify the power factor of this &quot;night time&quot; mode.&nbsp;&nbsp; Suffice it to say that irrespective of if I am being charged for this night time usage, it is power that is unneeded and not green&quot;&nbsp; I reiterate, my prime motivation is use green/renewable energy, any cost saving is just a bonus.<br />
+	I&nbsp;came across the OpenEnergyMonitor and Robins MK2 while&nbsp;looking for a&nbsp;system to not only monitor but also to control charging of devices.&nbsp;&nbsp;&nbsp; I have an all electric car and initially used <a href="http://www.reuk.co.uk/Water-Heating-with-Surplus-Solar-PV.htm">this</a> to charge my car.&nbsp;&nbsp; It works as I expected but of course does not measure the actual surplus solar generation but simply makes a reasonable guess.&nbsp;&nbsp; My 4 Kw Solar installation (by my design) has W S and E facing panels.&nbsp; I get a good spread of power throughout the day but the LDR for this device only points in one direction.<br />
+	I was considering building an OpenEnergyMonitor system and&nbsp;building and integrating&nbsp;some RF controlled mains switches using the measured excess power when I came across this <a href="http://www.sailwider-smartpower.com/category/home-energy-monitoring-and-control-system-solar-version.htm">solar monitor and mains controller </a>which did almost everything I wanted.&nbsp;&nbsp; I have past &nbsp;experience with&nbsp; Chinese components and lack of quality control but I took a gamble and&nbsp;bought one.&nbsp; After a hickup and an exchange of unit with updated firmware the device works as expected.&nbsp; I have 10 sockets / rf switches and it works.&nbsp; It has no mains AC reference, being powered by 5v DC and only has the two CT&#39;s measuring Solar and House power so this night time &quot;wattage&quot; may well have low PF if it is a result of the EMC inductive filters.&nbsp; &nbsp;I have had lengthy discussions with this and other Chinese electronics companies lately and if I was younger and in the market, I would start trading with them as they have come on leaps and bounds in recent years.&nbsp; They appear to be receptive to my ideas and feedback.&nbsp;<br />
+	Robins MK2 is the icing on the cake using&nbsp;every last drop of renewable energy&nbsp;out of my PV system.&nbsp; The financial icing on the cake (making it all financially viable) is the fact you get the FIT payments even if you use all your surplus.</p>
+<p>I hope to develop a generic PCB and only populate it with the components that are required at each location.&nbsp; My thought to date are:<br />
+	MK2 controller with RF to remotely control load(s).<br />
+	Remote Load(s) controller to receive RF instructions.&nbsp; Also with temperature sensors to measure HW tank.<br />
+	Display to do do all sorts.&nbsp; Such as , relay the electric meter import pulses, display how much hot water and how hot.&nbsp; Display how much solar PV has been &quot;routed&quot;.&nbsp; etc etc.&nbsp;&nbsp; Display could be LED&#39;s or LCD.&nbsp; By remote loads I will be controlling convection heating and HW.&nbsp;<br />
+	I&#39;d be interested to hear anyone elses&#39; ideas or desires.</p>
+<p>The real difficulty is deciding when everything is final and committing to PCB.&nbsp; I seem to get new ideas almost daily for this and other projects.<br />
+	&nbsp;</p>
+<p>Laurence</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9528"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 30/01/2013 - 14:38.</div>
+    <div class="content">
+     <p><em>Robins MK2 is the icing on the cake using&nbsp;every last drop of renewable energy&nbsp;out of my PV system. </em></p>
+<p>Providing a super-efficient DIY alternative to a woefully inadequate &quot;professional&quot; one is, for me, what&#39;s it&#39;s all about :-)</p>
+<p>I once put down a deposit on an electric car.&nbsp; Then, someone challenged me via a forum to demonstrate that my electric car (when charged by electricity that was made from coal) would be more eco-friendly than running a small petrol engined car - as was claimed on their website.&nbsp; When I did the sums, it turned out that my correspondent was correct, and the website was wrong.&nbsp; The electric car only makes environmental sense when you can get that electricity from a low-carbon source.</p>
+<p>When I put the case to the car supplier, they recognised their error and refunded my deposit.&nbsp; They also changed their website very soon afterwards.&nbsp; Somewhere I have copies of both versions, just a few days apart.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9539"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1704" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Keith Walker&#039;s picture" title="Keith Walker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1704" title="View user profile.">Keith Walker</a> on Thu, 31/01/2013 - 11:40.</div>
+    <div class="content">
+     <p>Hi Robin,</p>
+<p>&quot;Hi Keith,</p>
+<p>Please could you remind me of my username for the &#39;other place&#39;.&nbsp; It won&#39;t let me in, and there is something that has been written (about me!) that need to be corrected.</p>
+<p>Thanks, Robin&quot;</p>
+<p>I&#39;m sorry to hear that, I will moderate the offending posting if you give me details.</p>
+<p>Your user name at <a href="http://www.talkingsolar.co.uk">http://www.talkingsolar.co.uk</a>&nbsp;is Robin. Let me know if you&nbsp;need the password resetting. But I can&#39;t do it &nbsp;now because I&#39;m at work and any admin functions seem to get caught by the firewall.</p>
+<p>I&#39;ll still using your Mark 2 circuit (I plan to move to Mark 2a when I have some time to play). Thanks again for an excellent system.</p>
+<p>&nbsp;</p>
+<p>Cheers, Keith</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9545"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Thu, 31/01/2013 - 19:42.</div>
+    <div class="content">
+     <p>Thanks Keith,</p>
+<p>Rich has reminded me of my user details, and will PM you about what else I would like to be changed.&nbsp; One point that I wanted to be corrected is that the phasecal algorithm was not my invention, it&#39;s been part of the standard OEM library code for as long as I&#39;ve been around.&nbsp; That one has already sorted.</p>
+<p>Glad that hear that Mk2 is still doing the business for you.&nbsp; I trust you&#39;ll be impressed with the Mk2a and Mk2i streams, they are so much more efficient than the original version.&nbsp; Having said which, they all heat up water much the same when the sun appears!</p>
+<p>Robin</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9546"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1704" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Keith Walker&#039;s picture" title="Keith Walker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1704" title="View user profile.">Keith Walker</a> on Thu, 31/01/2013 - 20:01.</div>
+    <div class="content">
+     <p>Hi Robin,</p>
+<p>I&#39;ve made the changes to&nbsp;<a href="http://www.talkingsolar.co.uk/index.php/robin-s-mk-2-energy-bucket">http://www.talkingsolar.co.uk/index.php/robin-s-mk-2-energy-bucket</a>.</p>
+<p>Can you have a look and see if it&#39;s what you&#39;re after?</p>
+<p>Mk2i, I further behind than I relaised !!</p>
+<p>I&#39;ve never loaded the Arduino, I got a pre-loaded one from Trader9 running your Mk2 sketch. My laptop runs a version of Linux, Ubuntu, and I&#39;m not convinced that the software I&#39;ve loaded is going to work. So I keep&nbsp;putting off the update. lol</p>
+<p>Cheers, Keith&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9549"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Thu, 31/01/2013 - 21:04.</div>
+    <div class="content">
+     <p>Thanks Keith, that looks fine now.&nbsp; If you&#39;ve never delved around inside the Arduino&#39;s code, I reckon you&#39;re missing half of the fun.&nbsp; But it&#39;s good to know that your original Mk2 rig carries on doing the job reliably.&nbsp; Our water is still heated using my original breadboard lash-up (with one of Rich&#39;s PCB versions waiting in the wings!)</p>
+<p>I use a powerPC-based PowerMac (not the Intel version) and a Windows laptop, neither of which are cutting edge.&nbsp; The code runs on both OK except that their Serial behaviour often seems to be different.&nbsp; I&#39;ve yet to devise a simple &#39;p&#39; for pause and &#39;g&#39; for go system which works reliably on both platforms.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10524"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="ljfaragher&#039;s picture" title="ljfaragher&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by ljfaragher (not verified) on Mon, 18/03/2013 - 15:37.</div>
+    <div class="content">
+     <p>Seems to have gone a bit quiet or is there discussion somewhere else?</p>
+<p>I&#39;m having some reliability issues with RF controlling the triac but it is work in progress.&nbsp; I&#39;ll get to the bottom of it as sending data reliably via RF is the crux of some of &nbsp;my Arduino projects.&nbsp; A family member pointed out<a href="http://www.transitionnc.org/node/48/2843#comment-2843"> this </a>which seems remarkably familiar.&nbsp;&nbsp;</p>
+<p>Laurence</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-10532"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Mon, 18/03/2013 - 20:51.</div>
+    <div class="content">
+     <p>Hi Laurence,</p>
+<p>I&#39;m not intending to do anything more with the Mk2a line.&nbsp; <a href="http://openenergymonitor.org/emon/node/1912">Mk2i </a>works that bit better and has several new features.&nbsp; My own RF offering was posted there earlier today.&nbsp; The RF code that I&#39;m using seems to be working nicely.&nbsp; Send me a PM if you&#39;re having difficulties (though I&#39;m no expert!)</p>
+<p>Robin</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13101"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Mk2a PV Router (lean, mean and fast!!)</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 19/06/2013 - 19:50.</div>
+    <div class="content">
+     <p>An upgraded version of the latest Mk2a code is now available as <strong>Mk2a_rev3a</strong>, as attached.&nbsp; This is to fix the long-standing (minor!) error which has affected Tallymode data ever since I added that facility.&nbsp; The new version, as copied from Mk2i_rev5b, now displays power data in Watts, rather than in tally numbers which is much easier to understand.</p>
+<p>Regards to anyone who may be using it ;-)</p>
+<p>Robin</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/1681"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-7KFOz5deEkbAR9ib2hvunEUWOorvJWsLQbHdVfjoUBY" value="form-7KFOz5deEkbAR9ib2hvunEUWOorvJWsLQbHdVfjoUBY"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

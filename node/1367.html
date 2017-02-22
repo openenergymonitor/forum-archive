@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1367 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:37:21 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Emontx Shield + Ethernet Shield: Help with Code | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Emontx Shield + Ethernet Shield: Help with Code</h3>
+        <span class="submitted">Submitted by Guest on Sun, 18/11/2012 - 12:05</span>
+        <div class="content"><p>Hello,</p>
+<p>I&#39;ve just finished assembling an Arduino Uno+Ethernet Shield + Emontx Shield. Hardware issues are passed, Emontx Shield is working with modifications indicated in the wiki, but being an arduino beginner, I&#39;ve got some code issues. I&#39;m using the github emontx sample code and the ethernet client library.</p>
+<p>I can compile the code, then the arduino pass the emontx.power1 variable to my emoncms server, so far it&#39;s ok, but it stops everytime at the 8th request, and it&#39;s stucked. I assume that it&#39;s a problem in the ethernet client part of the code, maybe because the repeating more of eight times flood something, and I have problems to structure my code. Can you help me ? Here&#39;s my code, thanks in advance</p>
+<p>Guillaume</p>
+<pre>
+/*
+EmonTx Shield 4 x CT example
+An example sketch for the emontx Arduino shield module for
+CT only electricity monitoring.
+Part of the openenergymonitor.org project
+Licence: GNU GPL V3
+Authors: Glyn Hudson, Trystan Lea
+Builds upon JeeLabs RF12 library and Arduino
+emonTx documentation: <a href="../modules/emontxshield/index.html" title="http://openenergymonitor.org/emon/modules/emontxshield/">http://openenergymonitor.org/emon/modules/emontxshield/</a>
+emonTx firmware code explination: <a href="../modules/emontx/firmware.html" title="http://openenergymonitor.org/emon/modules/emontx/firmware">http://openenergymonitor.org/emon/modules/emontx/firmware</a>
+emonTx calibration instructions: <a href="../modules/emontx/firmware/calibration.html" title="http://openenergymonitor.org/emon/modules/emontx/firmware/calibration">http://openenergymonitor.org/emon/modules/emontx/firmware/calibration</a>
+
+THIS SKETCH REQUIRES:
+
+Libraries in the standard arduino libraries folder:
+- JeeLib <a href="https://github.com/jcw/jeelib" title="https://github.com/jcw/jeelib">https://github.com/jcw/jeelib</a>
+- EmonLib <a href="https://github.com/openenergymonitor/EmonLib.git" title="https://github.com/openenergymonitor/EmonLib.git">https://github.com/openenergymonitor/EmonLib.git</a>
+
+Other files in project directory (should appear in the arduino tabs above)
+- emontx_lib.ino
+*/
+#include <spi.h>
+#include <ethernet.h>
+
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0x0C, 0xC0 };
+byte ip[] = { 192,168,1,67 };
+byte gateway[] ={ 192, 168, 1, 254 };
+
+IPAddress server(192,168,1,10); // My server
+
+EthernetClient client;
+
+
+#define FILTERSETTLETIME 10000 // Time (ms) to allow the filters to settle before sending data
+
+const int CT1 = 1;
+const int CT2 = 1; // Set to 0 to disable
+const int CT3 = 0;
+const int CT4 = 0;
+
+
+#define freq RF12_433MHZ // Frequency of RF12B module can be RF12_433MHZ, RF12_868MHZ or RF12_915MHZ. You should use the one matching the module you have.
+const int nodeID = 10; // emonTx RFM12B node ID
+const int networkGroup = 210; // emonTx RFM12B wireless network group - needs to be same as emonBase and emonGLCD
+
+#include <jeelib.h> // Download JeeLib: <a href="http://github.com/jcw/jeelib" title="http://github.com/jcw/jeelib">http://github.com/jcw/jeelib</a>
+#include &quot;EmonLib.h&quot;
+EnergyMonitor ct1,ct2,ct3, ct4; // Create instances for each CT channel
+
+typedef struct { int power1, power2, power3, power4;} PayloadTX; // create structure - a neat way of packaging data for RF comms
+PayloadTX emontx;
+
+const int LEDpin = 9; // On-board emonTx LED
+
+boolean settled = false;
+
+void setup()
+{
+  Serial.begin(9600);
+  Serial.println(&quot;emonTX Shield CT123 example&quot;);
+  Serial.println(&quot;OpenEnergyMonitor.org&quot;);
+  Serial.print(&quot;Node: &quot;);
+  Serial.print(nodeID);
+  Serial.print(&quot; Freq: &quot;);
+  if (freq == RF12_433MHZ) Serial.print(&quot;433Mhz&quot;);
+  if (freq == RF12_868MHZ) Serial.print(&quot;868Mhz&quot;);
+  if (freq == RF12_915MHZ) Serial.print(&quot;915Mhz&quot;);
+ Serial.print(&quot; Network: &quot;);
+  Serial.println(networkGroup);
+             
+  if (CT1) ct1.current(1, 59.960); // Setup emonTX CT channel (channel, calibration)
+  if (CT2) ct2.current(2, 59.960); // Calibration factor = CT ratio / burden resistance
+  if (CT3) ct3.current(3, 38.885);
+  if (CT4) ct4.current(4, 38.885);
+  
+ //emonTx Shield Calibration = (100A / 0.05A) / 33 Ohms
+  rf12_set_cs(8);
+  rf12_initialize(nodeID, freq, networkGroup); // initialize RFM12B
+  rf12_sleep(RF12_SLEEP);
+
+  pinMode(LEDpin, OUTPUT); // Setup indicator LED
+  digitalWrite(LEDpin, HIGH);
+  
+  
+}
+
+void loop()
+{
+  if (CT1) {
+    emontx.power1 = ct1.calcIrms(1480) * 230.0; //ct.calcIrms(number of wavelengths sample)*AC RMS voltage
+    Serial.print(&quot; &quot;); Serial.print(emontx.power1);
+    }
+  
+  if (CT2) {
+    emontx.power2 = ct2.calcIrms(1480) * 230.0;
+    Serial.print(&quot; &quot;); Serial.print(emontx.power2);
+  }
+
+  if (CT3) {
+    emontx.power3 = ct3.calcIrms(1480) * 235.0;
+    Serial.print(&quot; &quot;); Serial.print(emontx.power3);
+  }
+  
+   if (CT4) {
+    emontx.power4 = ct4.calcIrms(1480) * 235.0;
+    Serial.print(&quot; &quot;); Serial.print(emontx.power4);
+  }
+  
+  
+  Serial.println(); delay(100);
+
+  // because millis() returns to zero after 50 days !
+  if (!settled &amp;&amp; millis() &gt; FILTERSETTLETIME) settled = true;
+
+  if (settled) // send data only after filters have settled
+  {
+    send_rf_data(); // *SEND RF DATA* - see emontx_lib
+    digitalWrite(LEDpin, HIGH); delay(2); digitalWrite(LEDpin, LOW); // flash LED
+    delay(2000); // delay between readings in ms
+    
+    // Open serial communications and wait for port to open:
+  Serial.begin(9600);
+  EthernetClient client;
+  
+  // start the Ethernet connection:
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println(&quot;Failed to configure Ethernet using DHCP&quot;);
+    // no point in carrying on, so do nothing forevermore:
+    for(;;)
+      ;
+  }
+  // give the Ethernet shield a second to initialize:
+  //delay(1000);
+
+  // if you get a connection, report back via serial:
+  if (client.connect(server, 80)) {
+    Serial.println(&quot;connected&quot;);
+    // Make a HTTP request:
+    client.print(&quot;GET /powerbase/api/post?apikey=d356882fe194da4aa7297ace154d0807&amp;json={arduino:&quot;);
+    client.print(emontx.power1); //POST CT1 VALUE
+    client.print(&quot;}&quot;);
+    client.println(&quot; HTTP/1.0&quot;);
+    client.println();
+    Serial.println(&quot;ARDUINO: HTTP message sent&quot;);
+    delay(1000);
+    client.flush();
+    //client.stop();
+    
+    } 
+  else {
+    // kf you didn&#39;t get a connection to the server:
+    Serial.println(&quot;connection failed&quot;);
+      }
+    
+  }
+
+ }
+</jeelib.h></ethernet.h></spi.h></pre>  <div class="forum-topic-navigation clear-block">
+          <a href="1363.html" class="topic-previous" title="Go to previous forum topic">‹ Measuring Kilowatts being exported from Solar PV system</a>
+              <a href="786.html" class="topic-next" title="Go to next forum topic">Cheap current sensors ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-7428"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emontx Shield + Ethernet Shield: Help with Code</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 18/11/2012 - 22:44.</div>
+    <div class="content">
+     <p>Hello&nbsp;Guillaume</p>
+<p>Yes maybe try putting:</p>
+<p>// Open serial communications and wait for port to open:<br />
+	&nbsp; Serial.begin(9600);<br />
+	&nbsp; EthernetClient client;<br />
+	&nbsp;<br />
+	&nbsp; // start the Ethernet connection:<br />
+	&nbsp; if (Ethernet.begin(mac) == 0) {<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(&quot;Failed to configure Ethernet using DHCP&quot;);<br />
+	&nbsp;&nbsp;&nbsp; // no point in carrying on, so do nothing forevermore:<br />
+	&nbsp;&nbsp;&nbsp; for(;;)<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;<br />
+	&nbsp; }</p>
+<p>in void setup() rather than void loop() that might solve it.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7435"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="gcarlier&#039;s picture" title="gcarlier&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emontx Shield + Ethernet Shield: Help with Code</h3>
+
+    <div class="submitted">Submitted by gcarlier (not verified) on Mon, 19/11/2012 - 09:28.</div>
+    <div class="content">
+     <p>Hello Trystan,</p>
+<p>Thanks very much, it&#39;s working like that.</p>
+<p>Guillaume</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/1367"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-rfKmtepvKAlb6nAv8sGtGzLLLzyfJn1XUbzQABymrA0" value="form-rfKmtepvKAlb6nAv8sGtGzLLLzyfJn1XUbzQABymrA0"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1367 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:37:21 GMT -->
+</html>

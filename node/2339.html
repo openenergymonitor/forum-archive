@@ -1,0 +1,1962 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2339 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:49:54 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Building a Mk2i ... now testing 3phase energy diverter | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Building a Mk2i ... now testing 3phase energy diverter</h3>
+        <span class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sun, 05/05/2013 - 17:59</span>
+        <div class="content"><p>Just logging some experiences here about building a Mk2i here ... any comments and corrections to mistakes are welcome. Build is a standard emonTx with sandard CT from openenergymonitor shop. Firmware is latest rev5a when starting this thread.</p>
+<p>1) Built everything, modified CT123 voltage script and tested everything work good and give exact values then read that CT burden resistor should be 150Ohm instead of 18Ohm which emonTx has when its delivered. Changed the CT3 burden to 150Ohm. For compiling mk2i rev5a needed to download the standard libraries for emontx and what is told in the code - except TimerOne which was not mentioned.</p>
+<p>Used the following ports :</p>
+<p>.// ----------- Pinout assignments&nbsp; -----------<br />
+	//<br />
+	// digital input and output pins<br />
+	const byte LED_detectorpin = 6; // No meter input in use<br />
+	const byte outputModeSelectorPin = 4;&nbsp;&nbsp; //&nbsp; for normal or anti-flicker mode<br />
+	const byte loadPrioritySelectorPin = 5; //&nbsp; local or remote load to have priority<br />
+	const byte underflow_LED = 7;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	const byte overflow_LED = 8;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>
+	const byte surplusPV_LED = 9;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // onboard led<br />
+	const byte physicalLoad_0_pin = 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Pulse input plug for trigger<br />
+	// analogue input pins:<br />
+	const byte voltageSensorPin = 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // AC Voltage<br />
+	const byte currentSensorPin = 1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // CT 3</p>
+<p>&nbsp;</p>
+<p>2) Used rawsamplestool and figured out (did not remember)&nbsp;that the european AC transformer gives a bit more voltage than what Robin has used in his script. Also our voltage is 230VAC rather than 240in UK. So modified the following line:</p>
+<p>const float voltageCal = 900 / (float)679;</p>
+<p>3) Robin has made an excellent mode called tallymode into Mk2i, it shows the distribution of power values accross setup.</p>
+<p>a) tested with CT not connected anything, seems to be around 3W off - need to fix this later.</p>
+<p>11, 0<br />
+	9, 1<br />
+	7, 1<br />
+	5, 28<br />
+	3, 118<br />
+	1, 44<br />
+	-1, 36<br />
+	-3, 5<br />
+	-5, 3<br />
+	-7, 4<br />
+	-9, 0<br />
+	-11, 0</p>
+<p>b) tested with 40W bulb, initially got distribution of power around 80W. Changed the following&nbsp;powercal and now got distribution centered around 80w.</p>
+<p>const float powerCal = 0.033;&nbsp;</p>
+<p>45, 0<br />
+	43, 18<br />
+	41, 220<br />
+	39, 2<br />
+	37, 0</p>
+<p>c) Connected my inverter which shows a distribution at around 38w which is the same as on LCD display.</p>
+<p>-29, 0<br />
+	-31, 0<br />
+	-33, 7<br />
+	-35, 32<br />
+	-37, 51<br />
+	-39, 29<br />
+	-41, 24<br />
+	-43, 7<br />
+	-45, 7<br />
+	-47, 8<br />
+	-49, 10<br />
+	-51, 6<br />
+	&nbsp;</p>
+<p>... so its time to put the FET on and report more after that...</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10187.html" class="topic-previous" title="Go to previous forum topic">‹ Power monitor trouble-shooting</a>
+              <a href="10189.html" class="topic-next" title="Go to next forum topic">3 Phase - Fronius Symo 7.0-3-M ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-11877"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sun, 05/05/2013 - 18:09.</div>
+    <div class="content">
+     <p>&nbsp;</p>
+<p>Either there is something wrong with my parameters or dont yet&nbsp;understand MK2&nbsp;or mk5a does not work as:</p>
+<p>The led blinks even if CT is not connected (led does stop when AC is disconnected, also when inverter power is redirected through CT it calms down but still blinks occasionally.</p>
+<p>...Need to test mk4...</p>
+<p>ps. I wish the parameters (ports and calibration) would have been put to a separate #include file to make updates and version changes easier.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11879"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sun, 05/05/2013 - 18:36.</div>
+    <div class="content">
+     <p>.... aha ... there is a fairly long calibration time before the rev5a starts to work. During that period the dump load is off - that is a not desired feature from my point of view, during initialization the rev5a should have dumpload on...</p>
+<p>Anyway the<strong> Mk2i rev5a led and dummy load is blinking in a case there is no load in CT </strong>- that still needs some investigation !</p>
+<p>&nbsp;</p>
+<p>Something is loading up the energy bucket ???</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11880"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sun, 05/05/2013 - 19:02.</div>
+    <div class="content">
+     <p>Testing why energybucket is filling even there is no PV circuit connected.</p>
+<p>CT not connected tallymode:</p>
+<p>9, 0<br />
+	7, 0<br />
+	5, 0<br />
+	3, 0<br />
+	1, 218<br />
+	-1, 0<br />
+	-3, 17<br />
+	-5, 1<br />
+	-7, 4<br />
+	-9, 0</p>
+<p>CT freerunning (ie not around any wire but connected to emonTx</p>
+<p>9, 0<br />
+	7, 0<br />
+	5, 0<br />
+	3, 0<br />
+	1, 166<br />
+	-1, 0<br />
+	-3, 68<br />
+	-5, 2<br />
+	-7, 3<br />
+	-9, 0</p>
+<p>CT connected toa 40W bulb (i.e. load)</p>
+<p>45, 1<br />
+	43, 1<br />
+	41, 135<br />
+	39, 99<br />
+	37, 0<br />
+	35, 0</p>
+<p>Tested with normal emonTX script, values exactly as it should be...</p>
+<p>ct.voltageTX(234.26, 1.7);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// normal values&nbsp;from original script&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	ct.currentTX(3, (111.1*18)/150);&nbsp; // This is the new burder resistor</p>
+<p>W=40 Vrms=236<br />
+	W=40 Vrms=235<br />
+	W=40 Vrms=235<br />
+	W=40 Vrms=235<br />
+	W=40 Vrms=236<br />
+	W=40 Vrms=235<br />
+	W=40 Vrms=235<br />
+	W=40 Vrms=235<br />
+	W=40 Vrms=235</p>
+<p><strong>No answer in here really... still something odd going on ... with Mk2i rev 5a ???</strong></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11882"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 05/05/2013 - 20:57.</div>
+    <div class="content">
+     <p>Is your c.t. connected the wrong way round? If not, it should be!&nbsp; Robin&#39;s convention for the c.t is export power (bucket filling) is positive whereas the emonTx convention is <em>import </em>power is positive. That would explain the bucket filling on import power with no PV connected. Try just reversing the c.t. on its cable.</p>
+<p>Because the Mk2 (all versions) controls to balance the energy flow, changing the burden resistor won&#39;t have any effect on whether it works in principle, but it will affect the sensitivity and hence the accuracy of the balance between imported and exported energy;&nbsp; and provided the calibration is reasonably accurate, it also will have no effect on the flicker performance.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11884"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Mon, 06/05/2013 - 05:27.</div>
+    <div class="content">
+     <p>Tested the transformer s &nbsp;both ways. Really need to have high quality piccies of both side of emontx&nbsp;and working code for emontx to validate. &nbsp;Its possible that something in the full emontx &nbsp;build disturbs the code.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11888"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Mon, 06/05/2013 - 08:15.</div>
+    <div class="content">
+     <p>My mk2 cannot work correctly if the CT is not connected to anything! &nbsp;I suggest you use a test rig as I have shown in Section 8 of my online article (linked from the Orem home page)</p>
+<p>the emontx_ct123 sketch is nothing to do with my mk2&nbsp;router code. &nbsp;Although it Runs on th same hardware platform, it operates in a quite different way</p>
+<p>(send from a borrowed iPad, on which I am struggling!)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11894"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 06/05/2013 - 10:59.</div>
+    <div class="content">
+     <p>The Mk 2 code also runs on an emonTx, with minor modifications for the Inputs and outputs - which are wired to different pins.</p>
+<p>Load up the example sketch &quot;emonTx_CT123_Voltage&quot; and check the power when exporting - it may be a positive or a negative number. Reverse your c.t. and you should get the same value but the opposite sign. Fit the c.t. so that you have a positive number - that is the way the c.t. should point for the Mk2. If the two values are different by a few watts, that is normal and we think it is due to noise picked up by the analogue input. The fact that, when running Tallymode, you are seeing a cluster of values around zero tells me that the you should read about the same number each time, so this is not your problem.</p>
+<p>Do you understand the basic principle of how the router works (are you familiar with <a href="../mk2.html" title="Diverting surplus PV Power, by Robin Emley">Diverting surplus PV Power)</a>? Where is your c.t.? As explained in that series of articles, it should be on the supply side of the point where the P.V. feeds into your system.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11898"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Mon, 06/05/2013 - 20:53.</div>
+    <div class="content">
+     <p>Thanks gents,1</p>
+<p>1) emontx script used to verify that my ct and ac adc conversion works as it should 2) standard mk2rev5a used with different test rigs.&nbsp;</p>
+<p>My assumption is that slightly different port settings or alternatively built ct1 and ct2 hardware make the script fail. Rather than disassembling ct1 and ct2 circuits and without connecting switches its best to figure out whats happening before next user stumbles with similar issues with less experience in testing. Any thoughts around what missing switches and built ct1/ct2 circuits may do the the script ???</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11900"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Mon, 06/05/2013 - 21:26.</div>
+    <div class="content">
+     <p>I&#39;m sorry, Petrik, I don&#39;t understand much of what you are saying.</p>
+<p>If you want to get a Mk2 Router to work, you need to be using one of my Mk2 PV Router sketches.&nbsp; They all start with &quot;Mk2 ...&quot;.&nbsp; These sketches are all available from my <a href="1757.html">Summary Page</a>.&nbsp; My Mk2 Router code is NOT on Github, and does NOT include the emonTx_CT123 sketch.&nbsp; If you want to uses an &quot;emonTx&quot; sketch from Github to monitor your power, that&#39;s fine, but it will not divert any surplus power for you.&nbsp; My Mk2 code requires one CT to monitor current, and one voltage sensor, plus the output circuit with its trigger and triac.&nbsp;</p>
+<p><em>Rather than disassembling ct1 and ct2 circuits and without connecting switches its best to figure out whats happening before next user stumbles with similar issues with less experience in testing. Any thoughts around what missing switches and built ct1/ct2 circuits may do the the script ???</em></p>
+<p>I think you are worrying far too much Petrik.&nbsp; If you do the basic checks and connect everything together in the recommended way, any of my Mk2 sketches really will detect and divert your surplus power :-) &nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11901"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 06/05/2013 - 21:28.</div>
+    <div class="content">
+     <p>There is no need to move the hardware around. All you need to do is change the I/O addresses in the sketch. For example, if your c.t. is connected to CT1 (which happens to be AIO 3 - see the photo in part 8 where all the I/O&#39;s are labelled) then you change the line:</p>
+<pre>
+const byte currentSensorPin = 1;   // analogue</pre><p>to read</p>
+<pre>
+const byte currentSensorPin = 3;   // analogue
+</pre>         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11903"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Mon, 06/05/2013 - 21:52.</div>
+    <div class="content">
+     <p>Yes,</p>
+<p>Obviously mk2rev5a does not work as with thest done so far, tested with tallymode showing correct results and many other tests. But led continues to blink without ct being connected,</p>
+<p>&nbsp;Also twsted with&nbsp;Emontx script which shows just correct values, i.e. Ct and ac volts seem to be operational and correct.</p>
+<p>there is a missing piece of puzzle which is needed to make this functional, most likely something simple but not obvious.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11910"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Tue, 07/05/2013 - 08:41.</div>
+    <div class="content">
+     <p><em>there is a missing piece of puzzle which is needed to make this functional, most likely something simple but not obvious.&nbsp;</em></p>
+<p>Petrik, the difficulty I&#39;m having is that I don&#39;t understand what is bothering you.&nbsp; In what way do you think that the behaviour of your rig is wrong?&nbsp; There should be no puzzle.</p>
+<p>Please can you explain exactly what you are trying to achieve.&nbsp; In your initial post you said:</p>
+<p><em>logging some experiences here about building a Mk2i here ... any comments and corrections to mistakes are welcome. Build is a standard emonTx with sandard CT from openenergymonitor shop. Firmware is latest rev5a when starting this thread. 1) Built everything, modified CT123 voltage script a</em></p>
+<p>If you&#39;re trying to divert power, then you cannot use the &quot;CT123&quot; script;&nbsp; you have to use one of my &quot;Mk2...&quot; sketches.&nbsp; As posted, my Mk2 sketches all require the voltage signal to appear on Analog pin 2 and the current signal to be on Analog pin1.&nbsp; On the emonTx hardware, Analog pin 1 corresponds to CT3.&nbsp;&nbsp; So, when using my Mk2 software on the emonTx hardware, your CT needs to be plugged into the emonTx socket marked CT3.&nbsp; That&#39;s the top socket of the three.</p>
+<p>My tool <strong><a href="1757.html">MinMaxAndRangeChecker</a></strong> displays the signal that is being seen by the first four analog inputs.&nbsp; If you make no changes, a working Mk2 system will show a signal on each of the inner columns (for Analog inputs 1 and 2), and no signal for the outer columns (Analog inputs 0 and 3).&nbsp; This can be better seen if you earth your unused inputs.&nbsp; Otherwise, if they are left floating, they will probably pick up stray signals from their neighbouring channels.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11917"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 07/05/2013 - 12:13.</div>
+    <div class="content">
+     <p>Robin:</p>
+<p>Remember Petrik has changed the burden to 150 &Omega; so his maximum current before clipping will be 15.5 A at best&nbsp; - that&#39;s only 3.5 kW so he has an extraordinarily sensitive set-up.</p>
+<p>Any load exceeding 3.5 kW will <em><strong>never</strong></em> balance because he will be out of the linear region and into clipping. I don&#39;t think that is the problem yet, but it is likely to become a problem.</p>
+<p>Also, he&#39;s using DIO 3 for the trigger output. If he&#39;s wired it tip-ring as it should be, it should be OK; whereas if he&#39;s wired it ring-sleeve, it needs to be active-high. That could be a source of confusion.</p>
+<p>Petrik:</p>
+<p>The Mk2 is a &quot;Closed Loop Control System&quot; - see <a href="http://en.wikipedia.org/wiki/Feedback " title="http://en.wikipedia.org/wiki/Feedback ">http://en.wikipedia.org/wiki/Feedback </a><br />
+	The c.t. measures the total energy flow into or out of your house and when it sees energy flowing out, it tries to balance that outflow by adding some extra load. Because the amount of outflow varies but the extra load is fixed, you can have a small outflow for a long time before there is enough accumulated energy to supply the extra load for a very short time. Therefore it has to calculate the average over time and operate the triac so that the average is zero.</p>
+<p>The energy bucket fills when the total energy flow is export and empties when the total energy flow is import, and the slightest imbalance in the export direction will slowly fill the bucket. When the energy in the bucket hits the trigger threshold, it fires the triac and that causes a large pulse of imported energy that rapidly empties the bucket. If you are not firing the triac, or you are not measuring the total energy flow in both directions, you will not empty the bucket and it will continue to fire the triac until it succeeds in emptying the bucket. That is quite normal operation and exactly as we expect.</p>
+<p>How is your triac trigger connected? Where is your c.t. fitted? These are things you have not told us yet.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11918"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Tue, 07/05/2013 - 13:17.</div>
+    <div class="content">
+     <p><em>RW: Remember Petrik has changed the burden to 150 &Omega; so his maximum current before clipping will be 15.5 A at best&nbsp; - that&#39;s only 3.5 kW so he has an extraordinarily sensitive set-up.&nbsp; Any load exceeding 3.5 kW will <strong>never</strong> balance because he will be out of the linear region and into clipping. I don&#39;t think that is the problem yet, but it is likely to become a problem.</em></p>
+<p>Yes, it&#39;s important to ensure that the measurement system can cope with the maximum rates of energy flow that can occur in either direction while the router is active.&nbsp; An easy way to check this is by using my <a href="1757.html"><strong>RawSamplesTool</strong></a>.&nbsp; This tool will display all of the recorded voltage and current samples that have been taken during a single mains cycle.&nbsp; When the maximum power is flowing, the &quot;current&quot; waveform should appear as a sinusoid which spans most of the available input range of the processor&#39;s ADC.&nbsp;&nbsp;</p>
+<p>If the peaks of the &quot;current&quot; waveform appear to be truncated or clipped, then it would be sensible to use a smaller value of burden resistor so that the sensitivity of the system is reduced.&nbsp; Similarly, if the &quot;current&quot; waveform is very small, then it makes sense to increase the burden resistor&#39;s value so that more of the available ADC range is used.</p>
+<p><strong>Mk2_PV_Router_mini_3.ino&nbsp;</strong> is a suitable sketch for checking that a Mk2 system is working correctly.&nbsp; This sketch is fairly small, it uses floating point maths, and there is only one output mode.&nbsp; This sketch also displays the energy change per second in Joules, which is ideal for calibration.&nbsp; Surplus power (export) needs to give positive values.&nbsp; If the displayed values are negative when surplus power is present, then the CT needs to be reversed or clipped around the other wire (Live or Neutral).&nbsp; If the dump load flicks rapidly on and off when some surplus power is available, then the system is probably working correctly.</p>
+<p>If a Mk2 system appears not to be working, then it&#39;s more than likely that the input sensors are incorrectly setup.&nbsp; Use of RawSamplesTool will allow their performance to be verified.&nbsp; Or the CT may simply be the wrong way around.&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11920"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Tue, 07/05/2013 - 15:26.</div>
+    <div class="content">
+     <p>Busy right now but let me straighten up as feel like you guys are talking too much about very basic stuff - read the slgorithm, read the code, have not yet understood everything on code level but its very simple idea. So this is what i have. : 1) used emontx basic ct123volts script to test the volts and amps, nothing more. Added a test for triac output to verify that it works too. 2) my testing rig is 40w bulb so sensitivity is needed with mk2irev5, also have a testing gti with 10-40w output. 3) when ct is disconnected (i.e. Not clamped) the bulb flashes occasionally (maybe once in 30-60 secs) so there is a bug somewhere consuming energy while there is no generation available. Anyhow the tallymode shows a distribution around zero. 4) tried mk2irev4, same thing, dump load flash at steady interval. ... Maybe there is a byte or integer that overflows if std emontx with all components built should work just fine without (selector switches etc. Extra hw presented in mk2 thread.)? Alternatively the bucket fills up slowly as my CT seems to read 1-2w extra all the time with mk2irev5 where as wi emontx ct123volts its steady 0, but this is a calibration bug then.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11999"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Fri, 10/05/2013 - 12:49.</div>
+    <div class="content">
+     <p>Still have not found time to check out the mk2i algorithm where the bias could be set to avoid unnecessary dumping of enery when there is no PV generation available. Also ordered a din rail mountable kwh meter to check out if it can log the amount of energy dumped, partially to analyze this unwanted behaviour and also partially to check out the real generation. Not sure how well it counts the energy in pulses though so will be an interesting experiment.</p>
+<p>Anyway here is my DIN RAIL mk2i triac to have a very tidy installation and to keep the mains far away from close proximity of emontx.</p>
+<p><strong>Anyone having an idea of how much power the FET can take without cooling fins ?</strong> Can still add some aluminium inside the casing or alternatively extend the cooling fins outside the DIN RAIL enclosure.</p>
+<p>&nbsp;</p>
+<p><img alt="" src="../../../www.macmadigan.com/mk2i/mk2i_din_rail_mounted.JPG" style="width: 320px; height: 240px;" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12002"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2867.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="9fingers&#039;s picture" title="9fingers&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2867.html" title="View user profile.">9fingers</a> on Fri, 10/05/2013 - 14:58.</div>
+    <div class="content">
+     <p>That &quot;FET&quot; should be a Triac and I&#39;d suggest a 4 degree per W heatsink as a minimum. This should be with fins vertical in free air - not inside a box.</p>
+<p>I use a solid state relay in my implementation which essentially has the same components as your module and I&#39;m thinking of improving the heatsink from 4 degrees per watt to something better.</p>
+<p>The SSR is inside the box and the heatsink is on the outside. Surface temperature is about 30 degrees above ambient.</p>
+<p>&nbsp;</p>
+<p>hth</p>
+<p>Bob</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12003"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Fri, 10/05/2013 - 15:26.</div>
+    <div class="content">
+     <p>I recently mounted a standard BTY41 triac inside a small aluminium diecast box.&nbsp; After passing 3 kW through it for around 20 minutes, the entire box was warmer than I felt comfortable with.&nbsp; I will therefore fit an external heatsink adjacent to where the triac is.</p>
+<p>On another box, this time a plastic one with a large aluminium heatsink, the temperature rise was much less.&nbsp; It seems fairly clear that heatsinks work well because of their fins - and air circirculation.&nbsp; With no air movement inside a DIN Rail cartridge, I doubt whether much power could be usefully diverted before something overheats.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12004"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Fri, 10/05/2013 - 15:39.</div>
+    <div class="content">
+     <p>Oh sorry - triac of course ;-). Thanks, 4C/W is good guidance - what load are we talking about then ? Even more interestingly if a standard SSR can be used for MK2 it makes the story even better. What type of SSR was used ? Sounds like I need to cut one SSR open right now ;-)</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12006"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Fri, 10/05/2013 - 16:52.</div>
+    <div class="content">
+     <p>Opened up FOTEC SSR-25 DA, these can be found in ebay for a fiver or so and with a heatsink for din rail (way more or should I say better as less than 4C/W) for a tenner. Inside there is a BTA25-800.&nbsp;Need to do some reverse engineering of the schematic.</p>
+<p><img alt="" src="../../../www.macmadigan.com/mk2i/FOTEC_SSR25DA_front.JPG" style="width: 251px; height: 166px;" /></p>
+<p><img alt="" src="../../../www.macmadigan.com/mk2i/FOTEC_SSR25DA_rear.JPG" style="width: 251px; height: 186px;" /></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12010"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Fri, 10/05/2013 - 16:52.</div>
+    <div class="content">
+     <p>Looks like the following drawing is very close to what FOTEK SSR 25 DA has inside, this drawing was find somewhere from internet so resistor values are not correct. First two diodes to drive the LED. Resistor R2 (MOC driver) seems to be around 100Ohm and R1 50Ohm. Dont really see any reason why a SSR like this could not be used for Mk2i. The high voltage side of the SSR is slightly different with one more resistor connecting both sides of the MOC through a resistor (which may be good for safety) but dont see how that would cause problems with operation.</p>
+<p><strong>So is it really so simple that SSR can be used with mk2i ???</strong></p>
+<p>&nbsp;</p>
+<p>[Edited by Moderator - the linked image no longer exists]</p>
+<!--
+<p><img alt="" src="http://www.macmadigan.com/mk2i/SSR.jpg" style="width: 585px; height: 320px;" /></p> --><!--
+<p><img alt="" src="http://www.macmadigan.com/mk2i/SSR.jpg" style="width: 585px; height: 320px;" /></p> --><p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12013"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Fri, 10/05/2013 - 17:44.</div>
+    <div class="content">
+     <p>&nbsp;</p>
+<p>SSR works just fine but the mk2i unwanted behaviour continues, even if there is no PV generation mk2i diverts. Looks like the diverting happens at fixed frequency 0.35Hz (2.8s) with 40ms pulse width ??? (my Parallax USB scope is acting up and being very slow so can not be really exactly sure about the frequency).</p>
+<p>Other than that the SSR + mk2i is just perfect !!!</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12014"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2867.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="9fingers&#039;s picture" title="9fingers&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2867.html" title="View user profile.">9fingers</a> on Fri, 10/05/2013 - 18:08.</div>
+    <div class="content">
+     <p><em>Oh sorry - triac of course ;-). Thanks, 4C/W is good guidance - what load are we talking about then ? Even more interestingly if a standard SSR can be used for MK2 it makes the story even better. What type of SSR was used ? Sounds like I need to cut one SSR open right now ;-)</em></p>
+<p>&nbsp;</p>
+<p>My immersion heater measures up at 3165 watts - our mains voltage is invariably nearer 250 than 240.</p>
+<p>&nbsp;</p>
+<p>Bob</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12016"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Fri, 10/05/2013 - 19:49.</div>
+    <div class="content">
+     <p><em>Looks like the diverting happens at fixed frequency 0.35Hz (2.8s) with 40ms pulse width ???</em></p>
+<p>With the Mk2i_rev5 sketch, the shortest time that the triac can be &#39;on&#39; for in &#39;normal&#39; mode is 2 mains cycles, i.e. 40 ms.&nbsp; If this occurs every 2.8 seconds, that&#39;s 2 cycles &#39;on&#39; in every 140, or 1 in 70, or approx 1.5% of the time. &nbsp;</p>
+<p>If you had a 3kW load, that would imply a leakage rate of around 42W, which would seem a very high value.&nbsp; But maybe your load is not as high as this?&nbsp; If your dump-load is only 100W, then your background leakage is only just over a Watt, which doesn&#39;t sound too bad.</p>
+<p>If you switch over to anti-flicker mode, the dump-load will still be on for the same proportion of the time (one-seventieth), but the cycle rate will be somewhat slower.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12022"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sat, 11/05/2013 - 07:35.</div>
+    <div class="content">
+     <p>My primary dump load is 1kw. The leak is on 24h where as solar is only on around 10h. I feel its important to find out the reason why mk2i rev5a and rev4 behaves like that. Propably just by setting a bias to 50w instead of targetting zero could help ?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12028"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sat, 11/05/2013 - 11:27.</div>
+    <div class="content">
+     <p>What is your &quot;leak&quot;?&nbsp; On all of the MK2 systems that I&#39;ve built,&nbsp; I&#39;ve never seen the energy bucket to drift by more than I Joule per second, so that&#39;s less than a Watt of leakage.</p>
+<p>Because the Mk2a and Mk2i versions use integer maths rather than floating-point, the energy bucket&#39;s units are not in Joules.&nbsp; If you were to display these values, there may well appear to be quite a lot of drift.&nbsp; But with several million energy units per WattHour, that should not come as any surprise.&nbsp;</p>
+<p>Tallymode, in Mk2i_rev5a, should show you exactly what&#39;s going on.&nbsp; Just do a run from -100W to +100W and see what the results look like.&nbsp; You should see a fairly tight distribution of values around the 0 Watt point.&nbsp; If your distribution is centred around any other value, then something is clearly wrong with your setup.&nbsp; Similarly, if your distribution is all over the place rather than being tightly packed, then again something is wrong.</p>
+<p>If your Tallymode results are as I&#39;ve describe, then your Mk2 system is working fine.&nbsp; There should be no need for you to set up any kind of &quot;bias&quot;.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12038"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sat, 11/05/2013 - 15:53.</div>
+    <div class="content">
+     <p>Petrik, here are some Tallymode results I&#39;ve just taken with an emonTx-based rig that&#39;s running Mk2i_rev5a.</p>
+<p>There are three runs, with 0, 40 and 1000 Watts.&nbsp; The &#39;leakage&#39; that can be seen in the first run is no more than a couple of Watts.&nbsp; This is well below the anti-creep threshold of any utility meter, so should have no adverse effects in practice.</p>
+<p>9, 0<br />
+	7, 0<br />
+	5, 0<br />
+	3, 394<br />
+	1, 105<br />
+	-1, 0<br />
+	-3, 0<br />
+	-5, 0<br />
+	-7, 0<br />
+	-9, 0<br />
+	&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12040"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sat, 11/05/2013 - 17:15.</div>
+    <div class="content">
+     <p><strong>1) About tallymode</strong></p>
+<p>My tallymode is not even close to that even - anyhow I use for PV generation simulation a very dirty GTI output instead of steady bulb load. <strong>This is my next worry, how well can mk2i handle fast varying input from GTI&nbsp; as tallymode shows this wide distribution ??</strong></p>
+<p><img alt="" src="../../../www.macmadigan.com/mk2i/tallymode.jpg" style="width: 483px; height: 291px;" /></p>
+<p>This tallymode test was run both with SSR25 and Triac interface with very similar results. Tallymode.txt attached to this message.</p>
+<p><strong>2) Leakage, not significant</strong></p>
+<p>A good question Robin, the one about how much is my &quot;leak&quot;, had not calculated it earlier but looks like its not significant at all - so nothing to be worried. Sorry for pestering about it, should have calculate earlier.</p>
+<p>Leakage calculation&nbsp;<br />
+	0,35 Hz<br />
+	2,86 sec between pulses<br />
+	40 ms pulse width<br />
+	80 W dump load<br />
+	0,001&nbsp;&nbsp;&nbsp; Wh/pulse<br />
+	1,120&nbsp;&nbsp;&nbsp; leakage Wh/hour<br />
+	<strong>0,027&nbsp;&nbsp;&nbsp; leakage kWh/day</strong></p>
+<p><strong>3) Verifying the operation</strong></p>
+<p>To test that my mk2i Rev5 really works I attached oscilloscope to SSR-25 output and kept the PV generation simulation on same level and varied only the dump load. Results can be seen below just showing that the setup reacts to load changes. This verification tells that when dump load is reduced then the pulsewidth increases which is exactly how mk2i should work.</p>
+<p><img alt="" src="../../../www.macmadigan.com/mk2i/pulses.jpg" style="width: 602px; height: 393px;" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-12042"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sat, 11/05/2013 - 18:30.</div>
+    <div class="content">
+     <p>Hi Petrik,&nbsp;</p>
+<p>It seems to me that your system is working very well now.&nbsp; If you are simulating your PV power with a non-resistive load, then I suppose it&#39;s likely that you will see strange results.&nbsp; Might it be possible for you to do a check with a simple bulb or heater?</p>
+<p>As your dumpload is only 80 Watts, that explains the occasional &#39;on&#39; pulses that you were seeing.&nbsp; As you say, its not a problem.&nbsp; That&#39;s for letting us know.</p>
+<p>When you are checking the behaviour of the dump load (triac), please remember that Mk2i_rev5 has a completely different kind of algorithm for power distribution than all previous versions have used.&nbsp; In its &quot;normal&quot; mode, the triac has to remain on or off for at least two cycles; it cannot change every cycle as it could in previous builds.&nbsp; When in AF mode, the two behavours are quite different.&nbsp; In Mk2i_rev5, the triac stays on or off for a specified amount of <strong>time</strong> rather than for a specific amount of <strong>energy change</strong>.&nbsp; I recall posting graphs of these two behaviours a while ago, but can&#39;t now remember where ...&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13649"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Tue, 16/07/2013 - 15:34.</div>
+    <div class="content">
+     <p>Finally got to have the PV system installed and can divert actions to mk2i. Having looked at the total consumption watts today its more than 1kwh that is sent to the grid. As the house is connected to a three phase system I guess some tweaking of the mk2i is needed - anyhow to start I guess that just one phase system shall do it.</p>
+<p>Anyway if there is an easy <strong>solution for a three phase mk2i </strong>without tweaking the code too much would be interested to hear of it.</p>
+<p>&nbsp;</p>
+<p>Total yield (10-12am is affected by one tree, on neigbours side who is on vacation). Before that its a forest.</p>
+<p><img alt="" src="../../../www.macmadigan.com/mk2i/SMA_output.jpg" style="width: 469px; height: 339px;" /></p>
+<p>&nbsp;</p>
+<p>Energy balance, all phases included</p>
+<p><img alt="" src="../../../www.macmadigan.com/mk2i/wasted.jpg" style="width: 469px; height: 103px;" /></p>
+<p>&nbsp;</p>
+<p>Here is how the load is divided between balances, -301W is the one where inverter is connected, total house consumption for all phases is 252W.</p>
+<p><img alt="" src="../../../www.macmadigan.com/mk2i/Vinokuorma.jpg" style="width: 281px; height: 205px;" /></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13651"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 16/07/2013 - 16:17.</div>
+    <div class="content">
+     <p>Present thinking is that a 3-phase Mk2 is not necessary, because to the best of our knowledge the meter sums the energy over the 3 phases before it transfers the chargeable unit into the registers, thus in effect there is only one &#39;energy bucket&#39;. Of course if you can prove otherwise, we&#39;ll add that to our accumulated knowledge of electricity meters.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13671"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Wed, 17/07/2013 - 14:59.</div>
+    <div class="content">
+     <p>Sorry Robert, now dont understand the logic behind the statement. Yes - the meter sums the phases (this is what electricity company confirmed). Anyhow mk2i only detects voltage and current from one phase so the mk2i optimization happens in one phase neglecting the load in other phases.</p>
+<p>Something I have missed ?</p>
+<p>I can have an intermediate cure on personal level by transferring some more baseload to phase1 where my mk2i and inverter are connected.</p>
+<p>&nbsp;But knowing that there is a tendency from local electricity companies to recommend 3 phase inverters as most local houses have 3 phase line - &nbsp;this transferring baseload will not help others interested in mk2i.</p>
+<p>Btw<strong> mk2i works perfectly in a this setup: emontx + SSR + 8VAC DIN rail transformer + CT</strong>. SSR can take 5-8A load uncooled and when having a din rail mount on it that adds ability to take more power power. This SSR setup barely reaches 30C when operating 1kw heating element. This way all the low power components can be neatly boxed outside the main board and all 230VAC components inside the main fuse box.</p>
+<p><strong>The DIN rail AC transformer runs way more hot - around 50C.</strong></p>
+<p><strong>Recall vaguely having read something about saturation current without a load making a transformer to run hot ???</strong></p>
+<p>edit - lets add here a log from all three phases how it works, at around 17.48 and 17.50 energy is moved to hot water tank regardless of Jacuzzi pump being on - meaning that energy is imported from grid more than would be needed.</p>
+<p><img alt="" src="../../../www.macmadigan.com/mk2i/3phase.JPG" style="width: 892px; height: 533px" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13674"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 17/07/2013 - 15:30.</div>
+    <div class="content">
+     <p>I was assuming you only have a controlled load on one phase - that is the underlying assumption of the Mk2, and that the controlled load is approximately matched to the inverter output on that phase. But is that correct? Do you really have a 3-phase inverter but only 300 W total of PV, or is it 300 W per phase? It is the controlled load that matters, not the baseload which the Mk2 can do nothing about. What is the rating of your controlled load?</p>
+<p>If your generating capacity really is that low, and your controlled load is comparable to the total capacity,&nbsp; then you do indeed need to measure the power in each of the three phases and add them into a single Mk2 &#39;bucket&#39;.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13675"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Wed, 17/07/2013 - 17:58.</div>
+    <div class="content">
+     <p>Oh - let me try to give more information, first the personal setup.</p>
+<p>3 phase mains, main devices<br />
+	- Consumer devices like TV, computers&nbsp;etc. now mainly connected to phase 1<br />
+	- Jacuzzi on Phase 3<br />
+	- Two washing machines on Phases 2 and 3<br />
+	- Oven and cooker in phases 1,2 and 3 depending on what part is used<br />
+	- 13kw electric heating 3 phase system. When this is on there is no PV generation<br />
+	- Two heatpumps (one used also as air conditioner) on Phase 1<br />
+	- Hot water boiler , 3 phase star (3.1kw resistors) with center grounded. Normally heated during night tariff</p>
+<p>1.2kW SMA inverter, single phase<br />
+	- Connected to Phase 1</p>
+<p>mk2i<br />
+	- Connected and measuring phase 1<br />
+	- Hot water boiler on phase 1 connected to SSR</p>
+<p>So normally baseload is&nbsp;around 250w in phase 1 as baseload and 10-50w on other phases. Most consumer devices in phase 1 but sometimes oven, cooker, jacuzzi, washing machines etc may be on generating min 1kw load on other phases.</p>
+<p>Then more generic setup:<br />
+	- Normally 3 phase lines to the houses, with exeption of very remote summer cottages and older houses. This is mainly because of heating needs during the winter.<br />
+	- Electricity companies are pushing for 3 phase inverters to have more balanced load, no regulation yet about unbalanced generation limits like in germany for max 4.6kw on single phase<br />
+	- Heating system if electric almost always 3 phase<br />
+	- Hot water boilers, mainly 3 phase systems<br />
+	- Consumer devices wiring split evenly over 3 phases</p>
+<p>So I am ok personally but knowing that there is interest towards mk2i or alike for 3 phase systems would be interested to co-operate on that one. The load for mk2i could still be single load or alternatively secondary etc. loads could be on other phases - but key would be to calculate mk2i variable P_sum for all phases with 3 CT:s.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13677"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 17/07/2013 - 20:03.</div>
+    <div class="content">
+     <p>I think I see what you are thinking now. Here in the UK, I had never heard of a domestic property having a 3-phase supply until I read about MartinR&#39;s (and Noah, but he&#39;s different, his is a converted industrial site so he inherited his 3 phase supply). Even many offices and small factories only have a single phase supply. I have a friend living on a farm in Scotland and he and his immediate neighbours - 5 farms and a bungalow all told - all share the same single phase supply.</p>
+<p>The difficulty I see with a 3-phase Mk2 (Mk3 ?!) would be deciding on the algorithm for sharing the load. I have not thought very much about this, but it would have to work on a common energy bucket so as to remain compatible with the meter. Each phase could/would have its own Mk2 and controlled load - or maybe loads, and each switch would make its own decisions independently. I&#39;m not quite sure how that would work if part of the controlled load was 3-phase. And I can see problems with the anti-flicker mode because in effect everything would be happening 3 times faster as the meter&#39;s energy bucket appears to be the same size whether it is single or three phase.</p>
+<p>Using the interrupt version, it might be possible to run all 3 phases in one processor but with a reduced sampling rate. If the reduced rate was not acceptable (or more monitoring was required), there would be a case for 3 stacked processors communicating after the fashion of MartinR&#39;s full-fat monitor.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13680"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2888.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Tinbum&#039;s picture" title="Tinbum&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2888.html" title="View user profile.">Tinbum</a> on Wed, 17/07/2013 - 23:37.</div>
+    <div class="content">
+     <p>My&nbsp;house is just about have its single phase supply changed to a 3 phase supply so&nbsp;I have been looking at a similar thing. I have been adapting Robins code to suite. (with the very helpful guidance&nbsp;of Robert as&nbsp;I don&#39;t have much knowledge of code).</p>
+<p>Just to clarify, do you have one single meter for all the 3 phases or an individual&nbsp;meter on each phase?</p>
+<p>If the latter, which from what you describe it seems not to be, you just need one Mk2i on phase 1&nbsp;with the controlled load on phase 1.</p>
+<p>If the former then you would need a Ct and voltage measurement&nbsp;on each phase with one energy bucket,&nbsp;though the load&nbsp;SSR&nbsp;could be on any phase and a tweak of the code.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13681"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Thu, 18/07/2013 - 04:34.</div>
+    <div class="content">
+     <p>Single meter on all three phases, the meter sums the phases so Solar PV inverter production in phase 1 gets summed to the consumption on phase 2 and 3.</p>
+<p>The voltage is very stable here (&lt;1% variance in voltage&nbsp;in reality) which means that in reality would only need 1 AC voltage source and 3 CT:s. If I remember correctly there is a variable called P_sum in mk2i which would just need to be amended to read the three CT:s and sum it all up. That way the single mk2i energy bucket would have real load from all phases included.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13703"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Fri, 19/07/2013 - 09:47.</div>
+    <div class="content">
+     <p>&nbsp;</p>
+<p>I really like how elegantly mk2i does it work. Here you can see between 11:55 to 12:20 how around 300-500w is pushed to the hot water boiler using mk2i (emontx + ssr setup).</p>
+<p>Now starting to miss&nbsp;datalog of how much power is going to the hot water boiler. Maybe it would be possible to easily output some internal variables using rfm12b routine that already exists in mk2i code.</p>
+<p><img alt="" src="../../../www.macmadigan.com/mk2i/mk2i_in_operation.JPG" style="width: 876px; height: 181px" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13706"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 19/07/2013 - 11:48.</div>
+    <div class="content">
+     <p>Petrik: Look at MartinR&#39;s code&nbsp; &quot;Solar PV power diversion with emonTx, emonGLCD and temperature measurement&quot; <a href="1535.html" title="http://openenergymonitor.org/emon/node/1535">http://openenergymonitor.org/emon/node/1535</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13707"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Fri, 19/07/2013 - 13:12.</div>
+    <div class="content">
+     <p>Petrik, I&#39;m running MartinR&#39;s code to divert surplus power AND update emoncms, and you can see a screenprint of the data I get at&nbsp;<a href="2527.html">http://openenergymonitor.org/emon/node/2527</a>&nbsp;if you are interested.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13710"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Fri, 19/07/2013 - 16:27.</div>
+    <div class="content">
+     <p>Thanks chaps - browsed through the thread and that could be an alternative.</p>
+<p>Is there a wiring schematic somewhere for Martins system ? Got an understanding that its a 2 CT system but also saw a note of 3phases which looks promising. Need to dig more info about this when I have time.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13713"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 19/07/2013 - 16:59.</div>
+    <div class="content">
+     <p>Martin has also done a 3-phase monitor-only using 3 stacked emonTx&#39;s: Full-fat 3-phase <a href="1170.html" title="http://openenergymonitor.org/emon/node/1170">http://openenergymonitor.org/emon/node/1170</a></p>
+<p>Wiring is essentially the same as Robin&#39;s - with changes to the I/O pin numbers (and you need to check the triac drive polarity - active high or active low) it should run on your hardware. With one voltage input you just don&#39;t monitor the PV infeed - the controller works exactly the same as Robin&#39;s.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13751"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Mon, 22/07/2013 - 08:23.</div>
+    <div class="content">
+     <p><strong>Is there a wiring drawing somewhere for Martins sketch ?</strong></p>
+<p>Reading the script does not really tell much about&nbsp;how the CT1 and CT2 are supposed to be hooked and which way triac is fired.&nbsp;Also there seems to be hardcoded 240Vac in to the scipt. I guess that CT1 is the mains for phase 1 and CT2 is for PV inverter. The purpose of SYNCPIN and SAMPPIN i dont yet understand.</p>
+<p>Just ordered my 5th emontx to try out Martins sketch. What I read from the code is that it also could calculate emontx.power for at least one more additional phase making it even more versatile for my 3 phase environment.</p>
+<p>The test rig I have is a small GTI inverter hooked up to a power supply and dump load which enables to have a very realistic testing environment. Also having a temperature sensor there allows that one to monitor the SSR (=triac) temperature and put a safety limit not to fire triac if temperature is too high.</p>
+<p>Additionally it looks like some calibration may be needed... ?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13752"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Jimmybean&#039;s picture" title="Jimmybean&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by Jimmybean (not verified) on Mon, 22/07/2013 - 08:58.</div>
+    <div class="content">
+     <p>I also don&#39;t quite understand MartinR&#39;s sketches either. I can see how the slave and master work to transmit the data&nbsp;but&nbsp;I cant&nbsp;find any receiver/diverter/display sketch anywhere.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13760"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 22/07/2013 - 16:09.</div>
+    <div class="content">
+     <p>Are you two talking about different sketches?</p>
+<p>Martin&#39;s &quot;emonTx_Solar_Controller_Temperature_PLL.ino&quot; uses the standard RF packet format in line 91:</p>
+<p class="rteindent1">typedef struct { int power1, power2, power3, Vrms, temp; } PayloadTx;<br />
+	PayloadTx emontx;</p>
+<p>So that will interface with whatever base you use and he says it works fine with the standard emonGLCD sketch.</p>
+<p>The hardware interface is defined in line 64 onwards. SYNCPIN and SAMPPIN are there purely for monitoring - don&#39;t use them if you don&#39;t want to. The triac connection is DIO3, which is the pulse socket. If you look at line 331, it&#39;s pretty obvious that the output is active-high and the opto-emitter is therefore connected between the output (plug ring) and ground (plug sleeve) with the appropriate series resistor as he mentions in the first post in the thread.</p>
+<p><em>&quot;Reading the script does not really tell much about how the CT1 and CT2 are supposed to be hooked&nbsp; </em>...&quot;<br />
+	I think knowledge that it was derived from Robin&#39;s work, plus Line 21, says it all.<br />
+	&nbsp;</p>
+<p>The Full-fat 3-phase monitor again uses the standard RF packet format (line 133 of the master sketch) - all you need is to lift a copy of emontx_lib from the standard example sketches. Plus of course customise your GLCD if you need to display all 3 phases separately, or add the powers if you don&#39;t.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13764"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Mon, 22/07/2013 - 18:51.</div>
+    <div class="content">
+     <p>All of my Mk2 PV Router sketches only use one CT, this being to measure the current/power at the supply point, next to the meter.&nbsp;</p>
+<p>Martin&#39;s equivalent code supports an additional CT, to measure the amount of PV that is being generated.&nbsp; The difference between these two values reveals the amount of PV power that is being consumed on-site.</p>
+<p>By including both CTs in the same processing loop along with the voltage measurement, continuous measurements are obtained for all three signal sources.&nbsp; This is quite different than the standard &#39;123&#39; sketch in which each CT is processed in turn for a fixed period.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13772"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Tue, 23/07/2013 - 06:26.</div>
+    <div class="content">
+     <p>The way how I understand the both scripts so far is that there is regular timer based interrupts at which moment the V and I pairs are measured.</p>
+<p>As the timer runs constantly and locks during phase 1 rising zero cross point it should be fairly easy for 3-phase system to determine which are the points running 120 and 240 degrees later where the raising edges for phase2 and phase3 starts. The Voltage measurement could happen only for phase1 and stored into a StoredV[samplecounter] table where it could be recalled for processing StoredV[timer-120degrees] * Irms.</p>
+<p>I.e. in mk2i something like this could implement 3phase system</p>
+<p>- For timer sript add CT2 and CT1 and for voltage conversion add line&nbsp;StoredV[samplecounter++]=SampleV;<br />
+	- For start of a new +Ve&nbsp;cycle reset samplecounter = 0;<br />
+	- In main loop calculate all phases&nbsp;</p>
+<p>Needs more studyinig how to implement this - still dont understand code well enough...</p>
+<p>----</p>
+<p>OK - understood, wiring is same for CT1 and Vac for both robins and martins scripts.</p>
+<p>Having studied now Martins script I still dont understand why there is SAMPPIN and SYNCPIN in use ? Those are surely not used as interrupt sources but dont get why those are there at all ? Maybe just to debug the operation of the device.</p>
+<p>Maybe I go with the route of getting the PV generation output using bluetooth from SMA - dunno yet. Adding another CT just to measure PV generation does not sound right as there is only 3 CT inputs and really measuring consumption on all 3 phases should be the ultimate target.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13773"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Tue, 23/07/2013 - 10:18.</div>
+    <div class="content">
+     <p>&nbsp;</p>
+<p>hmmm. maybe something like below could be added to mk2i&nbsp;to show on the rfm12b&nbsp;package the load duty cycle which could be by knowing the load (e.g. 1000W) then converted into kwh diverted in emonGLCD.</p>
+<p>#ifdef ADC_TIMER<br />
+	// This is the Interrupt Service Routine for when the ADC is fixed timer mode.&nbsp; It is<br />
+	// executed whenever the ADC timer expires.&nbsp; In this mode, the next ADC conversion is<br />
+	// initiated from within this ISR.&nbsp;<br />
+	//<br />
+	void timerIsr(void)<br />
+	{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp; static unsigned char sample_index = 0;</p>
+<p><strong>if (triggerNeedsToBeArmed) {dytu++,};</strong></p>
+<p><strong>if(dutycount &gt; 500) {duty=0;dutycount=0;}</strong></p>
+<p>....</p>
+<p>and then somewhere in main()</p>
+<p>....</p>
+<p><b>if (dutycount &gt;= (500-1)) {emontx.loadduty=duty/dutycount;}</b></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13776"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 23/07/2013 - 10:40.</div>
+    <div class="content">
+     <p>If you make the number of samples per cycles an integer multiple of 3, then the &quot;stored array&quot; of voltages becomes very easy and the same (or very nearly the same) phase correction should apply to all 3 phases.</p>
+<p>If you read my answer again, I did tell you what SAMPPIN and SYNCPIN were for. The full explanation is in <a href="1377.html">MartinR&#39;s first PLL post.</a>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13777"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Tue, 23/07/2013 - 13:48.</div>
+    <div class="content">
+     <p>Thanks robert -<strike> I do understand the output those are providing but do not understand how those are used for the code in PV power diverter ? To me it looks like those are there for the fun not for any real use ?</strike></p>
+<p>Sorry completely missed that part, now crystal ...</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13835"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Fri, 26/07/2013 - 12:32.</div>
+    <div class="content">
+     <p>Maybe for 3-phase mk2i implementation RMS power and voltage could be used. As there is no voltage measurement for other phases than L1 therefore RMS method would simplify algorithm to be very easy to be implemented on mk2i? ???</p>
+<p>For PV geneation was thinking to give nanodesmamonitor a go, perhaps could get that working...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13838"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 26/07/2013 - 13:28.</div>
+    <div class="content">
+     <p>I don&#39;t understand the point you are trying to make. Are you trying to say that you only want to calculate apparent power (VA) and estimate real power based on unity (or some other) power factor?</p>
+<p>(And &quot;RMS Power&quot; does not exist. It is a nonsense. You mean average power.)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13841"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Fri, 26/07/2013 - 14:37.</div>
+    <div class="content">
+     <p>Yep, meant to say <strong>RMS current and&nbsp;</strong>voltage like explained here:&nbsp;<a href="https://learn.openenergymonitor.org/?redirect=ac-power-arduino-maths">http://openenergymonitor.org/emon/buildingblocks/ac-power-arduino-maths</a></p>
+<p>Using apparent power (apparent_power = root_mean_square_voltage * root_mean_square_current) does not really matter at which point of a wave the calculations start so maths could be done even the voltage phase is not in sync with phases were current is measured - as long as one full 360 degree cycle is summed together. So for&nbsp;RMS voltage i could use phase 1 and then could measure&nbsp;RMS current be measured from phases 2 and 3.</p>
+<p>That would assume PF=1 which it rarely is but still better than neglecting phases 2 and 3 completely. If really want to include phase 1 pf could calculate PF for phase 1 and multiply apparent_power with PF for phases 2 and 3 but dont see that necessarily adding value.</p>
+<p>I<em>n mk2i&nbsp;code there is a clear point where a new 360 degrees cycle stars so integrating RMS method there should be fairly easy.</em></p>
+<p>Dont see a benefit of measuring voltage for one phase and then delaying it by 120 degrees to calculate instant power for each point compared to using RMS method.</p>
+<p><em><u>How does this sound ?</u></em></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13842"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 26/07/2013 - 15:02.</div>
+    <div class="content">
+     <p>The normal reference is the voltage wave. You can average (voltage, current, power - it makes no difference) over any part of the wave. The starting point makes no difference. Normally, and only because it is easy to identify, we use one of the zero crossings.</p>
+<p>The point about power factor is it does not have to be the same for all 3 phases. If the load is properly balanced, it will be; but for an installation where there are single phase loads distributed over different phases, each phase will have its own, different, current wave and different power factor. The &#39;delayed array&#39; sketch assumes - as it clearly says in the comments - that the voltage wave is the same shape and amplitude for all three phases. This too is not likely to be strictly true, but it will probably be the best approximation available without monitoring all 3 voltages.</p>
+<p>As always, the quantities you measure will be determined by the accuracy you need. If you have purely resistive linear loads that are always accurately balanced, you only need one voltage and one current and P = 3 x V x I. If the voltages remain equal but the loads are different but still resistive and linear, P = V x (I<sub>1</sub> + I<sub>2</sub> + I<sub>3</sub>). If the loads are different and non-linear and/or reactive, for an accurate answer you need to multiply the samples of V and I and then take the average, separately for each phase, which implies knowing or approximating the three voltages, which is where we started from.</p>
+<p>All you can do is evaluate the likely accuracy of whichever measurement method you will use and decide whether it is acceptable for your purposes.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13853"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Fri, 26/07/2013 - 19:13.</div>
+    <div class="content">
+     <p>&nbsp;</p>
+<p>Yes, improving the accuracy is the main target. With only 1 phase system a lot of the load in 3 phase network gets neglected and therefore ample measures needs to be taken to improve accuracy. Anyhow most limiting factor is the time, even though implementing 3 phase measurement using RMS method is straight forward it most likely takes a couple of days which is difficult to spare.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13879"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sat, 27/07/2013 - 18:40.</div>
+    <div class="content">
+     <p>&nbsp;</p>
+<p>Today spent most of the day with nanoderfSMAgateway (nanode + bluetooth module) and SMArepeater (jeenode + bluesmirf). Learned a lot but could not get either of those working.</p>
+<p>Anyone on this board who could advice ?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13967"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Wed, 31/07/2013 - 17:25.</div>
+    <div class="content">
+     <p>Ok - decided to bite the bullet and took the martins code and modified that for 3 phase use. First tried the Vrms * Irms method but that proved to be fairly inaccurate and therefore generated a table where the voltage samples are stored and the read afterwards. Implemented code is really a bruteforce attack to this issue - but seems to be working on the desktop.</p>
+<p>Instead of emontx decided to use emonshield, that has 4 CT inputs which comes very handy. CT1-3 for phase monitoring and CT4 for PV generated power monitoring. Additional bonus is that now I can log pv generated and diverted power to emoncms. Also if this approach works then can remove one emontx that is currently being used for 3 phase monitoring.</p>
+<p>This version assumes 1 phase dump load. In my case I have a warm water boiler that has a star connected 3 phase resistor there - but as its a star I can just use one resistor as dump load by having a SSR to connect that on and off. This code should work also with a 3 phase inverter dump load inverter as the available energy (in bucket) is calculated as a sum of all three phases - same method I have understood the 3 phase electricity meters use. The limitation is that energy generation only to 1 phase can be monitored, but for any reasonable accuracy it can be assumed that a three phase inverter produces equal amount of power for each phase.</p>
+<p>The components used for 3phase energy diverter / 3 phase energy monitor are:</p>
+<p>- 1 x EmonShield with 1 AC transformer and&nbsp;3 CT:s</p>
+<p>- 1x Arduino UNO for emonshield and adequate PSU</p>
+<p>- 1 x SSR for switching the load on and off.</p>
+<p>- 1 x additional CT for monitoring PV generation</p>
+<p>First version of the code attached. Still needs to test the 3phase accuracy but first need some more CT:s ...</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14385"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Fri, 16/08/2013 - 14:57.</div>
+    <div class="content">
+     <p>Slowly getting there. Today finally managed to test that 3 phase power calculations using delayed V array for each I sample. Looks like it does work with slightly modified script compared to above, of course.</p>
+<p>In big picture when putting 3kw&nbsp;(3 x 1kw) load on did get around 1kw per phase. Anyway for small loads the value was -7w instead of real +20w for phase 2 and similar difference for phase 3. Need to look more carefully into&nbsp;phaseshift as this looks like an issue of what V sample is used for each I sample as did not used phaseshift at all, just new V samples. The samples are 9 degrees apart so there should be a huge improvement of implementing phase shift formula for phases 2&amp;3.</p>
+<p>Hooked up also LCD to emonshield, that is very handy and seems to be running just fine in 4 bit mode with no extra pins left with uno+emontxshield+rfm12b and LCD. Anyway without any optimization&nbsp;Arduino UNO is running only at 40 samples @&nbsp;50Hz. Maybe this is enough for decent diverting operation, dunno ?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14402"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sat, 17/08/2013 - 12:41.</div>
+    <div class="content">
+     <p>Really interesting that phaseshift needs to be around 2.0 - 2.7 for apparent power to match real power... tried to check if there is difference if Voltage is sampled first or last but no real change.</p>
+<p>Apparent power looks like being on level 30-50W without any load.</p>
+<p><strong>...back to to drawing board with apparent power calculation...</strong></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14404"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sat, 17/08/2013 - 15:05.</div>
+    <div class="content">
+     <p>&nbsp;</p>
+<p>I think there is an <em>error in the way Martins diverter&nbsp;calculates apparent power</em>.&nbsp;When using latest samples in square gives too high area for Vrms * Irms, rather it should be Vrms * Irms(new,last) to calculate an area that match voltage.</p>
+<p>Ie the previous sample should be used in this calculation instead like this example:<br />
+	<em>sumI1squared+=((long)newI1*lastI1)<br />
+	lastI1=newI1;</em></p>
+<p>With this method the phaseshift settles around 1.6..1.7 - hmmm, maybe also need to look if the&nbsp;Vrms should be calclulated using &quot;average&quot; of last pair instead of last sample squared.</p>
+<p>Edit - dunno, taking last and current sample reduces apparent power too much. Anyway <strong>this average between current samples makes some sense as there is only a limited number of samples available for calculating apparent power so similiar to &quot;phaseshift&quot; may occur with apparent power as with real power calculations ???</strong></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14408"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sat, 17/08/2013 - 16:08.</div>
+    <div class="content">
+     <p>&nbsp;</p>
+<p>May be barking a completely wrong tree but after some more testing it starts too fomulate a pattern: When changing the apparent power calculations towards something like below the apparent power seems to be more accurately calculated both at small and high resistive loads.</p>
+<p><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //sumI1squared+=((long)newI1*lastI1);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sumI1squared+=((long)newI1*(lastI1+(((((long)newI1-lastI1)*0.3)))));<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fI1Offset += (sampleI1-I1Offset);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I1Offset=(int)((fI1Offset+FILTERROUNDING)&gt;&gt;FILTERSHIFT);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lastI1=newI1;</em></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14439"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sun, 18/08/2013 - 16:41.</div>
+    <div class="content">
+     <p>Here is a piccie of the normal 2x20 LCD being integrated to 3-phase diverter based on Martins initial code and emontxshield.</p>
+<p><img alt="" src="../../../www.macmadigan.com/PV/diverterLCD.JPG" style="width: 320px; height: 240px" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14546"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Fri, 23/08/2013 - 20:58.</div>
+    <div class="content">
+     <p>I did build this setup with EmonShield . Tested&nbsp; today without SSR. It seems to work right out from box with code published by Petrik. I did simulate PV generation by reversing CT3 where was more consumption than CT1 + CT2.</p>
+<p>I have now burden resistors 33ohm installed to CT1,CT2,CT3. That means CT&#39;s scale is 0-100A. Is there any benefit to use smaller scale for measuring the current, as I currently have 3x25A fuses on mainswitchboard? Fast calculated my burden resistor should be about 120ohm to achieve 30amp maxium ad-conversion value.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14549"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Fri, 23/08/2013 - 21:01.</div>
+    <div class="content">
+     <p>Is there still an issue with this apparent power calculation?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14554"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 23/08/2013 - 22:40.</div>
+    <div class="content">
+     <p>You overload a current transformer by increasing the value of the burden resistor, which makes it put out more voltage hence more power. If you increase the resistor too far, the transformer will distort and not give you the correct output waveform, so your power calculations will be wrong. When that will happen depends on which c.t. you use and what its VA rating is. The standard one (YHDC SCT-013-000) should give acceptable results with a 120 &Omega; burden.</p>
+<p>Petrik can best answer your question about his rms calculation.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14581"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Sun, 25/08/2013 - 08:01.</div>
+    <div class="content">
+     <p>I did the test rig and found out CT1 realpower measured ok. CT2 shows 80% less than reality. CT3 always negative with almost correct reading. Diversion starts when CT123 sum negative.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14585"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 25/08/2013 - 12:36.</div>
+    <div class="content">
+     <p>You need to adjust the calibration constants for the c.t&#39;s that are not accurate. But first, make certain that the two parts of the core meet properly and there is no foreign matter between the core faces resulting in an air gap. The inaccuracy could be due to the c.t., the burden resistor, or both.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14591"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Sun, 25/08/2013 - 18:10.</div>
+    <div class="content">
+     <p>CT-installations are OK. Calibration should be enough close to get proper results.&nbsp; Now I have about 1kw load. Load is quite balanced to all phases. Printed from arduino have following results:&nbsp; L1=369.72w&nbsp;&nbsp; L2=40.35w&nbsp;&nbsp;&nbsp; L3= -231.70w&nbsp; . &nbsp; VAC and HZ measurements are OK.&nbsp; I have not yet skill to analyze the code how phase measurements are arranged. I&#39;ll understand&nbsp; 3-phase theory and reactive components, but this needs much more. If I would have time to get new hobby, this is it.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14605"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Mon, 26/08/2013 - 18:20.</div>
+    <div class="content">
+     <p>&quot;Slowly getting there. Today finally managed to test that 3 phase power calculations using delayed V array for each I sample. Looks like it does work with slightly modified script compared to above, of course.&quot;</p>
+<p>Perhaps Petrik&#39; published code is still in develepment phase and not ready to test. Luckily idea of code start to open slowly...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14613"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Tue, 27/08/2013 - 02:50.</div>
+    <div class="content">
+     <p>Ah - i will publish a working code when back on my pc. Been waiting for analogue meter to dig deeper with apparent power before sending it out.</p>
+<p>the code earlier here was a concept idea not the one with testing implemented.</p>
+<p>Sorry for confusion.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14649"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Wed, 28/08/2013 - 14:36.</div>
+    <div class="content">
+     <p>I don&#39;t really want to get involved with debugging your code Petrik but as Zakke was trying to use it&nbsp;I did glance at it and noticed one immediate problem in your voltage shift...</p>
+<p>phasesample=samples+(P2degree/360*NUMSAMPLES);<br />
+	if (phasesample &gt; NUMSAMPLES) {phasesample = phasesample - NUMSAMPLES;}</p>
+<p>there&#39;s a couple of problems with this code, phasesample&nbsp;and samples are&nbsp;integers so (P2degree/360*NUMSAMPLES) will always return 0 and you won&#39;t actually shift at all. You should use (P2degree*NUMSAMPLES)/360</p>
+<p>Also phasesample should always be less than NUMSAMPLES or you will exceed the bounds of your array and voltage will be garbage if (phasesample &gt; NUMSAMPLES) should be if (phasesample &gt;= NUMSAMPLES)</p>
+<p>You also don&#39;t appear to be compensating for the extra delay in sampling for CTs 2-4.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14734"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sun, 01/09/2013 - 20:30.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Sorry it took so long time even briefly come back on this. Had my daughters wedding this weekend and this once in a life moment has taken all the time and priority over anything else for past couple of weeks(<a href="https://www.facebook.com/#!/ecueditor/posts/512373418841507">www.facebook.com/#!/ecueditor/posts/512373418841507</a>).</p>
+<p>The code introduced here earlier was a concept idea like said. The attached is a code I have started to test in 3-phase system but has not put it yet in production as I have this issue of PF (reactive power) getting odd readings. Also looks like there is some leakage when using old rotation type meter when testing with a real inverter as generation. Not so much when using reversed resistive load like Robin is using.</p>
+<p>Hopefully after next week when things are settling back to normal shall get into this reactive matter in more detail and then have more thorough testing done.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14942"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Sat, 07/09/2013 - 06:17.</div>
+    <div class="content">
+     <p>I did try this with 60w resistive load on every phase. Found apparent power measurement ok. Realpower measurement is ok on phase 1, but other phases gives steady negative sign results with less than half of Real-realpower.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-14944"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Sat, 07/09/2013 - 08:46.</div>
+    <div class="content">
+     <p>Could you check if you have the vac transformer connected to phase 1 and phases in correct order.</p>
+<div>
+	&nbsp;</div>
+<div>
+	&nbsp;</div>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15038"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Tue, 10/09/2013 - 18:00.</div>
+    <div class="content">
+     <p>Yes, Now double checked everything. Here is a picture from my test setup. I have 60w bulb on every phase. Old analog powermeter was also fitted to test rig, but it was not working. I will get new used one maybe next week.&nbsp;</p>
+<p>Couple of parameters I did change when try to get working: SUPPLY_VOLTS,&nbsp; VCAL,LOADPOWER,and&nbsp; I1CAL, I2CAL,I3CAl,I4CAL to match my burden resistor.</p>
+<p>Here is sample what get from serial monitor:</p>
+<p>4.99 511 508 511 512 513 Vrms:228.94 rP1:57.96 aP1:62.00 rP2:-30.73 aP2:59.99 rP3:-5.29 aP3:53.26 rP4:54.50 aP4:60.20 dP:0.00 TC:2.81 aW:0.01 f:49.93<br />
+	4.99 511 508 511 512 514 Vrms:229.05 rP1:56.61 aP1:59.60 rP2:-30.50 aP2:59.33 rP3:-3.01 aP3:53.37 rP4:53.51 aP4:59.38 dP:0.00 TC:2.81 aW:0.00 f:49.93<br />
+	4.99 510 508 511 512 514 Vrms:228.98 rP1:53.90 aP1:56.09 rP2:-29.76 aP2:57.11 rP3:1.94 aP3:54.78 rP4:53.02 aP4:60.85 dP:0.00 TC:2.81 aW:0.00 f:49.93</p>
+<p>CT 2 and 3 realpower is negative and surely wrong measured. CT4 is connected also to Phase 1.</p>
+<p>I have not touched PHASESHIFT parameters.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15043"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 10/09/2013 - 19:30.</div>
+    <div class="content">
+     <p>Because real power is so much different from apparent power, this is surely an indication that either the phase rotation is wrong (i.e. CT 2 is on phase 3 and CT 3 is on phase 2), and/or the phase calibration is badly wrong - is the calculation of the index into the array of voltage samples correct?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15196"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Mon, 16/09/2013 - 19:16.</div>
+    <div class="content">
+     <p>Phase rotation was wrong. I did try to change CT1 and CT2, but actually phase rotation was same because VAC-measurement was also shifted from CT2 to CT1. Thats why I supposed the rotation was ok. When I replaced CT2 and CT3 then calculations was correct. Thanks for help.</p>
+<p>There is little unbalance between phases. Also 2-3 volts diffirence between phases. Now I have 1kw total realpower measurement on emontx. The electric company&#39;s energymeter measures 60w more. I dont know if this is causing problems when divert.</p>
+<p>I would like to test diversion functions, but I dont have possibility to do it right now, because overproduction is always on same time when I have to be outside home :(&nbsp; At september the sun is not so high anymore in Finland.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15454"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Fri, 27/09/2013 - 19:15.</div>
+    <div class="content">
+     <p>Couple of sunny days behind now. Diverter works nice and steady. Found out poor quality of electric network.&nbsp; I can see more than 10 volts diffirence between phase voltages. Propably our household is quite far away from transformer site. Also house load is impossible to get balanced. House&#39;s base consumption runs between 600 and 1100 watts. Error to real measured consumption is approximately 30 to 90watts.</p>
+<p>I think I should be able to get more accurate readings with 3x voltage and current measurement.&nbsp; Currently only possible option would be 3x mk2 diverters. Also remote RF load control suits well to my dual immersion point. 3-phase RF control should be able to arrange with one pair of rfm tranceivers. Of course both immersion tank should be equipped with three SSR, one for every phase.&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15911"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Wed, 23/10/2013 - 20:42.</div>
+    <div class="content">
+     <p>Kakke, you may be interested in some <a href="../sites/default/files/NZ_project.zip">code</a> I&#39;ve posted on <a href="2917.html">another thread</a>.&nbsp; As written, it measures two power streams on one phase, and two on another phase.&nbsp; But it could easily be changed to measure one power stream on each of three phases.&nbsp;&nbsp; That would allow you to take all your measurements (3 voltage and 3 current) with just one emonTx or Uno.&nbsp; With the ADC free-running, there are 32 sets of samples per 50 Hz mains cycle.</p>
+<p>Reinstating the diversion logic for surplus power should be fairly straightforward, the main processor has plenty of spare time.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15927"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1747.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1747.jpg" alt="Petrik&#039;s picture" title="Petrik&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1747.html" title="View user profile.">Petrik</a> on Thu, 24/10/2013 - 18:05.</div>
+    <div class="content">
+     <p>Yes, there is a margin of error when using only apparent power for 2 out of 3 phases. Like said its a few tens of watts per phase. My strategy is to allow some grid electricity in the house as the hot water is needed to be heated anyway - as adding two more voltage sources does add complexity.</p>
+<p>Which part of the country are you&nbsp;zakke located ?&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15931"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Thu, 24/10/2013 - 20:18.</div>
+    <div class="content">
+     <p>I am still running Petrik&#39;s 3phase energy diverter code. I can live with some measurement error on phase 2 and 3. But one thing I cant understand.&nbsp;</p>
+<p>Here is an example,</p>
+<p>October 16th daily totals:</p>
+<p>Solar production 10.2kw (measured by solar inverter)</p>
+<p>Consumption 19.2kw&nbsp;&nbsp; (measured with emontx 3phase diverter CT1,CT2,CT3)</p>
+<p>Diversion 4.2kw&nbsp;&nbsp; (measured with emontx 3phase diverter, calculated value)</p>
+<p>Paid consumption 23,4kw &nbsp; (measured by electric company)</p>
+<p>Attached barchart picture is showing what I pay for. I am able to get it from electric&#39;s company net service. &nbsp; It&#39;s showing consumption from electric network same time when solar production is over base consumption.&nbsp;&nbsp; The paid consumption is exactly same as diversion and consumption calculated together.&nbsp;&nbsp; Those values are generated by energy diverter code.</p>
+<p>This is happening every day when we have overproduction available to divert .&nbsp; Daily emontx calculated energy+diversion match with real paid daily comsumption. &nbsp; I cant understand why diverted power is add to electric bill.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15932"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Thu, 24/10/2013 - 19:50.</div>
+    <div class="content">
+     <p>&quot;Which part of the country are you zakke located ?&quot;</p>
+<p>I live in west coast.&nbsp; Plenty of sun here this year :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15933"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 24/10/2013 - 21:51.</div>
+    <div class="content">
+     <p>Possibly a silly question: You are measuring the energy at the correct places?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15945"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Fri, 25/10/2013 - 18:52.</div>
+    <div class="content">
+     <p>Here is a schematic of current connections:</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15950"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 25/10/2013 - 20:50.</div>
+    <div class="content">
+     <p>First, CT1 - CT3 are measuring the nett energy imported. Your meter may be set to register only the energy imported and to ignore the energy exported.<br />
+	Second, the calculated energy diverted might not be the actual energy diverted. It is the energy <em>available</em> to be diverted. If your water heater has a thermostat, that will prevent energy from being diverted but Martin&#39;s code calculates it by counting the number of cycles when the triac is turned on. This was OK for him because he used the water temperature measurement in his emonTx to inhibit the diverter, so the triac stays off and his thermostat never needs to open.</p>
+<p>So I think you generated 10.2 kWh of which you calculated that up to 4.2 kWh was diverted, 23.4 - 19.2 = 4.2 kWh was exported and at least 1.8 kWh (= 10.2 - 4.2 - 4.2) was used in the house.</p>
+<p>And those connections look absolutely correct. It <em>was</em> a silly question (but worth checking) and I think it is just coincidence that the two numbers are the same or nearly so.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15954"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Sat, 26/10/2013 - 08:51.</div>
+    <div class="content">
+     <p>I can give a vote for your first quess. Energy meter is remote controlled by electric company and can be programmed to do anything. Before I bought my first 3.25kw PV panels and 6kw inverter, I did ask how the metering is done. Company said that measuring unit is 1 Wh and it is sum of all three phases. So it should be able to import and export same time inside 1Wh window. Now it seems like there is two registers, one for import and other to export. I have to discuss more with the company.</p>
+<p>I cant see coincidence with the numbers. Pattern is easy to see from other days also. So currently real paid consumption is emontx p1+p2+p3 + diverter power. Of course there is something +-500w diffirence with real values.</p>
+<p>&nbsp;</p>
+<p>&quot;So I think you generated 10.2 kWh of which you calculated that up to 4.2 kWh was diverted, 23.4 - 19.2 = 4.2 kWh was exported and at least 1.8 kWh (= 10.2 - 4.2 - 4.2) was used in the house.&quot;</p>
+<p>Yes, somehow electric company got 4.2kw free of charge. No problem personally, but the idea is exported also.</p>
+<p>Here is a picture when divert fuse is open:</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15956"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 26/10/2013 - 13:16.</div>
+    <div class="content">
+     <p>Yes, that shows how it thinks the energy is being diverted when it is not.</p>
+<p><em>&quot;So currently real paid consumption is emontx p1+p2+p3 + diverter power.&quot;</em>&nbsp; I am not sure even that is always true. Have you read about energy meters in Building Blocks? We think you can send upto 1 Wh (3600 J) back and forth through the meter without registering. If you export more than that, you donate it to the company. If you import more than that, you pay.</p>
+<p>Have you got ENERGY_BUFFER_SIZE and the thresholds set correctly for your meter? If it is too large, or the thresholds are too close to the limits, that could be part of your problem.</p>
+<p>Unfortunately, unless you can synchronise the meter&#39;s &quot;packet&quot; and your buffer, you can never be certain that you will not donate or pay for energy at some point as the two drift relative to each other. But when that happens, they synchronise again.</p>
+<p><em>&quot;somehow electric company got 4.2kw free of charge</em>&quot; Nothing new there! They write the rules. They ALWAYS win.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15961"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sat, 26/10/2013 - 20:24.</div>
+    <div class="content">
+     <p>When a PV Diverter is working correctly, it is important to ensure that the meter&#39;s LED is not flashing.&nbsp; If the LED were to change state every time that the dump load is activated, that would be a very bad sign.&nbsp; As Robert has mentioned, incorrect calibration could cause this effect, which may account for what is being seen here.</p>
+<p>An easy check would be to run the diverter system in &quot;normal&quot; mode rather than with any anti-flicker measures in place.&nbsp; By this means, the router would maintain the system&#39;s energy level within a very tight range, which should sit well within the &quot;sweet-zone&quot; for any known type of meter.</p>
+<p>In &quot;normal mode&quot;, the upper and lower energy thresholds need to be very close together, preferably coincident.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15972"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Mon, 28/10/2013 - 08:08.</div>
+    <div class="content">
+     <p>Now energy company said that they measure all phases separate.&nbsp; They have changed something after last contact. &nbsp; So if exporting some energy on phase 1, it is not possible to get back from other phases. &nbsp; Thats why diverting makes more bill right now.&nbsp;&nbsp;&nbsp; When solar production is high, then more accurate formula (p1+p2+p3 + divert)&nbsp; will be in this case.</p>
+<p>&nbsp;I can see that only possibility is to install MK2i based emontx one for every phase. It means that diverting and some importing is going on same time, because energy transfer between phases is not possible.</p>
+<p>Energy company won this time.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-15976"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Mon, 28/10/2013 - 11:29.</div>
+    <div class="content">
+     <p>As I mentioned earlier in this thread, on 23/10, a single Atmega platform should be able to monitor the flow of energy on all three phases at the same time.&nbsp; It should also be possible to include a separate &quot;energy bucket&quot; plus power diversion logic for each phase.&nbsp;</p>
+<p>Then you would only pay for what you import, not what you divert :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16012"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4241.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Zakke&#039;s picture" title="Zakke&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4241.html" title="View user profile.">Zakke</a> on Tue, 29/10/2013 - 19:32.</div>
+    <div class="content">
+     <p>Solution like that would fit nice to my setup.&nbsp; All software components seems to be already done. &nbsp; In other hand &quot;Stacked 3x emontx diverter&quot; solution would allow solar PV measurement. Then Serial data transfer between EmonTX boards should be implement to current PLL-based solution.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24296"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sat, 04/10/2014 - 17:51.</div>
+    <div class="content">
+     <p>By way of completion, a link to the <a href="http://mk2pvrouter.co.uk/61101.html">3-phase version</a> of my Mk2 PV Router website could usefully go here.&nbsp;</p>
+<p>This uses a new PCB with three transformers, one per phase.&nbsp; A single Atmega processor repeatedly samples the voltage and current on each phase and can divert any surplus energy to one of more dump-loads.&nbsp; Datalogging is supported via the on-board RFM12B, and SSRs can be controlled directly by running the processor at 5V, with a separate step-down stage for the RFM12B&#39;s 3.3V supply.</p>
+<p>I&#39;m not aware of any commercial system on the market for diverting surplus power in a 3-phase environment.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27513"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7251.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7251.png" alt="wiop&#039;s picture" title="wiop&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7251.html" title="View user profile.">wiop</a> on Sun, 08/02/2015 - 14:58.</div>
+    <div class="content">
+     <p>Now I have&nbsp;a nice setup of&nbsp;Petrik&#39;s sketch working with output to 4x20 LCD. Thanks to Petrik and Martin!&nbsp;Also actual Energy bucket is displayed and&nbsp;SSR (40A) is&nbsp;working.</p>
+<p>But I have problems&nbsp;with sending data to emonGLCD. I have&nbsp;already checked&nbsp;the node (10), group (210), emonGLCD and emonTX Shield&nbsp;are with same frequency (433Hz). The RF-part of Petrik&#39;s&nbsp;code I didn&#39;t touched.&nbsp;emonGLCD has same typedef struct,&nbsp;but all emonGLCD displayed values are still 0.</p>
+<p>Is there anybody who has a working sketch for emonGLCD to use it with Petrik&#39;s code (emonTx Shield)?<br />
+Should I test emonTx Shield with Raspberry Pi to determine error in emonTX or emonGLCD.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27520"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 08/02/2015 - 17:53.</div>
+    <div class="content">
+     <p>In your GLCD sketch, you copied the data structure from Petrik's code, but did you keep the same names for the elements as in the original structure? (See Part 2 of the Building Blocks' RFM12B article to understand what I mean by that. If the names don't fit the rest of the GLCD code, the values are disappearing into the universal bit bucket.)<br />
+Also, have you got the Node ID of your emonTX in there, as the source of the data?<br />
+(I've not checked Petrik's sketch, so these are only points to check.)</p>
+<p>If you need my GLCD test sketch, ask. It receives anything from anywhere, and displays bytes. </p>
+<p>[Edit:]</p>
+<p>The Payload structure you have, if I've looked at the correct sketch, is:<br />
+typedef struct { int power1, power2, power3, powerPV, powerdiverted, Vrms, temp; } PayloadTx;</p>
+<p>You'll need to modify the 'standard' GLCD sketch to either add the three phase powers together, or (harder) carry the values through to display them. If you are going to heavily modify the sketch, there are notes in the .md file on GitHub alongside the SolarPV sketch that should help.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27528"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 08/02/2015 - 22:54.</div>
+    <div class="content">
+     <p>Here is the &#39;GLCD Debug&#39; sketch.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27537"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Mon, 09/02/2015 - 10:53.</div>
+    <div class="content">
+     <p>That&#39;s interesting, I&#39;ve never been able to upload <strong>.ino</strong> files, only <strong>.zip</strong> ones.&nbsp; Has something changed?</p>
+<p>The &quot;File attachments&quot; dialogue states that:&nbsp; <em>Only files with the following extensions may be uploaded: zip jpg jpeg gif png txt doc xls pdf ppt pps odt ods odp tar.gz gz tar sch brd java pde docx ino svg.</em></p>
+<p>Maybe the ability to post<strong> .ino</strong> files is a moderator&#39;s privilege ...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27690"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7251.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7251.png" alt="wiop&#039;s picture" title="wiop&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7251.html" title="View user profile.">wiop</a> on Fri, 13/02/2015 - 23:10.</div>
+    <div class="content">
+     <p>Thank you Robert for posting your GLCD Debug sketch. It&#39;s a very useful tool. Now I received data of emonTx 3.2 (emonTxV3_RFM69CW_DiscreteSampling) and also of emonTxShield 2.5 (Shield_CT1234 sketch), so my hardware is ok.</p>
+<p>But I have still problems with emonTxShield 2.5 and Petrik&#39;s sketch to send data to GLCD (Debug sketch). Maybe rf is insufficient implemented or different configured. The numerous hex-commands in Petrik&#39;s rf code are intransparent for me. So I&#39;ll further grapple with.</p>
+<p>Is there anybody who has an adapted working code able to send data from emonTxShield to GLCD based on Petrik&#39;s code? Please post it. Thx Wilfried.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27698"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 14/02/2015 - 01:03.</div>
+    <div class="content">
+     <p>Without looking at Petrik's sketch, I am prepared to bet the commands to set up the RFM12 are the same as MartinR's PLL Diverter, and there is some documentation for that:<a href="https://learn.openenergymonitor.org/?redirect=pll">Solar PV power diversion with emonTx using a PLL, emonGLCD and temperature measurement, by Martin Roberts</a></p>
+<p>If you need more, there's always the Hope data sheet for the RFM12B, which should help you with decoding the commands (though it probably won't help you to learn <i>why</i> they are there).</p>
+<p>The obvious question: are your I/O pins correct? I don't keep a close watch on the Shield versions, if the pins have changed between the version of the Shield that Petrik used and the one you have, there a possibility that the I/O pins are wrong.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27902"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7251.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7251.png" alt="wiop&#039;s picture" title="wiop&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7251.html" title="View user profile.">wiop</a> on Wed, 18/02/2015 - 22:26.</div>
+    <div class="content">
+     <p>Thx Robert, I studied Hope data sheet and checked hex-commands and I/O pins, all looked good. After finishing&nbsp;compairing codes between MartinR and Petrik, I found out the problem for sending to emonGLCD. If using part of MartinR&#39;s code:</p>
+<pre>
+sumI1squared+=((long)newI1*lastI1</pre><p>instead of Petrik&#39;s code:</p>
+<pre>
+sumI1squared+=((long)newI1*(lastI1+(((((long)newI1-lastI1)*0.3)))));</pre><p>sending works fine. Is it a performance problem if using the&nbsp;complexer mathematic operation for each power? MartinR&#39;s approximation I think is sufficiently for me (I use it with NUMSAMPLES = 38 - samples enough).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27905"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Building a Mk2i ... now testing 3phase energy diverter</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 18/02/2015 - 22:58.</div>
+    <div class="content">
+     <p>Obviously the maths will take a bit longer to execute. Are you saying that with Martin's maths it works fine, yet the radio doesn't work with Petrik's maths? I have no idea (without actually measuring it) whether time to execute was your problem, I think it's much more likely to be a memory corruption problem, and by reducing the size of the sketch by that tiny amount, you have cured it.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2339"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-HlBUyBwWIt-_1fk21o2t602Gdsl1FonEe2HiemdTxD4" value="form-HlBUyBwWIt-_1fk21o2t602Gdsl1FonEe2HiemdTxD4"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2339 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:00:20 GMT -->
+</html>

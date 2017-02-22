@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10805 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:30:27 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>OEM based electric vehicle charging | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">OEM based electric vehicle charging</h3>
+        <span class="submitted">Submitted by <a href="../user/6709.html" title="View user profile.">stureid</a> on Sat, 06/06/2015 - 17:14</span>
+        <div class="content"><p>Hi all</p>
+<p>Having just bought an electric car, I was looking into the options there are for charging it at home. There are subsidised&nbsp;chargers available from &pound;200, but I thought I&#39;d look at open-source options. I looked at openEVSE, which looks great, but I&#39;ve already got a load of OpenEnergyMonitor&nbsp;stuff monitoring all sorts of things in my house for my website (<a href="http://www.redelectrical.co.uk/solar-iboost-heatpump-monitoring/">http://www.redelectrical.co.uk/solar-iboost-heatpump-monitoring/</a>).</p>
+<p>I found a guy selling all sorts of EV charging components via his&nbsp;website&nbsp;<a href="http://evbitz.uk/">http://evbitz.uk</a>, including a Mainpine&nbsp;&nbsp;Electronic Protocol Controller (EPC) that handles all the charging of the car. The EPC has a control&nbsp;input to set the charge current that is advertised to the vehicle. This has&nbsp;an internal&nbsp;1K&nbsp;pullup resistor to its 5V supply line. You simply connect a resistor between it and ground to create a potential divider and set the charge rate between 7A and 32A.</p>
+<p>I&nbsp;built a simple circuit using a X9C102PZ&nbsp;digital potentiometer and a partly-built emonTx V2 on a breadboard and wrote a sketch that varied the charge rate. I&#39;ve developed it a bit and put it on a veroboard.</p>
+<p>It now has the following features:</p>
+<ul>
+<li>Proportional charge rate between 7A and 32A depending on surplus PV generation (measured using CT1)</li>
+<li>Measurement of charge rate using CT2</li>
+<li>3-stage boost facility using push button to cycle between &#39;spare&#39; power only, minimum 9A boost, minimum&nbsp;16A boost and 32A boost.</li>
+<li>Two-colour LED to indicate mode operation (green = pilot relay on, number of red blinks&nbsp;= mode)</li>
+<li>Upload of charge amps, watts and boost mode to emoncms.org</li>
+</ul>
+<p>I initially looked at using an emonTX&nbsp;v2 to receive the packets from the existing monitoring, but then decided on a standalone system with its own CTs as this would be more reliable.</p>
+<p>I built the emonTX&nbsp;without the CT3, pulse and temperature circuitry to free up some IO pins. I then put headers on it so that I could stack a veroboard on top. The schematic of the EVSE &#39;shield&#39; is attached, along with photos of it on veroboard. I used a 555 timer IC to debounce the boost switch.</p>
+<p>I later found that the car sometimes failed to respond to the EVSE&nbsp;telling it to charge. I found that unplugging the car and plugging it in again fixed this, so I added a small relay board that I bought from eBay. This disconnects the pilot pin of the EV plug when not in use.</p>
+<p>I do currently have an issue with false triggering of the boost switch, which may be due to the volt drop when the car starts charging, or noise inside the EPC enclosure.</p>
+<p>The external enclosure houses the Mainpine EPC, small relay board, mode indicator LED and boost switch. The other enclosure houses the emonTX and EVSE shield. In the main consumer unit there is an 8V bell transformer for the voltage measurement and a 5V DIN rail power supply for the emonTX board.</p>
+<p>I&#39;ve also attached the code.</p>
+<p>Hopefully all this makes some sense, it&#39;s not intended to be a &#39;proper&#39; write-up but I&#39;m aware of others with similar projects so I thought I would put this up in case it inspires anyone.</p>
+<p>Stuart</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11098.html" class="topic-previous" title="Go to previous forum topic">‹ CT with a 0-5V output</a>
+              <a href="10519.html" class="topic-next" title="Go to next forum topic">Getting started (Help picking up a version of the project) ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-30974"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: OEM based electric vehicle charging</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 06/06/2015 - 18:49.</div>
+    <div class="content">
+     <p>That's a pretty impressive build.</p>
+<p>I'd certainly reduce the value of the pull-up resistor on your push-button switch - 100 k&Omega; is excessive, and, depending on the contact material inside the switch, you may well have reliability issues if there's no wiping action and not enough current to 'wet' the contacts. 1 k&Omega; - 10 k&Omega; would I think be more appropriate. You could also add a small capacitor (say 100 nF) across the input to GND which should help to minimise and noise pickup (which is surely not hindered by the 100 k&Omega; pull-up).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30980"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: OEM based electric vehicle charging</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 06/06/2015 - 21:26.</div>
+    <div class="content">
+     <p>Thankyou for sharing Stuart, I&#39;d like to try this myself, got a leaf here :) although the 3kW charger version so can only vary from 7-13A. Great to see this!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30998"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6709.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stureid&#039;s picture" title="stureid&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: OEM based electric vehicle charging</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6709.html" title="View user profile.">stureid</a> on Sun, 07/06/2015 - 09:34.</div>
+    <div class="content">
+     <p>Thanks for the feedback Robert, I am a bit rusty with electronics so it was a bit of a re-learning curve. It&#39;s 20 years or so since I last used a veroboard!&nbsp;I&#39;ll take your suggestions on board and see how it goes.</p>
+<p>Trystan, I got the digital potentiometer and DIN rail 5V power supply from Farnell. Everything else is fairly generic so I got it locally. I had to set the minimum charge at 9A because my Zoe wasn&#39;t happy with anything below that.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31011"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6366.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="nrgbod&#039;s picture" title="nrgbod&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: OEM based electric vehicle charging</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6366.html" title="View user profile.">nrgbod</a> on Sun, 07/06/2015 - 14:18.</div>
+    <div class="content">
+     <p>Looks good Stuart. How are you working out how much of your solar is&nbsp;spare solar power? Or are you using <strong>all</strong> solar power as spare?</p>
+<p>I have a similar setup working sending 6 to 16 amps to my 3.6kW LEAF and 7 to 14 amps to my Ampera electric car&nbsp;using a Mainpine EPC. However I had&nbsp;a couple of Rolec chargers fitted for free on the government scheme through <a href="http://www.nuworldenergy.co.uk/" title="www.nuworldenergy.co.uk">www.nuworldenergy.co.uk</a>.</p>
+<p>I already had the EmontxV3 setup near the consumer unit so used that to send the amount of spare solar power to &nbsp;a Funky V3 which is mounted on a piece of veroboard&nbsp;with power supply and MCP4261&nbsp;potentiometer. Like your setup the potentiometer sets&nbsp;the mainpine epc to tell the car what current to take.</p>
+<p>The part I have been struggling with is trimming the efficiency of the software.....it needs to react quickly to changing amounts of spare solar so as not to waste any&nbsp;but also the reactions to passing clouds needs to be dampened so the charger is not switching on and off too often. Mine will cope with things like the oven reducing the amount of spare PV power but as yet I havent&nbsp;figured out how to make it switch off when the induction hob is rapidly cycling the amount of spare PV other than to manually switch it off.</p>
+<p>I have a manual boost in the form of a rotary switch&nbsp;on the Rolec which selects between Auto, 6A, 10A, 16A or 32A depending on car.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31014"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6709.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stureid&#039;s picture" title="stureid&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: OEM based electric vehicle charging</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6709.html" title="View user profile.">stureid</a> on Sun, 07/06/2015 - 17:19.</div>
+    <div class="content">
+     <p>Hi nrgbod</p>
+<p>The system uses a CT clip on the tails. This measures the spare PV because my PV inverters are connected via the house consumer unit.</p>
+<p>I have implemented&nbsp;a minimum charge time of 60 seconds in my&nbsp;arduino sketch, to reduce short cycling due to cloudy days or intermittent loads.</p>
+<p>However, at such times I often put the charger into mode 1 (minimum 9A charge) and live with the fact that there are short periods when the car is charging from the grid. It&#39;s only 9A after all and the majority of the charge is powered by the PV.</p>
+<p>I suppose a more desirable setup would be to write a sketch that resets the minimum charge time when there is excess PV again, i.e. the charge would not end if there has been surplus electricity in the last 60 seconds. I might just do that this week - I&#39;ll post the sketch if I get round to doing so.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31016"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6366.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="nrgbod&#039;s picture" title="nrgbod&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: OEM based electric vehicle charging</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6366.html" title="View user profile.">nrgbod</a> on Sun, 07/06/2015 - 18:57.</div>
+    <div class="content">
+     <p>I also reset&nbsp;the timers in my sketch. They keep restarting the shutdown timers unless the spare pv is below a set value and not rising.</p>
+<p>See the attached sketches which might give you some ideas.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33190"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8520.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="SnaxMuppet&#039;s picture" title="SnaxMuppet&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: OEM based electric vehicle charging</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8520.html" title="View user profile.">SnaxMuppet</a> on Mon, 10/08/2015 - 15:08.</div>
+    <div class="content">
+     <p>Have any of you spoken to Dave Davies about this? He is working on a similar project. Get him on Twitter @dodavies.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10805"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-AKor2LrdJs3Y8tHamBhC2uR1BYJsulKCmJxhtAWWBWc" value="form-AKor2LrdJs3Y8tHamBhC2uR1BYJsulKCmJxhtAWWBWc"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10805 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:30:27 GMT -->
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Number of samples in the calcVI function | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/4">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Number of samples in the calcVI function</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/6963" title="View user profile.">Amaury</a> on Fri, 17/10/2014 - 21:22</span>
+        <div class="content"><p>Hi all,<br />
+	This should be a simple question for the Experts, I guess.<br />
+	The Arduino sketch (Discrete Sampling) uses the calcVI function,&nbsp; which samples voltage and current during 20 voltage crossings, i.e. 10 waveforms, so for a total of 200ms.</p>
+<p>There&#39;s no frequency specified, meaning the Arduino just loops as fast as it can. According to the Arduino doc, it takes 0.1ms to read an analog pin. In each loop in EmonLib, we read voltage and current, so an iteration should take 0.2ms.<br />
+	This means there should be about 1000 samples in a while loop. But browsing the forum, people say it gets only 500 samples in that time.<br />
+	What accounts for the difference? Is it the calculation time in the loop (i.e. the rest of the code besides the &quot;analogRead&quot;&nbsp; instructions)?</p>
+<p>Thanks!</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/5981" class="topic-previous" title="Go to previous forum topic">‹ EmonTH firmware drains batteries</a>
+              <a href="/emon/node/5351" class="topic-next" title="Go to next forum topic">Emon PCB Design ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-24618"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Number of samples in the calcVI function</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Fri, 17/10/2014 - 22:31.</div>
+    <div class="content">
+     <p>Basically - yes. The loop has to apply the high pass filter, the phasecal algorithm and accumulate the squared values of voltage and current for the rms calculations and the power for the real power average. If you look at the filter,<br />
+	&nbsp; &nbsp; &nbsp; &nbsp; filteredV = 0.996*(lastFilteredV+(sampleV-lastSampleV));<br />
+	you might think that the brackets around &quot;(sampleV-lastSampleV)&quot; are redundant, but in fact they force the subtraction to be done first and that happens in fixed point arithmetic, then the rest of the calculation is done in floating point. Those brackets mean an integer subtraction instead of a floating point one and one less conversion to a float, and hence another two or three sample pairs per cycle.</p>
+<p>The loop can be speeded up if you perform the calculations using fixed point arithmetic rather than floating point, but the fixed point calculations are a lot harder to understand and follow through.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24671"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Number of samples in the calcVI function</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Mon, 20/10/2014 - 12:07.</div>
+    <div class="content">
+     <p>When the ADC is free-running, my <a href="http://openenergymonitor.org/emon/node/1757">Mk2i PV Router code</a> does approx 96 pairs of V &amp; I samples per mains cycle.&nbsp; The quoted period for a single conversion is 104 us, so that value looks spot on.&nbsp; By use of integer maths, the main processor is only around 70% occupied.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24681"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/6963" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Amaury&#039;s picture" title="Amaury&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Number of samples in the calcVI function</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/6963" title="View user profile.">Amaury</a> on Mon, 20/10/2014 - 20:34.</div>
+    <div class="content">
+     <p>Ok thanks for your answers Robert and Calypso. I was actually trying to solve a sub-problem in my&nbsp;3-phase measurement sketch.&nbsp;Robert made the point&nbsp;that if you want to shift voltage phase by X degrees, you need to know how many samples in a cycle you have, and probably interpolate between 2 samples.</p>
+<p>My idea was, if I know the # of samples in a cycle programmatically, I can do a dynamic calculation and determine between which 2 samples to interpolate.</p>
+<p>But what I take from this discussion is:</p>
+<p>1) I can&#39;t tell the number of samples from the code itself. But could by empirical measure when the system is running.</p>
+<p>2) The number shouldn&#39;t change very much across iterations, but I suspect if I want to make this really stable I should avoid IF statements so that the code is more deterministic.</p>
+<p>Does this make sense?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24684"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Number of samples in the calcVI function</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Mon, 20/10/2014 - 21:17.</div>
+    <div class="content">
+     <p>What you have to remember is, unless you have a highly reactive load and a correspondingly poor power factor, the actual phase shift you apply is not all that critical, because the curve is flat-topped. So a slight phase shift will have only a small effect on the real power value that you calculate.</p>
+<p>Why are you worrying about IF statements? What branches are there in the main body of the main loop - while it is reading the 10 cycles and getting the numbers on which to base the calculations? I can't see any.</p>
+<p>The other variables that you might not have thought about are the variation of mains frequency (1% is allowed either side of the nominal for us in the UK), and clock drift in your crystal. Both will affect the timing and hence introduce what looks like a phase error. And you can do nothing about that. Unless...</p>
+<p>If you really want to avoid the problem altogether, you should be looking at MartinR's PLL sketch, adjust it so that it locks to 3n samples per cycle (say 48) and then (if phase 1 is the 0th) the second and third phases of a 4-wire system will be EXACTLY the 16th and 32nd samples in the array, and for your 2-phase 3-wire system the second phase will be the 8th sample; and they will stay there even if the frequency changes.<br />
+[For anyone who does not know the history, Amaury has a 3-wire 3-phase system, 230 V L-L and no neutral wire; and the loads are connected in delta. He is measuring two phases with respect to the third, so he has in effect a 2-phase system with 60&deg; between the phases.]</p>
+<p>There are a number of users of the sketch (on 4-wire) and they seem to have had no problem with setting it up empirically by following the instructions in the comments.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/5944"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-5_stN-VCp-wNpheod-ACjumwrWvtYL7u939R09SmnKs" value="form-5_stN-VCp-wNpheod-ACjumwrWvtYL7u939R09SmnKs"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

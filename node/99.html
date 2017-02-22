@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>SD Card Logging with Nuelectronics Real-time Datalog &amp; IO Shield | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h1>SD Card Logging with Nuelectronics Real-time Datalog &amp; IO Shield</h1>
+<div><em>Created 26th October - by Glyn Hudson</em></div>
+<div>&nbsp;</div>
+<div>This documentation was compiled as part of a <a href="https://openenergymonitor.org/emon/node/102">bee hive temperature monitoring project</a>. Multiple DS18B20 temperature sensors were used to sense the temperature at various locations in the hive. An Arduino with a Nuelectronics sensor shield is used to log the readings to an SD card. The shield&#39;s RTC (Real time clock) provides time stamps for the readings.</div>
+<div>&nbsp;</div>
+<div>In the future, memory card logging could be integrated into the Open Energy Monitor project to provide local storage or backup for energy monitoring data.</div>
+<div>&nbsp;</div>
+<div>Reading the DS18B20 temperature sensors is documented <a href="https://openenergymonitor.org/emon/node/98">here</a>.</div>
+<h2>Hardware</h2>
+<ul>
+<li><a href="http://www.nuelectronics.com/estore/index.php?main_page=product_info&amp;cPath=7&amp;products_id=20">Nuelectronics Real-time Datalog &amp; IO shield</a></li>
+<li><span><span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;</span></span>Compatible SD card&nbsp;</li>
+<li>Arduino 328</li>
+</ul>
+<div><img alt="" height="188" src="https://openenergymonitor.org/emon/sites/default/files/sensor_shield.jpg" width="250" /></div>
+<div>&nbsp;</div>
+<div>Figure 1: Nuelectronics Real-time Datalog &amp; IO Shield&nbsp;</div>
+<div>&nbsp;</div>
+<div>The Nuelectronics real-time datalogging shield is an &lsquo;all-in-one&rsquo; data-logging solution. However I did not find the software to be &lsquo;all-in-one&rsquo;. I ended up using a FAT file system library which was not designed for this shield. See the software section for details. Since the Nuelectronics shield uses a different chip select line<b> a wire jumper is required between digital pins 10 and 5.</b>&nbsp;</div>
+<div>&nbsp;</div>
+<div>For logged data readings to be useful, they require a time stamp. The Nuelectronics shield has a built in&nbsp;<a href="http://datasheets.maxim-ic.com/en/ds/DS1302.pdf">DS1302</a> timekeeping chip and coin cell battery backup. Once the clock on the chip has been set the chip will keep the correct time, even if the Arduino is reset or loses power.</div>
+<div>&nbsp;</div>
+<div>The DS1302 communicates with the Arduino through digital pins 3, 4 and 6.</div>
+<div>&nbsp;</div>
+<div><img alt="" src="https://openenergymonitor.org/emon/sites/default/files/RTC.png" /></div>
+<div>&nbsp;Figure 2: RTC Schematic from Nuelectronics Data-log Shield Datasheet</div>
+<div>&nbsp;</div>
+<h2>Software</h2>
+<div>
+<h3>Memory Card&nbsp;</h3>
+<div>Download the Arduino FAT file system library sdFAT by William Greiman from <a href="https://code.google.com/p/sdfatlib/">here</a>. I used version 20100818.</div>
+<div>&nbsp;</div>
+<div>There is an excellent tutorial on SD card logging available on Ladyada&rsquo;s website <a href="http://www.ladyada.net/make/logshield/sd.html">here</a>. Although her tutorials are based on her SD logging shield which is slightly different to the Nuelectronics datalog shield. As mentioned earlier, <b>a wire jumper is required between digital pins 10 and 5 </b>to make the Nuelectronics shield work with the sdFAT library.</div>
+<div>&nbsp;</div>
+<div>Once the library has been installed, it&rsquo;s a good idea to run the &lsquo;SdFATinfo&rsquo; example which performs an SD card self test.&nbsp;This should detect any potential SD card incompatibility errors.</div>
+<div>&nbsp;</div>
+<div>I wanted the sensor data saved to the SD card as a .csv file, with a new file created each time the Arduino is powered up. Ladyada has a good <a href="http://github.com/adafruit/Light-and-Temp-logger/blob/master/lighttemplogger.pde">example</a> which does just that for a light and temperature logger. Ignore the RTC part of the code, as the RTC on Ladyada&#39;s logging shield is a&nbsp;DS1307 but the RTC on the Nuelectronics shield is a DS1302.</div>
+<div>&nbsp;</div>
+<h3>RTC (Real-time clock)</h3>
+<div>The Nuelectronics data-logging shield uses the DS1302 RTC. Download the library from <a href="http://www.henningkarlsen.com/electronics/a_l_ds1302.php">here</a>.</div>
+<div>Once the library has been installed, open the &lsquo;DS1302_Serial_Easy&rsquo; example. <strong>The example presumes the RTC is connected to Arduino pins 2, 3 and 4. These pins must be changed to 6, 4 and 3 respectively </strong>if using the Nuelectronics datalog shield. Therefore line 15 of the example should be changed to:</div>
+<div>&nbsp;</div>
+<div>&nbsp;<i>DS1302 rtc(6, 4, 3);</i></div>
+<div>&nbsp;</div>
+<div>The following lines set the current time and the RTC. They should be changed to the current date and time before upload.</div>
+<div>&nbsp;</div>
+<div style="margin-bottom:0cm;margin-bottom:.0001pt"><i>&nbsp;rtc.setDOW(FRIDAY);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Set Day-of-Week to FRIDAY</i></div>
+<div style="margin-bottom:0cm;margin-bottom:.0001pt"><i>&nbsp;rtc.setTime(12, 0, 0);&nbsp;&nbsp;&nbsp;&nbsp; // Set the time to 12:00:00 (24hr format)</i></div>
+<div style="margin-bottom:0cm;margin-bottom:.0001pt"><i>&nbsp;rtc.setDate(6, 8, 2010);&nbsp;&nbsp; // Set the date to August 6th, 2010</i></div>
+<div style="margin-bottom:0cm;margin-bottom:.0001pt"><i>&nbsp;</i></div>
+<div>The date and time only need to be set once. Therefore the lines should be commented out to use the date and time stored in the RTC.</div>
+<div>The RTC, with its coin cell battery backup, will keep track of the date and time even when the Arduino is powered down. I did notice however that <b>each time new code is uploaded to the Arduino the RTC loses a few seconds</b>. If you make lots of mistakes and have to re-load new code often the time loss can become significant.</div>
+<div>&nbsp;</div>
+<h2>Bringing it all Together&nbsp;</h2>
+<p>Download:&nbsp;<a href="https://openenergymonitor.org/emon/sites/default/files/SD_Card_Temperature_logger.pde">SD_Card_Temperature_logger.pde</a></p>
+<p>In this Arduino sketch I have brought together the various components: sensing temperature from four DS18B20 operating in parasite power mode on a single bus and logging the values to a time stamped CSV file on an SD card every 30 seconds for 6 days. Click <a href="https://openenergymonitor.org/emon/node/102">here</a> for more information on the beehive monitoring project.</p>
+<p><img alt="" height="400" src="https://openenergymonitor.org/emon/sites/default/files/Temp%201st-11th%20Dec%202010_0.png" width="848" /></p>
+<p>Figure 3: Temperature sensor testing data plot</p>
+<p>Any thoughts / comments are much appreciated. This is my first Arduino based project, I am aware that my programming skills are still in development!&nbsp;</p>
+</div>
+<p>&nbsp;</p>
+</div>
+    
+    
+      </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

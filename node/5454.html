@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5454 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:06:10 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Node custom decoder byte data | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Node custom decoder byte data</h3>
+        <span class="submitted">Submitted by <a href="../user/6437.html" title="View user profile.">Charly86</a> on Sat, 26/07/2014 - 22:52</span>
+        <div class="content"><p>Hello,</p>
+<p>I&#39;m using emoncms&nbsp;server and also a private server and I send my data from custom node/gateway each time I receive data to both server.</p>
+<p>On my private server I was able to modify the file node_view.php to add my custom node as follow :</p>
+<p>lowpowernodeTLB: {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name: &#39;Low Power Node Temp+Lux+Bat&#39;,<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; updateinterval: 60,<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; variables: [<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {name: &#39;Command&#39;, type: 0 },<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {name: &#39;Temperature&#39;, type: 1, scale: 0.1, units: &#39;&deg;C&#39; },<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {name: &#39;Luminosity&#39;, type: 1, scale: 0.1, units: &#39;Lux&#39; },<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {name: &#39;Battery Voltage&#39;, type: 1, scale:0.001, units: &#39;V&#39;},<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {name: &#39;RSSI&#39;, type: 0, units: &#39;db&#39; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]<br />
+	&nbsp;&nbsp;&nbsp; },</p>
+<p>Everything is working fine, of course I&#39;m not able to do this on emoncms server because it&#39;s shared and dedicated to admin, and I understand and totally agree. So on emoncms server I tried custom decoder and then adding number of variable located in my frame. In this example there are 5</p>
+<p>command : 1 &nbsp;byte<br />
+	Temperature : 2 bytes (integer)<br />
+	Luminosity&nbsp;: 2 bytes (integer)<br />
+	Battery voltage&nbsp;: 2 bytes (integer)<br />
+	RSSI : 1 bytes</p>
+<p>Unfortunatly I can&#39;t set the type 0 (byte) on variable type so I can&#39;t use custom decoder (even if the type 0 exists in the code) I can just select integer or unsigned long.</p>
+<p>I &#39;ve done modification on my own emoncms server adding option 0 in file node_view.php</p>
+<p>Original was :<br />
+	out += &quot;&lt;select class=&#39;variable-datatype-selector&#39; style=&#39;width:130px&#39;&gt;&lt;option value=1&gt;Integer&lt;/option&gt;&lt;option value=2&gt;Unsigned long&lt;/option&gt;&lt;/select&gt;&quot;;</p>
+<p>I changed as follow :<br />
+	out += &quot;&lt;select class=&#39;variable-datatype-selector&#39; style=&#39;width:130px&#39;&gt;&lt;option value=0&gt;byte&lt;/option&gt;&lt;option value=1&gt;Integer&lt;/option&gt;&lt;option value=2&gt;Unsigned long&lt;/option&gt;&lt;/select&gt;&quot;;</p>
+<p>Just tested and it&#39;s working fine, by the way adding option for unit such as dB and % would be fine</p>
+<p>Is there any plan to be able to update this file on emoncms server and distrib ?</p>
+<p>Thanks for your help.</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="3846.html" class="topic-previous" title="Go to previous forum topic">‹ Can&#039;t edit oemgateway.conf on windows xp</a>
+              <a href="5450.html" class="topic-next" title="Go to next forum topic">Howto use DS1820 sensors direct on RPI Basestation ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5454 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:06:10 GMT -->
+</html>

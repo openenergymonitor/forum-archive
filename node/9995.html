@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/9995 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:00:37 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Understanding the EmonLib sampling rate | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Understanding the EmonLib sampling rate</h3>
+        <span class="submitted">Submitted by <a href="../user/4575.html" title="View user profile.">ioannamirto</a> on Mon, 12/01/2015 - 14:59</span>
+        <div class="content"><p>Hello everybody,</p>
+<p>I have installed <a href="https://learn.openenergymonitor.org/?redirect=how-to-build-an-arduino-energy-monitor">this</a> simple monitor in my house on an arduino uno.</p>
+<p>I am right now trying to experiment with the sampling rates.</p>
+<p>I could see on <a href="5807.html">this</a> topic and in others that I am supposed to take around 500 samples during the default 10 cycles, however if I print them inside the Emonlib.cpp, I can see only 35 of them during the 10 cycles of voltage.</p>
+<p>&nbsp;</p>
+<p>Code is here:</p>
+<address>&nbsp;&nbsp;&nbsp; sampleV = analogRead(inPinV);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Read in raw voltage signal<br />
+&nbsp;&nbsp;&nbsp; sampleI = analogRead(inPinI);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Read in raw current signal<br />
+&nbsp;&nbsp;&nbsp; Serial.print(millis());<br />
+&nbsp;&nbsp;&nbsp; Serial.print(&quot;,&quot;);<br />
+&nbsp;&nbsp;&nbsp; Serial.print(sampleV);<br />
+&nbsp;&nbsp;&nbsp; Serial.print(&quot;,&quot;);<br />
+&nbsp;&nbsp;&nbsp; Serial.println(sampleI);</address>
+<address>&nbsp;(...)</address>
+<address>&nbsp;&nbsp; realPower = V_RATIO * I_RATIO * sumP / numberOfSamples;<br />
+&nbsp;&nbsp; apparentPower = Vrms * Irms;<br />
+&nbsp;&nbsp; powerFactor=realPower / apparentPower;<br />
+&nbsp;&nbsp; Serial.println(&quot;yo&quot;);</address>
+<p>&nbsp;</p>
+<p>And I get this :</p>
+<h6>27890,486,492<br />
+27933,847,515<br />
+27981,380,502<br />
+28027,218,483<br />
+28075,877,524<br />
+28120,489,498<br />
+28167,168,473<br />
+28213,848,502<br />
+28260,555,510<br />
+28306,120,467<br />
+28353,792,510<br />
+28399,567,510<br />
+28446,120,464<br />
+28492,731,505<br />
+28537,791,519<br />
+28583,160,485<br />
+28631,525,493<br />
+28677,842,528<br />
+28724,167,484<br />
+28771,509,491<br />
+28817,820,524<br />
+28864,136,481<br />
+28910,500,492<br />
+28966,143,470<br />
+29014,816,512<br />
+29073,777,509<br />
+29120,526,509<br />
+29193,722,504<br />
+29238,780,517<br />
+29285,123,479<br />
+29331,553,495<br />
+29387,166,473<br />
+29434,827,50</h6>
+<h6>yo</h6>
+<p>&nbsp;</p>
+<p>So what I really don&#39;t know is how I can see these 500 samples - just for checking not forever. I know that by printing them I cause a delay but getting only around 35 samples is too much, no?</p>
+<p>&nbsp;</p>
+<p>Thanks everyone in advance :D</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10007.html" class="topic-previous" title="Go to previous forum topic">‹ is there a user widget collection? -&gt; sharing code</a>
+              <a href="1987.html" class="topic-next" title="Go to next forum topic">Galvanically Isolated Voltage Monitor  -  GIVmon  ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-26699"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Understanding the EmonLib sampling rate</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 12/01/2015 - 15:16.</div>
+    <div class="content">
+     <p>Printing from within the loop will create a huge delay, and that will slow the loop greatly, as you have found. First, what is your mains frequency? If you are on a 60 Hz system, you should get around 44 sample pairs per cycle. The way to check how many samples you are getting is to start the timer <u>before</u> you enter the loop to read the 500 samples, then read it again <u>after</u> exiting the loop. Anything you add inside the loop will slow the sample rate. Even saving the values in an array, whilst a lot faster than printing, will slow the loop.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26702"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4575.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4575.png" alt="ioannamirto&#039;s picture" title="ioannamirto&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Understanding the EmonLib sampling rate</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4575.html" title="View user profile.">ioannamirto</a> on Mon, 12/01/2015 - 15:52.</div>
+    <div class="content">
+     <p>I&#39;m on a 50 Hz system. Ok I read it before and after</p>
+<p>33856,34068<br />
+34336,34548<br />
+34796,35008<br />
+35257,35468<br />
+35717,35928</p>
+<p>and we can see its almost 20ms*10 cycles.</p>
+<p>Then i made it count how many samples it takes and here it is</p>
+<p>81948,82159,556<br />
+82448,82668,555<br />
+83027,83239,554<br />
+83497,83708,555<br />
+83968,84178,554<br />
+84457,84669,555<br />
+84927,85138,555</p>
+<p>:)</p>
+<p>yeih thanks a lot I couldn&#39;t imagine that much of a delay for printing.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26704"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Understanding the EmonLib sampling rate</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 12/01/2015 - 16:20.</div>
+    <div class="content">
+     <p>If you think about it - printing at 9600 bits/s - how many characters, how many bits....</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/9995"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-WDDu-FzYuQobpPscGdz4m8RN-JHxDivKp2kcuy7J42g" value="form-WDDu-FzYuQobpPscGdz4m8RN-JHxDivKp2kcuy7J42g"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/9995 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:00:37 GMT -->
+</html>

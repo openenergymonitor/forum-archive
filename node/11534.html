@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11534 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:58:22 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Arduino AT1284p problem with emon Library | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Arduino AT1284p problem with emon Library</h3>
+        <span class="submitted">Submitted by <a href="../user/8964.html" title="View user profile.">alkotech</a> on Thu, 05/11/2015 - 16:49</span>
+        <div class="content"><p>Hello,</p>
+<p>i have a project to make an energy monitor with Atmel&nbsp;ATmega1284P DIP40. I have already setup the mighty 1284p&nbsp;library &nbsp;and i am ready to program the ATmega1284P with&nbsp;arduino&nbsp;IDE.&nbsp;But this microcontroller do not supported from emon library, therefore i try to modify the library to work. The changes are shown below:</p>
+<p><strong>long EnergyMonitor::readVcc() {<br />
+&nbsp; long result;<br />
+&nbsp;&nbsp;<br />
+&nbsp; //not used on emonTx V3 - as Vcc is always 3.3V - eliminates bandgap error and need for calibration http://harizanov.com/2013/09/thoughts-on-avr-adc-accuracy/</strong></p>
+<p><strong>&nbsp; #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined (__AVR_ATmega328P__)<br />
+&nbsp; ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1); &nbsp;<br />
+&nbsp; #elif defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__) || defined(__AVR_AT90USB1286__)<br />
+&nbsp; ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+&nbsp; ADCSRB &amp;= ~_BV(MUX5); &nbsp; // Without this the function always returns -1 on the ATmega2560 <a href="2253.html#comment-11432" title="http://openenergymonitor.org/emon/node/2253#comment-11432">http://openenergymonitor.org/emon/node/2253#comment-11432</a><br />
+&nbsp;&nbsp;<br />
+<em>&nbsp; //**********my modification*****************</em><br />
+&nbsp; #elif defined(__AVR_ATmega1284P__)<br />
+&nbsp; ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+&nbsp;<em> //**********end of my modification**********</em><br />
+&nbsp;&nbsp;<br />
+&nbsp; #elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)<br />
+&nbsp; ADMUX = _BV(MUX5) | _BV(MUX0);<br />
+&nbsp; #elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)<br />
+&nbsp; ADMUX = _BV(MUX3) | _BV(MUX2);<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp; #endif</strong></p>
+<p>
+<strong>&nbsp; #if defined(__AVR__)&nbsp;<br />
+&nbsp; delay(2); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// Wait for Vref to settle<br />
+&nbsp; ADCSRA |= _BV(ADSC); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Convert<br />
+&nbsp; while (bit_is_set(ADCSRA,ADSC));<br />
+&nbsp; result = ADCL;<br />
+&nbsp; result |= ADCH&lt;&lt;8;<br />
+&nbsp; result = READVCC_CALIBRATION_CONST / result; &nbsp;//1100mV*1024 ADC steps <a href="1186.html" title="http://openenergymonitor.org/emon/node/1186">http://openenergymonitor.org/emon/node/1186</a><br />
+&nbsp; return result;<br />
+&nbsp;#elif defined(__arm__)<br />
+&nbsp; return (3300); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//Arduino Due<br />
+&nbsp;#else&nbsp;<br />
+&nbsp; return (3300); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//Guess that other un-supported architectures will be running a 3.3V!<br />
+&nbsp;#endif<br />
+}</strong></p>
+<p>&nbsp;</p>
+<p>i have checked that the admux setup from ATmega1284P datasheet is right, but unfortunately don&#39;t gives me correct and constant&nbsp;values of current and voltage. I want to note that the hardware connections are correct and works properly with arduino UNO and Mega. Can anybody help me? Thank you in advance!</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11532.html" class="topic-previous" title="Go to previous forum topic">‹ Kit required for small DC current?</a>
+              <a href="11530.html" class="topic-next" title="Go to next forum topic">What should I get? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-35682"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Arduino AT1284p problem with emon Library</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 05/11/2015 - 21:54.</div>
+    <div class="content">
+     <p>What Vcc does your system use? &nbsp;What value does readVcc() return? &nbsp;Does it return the same value each time you call it?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35714"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8964.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="alkotech&#039;s picture" title="alkotech&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Arduino AT1284p problem with emon Library</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8964.html" title="View user profile.">alkotech</a> on Fri, 06/11/2015 - 15:09.</div>
+    <div class="content">
+     <p>Now it&#39;s OK, My fault was that i have two different&nbsp;GND not connected one with other. Thank you!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11534"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-lYO-0gW3AnNTJaQcbjc44kOaF5rFZDGemD1BQlHiPC8" value="form-lYO-0gW3AnNTJaQcbjc44kOaF5rFZDGemD1BQlHiPC8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11534 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:58:22 GMT -->
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5786 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:31:33 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Help with my build - ADS1115 monitoring Current | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Help with my build - ADS1115 monitoring Current</h3>
+        <span class="submitted">Submitted by <a href="../user/6928.html" title="View user profile.">WanaGo</a> on Wed, 17/09/2014 - 10:04</span>
+        <div class="content"><p>Hello,</p>
+<p>I apologise is this is the incorrect place to post this question.</p>
+<p>I have been reading on this site for a while now and decided to take the plunge and build a little test system to see if I could measure the current on a circuit in my house.</p>
+<p>I wanted to us an ADS1115&nbsp;ADC to get higher precision, but I am strugging with the Arduino code and whether I need to change any of the library and formulas to compensate.</p>
+<p>I have hacked the library and have it reading from the ADS1115, and I have forced it to be 15bit as I am doing Single ended readings at the moment, so its very similar to the Arduino&nbsp;in that respect.</p>
+<p>Basically I am just trying to find out if I need to modify this line:</p>
+<p>filteredI = 0.996*(lastFilteredI+sampleI-lastSampleI);</p>
+<p>I found the page that attempts to explain this, but it doesnt make sense to me 100%. It seems to remove the offset, but the comments in the library say the offset is 2.5V which it is going to remove, and in my case it should be 1.65V due to the 3.3V system.</p>
+<p>I am running on a 3.3V system, and have 32768 ADC_COUNTS due to using the ADS1115, but I am unsure if the SUPPLYVOLTAGE&nbsp;variable needs to be 3300 for 3.3V, or if it needs to be what I have the gain on the ADS1115 set to.</p>
+<p>I have the gain set to be 1, which means +/-4.096V, which in single ended I am guessing means I get 32768 counts over the range of 0 to 4.096V.</p>
+<p>In the library, this line:</p>
+<p>double I_RATIO = ICAL *((SUPPLYVOLTAGE/1000.0) / (ADC_COUNTS));</p>
+<p>Does this need to change or is it OK? and is supply voltage for me 4096 or 3300?</p>
+<p>ICAL I have calculated to be 100, as I have 100A clamp which is 50mA output, and a 20ohm burden resistor.</p>
+<p>With that set, I clamped onto a phase line in the house which measured to be 230VAC with my scope/meter, and it was reporting to me that I was pulling about 11A. However this should be 13A&nbsp;based on the reading I took earlier in the day with an electrician who was over at our place, and he has a clamp on meter. I am not sure where this error comes in, why I am reading 2A&nbsp;lower.</p>
+<p>I have the ADS1115 set up to be 0-4.096V as mentioned above, and the signal I seem to be getting between the input I am concerned with at the moment, is 500mV&nbsp;P-P and is centrally offset by 1.65V, and is 50Hz (as we are a 230V 50Hz country). It doesn&#39;t look like its 100% central though at the 1.65V mark, it looks to be more positive than negative. I am not sure if that is a problem or what that means exactly though. My scope is saying 52.8% +Duty.</p>
+<p>Instead of hacking the library too much, I ended up just copying the main function for measuring current out, into my main program, just while I am tinkering. This is what I have</p>
+<p>double calcIrms(int NUMBER_OF_SAMPLES, int Channel)</p>
+<p>{<br />
+	&nbsp; int&nbsp;ADC_COUNTS = 65536/2; //15bit due to single ended.<br />
+	&nbsp; int SUPPLYVOLTAGE = 4096; //3300 ?<br />
+	&nbsp; int ICAL = 100; //current constant = (100 / 0.050) / 20 = 100</p>
+<p>&nbsp; for (int n = 0; n &lt; NUMBER_OF_SAMPLES; n++)<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; lastSampleI = sampleI;<br />
+	&nbsp;&nbsp;&nbsp; if(Channel == 1)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; sampleI = adc.getConversionP1GND(); // Read Single Ended channel 1<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; else if(Channel == 3)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; sampleI = adc.getConversionP3GND(); // Read Single Ended channel 3<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; else<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; return 0;<br />
+	&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp; lastFilteredI = filteredI;<br />
+	&nbsp;&nbsp;&nbsp; filteredI = 0.996 * (lastFilteredI + sampleI - lastSampleI);</p>
+<p>&nbsp;&nbsp;&nbsp; // Root-mean-square method current<br />
+	&nbsp;&nbsp;&nbsp; // 1) square current values<br />
+	&nbsp;&nbsp;&nbsp; sqI = filteredI * filteredI;<br />
+	&nbsp;&nbsp;&nbsp; // 2) sum<br />
+	&nbsp;&nbsp;&nbsp; sumI += sqI;<br />
+	&nbsp; }</p>
+<p>&nbsp; double I_RATIO = ICAL * ((SUPPLYVOLTAGE / 1000.0) / (ADC_COUNTS));<br />
+	&nbsp; double Irms = I_RATIO * sqrt(sumI / NUMBER_OF_SAMPLES);</p>
+<p>&nbsp; //Reset accumulators<br />
+	&nbsp; sumI = 0;</p>
+<p>&nbsp; return Irms;<br />
+	}</p>
+<p>void loop()<br />
+	{<br />
+	&nbsp; Irms1 = calcIrms(500, 1);&nbsp; // Calculate Irms only<br />
+	&nbsp; Irms3 = calcIrms(500, 3);&nbsp; // Calculate Irms only</p>
+<p>&nbsp; float supplyVoltage = 230.0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //extract Vrms into Variable<br />
+	&nbsp; float apparentPower1 = supplyVoltage * Irms1;&nbsp;&nbsp;&nbsp;&nbsp; //extract Apparent Power into variable<br />
+	&nbsp; float apparentPower3 = supplyVoltage * Irms3;&nbsp;&nbsp;&nbsp;&nbsp; //extract Apparent Power into variable</p>
+<p>}</p>
+<p>Its pretty crude at the moment, but im just trying to understand what is going on at the moment.</p>
+<p>My hardware is as the website describes, but I have a 20ohm burden resistor. I have also made the refence voltage for offsetting the AC into the +ve region, using an Opamp, which is set to 3.3V/2.</p>
+<p>Is anyone able to assist?</p>
+<p>I would greatly appreciate it.</p>
+<p>After I tackle the current, I will look at the voltage.</p>
+<p>Kind Regards</p>
+<p>WanaGo</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10762.html" class="topic-previous" title="Go to previous forum topic">‹ Post emonPi Bug Reports here</a>
+              <a href="10095.html" class="topic-next" title="Go to next forum topic">Flukso Gas Probes for Elster BK-G4/BK-G6 and the Actaris G4RF1 gas meters ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-23866"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help with my build - ADS1115 monitoring Current</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 17/09/2014 - 11:58.</div>
+    <div class="content">
+     <p><em>&quot;filteredI = 0.996*(lastFilteredI+sampleI-lastSampleI);</em></p>
+<p><em>I found the page that attempts to explain this, but it doesnt make sense to me 100%. It seems to remove the offset, but the comments in the library say the offset is 2.5V which it is going to remove, and in my case it should be 1.65V due to the 3.3V system.</em>&quot;</p>
+<p>That line is a software high pass filter (Google will explain fully). It takes the offset out, no matter what the absolute value of the offset is. (Which is why we use it - the offset is almost never exactly 511 in a 10-bit system, and any offset makes the rms value wrong.)</p>
+<p>SUPPLYVOLTAGE, ICAL etc - if you haven&#39;t found it yet, the theoretical basis of the calibration is in Building Blocks. When you go through that calculation to work out what your calibration values are, you need to remember that I wrote it for a 10-bit system in which 0 counts represented 0 V and 1023 counts represented 3.3 (or 5) V, and these two limits represented the maximum swing of the input. Your situation is a little different, as the maximum input is something like 26400 counts, and you don&#39;t appear to be (or indeed need to be) calibrating the supply voltage against an internal reference, which is how the calibration needs to be done with battery power.</p>
+<p>You calculate your burden resistor value so as to give you the maximum peak-peak swing that you input can accept at the maximum current you want to measure, with due allowance for the current wave not being a pure sine wave, component tolerances etc. If you can guarantee a pure sine wave of current, 5% should be enough for tolerances, but depending on the sort of loads you have, you might need a lot more than that to allow for the crest factor of the waveform.</p>
+<p>I&#39;m answering in very general terms because as you&#39;ve changed so much, I&#39;d need to work through your design from the beginning to check it fully. After you&#39;ve looked at the calibration theory, feel free to ask again if it&#39;s not clear.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23879"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6928.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="WanaGo&#039;s picture" title="WanaGo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help with my build - ADS1115 monitoring Current</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6928.html" title="View user profile.">WanaGo</a> on Thu, 18/09/2014 - 00:38.</div>
+    <div class="content">
+     <p>Hello Robert</p>
+<p>Thanks for your prompt reply.</p>
+<p>Yes I have read the calibration theory, and based on that is where I am now with what I wrote above. Its just how to move from the default theory you wrote for the 10bit system, over to what I have now, which I am uncertain about.</p>
+<p>So the ADS1115 is 16 bit, but since I am using Single Ended mode, input relative to GND, I believe its 15bit, which by my count is&nbsp;32768. And since I have it set on a gain of 1, this is 0 to 4.096V, so 0 to 32768. Is this incorrect? You mentioned 26400 counts, I am unsure where you got this figure.</p>
+<p>So the whole system is run off 3.3V, so while the ADS1115&nbsp;has a gain set so it is 0 - 4.096 to be full scale, it is really only 0 - 3.3V input tolerant. As the next gain down is 0 - 2.048 which isnt enough, given that the 100A probe can create a voltage of 0 to 3.064V in theory.</p>
+<p>Here is my calculation:</p>
+<p>3.3V Analog System<br />
+	0-100A is 0-50mA output on the SCT-013-000 CT Sensor.<br />
+	50mA x 1.414 (RMS) x 20R = 1.414V AC (+/-)<br />
+	Offset this by 3.3V/2 = 1.414 + 1.65V = 3.064V<br />
+	so 0-100A is 0-50mA is 0 - 3.064V</p>
+<p>If 3.064 is the max voltage I could ever possibly get, then I suppose the max counts I would ever see is (32768 / 4.096) * 3.064 =&nbsp;24512. Maybe that is where you were getting your 26400 counts above from.... hmm.</p>
+<p>If you are able to assist to change what I have, that would be appreciated.</p>
+<p>So given the above, do I need to set my SUPPLYVOLTAGE&nbsp;to be 3064V instead of 4096V as I have currently?<br />
+	And my ICAL I have set to 100 given the 100A to 50mA&nbsp;through a 20R&nbsp;burden resistor.<br />
+	My&nbsp;ADC_COUNTS value I have currently set to be 32768, but do I actually change that to be 24512 instead?</p>
+<p>If you could help me nut that out, that would be appreciated.</p>
+<p>Also, the number of Samples (NUMBER_OF_SAMPLES) that is specified when you do the&nbsp;calcIrms() function (which I have modified a little), I am not sure if this number of samples is critical to anything, or if it really is just to help average the value coming in so its not jumping around....?</p>
+<p>Sorry if this is a pain and my hacked version is causing problems.</p>
+<p>Basically all I have taken is the one function I call from the library, and then added in the ability to call the function for 2 different channels on the ADC. All very crude but does the job for now.</p>
+<p>Kind Regards</p>
+<p>WanaGo</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23909"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help with my build - ADS1115 monitoring Current</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 18/09/2014 - 22:40.</div>
+    <div class="content">
+     <p>I haven&#39;t read the data sheet for your ADC - that is the ultimate authority. But what you can do to verify the operation is to put a potentiometer across the 3.3 V rail to GND and connect the input to the wiper. (If your pot is say 10 k&Omega; or less and your bias resistors are 470 k&Omega;, you don&#39;t even need to remove the CT bias circuit first!)&nbsp; Then with a simple one-line sketch (OK, maybe a handful of lines all told) you can read the numbers you get for the input at or near 0 V and 3.3 V. I got the 26400 value as 3.3 / 4.095 * 32767, on the assumption that what you wrote meant the output was calibrated to give 32767 out for 4.095 V in. The pot test should remove all uncertainty, it should also show any dead band - there should be none.</p>
+<p>Your maximum input voltage looks to be correct for the nominal current, subject to component tolerances of course. But I wouldn&#39;t go as far as saying it&#39;s the maximum you will ever see - especially if you have a fault downstream of the CT that causes the circuit protection to operate. On the emonTx V3, we&#39;ve included a series resistor to limit the current into the on-chip protection diodes in the event of a fault.</p>
+<p>SUPPLYVOLTAGE derives from the value that the ATMega 328P reads for its internal 1.1 V reference when using the supply as the ADC reference voltage. I think you&#39;ll only be able to determine what value you should use when you know the result of the pot test. It depends also on ADC_COUNTS, so you might need to change emonlib.h to put the correct value in there.</p>
+<p>NUMBER_OF_SAMPLES should be chosen to give you the closest to an integer number of whole cycles over which to average the current, and should be large enough so that &#39;end effects&#39; (part-cycles) are sufficiently small so that they can be ignored. You will inevitably have end effects because the sample rate cannot be (unless you change to the PLL sketch!) an exact multiple of mains frequency.</p>
+<p>When you wrote &quot;added in the ability to call the function&quot;, you should have it as a method of the class EnergyMonitor, and you should be instantiating that class for the two inputs. If you haven&#39;t (and it looks as if you haven&#39;t), the high pass filter won&#39;t work correctly. It will see a step each time you switch channels. It depends on picking up where it left off to work properly. That&#39;s a fundamental change and you really need to revert to the original way of doing things there.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23921"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6928.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="WanaGo&#039;s picture" title="WanaGo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help with my build - ADS1115 monitoring Current</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6928.html" title="View user profile.">WanaGo</a> on Fri, 19/09/2014 - 02:58.</div>
+    <div class="content">
+     <p>Hi Robert</p>
+<p>Yes I have noticed this too about the instances of the class, and went back to the Arduino&nbsp;and a single instance, and it all looks nice and stable. I then timed the time it took to take the 1480 samples that the arduino sketch by default was reading (I am not 100% yet why that number is important, but Im guessing its the number of samples required to see a full wave). I timed it, and it seemed to take about&nbsp;239504 microseconds on the Arduino to do 1480 samples on a single channel. I then did the same using the same 10bit input on the Chipkit, and found it was&nbsp;28323 microseconds. So what I did was extended the number of samples so that it was the same timing as the Arduino, and got close with 12465 samples and&nbsp;239653 microseconds.</p>
+<p>Beacuse the clock of the chipKit is faster, this is why I did this.&nbsp;</p>
+<p>I am running this now, with 2 instances of the original library for 2 channels, and both are reading quite stable really. Need to be calibrated, but still looking pretty good.</p>
+<p>I suppose now I need to do the same for the ADS1115 and see how long that takes to do 1480 samples and compare that to the Arduino, and then adjust it to suit.</p>
+<p>Thinking out loud as I type here... 239504 microseconds is 0.2395 seconds, which is 4.175 Hz, which is the time it takes to do the 1480 samples on the Arduino. What does this relate to? Can you please explain?</p>
+<p>I will read over what you said again with the POT etc and try that too.</p>
+<p>Regards</p>
+<p>WanaGo</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23922"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6928.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="WanaGo&#039;s picture" title="WanaGo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help with my build - ADS1115 monitoring Current</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6928.html" title="View user profile.">WanaGo</a> on Fri, 19/09/2014 - 03:10.</div>
+    <div class="content">
+     <p>Oh and my Bias is done through an OpAmp, I use 10K&#39;s and then into a TLV2374IDR OpAmp, to give me the 3.3V/2 Reference.</p>
+<p>Ah I think I see where the 1480 comes into it now. 4Hz so that is aiming for 12 cycles of the 50Hz to get an average I imagine.&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23923"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6928.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="WanaGo&#039;s picture" title="WanaGo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help with my build - ADS1115 monitoring Current</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6928.html" title="View user profile.">WanaGo</a> on Fri, 19/09/2014 - 05:13.</div>
+    <div class="content">
+     <p>OK with the ADS1115 and the instances of your library, I have a problem. I dont get how to get the library to use the ADS1115 library, since there are 2 instances, as there is only 1 ADS1115 being used, and both instances have to be able to call it. I tried getting the library to do all the setup for the ADS1115 library, but I didnt have any luck.</p>
+<p>Not sure how to get the Emon library to use the ADS1115 library when there are more than 1 instance of the Emon library at play. Ill try and do some more reading on this, but if anyone has any ideas I would greatly welcome it.</p>
+<p>Regards</p>
+<p>WanaGo</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23937"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help with my build - ADS1115 monitoring Current</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 19/09/2014 - 11:12.</div>
+    <div class="content">
+     <p>The easy one first: The number of samples wants to be such that it takes an integral number of 20 ms to get them, hence an integral number of mains cycles. 200 ms / 10 cycles is a good number to aim for. It should give you enough samples so that the part-cycle you do or don&#39;t measure with the last sample has little effect on the average. 1480 is a carry-over from when the measurement loop of the Arduino was a little bit slower than it is now due to a few code tweaks. (It needed to work for the 60 Hz world also!)</p>
+<p>Where you have:</p>
+<p class="rteindent1">if(Channel == 1)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; sampleI = adc.getConversionP1GND(); // Read Single Ended channel 1<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; else if(Channel == 3)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; sampleI = adc.getConversionP3GND(); // Read Single Ended channel 3<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; [etc]</p>
+<p>what you need to do is make &quot;Channel&quot; a property of the class and set it when you instantiate (in exactly the same way as the input pin/channel was done originally). Then the method will pick up the correct call to the ADC library.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23999"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6928.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="WanaGo&#039;s picture" title="WanaGo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help with my build - ADS1115 monitoring Current</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6928.html" title="View user profile.">WanaGo</a> on Sat, 20/09/2014 - 08:16.</div>
+    <div class="content">
+     <p>Right I have the ADS1115 working in the Emon Library now with only a few minor changes.</p>
+<p>I can have multiple instances and all compiles and appears to work.</p>
+<p>However the value I am reading in looks rubbish.</p>
+<p>The POT didnt work right, seems to be affected by something else in the circuit, ill look at this again.</p>
+<p>What I dont fully understand is the&nbsp;ADC_COUNTS and&nbsp;SUPPLYVOLTAGE values.</p>
+<p>Is the&nbsp;SUPPLYVOLTAGE the voltage of the full scale of the ADC input, or is it the maximum voltage that the Current Clamp/Burden can effectively output at 100A / 50mA ?</p>
+<p>Is the ADC_COUNTS the full scale reading of the ADC input, or is it the maximum count that can be achieved with the Clamp/Burden combo?</p>
+<p>For example, the ADS1115 I have set to 0 - 4.096V, which is 0 - 32767 counts, due to it being 15 bit when single ended.</p>
+<p>The burden resistor I have is 20ohm which enables me to get theoretically a maximum of 3.064V if I am reading in 100A on the clamp (or 50mA). So therefore is the SUPPLYVOLTAGE support to be 4096 which I could never achieve and doesnt actually relate to the current clamp at all, or is it 3064 which to me makes more sense, as that is 100% of the current clamp.</p>
+<p>The same with ADC_COUNTS, is this the full scale 0 - 32767, which relates to 0 - 4.096V, or is it the maximum I can achieve, which is 3.064V or 0 - 24512?</p>
+<p>I am confused, as to me it would make sense to base these values on what is achievable and related to the device I am trying to measure, rather than what the full scale capability of the ADC Input is.</p>
+<p>I am swaying towards needing SUPPLYVOLTAGE to be 3096 and ADC_COUNTS to be 24512. Is this correct or wrong?</p>
+<p>Some guidance would be appreciated.</p>
+<p>Regards</p>
+<p>WanaGo</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24003"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help with my build - ADS1115 monitoring Current</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 20/09/2014 - 12:33.</div>
+    <div class="content">
+     <p><em>&quot;Is the SUPPLYVOLTAGE the voltage of the full scale of the ADC input,&quot;</em>&nbsp; Yes.</p>
+<p><em>&quot;Is the ADC_COUNTS the full scale reading of the ADC input,&quot;</em> Yes.</p>
+<p>In the ATMega 328P, those are both the maximum input that you can apply to the ADC for linear operation. Having downloaded and read the data sheet for your ADC, that is exactly the same: In &quot;Absolute maximum ratings&quot; it quotes !Analog input voltage to GND: &ndash;0.3 to VDD + 0.3 V&quot;. Note 1 to the Electrical characteristics table reinforces the point: &quot;This parameter expresses the full-scale range of the ADC scaling. In no event should more than VDD + 0.3V be applied to this device.&quot;</p>
+<p>According to my reading of the data sheet, you should set the PGA gain to 1, in that case the full-scale input voltage is &plusmn;4.096 V. That corresponds to output values of -32768 to +32767. You cannot use the negative values since you have a single-ended input. Therefore, if your input range is 0 - 3.3 V, you should see an output range of 0 - 26399. You can use 3300 and 26399 for SUPPLYVOLTAGE and ADC_COUNTS, or you can use 4096 and 32767. As it is the ratio of those that is used in the calibration, it should make no difference <u>to the calibration</u>. However, ADC_COUNTS is also used when detecting the zero crossing, so it will be necessary to look at and change that part of the library, because if the band is too small - it&#39;s set to &plusmn;50 counts in 1024 - you might well miss it.</p>
+<p>I&#39;m steering clear of &quot;that is 100% of the current clamp.&quot; because that has no practical value, once you have established that it is inside the measurement range. It relates only to a point on a graph where it&#39;s thought that the errors become unacceptably large. If you look at the CT saturation curve in the report on the YHDC CT, you&#39;ll see that there is plenty of output way beyond 100 A - and the output is still rising at 250 A, albeit slowly and with a very distorted waveform.</p>
+<p>If you want to be <em>really</em> smart, you can recognise that, in applying the calibration</p>
+<p>	&nbsp;. . .&nbsp; =&nbsp; [VCAL | ICAL] *((SUPPLYVOLTAGE/1000.0) / (ADC_COUNTS));</p>
+<p>uses constant values that evaluate to 1/8000, therefore you can replace three floating point calculations with one and speed up the loop:</p>
+<p>. . .&nbsp; =&nbsp; [VCAL | ICAL] / 8000.0;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24040"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6928.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="WanaGo&#039;s picture" title="WanaGo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help with my build - ADS1115 monitoring Current</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6928.html" title="View user profile.">WanaGo</a> on Sun, 21/09/2014 - 05:47.</div>
+    <div class="content">
+     <p>Thanks Robert</p>
+<p>You mentioned the Zero Crossing. This appears to only be used in the calcVI() function. I am currently using the calcIrms() function only, as I dont yet have my Voltage measurement working. Circuit is made, just having plumbed it up yet.</p>
+<p>Why is it only used in the calcVI() and not calcIrms() also?</p>
+<p>I suppose though it is using the Voltage waveform which isnt&nbsp;present in the calcIrms() situation.</p>
+<p>ill look at getting the voltage up and running.</p>
+<p>Regards</p>
+<p>WanaGo</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30691"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6815.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="bborncr&#039;s picture" title="bborncr&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Help with my build - ADS1115 monitoring Current</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6815.html" title="View user profile.">bborncr</a> on Wed, 27/05/2015 - 17:48.</div>
+    <div class="content">
+     <p>WanaGo,</p>
+<p>Did you get everything working as you wished? Did you publish your modified library somewhere?</p>
+<p>Regards,</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5786"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-KT3bF2LY9tU3WXBNeANKPxQJtTQW8Pgf76zSuw1w1lU" value="form-KT3bF2LY9tU3WXBNeANKPxQJtTQW8Pgf76zSuw1w1lU"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5786 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:31:33 GMT -->
+</html>

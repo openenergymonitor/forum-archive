@@ -1,0 +1,309 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/266 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:17:44 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Interfacing with SMA SunnyBoy PV Inverters (Bluetooth) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h2>Overview</h2>
+<p>SMA is a German company who produces DC to AC inverters used with PV systems and other renewable energy sources (for grid connection etc.). &nbsp;Many models include a <a href="https://en.wikipedia.org/wiki/Bluetooth">Bluetooth</a> interface.</p>
+<h2>Importing data into Open Energy Monitor</h2>
+<p>Two approaches have been used to make this data available&nbsp;to Open Energy Monitor:</p>
+<ol>
+<li>Stuart Pittaway&#39;s code (see below) runs on Arduino / <a href="http://www.nanode.eu/what-is-nanode/">Nanode</a> hardware.</li>
+<li>Using <a href="https://github.com/sma-bluetooth">sma-bluetooth</a>&nbsp;(see bottom of&nbsp;article) running on a suitable computer (e.g. a Raspberry&nbsp;Pi).</li>
+</ol>
+<p>​The choice of which one to use will be determined by the other components in use in your Open Energy Monitor system, and whether they can reliably communicate with the Inverter using the Bluetooth protocol.</p>
+<h2>Arduino / Nanode based</h2>
+<p><span style="line-height: 1.6;">I&#39;ve just ordered a </span>Nanode<span style="line-height: 1.6;"> in preparation for my contribution to the </span>OpenEnergyMonitor<span style="line-height: 1.6;"> project. (Oct 2011)</span></p>
+<p>I&#39;m going to be looking at interfacing a Nanode to the SMA&nbsp;SunnyBoy range of PV&nbsp;inverters (<a href="http://www.sma.de/en/products/solar-inverters/sunny-boy.html">http://www.sma.de/en/products/solar-inverters/sunny-boy.html</a>)</p>
+<p>Newer inverters have a Bluetooth interface for accessing their internal readings, including measurements for DC voltage/current (from solar panels) mains AC, current, voltage and generation history.</p>
+<p>Most of the inverters also contain an inbuilt relay which can be toggled via bluetooth by issuing the proper commands.</p>
+<p>Unfortunately the protocols used via Bluetooth have not been released to the public, but I&#39;ve managed to create a working prototype (written in C# also ported to Python) that exports PV data to my website (<a href="http://www.solarstats.co.uk/">www.solarstats.co.uk</a>) every 10 minutes.</p>
+<p>Hopefully, OpenEnergyMonitor can eventually display PV performance on its gLCD display as well as the other measurements.</p>
+<p>&nbsp;</p>
+<p><strong>Update Feb 7th 2012</strong></p>
+<p>I&#39;ve uploaded the first version of my monitoring code to Github <a href="https://github.com/stuartpittaway/nanodesmapvmonitor" title="https://github.com/stuartpittaway/nanodesmapvmonitor">https://github.com/stuartpittaway/nanodesmapvmonitor</a></p>
+<p>Its a big sketch - compiles to nearly 30.5Kbytes !</p>
+<p><a href="https://github.com/stuartpittaway/nanodesmapvmonitor/blob/master/README " title="https://github.com/stuartpittaway/nanodesmapvmonitor/blob/master/README ">https://github.com/stuartpittaway/nanodesmapvmonitor/blob/master/README </a> on GITHUB has more detail.</p>
+<p>Tested with SMA3000HF, 3000TL, 4000TL - but in theory should work with all Bluetooth enabled inverters. Please email me your success/failure stories and I&#39;ll update/fix!</p>
+<p>You will need to modify the code (see APIKey.h for constants) to configure your passwords/keys for Pachube/SolarStats.co.uk and PVOutput.org sites and disable the ones you don&rsquo;t need.</p>
+<p>You can set your location&#39;s lat/long and the code will automatically determine when to start monitoring your PV system.</p>
+<p>Once the code is uploaded to the Arduino/nanode device, make PIN14 high, and power on the board. This forces an automatic SMA inverter Bluetoth scan/discovery. Once the address has been retrieved, it is stored in EEPROM.</p>
+<p>Connect a serial cable to the Nanode board (115000,8,n,1 baud rates) to see debug messages.</p>
+<p>You should see messages like...<br />
+PWR UP<br />
+free mem=401<br />
+MAC=0004A32C1F88<br />
+DHCP<br />
+IP:192.168.1.102<br />
+GW:192.168.1.1<br />
+DNS:8.8.8.8<br />
+LOOP..<br />
+free mem=341<br />
+*Logon*<br />
+Fake time resync<br />
+*LOOP*<br />
+22:16:27 20120207<br />
+22:16:29 20120207<br />
+22:16:32 20120207<br />
+22:16:34 20120207</p>
+<p>The code needs integration with OpenEnergyMonitor and heavy reduction in program space. Approximately 300 bytes of RAM are free during operation.</p>
+<p>Its currently updating emonCMS, Pachube, SolarStats.co.uk and PVOutput.org at the same time <img alt="" src="../sites/all/modules/fckeditor/fckeditor/editor/images/smiley/msn/teeth_smile.html" /></p>
+<p>On Pachube, I&#39;m uploading the free RAM and millis() counter once per minut. So far, I&#39;ve managed to go 4 days without a restart.</p>
+<p>You can see the output at</p>
+<p><a href="http://pvoutput.org/list.jsp?userid=4206" title="http://pvoutput.org/list.jsp?userid=4206">http://pvoutput.org/list.jsp?userid=4206</a></p>
+<p><a href="https://pachube.com/feeds/40789" title="https://pachube.com/feeds/40789">https://pachube.com/feeds/40789</a></p>
+<p>&nbsp;<img alt="Graph" src="../../../api.pachube.com/v2/feeds/40789/datastreams/44d27.png?width=700&amp;height=330&amp;colour=%23f15a24&amp;duration=48hours&amp;title=Solar%20PV%20Generation%20-%20Instant%20Power%20%28watts%29&amp;stroke_size=3&amp;show_axis_labels=true&amp;detailed_grid=true&amp;scale=auto&amp;timezone=London" /></p>
+<p>&nbsp;</p>
+<p><strong>Update 21 Feb</strong></p>
+<p>Happy to report my code and Nanode 5 have been running continuously for 10 days straight now without a single reboot or restart of the BT&nbsp;chip.&nbsp; I&#39;m using Pachube to monitor uptime.&nbsp;<a href="http://binaereoptionen.over-blog.com/">http://binaereoptionen.over-blog.com/</a></p>
+<p>You can see where the code &quot;goes to sleep&quot; (dotted line) then wakes up at sunrise to begin data capture - during this time, the Bluetooth and Ethernet are kept awake, although I plan to shut both of them down and put the CPU in sleep mode.</p>
+<p>There&#39;s no RAM leaks. I&#39;m also logging this to Pachube, and the value has been constant for 10 days.</p>
+<p><img alt="" src="../../../api.pachube.com/v2/feeds/40789/datastreams/217bf.png?width=700&amp;height=300&amp;colour=%23f124b3&amp;duration=30days&amp;title=Nanode%205%20uptime&amp;stroke_size=3&amp;show_axis_labels=true&amp;detailed_grid=true&amp;scale=datastream&amp;timezone=London" /></p>
+<p>&nbsp;</p>
+<h2>Using sma-bluetooth on a Raspberry Pi etc.</h2>
+<p>Your chosen hardware will require a Bluetooth radio (a &pound;5 GPB USB &lt;-&gt; Bluetooth&nbsp;adaptor has been used successfully). &nbsp;Known-working on Debian&nbsp;8.0&nbsp;i386.</p>
+<ol>
+<li>Compile and install the code at&nbsp;<a href="https://github.com/sma-bluetooth">https://github.com/sma-bluetooth</a>&nbsp;- verify standalone operation via the command&nbsp;line.</li>
+<li>Use the emonhub patches&nbsp;detailed in&nbsp;<a href="10683.html">https://openenergymonitor.org/emon/node/10683</a>&nbsp;to&nbsp;import data into Open Energy Monitor.</li>
+<li>Improve this documentation.</li>
+</ol>
+</div>
+    
+    
+      </div>
+<div id="comments">
+  <a id="comment-3055"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="strykeroz&#039;s picture" title="strykeroz&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Interfacing with SMA SunnyBoy PV Inverters (Bluetooth)</h3>
+
+    <div class="submitted">Submitted by strykeroz (not verified) on Tue, 07/02/2012 - 23:40.</div>
+    <div class="content">
+     <p>&nbsp;Thanks for publishing this. &nbsp;As mentioned elsewhere you've saved us a great deal of time. &nbsp;I have just downloaded the sketches so tonight have cleared the decks to have a read, digest, and hopefully find places we can cut some corners off to add our other functionality. &nbsp;Hoping to have a test rig setup on the SMC5000A from this weekend. &nbsp;</p>
+<p>Will keep you informed of progress&nbsp;<img alt="" src="../sites/all/modules/fckeditor/fckeditor/editor/images/smiley/msn/regular_smile.html" />&nbsp;Geoff</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-2565"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sally&#039;s picture" title="sally&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Interfacing with SMA SunnyBoy PV Inverters (Bluetooth)</h3>
+
+    <div class="submitted">Submitted by sally (not verified) on Wed, 28/12/2011 - 13:57.</div>
+    <div class="content">
+     <p>So isn't there any software you could use to make this job easier? It sounds pretty tricky to me, I don't know if I could handle it myself without any form of support. I'd probably start though by installing an updated <a href="http://www.paretologic.com/products/regcure/index.aspx">regcure</a> to set some order in my system before engaging in a complex operation like this one.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-2420"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="gregg&#039;s picture" title="gregg&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Interfacing with SMA SunnyBoy PV Inverters (Bluetooth)</h3>
+
+    <div class="submitted">Submitted by gregg (not verified) on Tue, 06/12/2011 - 13:47.</div>
+    <div class="content">
+     <p>Hi Stuart</p>
+<p>Any chance you'll be publishing the C# code? </p>
+<p>Thanks</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2421"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Interfacing with SMA SunnyBoy PV Inverters (Bluetooth)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Tue, 06/12/2011 - 13:56.</div>
+    <div class="content">
+     <p>No sure yet, I might be making a iPhone/Android app based on my code (ported over to Java) which I'm tempted to do as a commercial app.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div><a id="comment-2258"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Interfacing with SMA SunnyBoy PV Inverters (Bluetooth)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Sat, 29/10/2011 - 21:07.</div>
+    <div class="content">
+     <p>&nbsp;just spent the past 1.5hrs building my nanode, serial number 628. &nbsp;blinking light working!!</p>
+<p>&nbsp;</p>
+<p>its been several years since i did any soldering or work with micro contollers and pcbs, forgot what fun and just realised how expensive solder is now !!</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2296"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Interfacing with SMA SunnyBoy PV Inverters (Bluetooth)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Mon, 07/11/2011 - 17:05.</div>
+    <div class="content">
+     <p>I've ordered 2 bluetooth modules for interfacing to Nanode.</p>
+<p>One from SparkFun which I know will work okay, and another from a chinese website for &pound;5 :-)</p>
+<p>Strangely enough, the one from China turns up in the UK in only 4 days, I'm still waiting for the USPS to deliver the SparkFun one!</p>
+<p>&nbsp;</p>
+<p>The cheap bluetooth unit turns out to be a HC06 device - which is practically useless as I need to use it in master mode to connect to my SMA&nbsp;inverter.</p>
+<p>I've found an interesting website at <a href="http://byron76.blogspot.com/2011/09/i-hope-you-have-good-time-soldering.html" title="http://byron76.blogspot.com/2011/09/i-hope-you-have-good-time-soldering.html">http://byron76.blogspot.com/2011/09/i-hope-you-have-good-time-soldering....</a></p>
+<p>which indicates you can re-flash the bluetooth chips to add updated firmware onto them.&nbsp; I might give it a go!</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2764"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="strykeroz&#039;s picture" title="strykeroz&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Interfacing with SMA SunnyBoy PV Inverters (Bluetooth)</h3>
+
+    <div class="submitted">Submitted by strykeroz (not verified) on Tue, 17/01/2012 - 04:00.</div>
+    <div class="content">
+     <p>&nbsp;Hi Stu</p>
+<p>After our short 'chat' on the sma-bluetooth forum, as mentioned I'd be delighted to help with testing or code if you can use it.</p>
+<p>Cheers, Geoff</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-2327"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Interfacing with SMA SunnyBoy PV Inverters (Bluetooth)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Mon, 14/11/2011 - 13:15.</div>
+    <div class="content">
+     <p>I can confirm that the HC range of Bluetooth chipsets (based on CSR chips) can be re-programmed and have their firmware updated as per the above link.</p>
+<p>My useless HC06 is now a HC05 model with a newer firmware - apart from the LED&nbsp;being on a different PIO pin, it's working fine.</p>
+<p>I used the circuit from the website above, built on a bit of breadboard and 4 wires soldered to the Bluetooth board.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div></div><a id="comment-2250"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Interfacing with SMA SunnyBoy PV Inverters (Bluetooth)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Fri, 28/10/2011 - 11:39.</div>
+    <div class="content">
+     <p>This sounds very exciting. I'm soon to have PV panels installed with an SMA inverter. It would be pretty cool to &nbsp;be able to be able to post the data up online using a Nanode+bluetooth. There would probably be a market for such a product since it would be cheaper than the &pound;300 SMA web box. The Android app sounds pretty good too. &nbsp;</p>
+<p>Although possibly an easier way to monitor output from a PV system is to use a CT sensor clipped round the 230V AC output from the inverter. I have setup a few PV monitoring systems using the emonTx, emonBase posting to emoncms system. The screen grab below shows two different PV systems installed in similar locations being compared. The advantage of the CT based monitoring system is that its not inverter specific and not relient on manufacture protocols (which will probably change over time).</p>
+<p><img width="500" height="159" alt="" src="../sites/default/files/solarcompare.png" /></p>
+<p>What are the advantages interfacing directly with the inverter using bluetooth over monitoring the AC output from the inverter? After all its the AC output that you get paid for. &nbsp;Is it possible to get other interesting information other than power output by interfacing directly with the inverter?</p>
+<p>All the best, Glyn.&nbsp;</p>
+<p>P.S When posting in the future please could you use the forums rather than creating a random page on the site. Its much more organised that way!&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2251"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Interfacing with SMA SunnyBoy PV Inverters (Bluetooth)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Fri, 28/10/2011 - 11:58.</div>
+    <div class="content">
+     <p><em>When posting in the future please could you use the forums rather than  creating a random page on the site. Its much more organised that way! </em></p>
+<p>No problem, I was trying to put a link into the &quot;Build&quot; and that suggested to create a new page - wrists slapped accordingly <img src="../sites/all/modules/fckeditor/fckeditor/editor/images/smiley/msn/embaressed_smile.html" alt="" /></p>
+<p>&nbsp;</p>
+<p>By interfacing directly with the inverter you can also get the DC stats from the panels, voltage and current, this in turn allows you to see the efficency of the inverter when compared to the ac output.</p>
+<p>I agree that monitoring the ac cables using a clip is fine, however if this is to be a device open to the public and &quot;easy&quot; to install then I think the fewer clips and hunting down wiring the better, especially as the inverter cabling is likely to be enclosed in twin &amp; earth cabling so you'd have to tease out a single core.</p>
+<p>Ideally I want to control my hot water heating from surplus energy, but I also have the same problem as some of the forum members have in that my mains ac is blended with the PV inverter output (no seperate fuse/wiring panel for the mains AC for the PV setup).</p>
+<p>I expect a lot of installations have been done in this way.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div><div class="item-list"><ul class="pager"><li class="pager-current first">1</li>
+<li class="pager-item"><a href="https://learn.openenergymonitor.org/?redirect=interfacing-with-sma-sunnyboy-pv-inverters-bluetooth?page=1" title="Go to page 2" class="active">2</a></li>
+<li class="pager-next"><a href="https://learn.openenergymonitor.org/?redirect=interfacing-with-sma-sunnyboy-pv-inverters-bluetooth?page=1" title="Go to next page" class="active">next ›</a></li>
+<li class="pager-last last"><a href="https://learn.openenergymonitor.org/?redirect=interfacing-with-sma-sunnyboy-pv-inverters-bluetooth?page=1" title="Go to last page" class="active">last »</a></li>
+</ul></div></div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/266 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:17:46 GMT -->
+</html>

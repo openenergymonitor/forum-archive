@@ -1,0 +1,308 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2522 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:54:32 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>latest emonlib.cpp voltage measurement | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">latest emonlib.cpp voltage measurement</h3>
+        <span class="submitted">Submitted by <a href="../user/3756.html" title="View user profile.">platypus</a> on Tue, 02/07/2013 - 14:43</span>
+        <div class="content"><p>Edited after reply from Robert...</p>
+<p>Using the latest emonlib.cpp - the voltage reference gives this when used with the 2560</p>
+<p>I haven&#39;t run it on the 32U4 yet or the 1280 (as I don&#39;t have one of these).</p>
+<p>Using this test program I am getting 4752mV instead of 1100mV</p>
+<p>See after this program, where I substituted&nbsp;ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);</p>
+<p>for&nbsp;<span style="font-size: 12px;">ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);</span></p>
+<p>&nbsp; ADCSRB &amp;= ~_BV(MUX5); (This line is fine as I have run the program with MUX5)</p>
+<p>&nbsp;</p>
+<p><em><strong>The test program follows...</strong></em></p>
+<p>long readVcc(){<br />
+	&nbsp; long int result;</p>
+<p>&nbsp; #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined (__AVR_ATmega328P__)<br />
+	&nbsp; ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);&nbsp;<br />
+	&nbsp; #elif defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)<br />
+	&nbsp;<strong><em> ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+	&nbsp; ADCSRB &amp;= ~_BV(MUX5);&nbsp;&nbsp;</em></strong> // Without this the function always returns -1 on the ATmega2560 <a href="2253.html#comment-11432" title="http://openenergymonitor.org/emon/node/2253#comment-11432">http://openenergymonitor.org/emon/node/2253#comment-11432</a><br />
+	&nbsp; #elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)<br />
+	&nbsp; ADMUX = _BV(MUX5) | _BV(MUX0);<br />
+	&nbsp; #elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)<br />
+	&nbsp; ADMUX = _BV(MUX3) | _BV(MUX2);<br />
+	&nbsp; #endif</p>
+<p>&nbsp; delay(2);&nbsp;&nbsp;&nbsp;&nbsp; // Wait for Vref to settle<br />
+	&nbsp; ADCSRA |= _BV(ADSC);&nbsp;&nbsp;&nbsp; // Convert<br />
+	&nbsp; while (bit_is_set(ADCSRA,ADSC));<br />
+	&nbsp; result = ADCL;<br />
+	&nbsp; result |= ADCH&lt;&lt;8;<br />
+	&nbsp; result = 1126400L / result;&nbsp;&nbsp; //1100mV*1024 ADC steps <a href="1186.html" title="http://openenergymonitor.org/emon/node/1186">http://openenergymonitor.org/emon/node/1186</a><br />
+	&nbsp; return result;</p>
+<p>}</p>
+<p>void setup()<br />
+	{<br />
+	&nbsp; Serial.begin(9600);<br />
+	&nbsp;<br />
+	}</p>
+<p>void loop()<br />
+	{<br />
+	Serial.println(readVcc(),DEC);<br />
+	&nbsp; delay(1000);<br />
+	&nbsp;<br />
+	}</p>
+<p>Serial Monitor data</p>
+<p>4752<br />
+	4772<br />
+	4752<br />
+	4752<br />
+	4752<br />
+	4752<br />
+	4752</p>
+<p>____________________________________________</p>
+<p>&nbsp;</p>
+<p><strong>Substituting&nbsp;ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);</strong></p>
+<p>for &nbsp;<span style="font-size: 12px;">ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);</span></p>
+<p>&nbsp; ADCSRB &amp;= ~_BV(MUX5);&nbsp;&nbsp; // Without this the function always returns -1 on the ATmega2560</p>
+<p>gave this data below.</p>
+<p>Serial data direct from serial monitor</p>
+<p>1102<br />
+	1108<br />
+	1104<br />
+	1105<br />
+	1104<br />
+	1101<br />
+	1107<br />
+	1107<br />
+	1106<br />
+	1106<br />
+	1106</p>
+<p>&nbsp;</p>
+<p><strong>And here is the serial monitor data after removing ONLY &nbsp;_BV(MUX4) &nbsp; &nbsp; from ADMUX</strong></p>
+<p>1101<br />
+	1103<br />
+	1106<br />
+	1106<br />
+	1105<br />
+	1103<br />
+	1105<br />
+	1105<br />
+	1107<br />
+	1106<br />
+	1103</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2545.html" class="topic-previous" title="Go to previous forum topic">‹ Missing icon-wrench on input/nodes?</a>
+              <a href="2512.html" class="topic-next" title="Go to next forum topic">logging ripple control signals? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-13360"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: latest emonlib.cpp voltage measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 02/07/2013 - 16:37.</div>
+    <div class="content">
+     <p>Do I understand you correctly, and do you think the method should read and return the internal voltage reference itself, i.e. 1.1 V ?</p>
+<p>If so, I&#39;m afraid you&#39;re wrong. The code changes the ADC&#39;s reference to the internal band-gap reference, then uses that to measure the voltage of the ADC&#39;s normal reference voltage AV<sub>cc</sub>. It is that voltage that you are reading as 4752 mV.</p>
+<p>The band-gap reference is stable to a high degree but the initial value can lie anywhere within the band 1.0 - 1.2 V, thus your 4.752 V is a valid value that is within tolerance for the measurement of a 5 V supply to AV<sub>cc</sub>.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13370"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3756.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="platypus&#039;s picture" title="platypus&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: latest emonlib.cpp voltage measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3756.html" title="View user profile.">platypus</a> on Wed, 03/07/2013 - 02:37.</div>
+    <div class="content">
+     <p>Thanks for clarifying Robert.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13371"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3756.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="platypus&#039;s picture" title="platypus&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: latest emonlib.cpp voltage measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3756.html" title="View user profile.">platypus</a> on Wed, 03/07/2013 - 09:25.</div>
+    <div class="content">
+     <p>Perhaps you could help all of us &nbsp;understand how this code works - either give us a detailed description or an in depth reference so that we too can understand the nature of voltage referencing according to bandgap. From what I have read on forums there are not too many who understand the registers and how they work - a good tutorial is needed, perhaps you can help.</p>
+<p>Also I say again that this site needs a &quot;notify&quot; check box under each post.</p>
+<p>Thanks Robert.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13381"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: latest emonlib.cpp voltage measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Wed, 03/07/2013 - 21:50.</div>
+    <div class="content">
+     <p><em>Do I understand you correctly, and do you think the method should read and return the internal voltage reference itself, i.e. 1.1 V ? &nbsp; ..... &nbsp; The code changes the ADC&#39;s reference to the internal band-gap reference, then uses that to measure the voltage of the ADC&#39;s normal reference voltage AVcc.</em></p>
+<p>I don&#39;t think that&#39;s quite right. &nbsp;If you selected the 1.1V bandgap reference how would you be able to measure AVcc? &nbsp;Everything above ~1.1V would clip at 1023.</p>
+<p>What the code actually does is measures the 1.1V against AVcc, and then &quot;back calculates&quot; AVcc from what it sees.</p>
+<p>platypus the best reference for all those register accesses is always the Atmel datasheet for your part. &nbsp;Check out the &quot;Input Channel Selections&quot; table in the A/D section. &nbsp;On a 2560 for example, MUX5:0 selects which input pin gets fed to the A/D. &nbsp;But if you set it to 011110 then it doesn&#39;t select any input pin, but rather selects the 1.1V bandgap.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13382"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: latest emonlib.cpp voltage measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 03/07/2013 - 22:07.</div>
+    <div class="content">
+     <p>That&#39;s a big ask. It is actually all in the data sheet, but until you&#39;ve fought that battle a few times, it can be more than a little mysterious. With Glyn &amp; Trystan&#39;s permission, I&#39;ll put it on my &quot;to do&quot; list. No promises for when, though.</p>
+<p>For now what everyone needs to know is readVcc( ) returns the value of AV<sub>cc</sub> in mV (nominally 3300 or 5000) using the internal band-gap reference. The <em>uncertainty</em> in that measurement could be &plusmn;9%. The <em>repeatability</em> and <em>stability</em> of that measurement is in the order of a few hundred parts per million.</p>
+<p>I should have added to my reply that there are two sources of error when you measure power: variations in component values (resistors, transformers) and variation in this reference voltage. The purpose of calibration is to correct for errors from both these sources.</p>
+<p>It has been said that the mains-powered processor should not use readVcc( ) because the value of the internal 1.1 V reference is known with less certainty ( &plusmn;9%) than the 3.3 V or the 5 V from the regulator i.c. However, the internal reference is more <i>stable</i> than the regulator in the face of external influences. readVcc( ) is of course essential when operating from batteries.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13388"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: latest emonlib.cpp voltage measurement</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 04/07/2013 - 11:21.</div>
+    <div class="content">
+     <p><em>Perhaps you could help all of us&nbsp; understand how this code works - either give us a detailed description</em></p>
+<p>I&#39;ll have a crack. &nbsp;The code is necessarily cluttered by all the AVR variants it supports, &nbsp;so start by focusing on your part of interest. &nbsp;In this example I&#39;ll assume a 2560 because I have the datasheet handy. &nbsp; And then examine it line by line:</p>
+<p><strong>ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);<br />
+	ADCSRB &amp;= ~_BV(MUX5); &nbsp;</strong></p>
+<p>The above is basically saying:</p>
+<p>REFS1:0 = 01 &nbsp;and MUX5:0 = 011110</p>
+<p>(MUX5 happens to live in a different register from MUX4:0 which is why it&#39;s done&nbsp;separately).</p>
+<p>Looking at the attached tables from the 2560 datasheet, you&#39;ll see that:</p>
+<p>REFS1:0 = 01 &nbsp;means select &quot;AVCC with external capacitor at AREF pin&quot; as the reference voltage.</p>
+<p>MUX5:0 = 011110 means measure the 1.1V Vbg</p>
+<p><strong>ADCSRA |= _BV(ADSC);</strong></p>
+<p>The above starts a conversion running.</p>
+<p><strong>while (bit_is_set(ADCSRA,ADSC));</strong></p>
+<p>The above waits for the conversion to finish.</p>
+<p><strong>result = ADCL;<br />
+	result |= ADCH&lt;&lt;8;</strong></p>
+<p>The above fetches the 10-bit result. &nbsp;So at this stage <em>result</em> now holds the result of measuring the 1.1V Vbg using AVCC as the reference voltage. &nbsp; In other words:</p>
+<p>result = Vbg /&nbsp;AVCC * 1024</p>
+<p>So for instance, if&nbsp;AVCC is 5V and the 1.1V bandgap is spot on at 1.1V, then you would expect&nbsp;<em>result&nbsp;</em>to now hold 1.1 / 5 * 1024 &nbsp;= &nbsp;225.</p>
+<p>The premise of the routine is that if you know one of either AVCC or Vbg, and you have the above result then you can easily deduce the other.</p>
+<p>If you trust AVCC, and you want to know what Vbg&nbsp;is for this part, then you can rearrange the above formula to:</p>
+<p>Vbg&nbsp;= result * AVCC&nbsp;/ 1024.</p>
+<p>If you trust Vbg, and you want to know what AVCC is, then you can rearrange it to:</p>
+<p>AVCC &nbsp;= Vbg * 1024 / result</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= 1.1 * 1024 / result &nbsp; &nbsp; &nbsp; &nbsp; (since you trust Vbg to be 1.1)</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= &nbsp;1126.4 / result &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;(in volts)</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= 1126400 / result &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;(in mV)</p>
+<p>which gives rise to the final line of code:</p>
+<p><strong>result = 1126400L / result; &nbsp;&nbsp;</strong></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2522"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-AMENkEFnk54mofssdVyvzpzgrGzqS7vy3ag7Z9iePCA" value="form-AMENkEFnk54mofssdVyvzpzgrGzqS7vy3ag7Z9iePCA"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2522 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:54:32 GMT -->
+</html>

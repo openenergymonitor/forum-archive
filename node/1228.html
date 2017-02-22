@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1228 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:37:06 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Solar/Wind micro-generation monitoring with two emonTXs | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Solar/Wind micro-generation monitoring with two emonTXs</h3>
+        <span class="submitted">Submitted by <a href="../user/497.html" title="View user profile.">markp</a> on Tue, 23/10/2012 - 16:14</span>
+        <div class="content"><p>Right, let me try and explain the setup here:</p>
+<p>1 x NanodeRF as an emonBase<br />
+	1 x emonGLCD<br />
+	2 x emonTX</p>
+<p>The inverter from the wind turbine is located in a separate building to the consumer unit/meter, so I plan on installing a separate emonTX in the barn with the inverter, and have the other in the house with the consumer unit. Unfortunately the way that the property is cabled means that the incoming feed from the barn&#39;s inverter is also used to drive some loads so we would not be able to accurately meter the inverter output back at the house.</p>
+<p>To this end, I&#39;ve got two TXs - node IDs 11 and 12. CT1 on each TX has a clamp.</p>
+<p>I&#39;ve modified the glcd code as follows:</p>
+<p>Replaced &quot;Payload emontx;&quot; with:<br />
+	PayloadTX gridtx;<br />
+	PayloadTX windtx;</p>
+<p>Replaced the &quot;if (node_id == 10)...&quot; with:<br />
+	if (node_id == 11) {gridtx = *(PayloadTX*) rf12_data; last_emontx = millis();}<br />
+	if (node_id == 12) {windtx = *(PayloadTX*) rf12_data; last_emontx = millis();}</p>
+<p>Replaced all instances of emontx.power1 with gridtx.power1 and emontx.power2 with windtx.power1.</p>
+<p>Is this the correct method to do this? I appear to get different values from both TXs but don&#39;t have a means to test this properly prior to installation.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1235.html" class="topic-previous" title="Go to previous forum topic">‹ EmonGLCD posts 16 nodes ??.</a>
+              <a href="1227.html" class="topic-next" title="Go to next forum topic">RESOLVED: emonGLCD corruption on Adafruit ST7565 RGB LCD  ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-6842"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/497.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="markp&#039;s picture" title="markp&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar/Wind micro-generation monitoring with two emonTXs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/497.html" title="View user profile.">markp</a> on Wed, 24/10/2012 - 12:42.</div>
+    <div class="content">
+     <p>Well, I carried on with this last night and got it working I think.</p>
+<p><img alt="" src="../../../vps2.markphelan.net/public/img/grabs/2012-10-23_192433.jpg" style="width: 400px; height: 243px; " /></p>
+<p>I altered the sun/clouds to be a fan icon instead. Not sure how to indicate if the turbine is spinning or not though - would like to alternate the fan between 2 icons every 500ms or so to give the illusion of it turning when it&#39;s generating and just a static icon when it&#39;s not, but this&#39;ll do for now.</p>
+<p>The code changes I outlined above seem to work OK, I&#39;ll post up the complete sketch with revised template and icons later on this evening.</p>
+<p>Hoping to get a chance to have this installed in the next week or so.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-6846"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/497.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="markp&#039;s picture" title="markp&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar/Wind micro-generation monitoring with two emonTXs</h3>
+
+    <div class="submitted">Submitted by <a href="../user/497.html" title="View user profile.">markp</a> on Wed, 24/10/2012 - 18:51.</div>
+    <div class="content">
+     <p>Attached is the modified code for those that may be interested. <a href="../sites/default/files/Turbine.zip">http://openenergymonitor.org/emon/sites/default/files/Turbine.zip</a></p>
+<p>Turbine.ino is very much based on the Solar sketch, but with some changes to measure from two separate emonTX&#39;s as outlined above.</p>
+<p>Changes to the template file include a fixed &quot;fan&quot; icon instead of the clouds/sun. Changes to the icons file are to simply include the new fan icon generated by bmp2glcd.</p>
+<p>It could do with a bit of tidying up to remove some redundant code, icons, etc. but appears to work OK. The ultimate test will be when it&#39;s all installed.</p>
+<p>I&#39;ve also laser cut some slightly wider emonGLCD mounts for the RGB LCD:</p>
+<p><img alt="" src="../../../vps2.markphelan.net/public/img/grabs/2012-10-24_194632.jpg" /></p>
+<p>and have cut a perspex box to hold the NanodeRF, based on a design from Thingiverse: <a href="http://www.thingiverse.com/thing:10071">http://www.thingiverse.com/thing:10071</a> - however this isn&#39;t quite right for the Nanode RF so I need to do some modifications to the design so it fits properly.</p>
+<p><img alt="" src="../../../vps2.markphelan.net/public/img/grabs/2012-10-24_194809.jpg" /></p>
+<p>I&#39;m going to also do some laser cutting for some basic emonTX enclosures and will share the designs on here. If there&#39;s enough interest I can probably cut a batch of each enclosure if people are interested - any input on design suggestions are welcome.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/1228"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Rj79ggb0geqSI5spttuC3J5R5wa5vXyUHY1Uo2YFPMo" value="form-Rj79ggb0geqSI5spttuC3J5R5wa5vXyUHY1Uo2YFPMo"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1228 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:37:20 GMT -->
+</html>

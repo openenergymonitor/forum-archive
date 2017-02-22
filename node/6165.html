@@ -1,0 +1,576 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6165 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:45:15 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Solar H2O Controller Logic | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Solar H2O Controller Logic</h3>
+        <span class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Mon, 24/11/2014 - 10:05</span>
+        <div class="content"><p>Hi,</p>
+<p>I am in the process of replacing my factory solar h2o controller with a custom version using an Arduino. Mostly just cos it is fun, but also because I want to measure the hot water cylinder temps and monitor when the pump is firing etc. Using EmonCMS + MQTT of course ;).</p>
+<p>So I have got pretty much everything working, including replicating most of the functionality in my existing controller. But I wanted to run it by the experts on here and check if I have missed anything, since we are dealing with potentially very hot water and if this things goes wrong it cause serious issues/damage!</p>
+<p>Here is the current code for my updatePump() routine which fires after I read the various temp sensors. Hopefully the variable names are obvious enough (e.g.&nbsp;temp_hwc_b/m/t&nbsp;=&gt; temp at HWC bottom/middle/top).</p>
+<p>Any questions fire away, would appreciate any and all feedback!</p>
+<blockquote><pre>
+void updatePump() {
+  // ignore calculations if the temp sensors haven&#39;t been read yet
+  if (temp_hwc_b == 0 || temp_col == 0) {
+    Serial.println(&quot;Ignoring pump calculations until we have temps&quot;);
+    return;
+  }
+
+  // first we check if we are within the boundaries of any of our 
+  // protection/safety modes to prevent any damage to the system
+  
+  // emergency overheating
+  if (temp_col &gt; temp_col_emerg_off )
+    emerg_shutdown = 1;
+  if (temp_col &lt; temp_col_emerg_on)
+    emerg_shutdown = 0;
+   
+  // collector cooling mode
+  if (temp_col &gt; temp_col_max)
+    col_cooling = 1;
+  if (temp_col &lt; (temp_col_max - 2))
+    col_cooling = 0;
+   
+  // collector warming mode
+  if (temp_col &lt; temp_col_min)
+    col_warming = 1;
+  if (temp_col &gt; (temp_col_min + 2))
+    col_warming = 0;
+   
+  // start with the current state
+  int pump = pump_current;
+  
+  // calculate the difference between the collector and HWC bottom
+  double diff = temp_col - temp_hwc_b;
+  
+  // if collector is X degrees above the HWC bottom then pump on
+  if (diff &gt; temp_diff_on) 
+    pump = PUMP_ON;
+  
+  // if collector is less than X degrees above HWC bottom then pump off
+  if (diff &lt; temp_diff_off)
+    pump = PUMP_OFF;
+
+  // check to stop overheating of cylinder 
+  if (temp_hwc_m &gt; temp_hwc_max) 
+    pump = PUMP_OFF;  
+  
+  // check if we are in the collector cooling or warming modes
+  // and override our differential calculations above
+  if (col_cooling || col_warming) 
+    pump = PUMP_ON;
+
+  // emergency override so we don&#39;t overheat
+  if (emerg_shutdown || temp_hwc_m &gt; 95.0 || temp_hwc_t &gt; 95.0)
+    pump = PUMP_OFF;
+    
+  // only update if the pump state has changed
+  if (pump != pump_current) {
+    Serial.print(&quot;Switching pump -&gt; &quot;);
+    Serial.println(pump == PUMP_ON ? &quot;ON&quot; : &quot;OFF&quot;);
+    digitalWrite(PUMP_PIN, pump);
+    pump_current = pump;
+  }  
+}</pre></blockquote>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2572.html" class="topic-previous" title="Go to previous forum topic">‹ Replicating Dashboards</a>
+              <a href="9978.html" class="topic-next" title="Go to next forum topic">input and feeds not working since begining Jan on emoncms.org ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-25297"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Mon, 24/11/2014 - 10:21.</div>
+    <div class="content">
+     <p>I should have mentioned that my code is based on the example at&nbsp;http://openenergymonitor.org/emon/applications/shw#software. I have taken this and extended it to add some additional checks and &#39;modes&#39;.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25300"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 24/11/2014 - 13:05.</div>
+    <div class="content">
+     <p>Do not rely on your code for safety. You must have hard-wired over-temperature protection in there somewhere as well. There is no way that you can guarantee that the output controlling the pump will fail to OFF. (There is no guarantee that a pair of thermostat contacts won't weld either, but I'd rather put my money on the thermostat than on a relay on the end of a microcontroller.)</p>
+<p>So the first problem I see - if you haven't read the sensors or they fail to zero, the pump carries on doing whatever it was doing. 'emerg_shutdown' doesn't get a look-in as the function has returned. That's an obvious failure in the logic.</p>
+<p>I'm also confused by the 'PUMP_OFF' and 'PUMP_ON' being repeated. Only the last true condition will set the pump state. Do you really want the later conditions to override the earlier ones? If you do, that's OK, but as you have it, collector heating/cooling will override the maximum set temperature 'PUMP_OFF'. I obviously don't know your system, nor what it can and can't do safely, but that looks wrong to me.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25312"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Mon, 24/11/2014 - 19:21.</div>
+    <div class="content">
+     <p>Thanks Robert - you have a valid point re. the hard-wired over-temp protection. The currently installed system doesn&#39;t have anything like this and I know of half a doz systems using the same controller - not saying it is ok, just that this controller has been approved by the regulators here in NZ and is in operation in a lot of places.</p>
+<p>I do have a watchdog timer on my Arduino so it will restart if it ever locks up but I think moving the emergency shutoff logic above the temp validation is a very smart idea - I will definitely do that. At least then if my temp sensors fail then I will know the pump is off (well&nbsp;at least that the output pin is high!).</p>
+<p>The idea with the PUMP_ON/OFF being repeated is that you have higher priority rules further down the list. So initially we just do the standard temp differential checks and make a decision as to whether to switch the pump on/off. Then after that is done we have a look at our special protection modes and they are allowed to override the basic logic. Finally the emergency checks can override everything.</p>
+<p>I have a user manual here for the existing controller which explains some of this in more detail but basically the idea is you have a max HWC temp (in my case 85C). The controller will stop circulating heated water once the HWC reaches this. However, if the collector gets above 110C (temp_col_max) we start circulating water from the HWC to cool the collector down - this only runs until the collector cools down a couple of degrees. Similar logic for the lower temps - to prevent freezing. This can obviously increase the temp of the HWC above our configured max, which is why there is the hardcoded&nbsp;shutoff at 95C.</p>
+<p>&nbsp;</p>
+<p>Here are the current values (which are the default values that come shipped on my existing controller) for reference;</p>
+<blockquote><pre>
+// adjustable configuration parameters
+const double temp_diff_on        = 10.0;
+const double temp_diff_off       = 8.0;
+const double temp_hwc_max        = 85.0;
+const double temp_col_emerg_off  = 130.0;
+const double temp_col_emerg_on   = 120.0;
+const double temp_col_max        = 110.0;
+const double temp_col_min        = 4.0;
+</pre></blockquote>
+<p>Appreciate your feedback. Would be interested to hear you suggestions for a hard-wired thermostat shutoff - would this be a secondary temp probe in the cylinder which is wired in series with the live feed to the pump - if the thermostat is tripped it would shutoff the pump circuit altogether?</p>
+<p>Cheers,</p>
+<p>Ben</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25316"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 24/11/2014 - 21:01.</div>
+    <div class="content">
+     <p><i>"a secondary temp probe in the cylinder which is wired in series with the live feed to the pump - if the thermostat is tripped it would shutoff the pump circuit altogether."</i></p>
+<p>Indeed. A common-and-garden thermostat is more or less what I had in mind. It may well be that your installed and approved system has got a second protection mechanism in place that you don't know about, that has allowed its approval. Or maybe your regulators aren't quite as cynical as I am.</p>
+<p>But you could have a problem with cooling the collector if the system has already tripped on the 'stat - I guess there's less danger to life and property in having a boiling collector than a boiling tank.</p>
+<p>And I've no argument with the priority mechanism, I was simply questioning whether you indeed had what you intended.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25317"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Mon, 24/11/2014 - 22:10.</div>
+    <div class="content">
+     <p>I don&#39;t think there is any other protection system - the controller has a wire to the pump, and wires to the various temperature probes. So if those probes failed there is nothing else in the system to override the pump circuit - other than it auto-shutting down like we have discussed if the temp readings fail.</p>
+<p>The &#39;stat would be on the HWC temp since that is the only thing we care about getting too hot, so the collector cooling should still be ok. If the HWC was so hot that it tripped the &#39;stat then I don&#39;t think we really want to be circulating that water to cool down the collector...</p>
+<p>Thanks again for your feedback. Appreciate you taking the time to have a look over it all.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25349"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Percul8or&#039;s picture" title="Percul8or&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by Percul8or (not verified) on Tue, 25/11/2014 - 20:59.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>I went through this a while back. The easiest way to do this is by getting a 12v DC Solar hot water pump on eBay, a 5-10 watt solar panel and an&nbsp;optional&nbsp;50 deg C NO thermal switch and just wire it up. Switch on solar collector output pipe. Sun comes up, solar panel heats up, output get to 50 deg, closes switch, output from solar panel connected to pump and and away it goes. Water cools, pump off and cycle continues until hot water remains at 50 deg and above and pump continues to run until night time.&nbsp;</p>
+<p>easy peasy</p>
+<p>​I also have a device that diverts hot water to prevent steaming called the Solar Steam Stopper.&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25353"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Tue, 25/11/2014 - 23:17.</div>
+    <div class="content">
+     <p>Sumnerboy, my Resol controller follows pretty much exactly the same algorithm as yours, but with slightly different set-points (which are user-tweakable). &nbsp;I&#39;m pretty sure mine lacks the &quot;collector cooling mode&quot; that you describe. &nbsp;Mine is an open loop&nbsp;system, which means it&#39;s actually the hotwater that gets sent up to the collector, and there&#39;s a pressure relief valve up there to let it boil/vent if it ever needs to. &nbsp;I&#39;m guessing yours might be closed loop, and they&#39;re&nbsp;worried about loosing coolant if the collector gets too hot?</p>
+<p>I was interested in monitoring it&nbsp;but not replacing it,so I piggy-back my monitor on top of their controller. &nbsp;I passively observe the temp sensor readings whenever their controller pulses them. &nbsp;I&#39;ve got a dedicated CT on that GPO, so can easily detect when the circulation pump&nbsp;is running. It&#39;s about 22W (real) from memory but close to 70VA (apparent) so pretty easy to detect. &nbsp; And I have another CT on the 3600W electric boost element. &nbsp;All that lets me create the web display shown below. &nbsp;The pump icon turns green when it&#39;s running, dark otherwise, and the boost element turns red&nbsp;when it&#39;s energised. &nbsp;I even make an educated guess (based on some very rough measurements) at the flow rate, which lets me include a power readout.</p>
+<p>Does yours use pt1000 temperature probes? &nbsp;How do you plan driving them? &nbsp;Mine doesn&#39;t energise them permanently, but rather pulses them every few seconds. &nbsp;I read somewhere that&#39;s to avoid self-heating effects.</p>
+<p>Meanwhile, if &nbsp;this article is to be believed:&nbsp;<a href="http://reneweconomy.com.au/2014/solar-hot-water-solar-pv-study-says-pv-cheapest-way-go-34519">http://reneweconomy.com.au/2014/solar-hot-water-solar-pv-study-says-pv-cheapest-way-go-34519</a>&nbsp;the crossover point has been reached (at least here in Aus). &nbsp;When total cost of ownership is considered, it&#39;s now cheaper to just add some more PV panels and heat your water with their output. &nbsp;The maths varies a lot depending on tariffs, for example it doesn&#39;t apply to me because of my generous feed-in tariff.</p>
+<p><img alt="" src="../sites/default/files/Screenshot-127.png" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25355"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Wed, 26/11/2014 - 00:14.</div>
+    <div class="content">
+     <p>Very nice dBC! Are you using the VBus&nbsp;adapter to get your various readings from the controller? I just watched a short YouTube clip of someone setting up a Resol and the parameters and settings look remarkably similar to my controller (<a href="http://www.sokdoo.com/SR868C8.pdf" title="http://www.sokdoo.com/SR868C8.pdf">http://www.sokdoo.com/SR868C8.pdf</a>). I wonder if they are based off the same firmware?</p>
+<p>Unfortunately there is no way (that I know of) to piggy back off my controller however. More&#39;s the pity!</p>
+<p>Mine uses a PT1000 probe in the collector and NTC10K probes for the HWC temp measurements. I am going to replace the NTC10K probes with DS18B20s as it is nice and easy to use these on an Arduino, but I can&#39;t change the probe in the collector very easily so I decided to leave it there and have bought a MAX31865 breakout board from PlayingWithFusion (<a href="http://playingwithfusion.com/productview.php?pdid=26" title="http://playingwithfusion.com/productview.php?pdid=26">http://playingwithfusion.com/productview.php?pdid=26</a>) which handles reading the temperature values via the SPI bus.&nbsp;</p>
+<p>Interesting point about self-heating - I will do some investigation into that.</p>
+<p>My system is the same as yours, i.e. open loop. It will vent on the roof if required but the collector cooling is a function in the existing controller so I was keen to replicate.</p>
+<p>The one thing the controller does is PWM the pump signal - which I am not going to attempt in my controller. I am a little concerned at this difference but time will tell if it makes any difference. My current controller was setup with a min pump % = 90% so I don&#39;t think I will be too different if I just run it at 100% (i.e. fully on) instead.&nbsp;</p>
+<p>Very nice display you have setup there - pretty much exactly what I want to achieve, but in EmonCMS using MQTT. I can then integrate with openHAB and do things like stop HWC boosting if we are away on holiday, and warn if the HWC is a bit cool in the evenings for example.</p>
+<p>Thanks for your feedback!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25356"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Wed, 26/11/2014 - 00:58.</div>
+    <div class="content">
+     <p><em>Are you using the VBus adapter to get your various readings from the controller?</em></p>
+<p>It was quite a few years ago now, but I&#39;m pretty sure I determined mine didn&#39;t have the VBus&nbsp;module. &nbsp;I guess when integrators (Conergy in my case) request these bits from the suppliers, there are a bunch of tick-boxes they can de-select to keep the costs down.</p>
+<p><em>Unfortunately there is no way (that I know of) to piggy back off my controller however. More&#39;s the pity!</em></p>
+<p>It may be a lot easier than you think. &nbsp;Provided you have access to the screw terminals for the temperature probes, just put a scope, or even a voltmeter on them. &nbsp;That&#39;s where I started, then worked out what it was doing from there. &nbsp;Every 2 seconds it energises&nbsp;one of the pt1000s with a brief pulse. &nbsp;I could see that pulse with a digital voltmeter so it&#39;s all very slow. &nbsp;My controller&nbsp;includes an LCD display displaying the two temperatures, so it was very easy to calibrate the voltage to their&nbsp;temperature display. &nbsp;Then I wired those two signals to two analog inputs and a few lines of code later, I had the readings in AtoD units... again easy to calibrate against their temperature display. &nbsp;I think I had to use an isolated (i.e. transformer based) DC supply to the Arduino to avoid earth loop issues, and I also used an external Vref&nbsp;(~ 2V)&nbsp;to give me better resolution.</p>
+<p>I just poked around in the archives, and came across my calibration spreadsheet:<img alt="" src="../sites/default/files/calibration_0.jpg" style="height:481px; width:700px" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25357"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Wed, 26/11/2014 - 01:01.</div>
+    <div class="content">
+     <p>I might have to give that a go - thanks for the tip! If I can keep the existing controller I would be a lot happier I think - not that I don&#39;t think my version is much different - it is just nice to have standalone controllers for these mission critical systems.&nbsp;</p>
+<p>Yet another thing to add to my project list...</p>
+<p>Cheers,</p>
+<p>Ben</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25358"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Wed, 26/11/2014 - 03:51.</div>
+    <div class="content">
+     <p>dBC - would you care to share your Arduino sketch? To give me a starting point...Cheers!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25359"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Wed, 26/11/2014 - 06:45.</div>
+    <div class="content">
+     <p>Sure, but keep in mind it&#39;s &nbsp;not exactly in &quot;shareable&quot; state. &nbsp;It&#39;s quite bespoke to my system and&nbsp;it&#39;s a good 3 years old. Reading it again now, I&#39;d probably do a few things differently... but it&#39;s been screwed to the wall under the house and working fine for 3 years, so I&#39;ve not messed with it. &nbsp; &nbsp;To aid calibration&nbsp;with the Resol readout, I briefly attached a little I2C LCD display I had lying about, but that&#39;s not in the final version, which is why it&#39;s all been #ifdef&#39;d away. &nbsp;</p>
+<p>Oh, and TC and TS are Resol names for TempCollector and TempStorage. My rig only has 2 temp sensors: TC on the output of the collector, and TS at the bottom of the tank&nbsp;(65.5C and 53.9C in the display above). &nbsp;The raw &nbsp;A/D readings are sent over the virtualwire&nbsp;RF link, and the conversion/calibration is done externally.</p>
+<p>This box/sketch only provides the two temperature readings. &nbsp;CT sensing of whether or not the circulation pump and boost element are running is done by my energy monitor.</p>
+<p>You really need to start by looking at the signal on your temp sensor screw terminals to see how much of it is relevant to your setup. &nbsp;All those edge triggers, waste counts etc. were all hand crafted for my rig.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-25361"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Wed, 26/11/2014 - 09:12.</div>
+    <div class="content">
+     <p>Sweet - appreciate it - I will have a play this weekend.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27081"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Wed, 28/01/2015 - 09:31.</div>
+    <div class="content">
+     <p>Thought I would follow up with this little project. I ended up canning the idea of replacing the Solar H2O controller, I got it working ok in my test bed, but when I deployed I was getting bad sensor readings quite regularly, and whenever the pump was activated I was seeing sensor errors - I am not sure what was wrong but after stuffing around and letting my collector temp get up to over 180 degrees (since the pump wasn&#39;t being run properly while I installed/tested) I decided to leave the existing factory-fitted controller in place.</p>
+<p>I followed dBCs advice and went about designing an Arduino sketch to monitor the existing NTC 10K thermistors that are measuring the HWC temps (bottom/middle/top). After all, all I really wanted to do is track the HWC temps.</p>
+<p>Turns out this wasn&#39;t as hard as I feared. I had never done analog reads using an external voltage reference so it was a great learning experience. Basically the NTC thermistors are wired up in a voltage divider within the solar controller. Then 5V&nbsp;is applied&nbsp;(actually about 4.91V) and a reading taken at the divider mid-point - all pretty standard stuff.</p>
+<p>So my Arduino&nbsp;connects&nbsp;a wire from the top of one of the thermistors (VCC) and connects to AREF. I also connect a common GND between the Arduino and the solar controller. Then I just connect 3 of the analog pins to the other side of the three thermistors.</p>
+<p>With the correct calculations and ADC conversions, I end up with a very accurate temperature reading - which is very close to what the solar controller is reporting on its LCD display.</p>
+<p>Chuck in a bit of MQTT publishing and I now have all three of my cylinder probes reporting temps to both EmonCMS and openHAB. openHAB&nbsp;can now intelligently decide whether to enable my PV Router depending on the HWC temperature.</p>
+<p>Very happy with the end result although it has taken me a while to get to this point! Thanks to all those who offered help and suggestions on here!&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31558"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Sun, 21/06/2015 - 06:11.</div>
+    <div class="content">
+     <p>I finally got around to putting a scope on the two pt1000 screw terminals on my Resol&nbsp;controller, so figured I&#39;d document it here for anyone else doing something similar. &nbsp;At the time I wrote that sketch above I only had a voltmeter and readings from the Arduino to go on. &nbsp;</p>
+<p>Looks like it probes both temp sensors every 1.564 seconds, first TC (red trace) and then TS (yellow trace).&nbsp;&nbsp;It&nbsp;reads each one for 392 msecs&nbsp;(possibly doing a bit of oversampling there). &nbsp;It takes about 1 msec for the voltage to settle when it switches from TC to TS. &nbsp;At teh time of taking these pics, the two sensors were&nbsp;pretty close to the same temperature.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40480"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9108.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9108.jpg" alt="ChrisValentine&#039;s picture" title="ChrisValentine&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9108.html" title="View user profile.">ChrisValentine</a> on Mon, 21/03/2016 - 12:18.</div>
+    <div class="content">
+     <p>I have a user with an emon Pi installed and running and reporting his two solar panel outputs to our database. He also has a solar thermal installation with a Resol&nbsp;DeltaSol CS2 controller and we&#39;d like to pick up the temperature and flow values from that system as well. Looks like some of you guys may have already done exactly that, so I&#39;m hoping you might be able to offer some help.</p>
+<p>I&#39;m fairly good at building electronics but can&#39;t design stuff so I&#39;m hoping some can post a circuit diagram. From Googling I see Resol company do actually make and sell both VBus/USB and VBus/Ethernet adaptors but if there&#39;s a simpler/more direct approach that will need just a little electronics, so we avoid having to get another Pi, that would be great.</p>
+<p>Chris.<br />
+The greenDATA Project<br />
+<a href="http://projects.kmi.open.ac.uk/greendata/" title="http://projects.kmi.open.ac.uk/greendata/">http://projects.kmi.open.ac.uk/greendata/</a></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40491"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Mon, 21/03/2016 - 12:29.</div>
+    <div class="content">
+     <p>I think there are a lot of different Resol controller models, so you probably can&#39;t assume they&#39;re all the same. &nbsp;I&#39;d start by putting a voltmeter on the pt1000&nbsp;screw terminals and see if you see the same voltages. &nbsp;If they are, there is no schematic really. &nbsp;I just ran those two signals to two ADC inputs on a 5V Arduino. &nbsp;To improve resolution, I built a simple ~2V Vref out of a 680/470 resistor divider as shown below. &nbsp;If you&#39;re going to be using a 3.3V system to monitor yours, you may not need to.</p>
+<p>One bug in my current &quot;design&quot; is that if the power to the Arduino goes off, the Resol reports a sensor fault. Presumably the ADC inputs of an unpowered Arduino put quite a load on the sensors as they effectively try to power up the Arduino via the internal protection diodes. &nbsp;A series resistor on those ADC inputs might solve that, but I&#39;ve not experimented with that (still well down my to-do list). &nbsp;As mentioned above,&nbsp;I think I had to use an isolated (i.e. transformer based) DC supply to the Arduino to avoid earth loop issues. &nbsp;It&#39;s all a bit of a hack, and may well void your Resol warranty, but mine has been monitoring happily for years.</p>
+<p><strong>[EDIT]&nbsp;</strong>hmmm... I could have sworn I was replying to a request for a schematic, but that request seems to have disappeared now. &nbsp;In any case, I&#39;ll leave this reply here in case it helps anyone else.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40492"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9108.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9108.jpg" alt="ChrisValentine&#039;s picture" title="ChrisValentine&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9108.html" title="View user profile.">ChrisValentine</a> on Mon, 21/03/2016 - 12:57.</div>
+    <div class="content">
+     <p>Regarding the voltage differences I did just find this on the Resol VBus group on Google Groups:</p>
+<p>https://groups.google.com/forum/#!topic/resol-vbus/3CjZffK53ig</p>
+<p>Sorry - I edited my post so I have to assume its being re-moderated.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40494"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 21/03/2016 - 13:44.</div>
+    <div class="content">
+     <p>dBC: Both Chris&#39;s posts of today were stuck in the moderation queue, so you&nbsp;shouldn&#39;t&nbsp;have seen them at all until 30 s ago.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40495"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9108.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9108.jpg" alt="ChrisValentine&#039;s picture" title="ChrisValentine&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9108.html" title="View user profile.">ChrisValentine</a> on Mon, 21/03/2016 - 14:11.</div>
+    <div class="content">
+     <p>Another option is the Resol VBus/LAN adaptor which costs around &pound;100. This would save making any custom electronics but would need code added to the emon Pi to collect the data from it, cache it and send it. This is the UK authorised reseller:</p>
+<p><a href="http://www.seconsolar.com/" title="http://www.seconsolar.com/">http://www.seconsolar.com/</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40505"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Mon, 21/03/2016 - 19:51.</div>
+    <div class="content">
+     <p>Actually, my Resol controller doesn&#39;t have the Vbus option. &nbsp;The solution described above just monitors the analog voltages from the pt1000 sensors as the Resol controller probes them every 2 seconds.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40741"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9576.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="bungo63&#039;s picture" title="bungo63&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9576.html" title="View user profile.">bungo63</a> on Wed, 30/03/2016 - 21:05.</div>
+    <div class="content">
+     <p>dBc/Chris</p>
+<p>Here in Ireland the Resol Controllers are used and rebranded by a company called Joule as part of their Solar panel kits. I have a Deltasol BS/2 HS. It can be connected to a data logger and some software to monitor everything. The Resol controller uses a proprietary protocol but some smart&nbsp;people out in the&nbsp;internet have cracked this and have also designed the&nbsp;interface to the Raspberry Pi.</p>
+<p>You may be interested in this link:&nbsp;&nbsp;<a href="https://www.domoticz.com/forum/viewtopic.php?t=8370">https://www.domoticz.com/forum/viewtopic.php?t=8370</a></p>
+<p>I was intending to have go at following these as a practical exercise to learn more about the&nbsp;raspberry pi and&nbsp;&nbsp;feed the output to emoncms but I am really very new at the raspberry pi thing so don&#39;t hold your breath!!&nbsp;If this could be &quot;commoditised&quot; I think there would be a lot of interest in&nbsp;it.</p>
+<p>In the mean time, without knowing what your set up is,&nbsp;&nbsp;I have used the DS18b20 probes as replacements for the plug in thermometers in my solar pumping station to monitor the heat of the solar fluid going to/from my panels. You can take look at my results here:&nbsp;<a href="https://emoncms.org/dashboard/view?id=32140">https://emoncms.org/dashboard/view?id=32140</a></p>
+<p>Its not rocket science but it does save me getting up into the loft!! and its been of interest to my plumber who installed my&nbsp;system as a marketing tool to some of his other customers.&nbsp;</p>
+<p>PS. The&nbsp;big slope recently was caused by me accidently turning off my wifi router when I went on holiday.</p>
+<p>PPS The pump monitor I now know is not technically correct and I need to revisit how I do this.</p>
+<p>Hope this helps</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41050"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9784.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9784.jpg" alt="Paul-B&#039;s picture" title="Paul-B&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Solar H2O Controller Logic</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9784.html" title="View user profile.">Paul-B</a> on Sun, 10/04/2016 - 19:52.</div>
+    <div class="content">
+     <p>This topic is very timely as I have just had Viridan Solar Thermal in-roof panels fitted and providing heat to a thermal store. The pump centre is a Resol unit and I have just added a KM1 communication unit to access the data over VBus network. My intent is to monitor my system with a view to better heating optimisation</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/6165"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-BA56e8TSBOGNUj_ooDFZOnOExIUD7xJWzbusr57xMwg" value="form-BA56e8TSBOGNUj_ooDFZOnOExIUD7xJWzbusr57xMwg"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6165 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:45:15 GMT -->
+</html>

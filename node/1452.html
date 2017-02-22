@@ -1,0 +1,431 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1452 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:23 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Problems with other sensors and emoncms. -RFM12Pi- | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Problems with other sensors and emoncms. -RFM12Pi-</h3>
+        <span class="submitted">Submitted by <a href="../user/905.html" title="View user profile.">robw</a> on Mon, 26/11/2012 - 08:27</span>
+        <div class="content"><p>Hi guys</p>
+<p>I&#39;m using emoncms on a Pi and all is running as it should on the pi, after some help (mharizanov)..</p>
+<p>I&#39;m in the process of building the emonTx and emonGLCD for this but at the mo&nbsp;I&#39;m trying to get some home made sensors working that monitor humidity etc working..<br />
+	They report in the feeds section with the correct node id etc but the values are rubbish..</p>
+<p>they vary from positive numbers to negative numbers and I&#39;m wondering what iv done wrong..</p>
+<p>Iv got the Pi setup as Group 0, as i want to have lots of sensors all on different groups. EG Heating Group 1, Emon 210,Temp, 5,Etc Could this be causing me a problem?</p>
+<p>struct {<br />
+	&nbsp; &nbsp; &nbsp; &nbsp; int hum;<br />
+	&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;int temp1;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int duep;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int BVolt1;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	payload;</p>
+<p>is the structure of the packet and the values being shown in emoncms are</p>
+<p>5 Node 201_1&nbsp; 23556<br />
+	6 Node 201_2 -11518<br />
+	7 Node 201_3 -32256<br />
+	8 Node 201_4 -15360</p>
+<p>or</p>
+<p>5 Node 201_1 23556<br />
+	6 Node 201_2 -11774<br />
+	7 Node 201_3 -32256<br />
+	8 Node 201_4 5633</p>
+<p>The values from the jeenode are (iv multiplied the values to remove the decimal point) so the humidity is 59.7%<br />
+	From the serial port of the JeeNode.</p>
+<p>&quot;Pay Humity dht: 597 Pay Temp dht: 212 Dew PointFast (oC): 130 batt :2903 end ****&quot;</p>
+<p>
+	Any ideas?</p>
+<p>
+	Code.<br />
+	&nbsp; // 2009-02-17 &lt;jc@wippler.nl&gt; <a href="http://opensource.org/licenses/mit-license.php" title="http://opensource.org/licenses/mit-license.php">http://opensource.org/licenses/mit-license.php</a><br />
+	&nbsp;<br />
+	&nbsp; // 2010-05-22: added support for all resolution modes<br />
+	&nbsp; // 2010-05-25: extended to also broadcast all readings over wireless<br />
+	&nbsp; // 2010-06-17: add power saving logic, should reduce consumption by over 90%<br />
+	&nbsp; // 2010-06-24: improved power savings, several &quot;hot spots&quot; optimized<br />
+	&nbsp;<br />
+	&nbsp; // see <a href="http://news.jeelabs.org/2010/06/20/battery-savings-for-the-pressure-plug/" title="http://news.jeelabs.org/2010/06/20/battery-savings-for-the-pressure-plug/">http://news.jeelabs.org/2010/06/20/battery-savings-for-the-pressure-plug/</a><br />
+	&nbsp; // see <a href="http://news.jeelabs.org/2010/06/30/going-for-gold-with-the-bmp085/" title="http://news.jeelabs.org/2010/06/30/going-for-gold-with-the-bmp085/">http://news.jeelabs.org/2010/06/30/going-for-gold-with-the-bmp085/</a><br />
+	&nbsp;<br />
+	&nbsp; #include &lt;JeeLib.h&gt;<br />
+	&nbsp; #include &lt;PortsBMP085.h&gt;<br />
+	&nbsp; #include &lt;avr/sleep.h&gt;<br />
+	&nbsp; #include &lt;avr/pgmspace.h&gt;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MilliTimer timer;<br />
+	&nbsp;<br />
+	&nbsp; // Humidity sensor<br />
+	&nbsp;&nbsp;&nbsp; #include &quot;DHT.h&quot;<br />
+	&nbsp;&nbsp;&nbsp; #define DHTPIN 4<br />
+	&nbsp;&nbsp;&nbsp; #define DHTTYPE DHT22&nbsp;&nbsp; // DHT 22&nbsp; (AM2302)<br />
+	&nbsp;&nbsp;&nbsp; DHT dht(DHTPIN, DHTTYPE);<br />
+	&nbsp; // end humidity setup<br />
+	&nbsp;<br />
+	&nbsp; volatile bool adcDone;</p>
+<p>&nbsp; // for low-noise/-power ADC readouts, we&#39;ll use ADC completion interrupts<br />
+	&nbsp; ISR(ADC_vect) { adcDone = true; }<br />
+	&nbsp;<br />
+	&nbsp; // this must be defined since we&#39;re using the watchdog for low-power waiting<br />
+	&nbsp; ISR(WDT_vect) { Sleepy::watchdogEvent(); }<br />
+	&nbsp;<br />
+	&nbsp; // Structure of data packet rfm12b<br />
+	&nbsp; struct {&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int hum;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int temp1;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int duep;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int BVolt1;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp; payload;</p>
+<p>&nbsp;</p>
+<p>&nbsp; void setup() {</p>
+<p>&nbsp;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; delay(1000);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // wait 1 second before start.<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.begin(57600);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot;Running&quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_initialize(4, RF12_868MHZ, 201); // 868 Mhz, net group 201, node 5<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_control(0xC040); // set low-battery level to 2.2V i.s.o. 3.1V<br />
+	&nbsp; }<br />
+	&nbsp;<br />
+	&nbsp; void loop() {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // spend most of the waiting time in a low-power sleep mode<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // note: the node&#39;s sense of time is no longer 100% accurate after sleeping<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_sleep(RF12_SLEEP);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // turn the radio off<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; loseSomeTime(timer.remaining()); // go into a (controlled) comatose state<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (!timer.poll(30000))<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lowPower(SLEEP_MODE_IDLE);&nbsp;&nbsp; // still not running at full power<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Humidity Section&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float h = dht.readHumidity();<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; float t = dht.readTemperature();<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int duep;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Calc before t+h * 10<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; duep = dewPointFast(t, h);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //duep = dewPoint(t, h);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; duep = duep * 10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // remove the decimal point from values before sending<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; h = h * 10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Temp<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t = t * 10;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Humidity<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; payload.hum = h;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // set humidirty payload<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; payload.temp1 = t;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // set humidity temp payload<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; payload.duep = duep;&nbsp;&nbsp;&nbsp;&nbsp; // set duepoint payload<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // End Humidity</p>
+<p>	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; payload.BVolt1 = map(analogRead(6), 0, 1023, 0, 6600); // Set payload of bvolt.<br />
+	&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // this code is not needed for use as remote node, keep it for debugging<br />
+	&nbsp; &nbsp; &nbsp; // display payload data.<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot; Pay Humity dht: &quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(payload.hum);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot; Pay Temp dht: &quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(payload.temp1);&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot; Dew PointFast (oC): &quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(payload.duep);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print (&quot; batt :&quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(payload.BVolt1);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot; end ****&quot;);&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.flush();<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_sleep(RF12_WAKEUP);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // turn radio back on at the last moment<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MilliTimer wait;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // radio needs some time to power up, why?<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (!wait.poll(5)) {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_recvDone();<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lowPower(SLEEP_MODE_IDLE);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (!rf12_canSend())<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_recvDone();<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_sendStart(0, &amp;payload, sizeof payload,1); // sync mode!<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; delay(5);&nbsp; // Needs this or the data sometimes gets cut off.. the sync above is suppost to stop this.<br />
+	&nbsp; }<br />
+	&nbsp; //EMPTY_INTERRUPT(WDT_vect); // just wakes us up to resume<br />
+	&nbsp; /////////////////////////////////////////<br />
+	&nbsp; // End Loop<br />
+	&nbsp; /////////////////////////////////////////<br />
+	&nbsp;</p>
+<p>	&nbsp; // ***********************************************************************<br />
+	&nbsp; // Duepoint calc<br />
+	&nbsp; // ***********************************************************************<br />
+	&nbsp;<br />
+	&nbsp; // dewPoint function NOAA<br />
+	&nbsp; // reference: <a href="http://wahiduddin.net/calc/density_algorithms.htm" title="http://wahiduddin.net/calc/density_algorithms.htm">http://wahiduddin.net/calc/density_algorithms.htm</a><br />
+	&nbsp; double dewPoint(double celsius, double humidity)<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double A0= 373.15/(273.15 + celsius);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double SUM = -7.90298 * (A0-1);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SUM += 5.02808 * log10(A0);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SUM += -1.3816e-7 * (pow(10, (11.344*(1-1/A0)))-1) ;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SUM += 8.1328e-3 * (pow(10,(-3.49149*(A0-1)))-1) ;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SUM += log10(1013.246);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double VP = pow(10, SUM-3) * humidity;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double T = log(VP/0.61078);&nbsp;&nbsp; // temp var<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (241.88 * T) / (17.558-T);<br />
+	&nbsp; }<br />
+	&nbsp;<br />
+	&nbsp;<br />
+	&nbsp; // delta max = 0.6544 wrt dewPoint()<br />
+	&nbsp; // 5x faster than dewPoint()<br />
+	&nbsp; // reference: <a href="http://en.wikipedia.org/wiki/Dew_point" title="http://en.wikipedia.org/wiki/Dew_point">http://en.wikipedia.org/wiki/Dew_point</a><br />
+	&nbsp; int dewPointFast(double celsius, double humidity)<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double a = 17.271;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double b = 237.7;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double temp = (a * celsius) / (b + celsius) + log(humidity/100);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double Td = (b * temp) / (a - temp);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return Td;<br />
+	&nbsp; }<br />
+	&nbsp;<br />
+	&nbsp; // ***********************************************************************<br />
+	&nbsp; // Jeelabs Code.<br />
+	&nbsp; // ***********************************************************************<br />
+	&nbsp; static void watchdogInterrupts (char mode) {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MCUSR &amp;= ~(1&lt;&lt;WDRF); // only generate interrupts, no reset<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cli();<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WDTCSR |= (1&lt;&lt;WDCE) | (1&lt;&lt;WDE); // start timed sequence<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WDTCSR = mode &gt;= 0 ? bit(WDIE) | mode : 0;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sei();<br />
+	&nbsp; }<br />
+	&nbsp;<br />
+	&nbsp; // This power-saving code was shamelessly stolen from the rooms.pde sketch,<br />
+	&nbsp; // see <a href="http://code.jeelabs.org/viewvc/svn/jeelabs/trunk/jeemon/sketches/rooms/" title="http://code.jeelabs.org/viewvc/svn/jeelabs/trunk/jeemon/sketches/rooms/">http://code.jeelabs.org/viewvc/svn/jeelabs/trunk/jeemon/sketches/rooms/</a></p>
+<p>	&nbsp; static void lowPower (byte mode) {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // prepare to go into power down mode<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set_sleep_mode(mode);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // disable the ADC<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; byte prrSave = PRR, adcsraSave = ADCSRA;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ADCSRA &amp;= ~ bit(ADEN);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PRR |=&nbsp; bit(PRADC);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // zzzzz...<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sleep_mode();<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // re-enable the ADC<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PRR = prrSave;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ADCSRA = adcsraSave;<br />
+	&nbsp; }<br />
+	&nbsp;<br />
+	&nbsp; static byte loseSomeTime (word msecs) {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // only slow down for periods longer than the watchdog granularity<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (msecs &gt;= 16) {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // watchdog needs to be running to regularly wake us from sleep mode<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; watchdogInterrupts(0); // 16ms<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (word ticks = msecs / 16; ticks &gt; 0; --ticks) {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lowPower(SLEEP_MODE_PWR_DOWN); // now completely power down<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // adjust the milli ticks, since we will have missed several<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; extern volatile unsigned long timer0_millis;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timer0_millis += 16;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; watchdogInterrupts(-1); // off<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return 1;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return 0;<br />
+	&nbsp; }<br />
+	&nbsp;<br />
+	&nbsp; // End of new power-saving code.</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1237.html" class="topic-previous" title="Go to previous forum topic">‹ JSON export from emoncms</a>
+              <a href="1490.html" class="topic-next" title="Go to next forum topic">Is there a way of exporting emoncms dashboards ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-7703"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/905.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="robw&#039;s picture" title="robw&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems with other sensors and emoncms. -RFM12Pi-</h3>
+
+    <div class="submitted">Submitted by <a href="../user/905.html" title="View user profile.">robw</a> on Mon, 26/11/2012 - 19:13.</div>
+    <div class="content">
+     <p>OK a bit more info</p>
+<p>Iv got my old emonTX&nbsp;showing up in my results.. &nbsp;So what i hear you ask..</p>
+<p>Well its a 433Mhz version set to 433Mhz and the Pi is running a 868Mhz version set to 868Mhz.</p>
+<p>The EmonTx is reporting fine to the nanode fine so i know its set to 433 and my Glcd is ok at 433 so the pi is set wrong or something strange is happening.. &nbsp; Im not seeing the Glcd Data show up on the pi so WTH? The emonTX is further away than the GLCD.</p>
+<p>The data comming&nbsp;through is ok ish... &nbsp;</p>
+<p>ct1 is OUT.. &nbsp;Way out..&nbsp;-15596.00</p>
+<p>CT2&nbsp;may be ok its showing +1 currently but it is dark and the solar is off / not generating so this may be true / in the error range.</p>
+<p>Ct3 N/A</p>
+<p>Voltage is correct Some of the time other time is reporting rubbish...</p>
+<p>Is there an easy way to check the data?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7704"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/905.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="robw&#039;s picture" title="robw&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems with other sensors and emoncms. -RFM12Pi-</h3>
+
+    <div class="submitted">Submitted by <a href="../user/905.html" title="View user profile.">robw</a> on Mon, 26/11/2012 - 19:46.</div>
+    <div class="content">
+     <p>Ok the 433Mhz setting may of been a weird problem.. setting to 433 and back to 868 in emoncms seems to fixed this..</p>
+<p>Also by setting the correct group eg not 0 for broadcast i can receive data correctly.. as soon as i set it to group 0 i get rubbish.</p>
+<p>Will try to work out why.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7764"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1958.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1958.png" alt="fluppie007&#039;s picture" title="fluppie007&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems with other sensors and emoncms. -RFM12Pi-</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1958.html" title="View user profile.">fluppie007</a> on Wed, 28/11/2012 - 09:27.</div>
+    <div class="content">
+     <p>Shouldn&#39;t all RF frequencies match?? I mean, all your RF modules should be either 433Mhz or 868Mhz. Or am I wrong about this?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7766"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1741.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1741.jpg" alt="ukmoose&#039;s picture" title="ukmoose&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems with other sensors and emoncms. -RFM12Pi-</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1741.html" title="View user profile.">ukmoose</a> on Wed, 28/11/2012 - 09:42.</div>
+    <div class="content">
+     <p>Fluppie007&nbsp;you are correct, all the RF modules should be the same type (either 433 or 868MHz) whilst you can set them to the alternate frequency, the module is not optimised&nbsp;for it and the range of a signal can be less than a metre.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7784"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems with other sensors and emoncms. -RFM12Pi-</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 28/11/2012 - 15:34.</div>
+    <div class="content">
+     <p>For what it&#39;s worth, I tried an 868 MHz module at 433 MHz. It worked, but with many errors, over a range of about 15 cm. I didn&#39;t bother trying over a longer range. (Ukmoose: I recognise a quote there!).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7808"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/905.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="robw&#039;s picture" title="robw&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Problems with other sensors and emoncms. -RFM12Pi-</h3>
+
+    <div class="submitted">Submitted by <a href="../user/905.html" title="View user profile.">robw</a> on Thu, 29/11/2012 - 15:09.</div>
+    <div class="content">
+     <p>The Frequencies did Match..</p>
+<p>Iv have an Old Energymonitoring kit 433 version Set to 433. but this was being picked up by the 833 version set to 833 HOW i dont know.. Setting the frequency inside of cms system to 433 saving and setting it back to 833 and saving fixed the old system showing up..</p>
+<p>The second problem setting the group to 0 completely messes up all the data in the feeds section..<br />
+	Im&nbsp;guessing that its appending the Group id and node id to the feed or something but doing this wrong.. So showing rubbish..&nbsp;<br />
+	Setting the Group to a group id of a known sensor allows the sensor to show up with correct values.. &nbsp;Changing it back to 0 shows the same sensor showing rubbish again..</p>
+<p>This is not going to be a problem with normal operation as people will probably leave it on one group.</p>
+<p>Hope this makes sence.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/1452"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-vyIDJ0ui4aCFJSpXx0mJH3DtdmrRUY0SC233zxr1oiU" value="form-vyIDJ0ui4aCFJSpXx0mJH3DtdmrRUY0SC233zxr1oiU"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1452 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:23 GMT -->
+</html>

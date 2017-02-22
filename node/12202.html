@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12202 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:47:55 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Victron Energy protocol integration with emonhub | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Victron Energy protocol integration with emonhub</h3>
+        <span class="submitted">Submitted by <a href="../user/8902.html" title="View user profile.">atilev</a> on Fri, 19/02/2016 - 10:46</span>
+        <div class="content"><p>Hi Folks,</p>
+<p>I recently wanted to add DC monitoring capabilities to my emon, to do this I purchased an off the shelf Victron BMV-700 that does highside&nbsp;DC monitoring and a Isolated USB cable (<a href="https://www.victronenergy.com/battery-monitors/bmv-700" title="https://www.victronenergy.com/battery-monitors/bmv-700">https://www.victronenergy.com/battery-monitors/bmv-700</a>)</p>
+<p>I connected this to my emonpi&nbsp;through the usb port&nbsp;and wrote a quick interfacer that will read from the serial and decode the VEDirect protocol.</p>
+<p>Data coming from the BMV looks like this</p>
+<p>2016-02-19 08:14:15,527 DEBUG &nbsp; &nbsp;BMV &nbsp; &nbsp; &nbsp; &nbsp;14 NEW FRAME : {&#39;FW&#39;: &#39;0307&#39;, &#39;SOC&#39;: &#39;1000&#39;, &#39;Relay&#39;: 0, &#39;PID&#39;: &#39;0x203&#39;, &#39;H10&#39;: &#39;6&#39;, &#39;BMV&#39;: &#39;700&#39;, &#39;TTG&#39;: &#39;-1&#39;, &#39;H12&#39;: &#39;0&#39;, &#39;H18&#39;: &#39;0&#39;, &#39;I&#39;: &#39;0&#39;, &#39;H11&#39;: &#39;0&#39;, &#39;Alarm&#39;: 0, &#39;CE&#39;: &#39;-7&#39;, &#39;H17&#39;: &#39;9&#39;, &#39;P&#39;: &#39;0&#39;, &#39;AR&#39;: &#39;0&#39;, &#39;V&#39;: &#39;25996&#39;, &#39;H8&#39;: &#39;29011&#39;, &#39;H9&#39;: &#39;49382&#39;, &#39;H2&#39;: &#39;-7&#39;, &#39;H3&#39;: &#39;0&#39;, &#39;H1&#39;: &#39;-1633&#39;, &#39;H6&#39;: &#39;-5781&#39;, &#39;H7&#39;: &#39;17453&#39;, &#39;H4&#39;: &#39;0&#39;, &#39;H5&#39;: &#39;0&#39;}</p>
+<p>An explanation of the terms can be found here:</p>
+<p>&#39;com.victronenergy.battery&#39;: {<br />
+&nbsp;&nbsp; &nbsp;&#39;/ProductId&#39;: {&#39;code&#39;: &#39;BM&#39;, &#39;whenToLog&#39;: &#39;configChange&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/FirmwareVersion&#39;: {&#39;code&#39;: &#39;BV&#39;, &#39;whenToLog&#39;: &#39;configChange&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Serial&#39;: {&#39;code&#39;: &#39;BSN&#39;, &#39;whenToLog&#39;: &#39;configChange&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Dc/0/Voltage&#39;: {&#39;code&#39;: &#39;V&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlways&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Dc/1/Voltage&#39;: {&#39;code&#39;: &#39;VS&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlways&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Dc/0/Current&#39;: {&#39;code&#39;: &#39;I&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlways&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Dc/0/Temperature&#39;: {&#39;code&#39;: &#39;BT&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlways&#39;, &#39;precision&#39;: 0},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Dc/0/MidVoltage&#39;: {&#39;code&#39;: &#39;VM&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlways&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Dc/0/MidVoltageDeviation&#39;: {&#39;code&#39;: &#39;VMD&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlways&#39;, &#39;precision&#39;: 1},<br />
+&nbsp;&nbsp; &nbsp;&#39;/ConsumedAmphours&#39;: {&#39;code&#39;: &#39;CE&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlways&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Soc&#39;: {&#39;code&#39;: &#39;SOC&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlways&#39;, &#39;precision&#39;: 1},<br />
+&nbsp;&nbsp; &nbsp;&#39;/TimeToGo&#39;: {&#39;code&#39;: &#39;TTG&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlways&#39;, &#39;precision&#39;: 3},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Alarms/LowVoltage&#39;: {&#39;code&#39;: &#39;AL&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Alarms/HighVoltage&#39;: {&#39;code&#39;: &#39;AH&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Alarms/LowStarterVoltage&#39;: {&#39;code&#39;: &#39;ALS&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Alarms/HighStarterVoltage&#39;: {&#39;code&#39;: &#39;AHS&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Alarms/LowSoc&#39;: {&#39;code&#39;: &#39;ASoc&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Alarms/LowTemperature&#39;: {&#39;code&#39;: &#39;ALT&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Alarms/HighTemperature&#39;: {&#39;code&#39;: &#39;AHT&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Alarms/MidVoltage&#39;: {&#39;code&#39;: &#39;AM&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Alarms/LowFusedVoltage&#39;: {&#39;code&#39;: &#39;ALF&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Alarms/HighFusedVoltage&#39;: {&#39;code&#39;: &#39;AHF&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Alarms/FuseBlown&#39;: {&#39;code&#39;: &#39;AFB&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Alarms/HighInternalTemperature&#39;: {&#39;code&#39;: &#39;AHIT&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/Relay/0/State&#39;: {&#39;code&#39;: &#39;Relay&#39;, &#39;whenToLog&#39;: &#39;onIntervalAlwaysAndOnEvent&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/DeepestDischarge&#39;: {&#39;code&#39;: &#39;H1&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/LastDischarge&#39;: {&#39;code&#39;: &#39;H2&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/AverageDischarge&#39;: {&#39;code&#39;: &#39;H3&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/ChargeCycles&#39;: {&#39;code&#39;: &#39;H4&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/FullDischarges&#39;: {&#39;code&#39;: &#39;H5&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/TotalAhDrawn&#39;: {&#39;code&#39;: &#39;H6&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/MinimumVoltage&#39;: {&#39;code&#39;: &#39;H7&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/MaximumVoltage&#39;: {&#39;code&#39;: &#39;H8&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/TimeSinceLastFullCharge&#39;: {&#39;code&#39;: &#39;H9&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/AutomaticSyncs&#39;: {&#39;code&#39;: &#39;H10&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/LowVoltageAlarms&#39;: {&#39;code&#39;: &#39;H11&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/HighVoltageAlarms&#39;: {&#39;code&#39;: &#39;H12&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/LowStarterVoltageAlarms&#39;: {&#39;code&#39;: &#39;H13&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/HighStarterVoltageAlarms&#39;: {&#39;code&#39;: &#39;H14&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/MinimumStarterVoltage&#39;: {&#39;code&#39;: &#39;H15&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/MaximumStarterVoltage&#39;: {&#39;code&#39;: &#39;H16&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/LowFusedVoltageAlarms&#39;: {&#39;code&#39;: &#39;H17&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/HighFusedVoltageAlarms&#39;: {&#39;code&#39;: &#39;H18&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/MinimumFusedVoltage&#39;: {&#39;code&#39;: &#39;H19&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/MaximumFusedVoltage&#39;: {&#39;code&#39;: &#39;H20&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/DischargedEnergy&#39;: {&#39;code&#39;: &#39;H21&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2},<br />
+&nbsp;&nbsp; &nbsp;&#39;/History/ChargedEnergy&#39;: {&#39;code&#39;: &#39;H22&#39;, &#39;whenToLog&#39;: &#39;onIntervalOnlyWhenChanged&#39;, &#39;precision&#39;: 2}</p>
+<p>You can simply add the following configuration in the emonhub.conf and the following node porfile</p>
+<p>
+[[BMV]]<br />
+&nbsp; &nbsp; Type = EmonHubVEDirectInterfacer<br />
+&nbsp; &nbsp; [[[init_settings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; com_port = /dev/ttyUSB0<br />
+&nbsp; &nbsp; &nbsp; &nbsp; com_baud = 19200<br />
+&nbsp; &nbsp; &nbsp; &nbsp; toextract = SOC,CE,TTG,V,I,Relay,Alarm #which vales to extract from data packet not all are needed<br />
+&nbsp; &nbsp; [[[runtimesettings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; nodeoffset = 9 #make sure this matches with nodename below<br />
+&nbsp; &nbsp; &nbsp; &nbsp; pubchannels = ToEmonCMS,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; subchannels = ToSerial,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; basetopic = emonhub/</p>
+<p>and add a node that looks like</p>
+<p>[[9]]<br />
+&nbsp; &nbsp; nodename = emonDC<br />
+&nbsp; &nbsp; firmware =V1_6_emonTxV3_4_DiscreteSampling<br />
+&nbsp; &nbsp; hardware = emonTx_(NodeID_DIP_Switch1:ON)<br />
+&nbsp; &nbsp; [[[rx]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp;names = SOC,CE,TTG,V,I,Relay,Alarm<br />
+&nbsp; &nbsp; &nbsp; &nbsp;datacode = 0<br />
+&nbsp; &nbsp; &nbsp; &nbsp;scales = 0.1,1,1,1,0.001,1,1<br />
+&nbsp; &nbsp; &nbsp; &nbsp;units =%,Ah,s,V,A,S,S &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #FirmwareV1.6</p>
+<p>&nbsp;</p>
+<p>I&#39;d be happy to push this code into the next build of emonhub as it&#39;s a modular addition and &nbsp;I know a lot of people want an easy DC monitoring solution as they use Batteries with their systems.</p>
+<p>All the best,</p>
+<p>Alp</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12282.html" class="topic-previous" title="Go to previous forum topic">‹ Second MyElectric dashboard</a>
+              <a href="11353.html" class="topic-next" title="Go to next forum topic">Emonhub and MQTT ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-39644"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Victron Energy protocol integration with emonhub</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 22/02/2016 - 15:56.</div>
+    <div class="content">
+     <p>Hello Alp, nice work!</p>
+<p>Yes if youd like to send a pull request through to the emonhub repository here, I&#39;d be happy to include <a href="http://github.com/openenergymonitor/emonhub" title="http://github.com/openenergymonitor/emonhub">http://github.com/openenergymonitor/emonhub</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40051"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8902.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="atilev&#039;s picture" title="atilev&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Victron Energy protocol integration with emonhub</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8902.html" title="View user profile.">atilev</a> on Wed, 02/03/2016 - 16:05.</div>
+    <div class="content">
+     <p>Sent a PR : )</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/12202"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-AywadpCrQHZRFsxrcYKB51J3RPdfitfyUlR1kfEVN9Y" value="form-AywadpCrQHZRFsxrcYKB51J3RPdfitfyUlR1kfEVN9Y"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12202 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:47:55 GMT -->
+</html>

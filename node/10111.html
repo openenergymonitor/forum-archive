@@ -1,0 +1,600 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10111 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:09:19 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Noise in Arduino based builds. | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Noise in Arduino based builds.</h3>
+        <span class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Mon, 02/02/2015 - 09:19</span>
+        <div class="content"><p>There have been a few threads of late discussing noisy signals, especially on Arduino based home-built OEM meters. &nbsp; It often shows up as larger than expected Irms&nbsp;signals when measuring very small primary loads. &nbsp;I built up the standard mid-rail used by most OEMers.... 470K dividers, 10uF (I used tantulum) cap all on a big noisy breadboard with long noisy leads. &nbsp;I&nbsp;then ran the attached sketch to measure nothing other than the mid-rail.... no CTs in sight. &nbsp;In a perfect world, with perfect resistors and no noise, you&#39;d expect a constant value of 511/512.</p>
+<p>I ran it all on an EtherMega;&nbsp;using ethernet to broadcast the results means the board is totally isolated apart from its power feed (transformer-isolated&nbsp;ethernet is as close to RF as I could get). &nbsp;The other advantage of the EtherMega is it gives me precise control over the power source via jumpers. &nbsp;I then set about running the sketch using various power sources. &nbsp;In all cases, the power supplies&nbsp;were&nbsp;a long way away from the board.</p>
+<p>If I power it all via DC-in jack, letting the onboard regulator provide the 5V Vcc rail, the sketch spits out:</p>
+<p>Min: 518, Max: 519, Diff: 1</p>
+<p>I get the same result if I power the Vcc rail directly from a 5V isolated lab supply. &nbsp; Then I grabbed a spare 5V USB wall-wart and powered from that and I get:</p>
+<p>Min: 516, Max: 522, Diff: 6</p>
+<p>Enabling INSPECT_SIGNAL in the sketch let me capture 1000 samples and plot them in a spreadsheet, which produced:</p>
+<p><img alt="" src="../sites/default/files/usb_signal_inspect.png" style="height:351px; width:700px" /></p>
+<p>The sketch reads 2 analog pins each time around to somewhat mimic a real OEM meter, so the 1000 samples take roughly 110 * 2 * 1000 usecs, or 220 msecs. &nbsp;And there&#39;s pretty close to exactly 11 cycles in there, so it looks like I&#39;m getting a 50 Hz 3 A/D units (~15 mV) peak-to-peak ripple right through the readings.</p>
+<p>I can&#39;t see it on my scope (isolated and battery powered) attached to A1 so it may be getting in via AREF or AVCC, but&nbsp;all the traces look much noisier when it&#39;s powered by 5V USB than via the DC-in jack. &nbsp; One poster recently confirmed he got rid of his low-level noise by changing how he powered his Arduino (from 5V to DC-IN) so I suspect it should be the first (and easiest) thing&nbsp;to try. &nbsp;Of course, whether it works may well depend on how the regulator used in your particular Arduino design compares with your 5V USB wall-wart. &nbsp;I think a lot of those 5V USB wall-warts are designed for charging batteries, so a bit of ripple doesn&#39;t matter as much as when you&#39;re feeding it straight onto your Vcc rail.</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11968.html" class="topic-previous" title="Go to previous forum topic">‹ AC measurement </a>
+              <a href="11956.html" class="topic-next" title="Go to next forum topic">Attaching CT&#039;s and emonGLCD ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-27307"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 02/02/2015 - 11:49.</div>
+    <div class="content">
+     <p><i>"so it may be getting in via AREF or AVCC,"</i><br />
+That's been my gut feeling for a long time.  It's also worth dusting off Trystan's post from a long time ago:  <a href="http://openenergymonitor.blogspot.co.uk/2011/08/not-all-usb-power-supplies-are-created.html">"Not all USB power adapters are created the same - highlighting importance of selecting good quality power adapters"</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27330"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Tue, 03/02/2015 - 02:34.</div>
+    <div class="content">
+     <p>Yes, this one I&#39;m experimenting with has some nasty ripple at 50Hz (and again at 150Hz) that shows up quite clearly on Vcc, AVcc, and AREF. &nbsp; It doesn&#39;t show up with the scope&nbsp;on the mid-rail because it&#39;s designed to shunt 50 Hz stuff to GND. &nbsp;Hence it does show up in the sketch... the signal it&#39;s measuring is stable (albeit&nbsp;noisy), but the reference it&#39;s using to measure it is jumping around every mains cycle.</p>
+<p><img alt="" src="../sites/default/files/aref_usb.gif" style="height:525px; width:700px" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27351"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 03/02/2015 - 13:28.</div>
+    <div class="content">
+     <blockquote><p>I think a lot of those 5V USB wall-warts are designed for charging batteries, so a bit of ripple doesn&#39;t matter as much as when you&#39;re feeding it straight onto your Vcc rail.</p>
+</blockquote>
+<p>Even for supplying Vcc to &#39;normal&#39; 5V circuitry the ripple (and poor stability in general) will not be a problem, but these units are certainly not made to be used as a reference source for high-resolution AD conversions. I would always use a good linear regulator for this. But this is not a real surprise, or is it?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27362"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 03/02/2015 - 16:34.</div>
+    <div class="content">
+     <p><i>"But this is not a real surprise, or is it?"</i></p>
+<p>J&ouml;rg, to those of us who haven't played this game before, probably YES!</p>
+<p>I'd suggest that possibly, the real reason is the designers of the Arduino and/or its clones have neglected the analogue performance, and that will be because it is perceived as a minority interest, or on cost grounds.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27372"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Tue, 03/02/2015 - 18:24.</div>
+    <div class="content">
+     <p>Ah ok, looking at the typical schematic of an Arduino (UNO), I understand what you mean. It is possible to power these units directly from the USB port. And then Vcc and AVcc is connected to the USB voltage via a diode or MOSFET. So at least when powered from the PC during development the problem of unstable voltage supply will be there.</p>
+<p>Sorry for my hasty comment, but I never thought that you would use the USB connector for powering the Arduino in its final application. There is always the separate power supply jack with a linear regulator behind it which would be a much better choice (but then it is not possible to use one of the super-cheap 5V USB wall warts..... everything comes at a price!)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27378"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Tue, 03/02/2015 - 20:19.</div>
+    <div class="content">
+     <p>Actually, I&#39;m with&nbsp;J&ouml;rg on this one. &nbsp;I&#39;ve got a box full of various cheap-n-nasty Arduinos here,&nbsp;and I can&#39;t find a single one that doesn&#39;t have brilliant low level AtoD performance.&nbsp;&nbsp;Provided the end-user and the board designer&nbsp;follow a few basic rules it&#39;s really pretty easy to get right.&nbsp;&nbsp; The end-user needs to provide a nice low impedance source to measure, and a clean Vcc. &nbsp;The board designer needs to keep their Vcc and GND planes as low impedance as possible.</p>
+<p>I suspect the main reason why people report more noise on Arduino based builds is that they have more options on how to power them, and make poor choices. &nbsp;I&#39;ll bet good money that if you were to marry the USB wall-wart above with an emonTx, it would impact it exactly the same as it does any Arduino.</p>
+<p>Clearly breadboard and jumper wires are noisier than veriboard, which is noisier than a shield, which is noisier than soldering components onto a two layer board, which is noisier than soldering components onto a four layer board with dedicated Vcc and GND planes. &nbsp;But wherever you live in that build spectrum, you can get surprisingly good results if you take just a little bit of care.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27393"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 03/02/2015 - 23:15.</div>
+    <div class="content">
+     <p>By "Yes, you should be surprised", I meant that there must be many to whom a power supply is a power supply. End of story. They would not appreciate the difference between a switcher and linear - unless maybe they've read that linear are lossy and waste energy and therefore switchers must clearly be "better".</p>
+<p>As you say, it's not hard to get right, or close, if you know what you're doing and follow the basic rules, but many don't know - and we really shouldn't expect them to know - what those rules are. But we have to recognise that we're special in demanding the absolute maximum performance out of the analogue side. That's no reason to take away the flexibility that different power sources offer for the sake of a feature (the analogue inputs) that a good proportion of users probably will never want.</p>
+<p>Maybe one day someone should write up a fully engineered Arduino-based monitor project, mentioning all these things, because a lot of people appear to take the "demo" breadboard design illustrations as the start and the end of their design and are then disappointed with the performance.<br />
+[Acknowledging here Robin's early diverters, in which I think he's always used a linear supply regulator.]</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27402"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Wed, 04/02/2015 - 07:26.</div>
+    <div class="content">
+     <p><em>&nbsp;I meant that there must be many to whom a power supply is a power supply. End of story.</em></p>
+<p>Yes, and it&#39;s for those people that I posted this thread. &nbsp;When someone does prefer to build their own monitor using an Arduino, and experiences noise problems, we can point them at this thread as a starter, rather than just tell them to give up and buy an emonTx.</p>
+<p><em>They would not appreciate the difference between a switcher and linear&nbsp;</em></p>
+<p>I don&#39;t think we should write off all SMPS. &nbsp;You can certainly build a clean, extremely low ripple SMPS, but you&#39;re unlikely to find it in cheap USB wall-wart. &nbsp;But for the purpose of this discussion, I agree, it&#39;s far simpler&nbsp;to just tell them to use the DC-in jack. &nbsp;Most will be unequipped to investigate the suitability of a 5V SMPS.</p>
+<p>I assume the hobbyists that want to build these monitors with an Arduino are doing so partly for the learning experience, and learning about noise and power supply options are part of that learning experience. &nbsp;I for one am happy to help them where I can, rather than just redirect them to the shop. &nbsp;Even if that help is no more sophisticated than &quot;Use the DC-in jack, and lower the mid-rail divider Rs&quot;. &nbsp;Hopefully Gerardo will be able to report back how well that works &nbsp;(<a href="10097.html" title="http://openenergymonitor.org/emon/node/10097">http://openenergymonitor.org/emon/node/10097</a>). &nbsp;His Leonardo has great potential, as it even includes the Atmel recommended LC network on AVCC. &nbsp;I haven&#39;t looked at the latest OEM schematics, but I think I first pointed out that was missing over a year ago.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27405"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Wed, 04/02/2015 - 08:29.</div>
+    <div class="content">
+     <blockquote><p>Yes, and it&#39;s for those people that I posted this thread.</p>
+</blockquote>
+<p>Very good idea!</p>
+<p>I was not aware of the fact that many people will use the USB as main power supply and others might no be aware of the possible problems arising from this. So this thread was very helpful to sort this out!</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27448"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Fri, 06/02/2015 - 13:48.</div>
+    <div class="content">
+     <p>Here are some pictures of the Atmel recommended LC network doing its stuff on AVcc. &nbsp;The red trace is the Vcc rail being driven directly by a SMPS (albeit one with much lower ripple than the USB wall-wart above). &nbsp;The yellow trace is AVcc. &nbsp;</p>
+<p>PtoP ripple has dropped from 65.6mV to 36mV and RMS ripple has dropped from 4.3mV to 1.8mV, and the duration of those disturbances are way way shorter. &nbsp;AVcc is the voltage it&#39;s going to be using as a reference while it&#39;s trying to measure your voltage, and without that filter, you&#39;ll be using the red.</p>
+<p><img alt="" src="../sites/default/files/rc_vcc_avcc.gif" style="height:525px; width:700px" /></p>
+<p>You can see in the FFTs it&#39;s really given the higher frequency stuff a haircut:</p>
+<p><img alt="" src="../sites/default/files/rc_vcc_fft.gif" style="height:525px; width:700px" /></p>
+<p><img alt="" src="../sites/default/files/rc_avcc_fft.gif" style="height:525px; width:700px" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27460"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Fri, 06/02/2015 - 22:23.</div>
+    <div class="content">
+     <p><em>[Acknowledging here Robin&#39;s early diverters, in which I think he&#39;s always used a linear supply regulator.]</em></p>
+<p>Indeed, he wouldn&#39;t know how to build a power supply in any other way!</p>
+<p>Sometimes, the amount of background power that I see is nil; at other times, it can be up to a Watt.&nbsp; It all seems to depend on where the quiescent level of the current sensor is sitting within the ADC&#39;s range.&nbsp; Maybe there can be an element of noise on the PSU too.&nbsp;</p>
+<p>Unlike the emonTx, my own PCBs don&#39;t have any connection to the power that appears via the programming lead.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27461"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Sat, 07/02/2015 - 00:14.</div>
+    <div class="content">
+     <p>Actually, Power is a bit easier to get right. &nbsp;If the noise isn&#39;t correlated to V (unlike that USB wall-wart noise above)&nbsp;then it won&#39;t show up in Power. &nbsp;Irms is a better test of how noise-free your input stage is. &nbsp;</p>
+<p>Of all my circuits, I think&nbsp;the only two that are truly open circuit when they&#39;re not being used are the Hot Water and Hot Plates. &nbsp;The &nbsp;Pool, Lights and Oven all have some small background electronics running. &nbsp;I&#39;ve not been able to get the open-circuit ones below 6mA (just 100uV at the CT terminals), and that does seem to be coming in from the CTs themselves. &nbsp;Clamping all 9 circuits in a confined space means the CTs can&#39;t help but be fairly close to other conductors, so I supsect there&#39;s some pick-up there.</p>
+<p><img alt="" src="../sites/default/files/circuits.png" style="height:453px; width:600px" /></p>
+<p>And remember, even if your power supply delivers a perfect DC Vcc to your board, all that gate switching is going to introduce noise to the Vcc rail. &nbsp;The lower the source impedance of your Vcc, and the lower the impedance of your Vcc and GND planes, the less likely you are to benefit from various hardware filters to keep that stuff out of the critical analog circuitry.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27491"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Sat, 07/02/2015 - 18:07.</div>
+    <div class="content">
+     <p>I&#39;ve been doing some tests with a regular arduino on my bench. I use an ethernet shield and tought it could generate noise.</p>
+<p>So i measure working conditions with CT connected but no voltage passing on cable, in some schenarios.</p>
+<p>1 - Powered only from PC USB i get up to 7W noise on no power. ADC jumps all arround.</p>
+<p>2 - Tested without ethernet shield, no difference.</p>
+<p>3 - Powered with a smps power supply 9V on VIN, it does reduce noise a bit but still some values read 509, 514.</p>
+<p>4 - Powered with a cheap unregulated ferromagnetic transformer 9VDC, still ethernet and USB connected and i get a constant 511 value.</p>
+<p>Noise comes from the power supply!</p>
+<p>&nbsp;</p>
+<p>Arduino program used to test raw adc values:</p>
+<pre>
+int sensorValue = 0;        // value read from the pot
+void setup() {
+  Serial.begin(9600);
+}
+void loop() {
+  int x;
+  for (x=1; x&lt;4 ; x++ ) {
+    // read the analog in value:
+    sensorValue = analogRead(x);            
+ 
+    // print the results to the serial monitor:
+    Serial.print(&quot;\tADC&quot; );
+    Serial.print(x);
+    Serial.print(&quot; sensor = &quot; );                       
+    Serial.print(sensorValue);      
+    delay(1);                     
+  }
+  Serial.println();
+}</pre>         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27501"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Sat, 07/02/2015 - 21:41.</div>
+    <div class="content">
+     <p>It would be interesting if you could repeat step 3 but with nothing connected to the USB (you can use snippets out of my sketch above to transmit your results over ethernet rather than USB).</p>
+<p>It sounds like you could be getting some ground currents from your SMPS, through your Arduino, out the USB port into your PC to earth. &nbsp; If you take a typical regulated SMPS, plug it into an outlet in your kitchen, set your multimeter to AC Volts and then measure between either output of the SMPS (-ve or +ve) and your earthed&nbsp;kitchen sink, you&#39;ll see about 90VAC. &nbsp;There&#39;s only uA of current behind it, so it&#39;s not as scarey as it sounds.</p>
+<p>If your Arduino is being powered by such a SMPS, your entire Arduino will be sitting at 90VAC. &nbsp;Once you connect your Arduino to your PC via USB, you&#39;re grounding it, and giving that AC a path to earth.</p>
+<p>P.S. &nbsp;The other thing you can do is fetch the readings you&#39;re getting and plot them in a spreadsheet, assuming your Arduino has enough RAM (again feel free to use snippets from the sketch above). &nbsp;Your Arduino&nbsp;is a pretty sensitive, albeit low-bandwidth, oscilloscope. &nbsp;A good starting point for determining the source of noise is seeing what it looks like.</p>
+<p>P.P.S &nbsp;Do you have a schematic for your particular Arduino? &nbsp;You really need to look at how it behaves when you offer it two simultaneous&nbsp;power supplies (DC-in and USB). &nbsp; Power is one area where Arduinos vary a lot from model to model.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27502"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Sat, 07/02/2015 - 23:32.</div>
+    <div class="content">
+     <p>After long term test with the iron core transformer i do get some noise. not much, &lt;0.1W noise average that occurs ocasional. I can live with that.</p>
+<p>dBC what are your noise figures with no load?</p>
+<p>Arduino is a duemilanove: <a href="http://arduino.cc/en/uploads/Main/arduino-duemilanove-schematic.pdf" title="http://arduino.cc/en/uploads/Main/arduino-duemilanove-schematic.pdf">http://arduino.cc/en/uploads/Main/arduino-duemilanove-schematic.pdf</a></p>
+<p>Long term log of W with no load connected, line is powered and using same arduino, posting by ethernet, still attached to usb and powered by cheap iron core transformer.<br />
+Noise could come from the CT picking up high frequency noise on the line, see the strange change at 19:28-19:40.</p>
+<p>Edit: Confirmed, comes from CT.</p>
+<p>Edit: This is VA, not Watt. Its measured current * 220V (fixed constant). Can get current dividing by 220. So the spike of 0.5W / 220 = 2.27mA measured.</p>
+<p><img alt="" src="../sites/default/files/noise.png" style="height:335px; width:573px" /></p>
+<p>I will do other test with line off.</p>
+<p>Edit: Done. One hour test, same conditions, but this time CT is not plugged on arduino. No noise this time.</p>
+<p><img alt="" src="../sites/default/files/noise-ctoff.png" style="height:331px; width:560px" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27503"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Sun, 08/02/2015 - 01:59.</div>
+    <div class="content">
+     <p><em>dBC what are your noise figures with no load?</em></p>
+<p>It depends on the stimulus:</p>
+<p>No CT connected: 0W (real), 4.4mA</p>
+<p>CT (lab) connected, CT clamped around a zero-current carrying lead: 0W (real), 3.91mA</p>
+<p>CT (fusebox) connected, CT clamped around a zero-current carrying lead: 1.2W (real), 7.92mA</p>
+<p>That last one varies quite a bit depending on what all the other nearby circuits are doing, and is coming in via the CT. &nbsp;The fact that it shows up as Real Power tells me it&#39;s not random noise, but rather is sync&#39;d up with V. &nbsp;</p>
+<p>I find it helpful to distinguish between &quot;monitor noise&quot;, i.e. what does my monitor report when the inputs are missing (or shorted) and &quot;sensor noise&quot;, i.e. by how much does it increase&nbsp;when I connect the CT. &nbsp;In my case my monitor noise is quite low, my sensor noise is quite low in the lab, but relatively&nbsp;high in the fusebox jammed in beside all those other current carrying conductors. &nbsp;By distinguishing like that, you can focus your efforts in the right location. &nbsp;My 9 CTs are all very close together, and their leads (unshielded twisted pairs) are all jammed into a conduit together, and run 2.2m to my monitor, so there&#39;s opportunity for pick-up there too.</p>
+<p>
+<em>Arduino is a duemilanove: http://arduino.cc/en/uploads/Main/arduino-duemilanove-schematic.pdf</em></p>
+<p>It looks like they&#39;ve attempted (somewhat unsuccessfully) to auto-select who drives the Vcc rail by the presence of any voltage on the DC-in jack. &nbsp;There&#39;s an interesting thread on that design here:&nbsp;<a href="http://forum.pololu.com/viewtopic.php?f=3&amp;t=3083">http://forum.pololu.com/viewtopic.php?f=3&amp;t=3083</a>&nbsp;that you should probably experiment with. &nbsp;See if yours too spits 5V back out the USB while being powered by DC-IN. &nbsp; You can see why, when working at this level, you really need to consider every Arduino model as unique... they all like to do power differently. &nbsp;I tend to look out for Arduinos&nbsp;that use physical jumpers for power-selection, then I know exactly how I&#39;m powering the board.</p>
+<p>&nbsp;</p>
+<p><em>Noise could come from the CT picking up high frequency noise on the line</em></p>
+<p>Or even 50Hz noise on the line (and nearby lines), which is what&#39;s happening on mine. &nbsp;</p>
+<p><strong>[EDIT]&nbsp;</strong>If for some reason you believe yours is high frequency noise, then you may be able to combat that with a hardware filter on your inputs. &nbsp;Because my cross-talk arrives at the CT screw terminals looking exactly like a genuine low-level signal, it&#39;s impossible to do much about it at the monitor end without taking out the ability to pick up real low-level signals. &nbsp;For channels that I know&nbsp;will only have big loads on them (hot water and hot plates) I&#39;ve just added an anti-creep feature in software.... &quot;if(real_power &lt; 5W) real_power = 0&quot;. &nbsp;To do better than that would&nbsp;require me to get back there and try to move CTs around, or change how I run their leads, neither of&nbsp;which I&#39;m particularly&nbsp;enthused about.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27505"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Sun, 08/02/2015 - 02:23.</div>
+    <div class="content">
+     <p>Yeap, it&#39;s quite expected to have some noise in your conditions. But still acceptable.<br />
+I remember reading some appnote that below a small threshold (few watts) some digital company meters don&#39;t increment.</p>
+<p>I always used shielded audio cable on my CT&#39;s so it must be a litle better.</p>
+<p>New test: same conditions but CT on the air with no wire passing through.<br />
+Can induce noise by passing metalic objects near by or cell phone, but most of the time it measures zero with one rare sporadic small spike here and there &gt;20 minutes appart.</p>
+<p>Repeated the same test as before, line connected, no load. Difference is time of test, late night 1 o&#39;clock. it still had noise but much spread in time. My conclusion is that it&#39;s something picked up from noisy lines. Maybe even RF picked up by the electric wire is being detected.</p>
+<p><img alt="" src="../sites/default/files/noise%20night.png" style="height:304px; width:524px" /><br />
+&nbsp;</p>
+<p>So to conclude, excluding pcb design (that is not the case o arduino diecimila), major sources of noise can be :</p>
+<p>1 - Power supply<br />
+2 - Picked up by connecting wiring<br />
+3 - Picked up by CT itself from line noise</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27506"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Sun, 08/02/2015 - 07:46.</div>
+    <div class="content">
+     <p>Yeh, in my case I think it&#39;s just a natural hazard of doing per-circuit&nbsp;monitoring. &nbsp; If you&#39;re doing whole-house monitoring, you&#39;re never likely to be clamped around zero anyway (except in a much more controlled&nbsp;lab environment, where I do read 0W). With per-breaker&nbsp;monitoring, zero currents are&nbsp;more common&nbsp;and that CT is likely to be quite close to a conductor/CT that is conducting/measuring high currents on an adjacent circuit.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30311"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8012.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="bruce_miranda&#039;s picture" title="bruce_miranda&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8012.html" title="View user profile.">bruce_miranda</a> on Wed, 13/05/2015 - 19:30.</div>
+    <div class="content">
+     <p>Currently I am powering the emonTX via the USB port on the board, but via a wall plug and not a PC USB port. Given that the USB port on board the emonTX goes through the regulator does that mean I have the least noise in the system?</p>
+<p>Will the emonTX benefit from being powered by one of those ultra-low noise psu? How will the onboard regulator affect an already ultra-low noise input?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30315"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Wed, 13/05/2015 - 20:49.</div>
+    <div class="content">
+     <p>I would imagine the on-board regulator would clean up any ripple from your wall-wart. &nbsp;Most of the discussion above was comparing using an Arduino&#39;s DC-in jack (good) &nbsp;Vs using the USB (bad) &nbsp;but the real reason the former is good is because it uses the on-board regulator while the latter jams the often ripply&nbsp;USB&#39;s 5V signal straight onto the Vcc rail (on most Arduinos). &nbsp; If you&#39;ve got an on-board regulator after your USB 5V input, then it too becomes a good&nbsp;option. &nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30345"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8169.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="cab123&#039;s picture" title="cab123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8169.html" title="View user profile.">cab123</a> on Thu, 14/05/2015 - 11:58.</div>
+    <div class="content">
+     <p>Hi, i registered on this forum to get some help but found this thread that is exaclty&nbsp;what i am looking for! Thank you all for the detailed explanation.</p>
+<p>&nbsp;</p>
+<p>I&#39;m struggling to get the least noise on my custom build emonTX and am at a point where i need your help:</p>
+<p>&nbsp;</p>
+<p>Thuis is my build:</p>
+<p>Arduino&nbsp;MEGA 1280</p>
+<p>1x Voltage sensor (ADC 0)</p>
+<p>8X CT Analog channels (ADC 1-8)</p>
+<p>Burden resistor of the CT&nbsp;at 68 OHM to increase resolution at 0-50AMP</p>
+<p>​Calibration values on the sketch calculated accordingly (not yet measured to elimenate tolerances)</p>
+<p>Ethernet with ENC28J60</p>
+<p>​The SW code is the basic one with discrete sampling and posting direcly to emoncms.</p>
+<p><a href="../../../lh3.googleusercontent.com/-rPPv-os7Mu4/VVSCwjtiriI/AAAAAAAACxA/zV_1yla1S1g/s640/EmonTX_AP.jpg"><img alt="" src="../../../lh3.googleusercontent.com/-rPPv-os7Mu4/VVSCwjtiriI/AAAAAAAACxA/zV_1yla1S1g/s640/EmonTX_AP.jpg" style="width: 640px; height: 478px;" /></a></p>
+<p>&nbsp;</p>
+<p>So to keep history short this is what i did and where i&nbsp;am, regarding supplying power to my custom emonTX:</p>
+<p><a href="../../../lh3.googleusercontent.com/-F8FOnI9zj2s/VVSCwob36WI/AAAAAAAACw8/ZTeQUOtunG8/s912/ArduinoPSU_test.jpg"><img alt="" src="../../../lh3.googleusercontent.com/-F8FOnI9zj2s/VVSCwob36WI/AAAAAAAACw8/ZTeQUOtunG8/s912/ArduinoPSU_test.jpg" style="width: 912px; height: 271px;" /></a></p>
+<p><span style="line-height: 18.9090900421143px;">From the three tests i can confirm that USB is no good ( should have searched this&nbsp;</span><span style="line-height: 18.9090900421143px;">thread</span><span style="line-height: 18.9090900421143px;">&nbsp;earlier, though!)</span></p>
+<p>The channel above is not connected to any CT. Im am very close to ZERO Watt reading and would be happy if all the power readings were positive.&nbsp;Why do i have&nbsp;negative power readings and how can i eliminate them?&nbsp;</p>
+<p>&nbsp;</p>
+<p>BR</p>
+<p>cab123</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30371"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 14/05/2015 - 21:56.</div>
+    <div class="content">
+     <p>I&#39;m only just able to read the y-axis scale on the zoomed in look at your 3rd and least noisy solution, but it looks like it&#39;s about 0.02W per division? &nbsp;If that&#39;s true, then I think you can congratulate yourself on a noise-free build and move on. &nbsp;That&#39;s about as good as I&#39;ve seen anywhere.</p>
+<p>Why would you expect the noise to only produce positive power readings? &nbsp;It looks like your noise is genuine white noise with no particular correlation to your V &nbsp;sine wave which is one reason the readings are so small. &nbsp;The tiny part of the broad-spectrum noise that is at 50Hz is as much in-phase with V as it is out of phase with V, hence it swings either side of 0, and gives you an excellent average of 0.</p>
+<p>Unless I&#39;m mis-reading your graphic, I think your system is working brilliantly.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30380"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8169.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="cab123&#039;s picture" title="cab123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8169.html" title="View user profile.">cab123</a> on Fri, 15/05/2015 - 09:20.</div>
+    <div class="content">
+     <p>Hi dBC, sorry for the poor quality image, it&#39;s 0,025W/div. As you explain it i sounds absolutely fine, somehow i thought i was making some silly mistake. Thank you for that!&nbsp;I notice that powering the system through the DC input the board gets hotter than USB because of the on-board voltage regulators. The minimum DC in that produces a stable 5V on the arduino pins is about 7,5V. Anything higher than that just makes the regulators work harder and generate more heat.</p>
+<p>I have been reading this and other threads with more attention and i guess that it would be just fine if i could set a threshold on the code to get rid of the noise and the negative readings of &quot;-0 Watt&quot;. Something around -1W and 1W would be defaulted to 0.</p>
+<p>I think it would be a nice addon to the code to be able to set a noise&nbsp;threshold per CT.</p>
+<p>&nbsp;</p>
+<p>BR</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38041"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="ramunsa&#039;s picture" title="ramunsa&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9255.html" title="View user profile.">ramunsa</a> on Fri, 08/01/2016 - 20:21.</div>
+    <div class="content">
+     <p>What option to log data you used in emoncms&nbsp;to gather this graph and what data you were feeding from you rig (amps or watts)?</p>
+<p>please advise,</p>
+<p>Ramunas</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38059"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8169.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="cab123&#039;s picture" title="cab123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Noise in Arduino based builds.</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8169.html" title="View user profile.">cab123</a> on Sat, 09/01/2016 - 10:34.</div>
+    <div class="content">
+     <p>Hi!</p>
+<p>&nbsp;</p>
+<p>the emoncms graphics were&nbsp;created from the simplest form, a modified emontx is reporting power samples periodically&nbsp;and emoncms&nbsp;is&nbsp;logging the feed data that receives.</p>
+<p>hope it helps</p>
+<p>&nbsp;</p>
+<p>br</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10111"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-TwK3pb8ef8ftk9PlXsK4JZBjNVLOWvObcV3JHVyjYL0" value="form-TwK3pb8ef8ftk9PlXsK4JZBjNVLOWvObcV3JHVyjYL0"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10111 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:10:08 GMT -->
+</html>

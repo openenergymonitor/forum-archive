@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# install ntp-backup
+git clone https://github.com/emonhub/ntp-backup.git ~/ntp-backup && ~/ntp-backup/install
+
+# change the "default conf" location back to "standard location"
+sudo sh -c 'if grep -q "EMONHUB_CONFIG=/boot/emonhub.conf" /home/pi/emonhub/conf/default/emonhub; then sed -i /home/pi/emonhub/conf/default/emonhub -e "s|boot|etc/emonhub|"; fi'
+
+# remove the original symlink to "cloned conf" in homedir
+sudo rm /etc/emonhub/emonhub.conf
+
+# symlink the "standard conf location" to the boot partition
+sudo ln -s /boot/emonhub.conf /etc/emonhub/emonhub.conf
+
+# remove the unused cloned conf
+sudo rm /home/pi/emonhub/conf/emonhub.conf
+
+# disable the raspi-config auto run (so it doesn't start while in RO mode)
+sudo rm /etc/profile.d/raspi-config.sh
+
+# install the emonhub utilities script
+wget http://openenergymonitor.org/emon/sites/default/files/emonhub_utilities.txt -O ~/hub_utils.sh
+chmod +x ~/hub_utils.sh && ~/hub_utils.sh
+
+# self-destruct
+rm -- "$0"
+
+
+
+
+
+
+

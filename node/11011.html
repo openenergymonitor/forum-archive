@@ -1,0 +1,359 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11011 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:04:13 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>48V DC Energy Monitoring for Off Grid Applications | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">48V DC Energy Monitoring for Off Grid Applications</h3>
+        <span class="submitted">Submitted by <a href="../user/8349.html" title="View user profile.">SolarMill</a> on Mon, 20/07/2015 - 19:47</span>
+        <div class="content"><p>&nbsp;</p>
+<p>Since most of the OpenEnergyMonitor ecosystem is geared towards grid-tied AC systems, we&rsquo;ve spent the past few weeks working on new functionality that will allow us to monitor and log the power and energy readings from our off-grid setup.&nbsp; There&rsquo;s been several posts about <a href="http://www.microcogen.info/index.php?topic=401.0;wap2">this topic</a> and we&rsquo;ve used that knowledge to help point us in the right direction.&nbsp; Ultimately, we ended up designing a custom PCB for the voltage monitor and sent the files off to OSH Park to have them printed.&nbsp; We&rsquo;re selling off the extras for anyone that&rsquo;s interested. &nbsp;</p>
+<p>The major differences between this and the standard Emon setup:</p>
+<ul>
+<li>Current must be measured by either shunt resistors (invasive) or hall effect sensors.&nbsp; CT clamps will not work with DC.</li>
+<li>The battery bank voltage needs to be stepped down for input into the Arduino.</li>
+</ul>
+<p>So far we&rsquo;ve spent the majority of our effort working on the voltage monitoring portion.</p>
+<p><strong>Our Existing System and Needs</strong></p>
+<p>We run a woodshop on solar power, but some parts of the shop (lighting, mini fridge, office computer) are still on the grid.&nbsp; We are using the standard EmonPi to monitor all incoming grid power though our main breaker box. &nbsp; We are also using a stock EmonTX to measure the AC output of our Outback VFX3648&nbsp;Inverter. &nbsp; However, we still need to measure the current of some additional DC loads that do not go through the inverter and we also need to measure the voltage levels of our battery bank.</p>
+<p>Most importantly, we would like to measure the balance of current in the three major branches of an off grid system:&nbsp; the Solar (always positive), the Load (always negative), and the Battery (+/- depending on the other two).&nbsp; Initially we intended to put large hall effects on each of those three major branches but then realized we only really needed&nbsp;two of them (solar &amp; batt) and we can extrapolate the value of the third (Load).</p>
+<p>Our hardware includes 8x Trojan T-105 6v Batteries (~10kWh capacity) in a 48v series configuration, an Outback VFX3648&nbsp;Inverter, an Outback FM80 Charge controller, and 2,300 Watts of Sharp brand solar panels mounted on our roof. &nbsp; We run everything from thickness planers and miter saws, to routers and table saws with this setup.&nbsp; No problems so far (over 3 years), but better power monitoring would be nice.</p>
+<h3><u><strong>Voltage Monitoring PCB</strong></u></h3>
+<p>Our PCB combines three basic circuits: a voltage divider, an&nbsp;opamp, and a power supply.&nbsp; These three systems combine to prepare a higher&nbsp;voltage DC signal for input into an Arduino.</p>
+<p><strong>Voltage Divider Resistors</strong></p>
+<p>We are using a combination of <a href="http://hyperphysics.phy-astr.gsu.edu/hbase/electric/voldiv.html">a voltage divider</a> and an opamp to scale, offset, and isolate the battery voltage from the arduino.&nbsp; Since ours is a 48v battery system, we used resistor values of 80k and a 5k to divide the voltage down to 2.82V, which is nicely in our range for Arduino measurement.</p>
+<p>We can&#39;t feed this output directly to the Arduino though.&nbsp; Although it&#39;s in a safe voltage range, the Arduino&#39;s impedance varies while sampling, in such a way that the voltage divider&#39;s output will be affected.&nbsp; This is because we used high value resistors in our divider to minimize the wasted power.&nbsp; We could use lower values, but the amount of current constantly passing through them would be a drain on the batteries.&nbsp; To correct this, we feed the output of the voltage divider into an op-amp.&nbsp;</p>
+<p><strong>Opamp</strong></p>
+<p>The battery bank voltage swings from 42V minimum when they are almost empty to 65V maximum when the batteries are being equalized. &nbsp; That&rsquo;s a 23volt range, so to maximize resolution we used a circuit simulator (LTSpice) and adjusted the feedback portion of the opamp to find a configuration that gives us a linear output from the opamp of 0.6V to 3.0V for a 42-65V range.&nbsp; An additional benefit of the opamp is it isolates the battery side of the circuit from the Arduino. [op-amp isolation just means current/voltage isolation, not electrical isolation like with an optical isolator]&nbsp; We decided to use a <a href="http://www.digikey.com/product-detail/en/0/296-1399-5-ND">Texas Instruments LT1013CP</a> opamp. &nbsp;</p>
+<p><strong>Accessories</strong></p>
+<p>Since our opamp needs power, we added a 48v-5v DCDC power supply to our design.&nbsp; This can also be used to power the Arduino, which is nice.&nbsp; We also added a 12v Supply to power a Hall effect break out board.&nbsp; We put our selected components into a PCB design program (Eagle) and after using their automatic routing option, spent a few hours cleaning up the design to make it look pretty.&nbsp; We added a capacitor on the input side of the circuit to filter out some noise and act as a local power supply to our DCDC converters.&nbsp; For safety, we included an inline fuse that&rsquo;s rated for 125v DC with a value of 315mA. &nbsp; At 50 volts it&rsquo;s capable of passing 15 Watts of power to our little PCB, which is more than enough for our board but low enough to protect the input traces from bursting into flames. &nbsp; It would have been nice to actually go a little lower, but I couldn&rsquo;t find lower values at our required voltage rating on DigiKey. &nbsp;Aside from the inline fuse lead, which connects to Batt+, all other inputs/outputs are handled by a terminal block at the bottom of the board.</p>
+<p><img alt="" src="../sites/default/files/BattMon%20PCB1.png" style="width: 600px; height: 383px;" /></p>
+<p><strong>Make it your own:</strong></p>
+<p>The resistor values and power supplies for our PCB are specifically designed for 48v battery banks. &nbsp; However, if you are running a 24v or 12v setup, all you need to do is change the resistor values and swap out the DCDC power supplies to <a href="http://www.digikey.com/product-search/en?FV=ffec924f">another model in the same series</a>.</p>
+<p><b>Next Steps</b><br />
+We&#39;ll write a follow up with a bill of materials and the design files. &nbsp;Since we had to make a minimum of 6 of them, we have 4 more available for sale (fully assembled)&nbsp;if anyone is interested. &nbsp;As soon as we get the boards in from OSH Park&nbsp;we&#39;ll give an update with how well it works as well as&nbsp;details on how to integrate it with the Arduino. &nbsp;If all goes well, we&#39;ll proceed to work on the Hall effect portion of the design. &nbsp;Eventually the voltage monitoring PCB and the Hall effect PCB can be combined into a single unit much like the EmonTX.</p>
+<p>
+Looking forward to getting feedback on our design,</p>
+<p>Thanks!</p>
+<p>Bert and Andy<br />
+SolarMill</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11130.html" class="topic-previous" title="Go to previous forum topic">‹ Help understanding several components in the sch of eMonTx 3.4</a>
+              <a href="11158.html" class="topic-next" title="Go to next forum topic">3CH WiFi Relay Control Board  ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-32418"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 20/07/2015 - 22:57.</div>
+    <div class="content">
+     <p>That looks quite an interesting set-up. </p>
+<p>I appreciate the op. amp's usefulness for scaling and providing the required offset, but I'm surprised you found that the varying input impedance of the multiplexer has a significant effect. The data sheet recommends a source impedance of less than 10 k&Omega; so that the sample &amp; hold capacitor, which is quite small, charges adequately quickly. And from that, I'd considered that with a source impedance of 10 k&Omega; or less, the measurement error from that source would be in the order of &frac12; LSB or less, i.e. it would not be significant. Your source impedance is 4.7 k&Omega;. Are you able to quantify the effect that lowering the driving impedance to a few tens of ohms had on your readings? </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32426"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Tue, 21/07/2015 - 10:26.</div>
+    <div class="content">
+     <p>The first 1.5 ADC clocks (out of a total of 13 for a conversion) charge the sample-n-hold cap. &nbsp;A typical ADC clock rate is 125kHz, so a conversion takes 104 usecs, the first 12 usecs of which is charging the cap. &nbsp;I just did a spot check on a random ATmega2560 I had handy. &nbsp;The trace below is the voltage at an&nbsp;ADC input pin being driven to 0V through a 10K R. &nbsp;Immediately before initiating a conversion on this pin, I was doing a conversion on a different pin being driven to 5V, ensuring the cap was fully charged.&nbsp; The 0V pin&nbsp;spiked to just over 600mV as it was selected, and then decayed back down to 0V about 3 usecs later, well within the 12 usecs&nbsp;allotted. &nbsp;The conversion consistently returns 0.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32451"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 21/07/2015 - 21:54.</div>
+    <div class="content">
+     <p>I think that supports the information in the Atmel data sheet.</p>
+<p>So it would seem that "the Arduino's impedance varies while sampling, in such a way that the voltage divider's output will be affected.  This is because we used high value resistors..." is based on a misconception and there is no discernible effect in practice, and so there is unlikely to be a significant effect until the source impedance is well in excess of the 10 kΩ recommended maximum.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32455"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8349.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8349.png" alt="SolarMill&#039;s picture" title="SolarMill&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8349.html" title="View user profile.">SolarMill</a> on Wed, 22/07/2015 - 04:42.</div>
+    <div class="content">
+     <p>That was&nbsp;the assumption we were operating on, based on comments in other forums about the need for an opamp&nbsp;between a voltage divider and the analog input pin. &nbsp; We modeled it in the software, and also with the online calculators but without the type of lab equipment you guys have it was hard to verify. &nbsp;When I&#39;m working in an area of knowledge outside my core competencies, I tend to rely on best practice methods and in researching this came across countless examples of opamps being used to fix the effects that sampling may have on a source. &nbsp; Didn&#39;t&nbsp;to repeat incorrect information, we were just&nbsp;explaining our design process to the best of our abilities. &nbsp;Thanks for the additional information and insight.</p>
+<p>As you pointed out, there are additional benefits to the opamp that still justify its usage. &nbsp;We are able to scale&nbsp;the values we are working with: &nbsp;the 23v possible range of our battery state of charge&nbsp;happens in the upper 35%&nbsp;of what would otherwise be a 0-65v measurement. &nbsp;With an opamp we can focus on the 23 volts that really matter and increase our resolution. &nbsp; We can also offset these values so they better fit into the range of the Arduino&#39;s inputs.</p>
+<p>Considering that&nbsp;the opamp&nbsp;only cost $2.65, it seemed like a safe route to go with some additional perks along the way.</p>
+<p>&gt;&gt; edited for tone</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32458"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Wed, 22/07/2015 - 02:42.</div>
+    <div class="content">
+     <p><em>Are those two benefits worth the inclusion of a $2.65 part? &nbsp;</em></p>
+<p>Absolutely. &nbsp;It&#39;s just that a&nbsp;lot of the designs used around here do monitor signals with a source impedance of roughly 10K and with no op-amp between them and the ADC input, so if there were a problem with a 4.7K source impedance, people would rightly want to know more.</p>
+<p>&nbsp;</p>
+<p><em>well in excess of the 10 k&Omega; recommended maximum</em></p>
+<p>Well in excess might be a bit bold, but I think if you stick with the 10K recommendation you should be fine. &nbsp;My test above was just performed on a single part, and the ADC&nbsp;internal series resistance can vary&nbsp;anywhere from 1K to 100K.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32463"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 22/07/2015 - 12:16.</div>
+    <div class="content">
+     <p>In my book, "in excess" means a few percent greater than but below about 20% greater, "Well in excess" means greater than that. "Several times" means greater than about 2.5 times.</p>
+<p>So while, dBC, your result falls within my definition of "several times", I restrained myself to "well in excess". However, it's quite conceivable that at some combination of parameters (inter alia temperature, clock speed, supply voltage) 10 k&Omega; is a critical limiting value.</p>
+<p>SolarMill:  As you were making a PCB and providing a power supply for other reasons, then adding an op-amp was undoubtedly the best way to go. As dBC pointed out, others might have been confused because one of your reasons appears to have gone against established practice. But in many cases, the cost (I'm including battery life as a potential 'cost') or complications of including an op-amp and providing a power supply are unacceptable or unwarranted.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32499"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 23/07/2015 - 11:02.</div>
+    <div class="content">
+     <p>If you are trying to reduce power consumption (and probably even if you&#39;re not) remember to disable the digital input buffer on your analog input pins. &nbsp;Feeding them Vcc/2 causes them to draw significant current as it means both transistors are on (at least partially) providing a path from Vcc to GND within the buffer (the current draw isn&#39;t through the input pin). &nbsp;I&#39;ve clocked it at about 800uA per pin on a 5V 2560 which&nbsp;potentially dwarfs&nbsp;anything&nbsp;saved by going with a high resistor divider. &nbsp;See the DIDRn registers for details.</p>
+<p>For the same reason, always enable the pull-ups on unused pins. &nbsp;I&#39;ve got a 2560 here that draws 62.5mA on the 5V rail when all inputs are configured as inputs (the power-up default) with nothing connected. &nbsp;That drops to 42.6mA&nbsp;after&nbsp;enabling all pull-ups. &nbsp; Those digital input buffers are at their best when you feed them 0V or Vcc;&nbsp;leave&nbsp;them floating (or feed&nbsp;them an analog signal)&nbsp;and they start to suck current.&nbsp;&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32506"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8349.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8349.png" alt="SolarMill&#039;s picture" title="SolarMill&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8349.html" title="View user profile.">SolarMill</a> on Thu, 23/07/2015 - 13:51.</div>
+    <div class="content">
+     <p>A few days after sending off the board design for printing I came across some comments in another thread about tying down the unused opamps&nbsp;to reduce noise and power consumption. &nbsp; We are are using a dual opamp, so there&#39;s only one left over. &nbsp;I&#39;m still not sure about the best way to do this, though. &nbsp;Do we just connect the unused pins to ground or do we need a resistor in there? &nbsp;Why does connecting them to either&nbsp;0v or Vcc have the same effect? &nbsp;Is Vcc the same as Vcc-?&nbsp; In our package, we have 3 pins left unconnected: &nbsp;2out, 2in-, and 2in+. &nbsp; What should we do with each of them?</p>
+<p>The engineering intern who&#39;s been working on this design&nbsp;is on vacation and returns next week, but I&#39;m trying to keep things moving along&nbsp;so please excuse all the questions.</p>
+<p>Thanks for the help,</p>
+<p>-Bert</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32518"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 23/07/2015 - 15:25.</div>
+    <div class="content">
+     <p><i>"A few days after sending off the board design..."</i><br />
+It's always like that!</p>
+<p>You connect the -input to the output, (turning into a voltage follower), you tie the +input to a defined in-range voltage (which could be + input of the other half - it looks to be as good a place as any, and a by-product of doing that is you have a buffered version of the divided-down battery voltage, should you want it.) That needs just two wire links on the underside of the PCB. </p>
+<p>See <a href="http://www.maximintegrated.com/en/app-notes/index.mvp/id/1957" title="http://www.maximintegrated.com/en/app-notes/index.mvp/id/1957">http://www.maximintegrated.com/en/app-notes/index.mvp/id/1957</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32531"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8349.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8349.png" alt="SolarMill&#039;s picture" title="SolarMill&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8349.html" title="View user profile.">SolarMill</a> on Thu, 23/07/2015 - 17:05.</div>
+    <div class="content">
+     <p>Thanks. &nbsp;We just received the PCB boards in the mail and and already found a minor issue with them: &nbsp;the pads for the DCDC supplies are flipped from where they should be (at the opposite edge of the part than where they belong).&nbsp; Otherwise, they look great. &nbsp; Since we&#39;re gonna have to get them remade anyway, we can incorporate those changes into the opamp&nbsp;while we&#39;re at it. &nbsp;That said, any other thoughts about the design that could be improved or tweaked? &nbsp;Our ultimate goal is a well designed&nbsp;open source module that anyone&nbsp;can make&nbsp;for monitoring their off-grid systems, complete with power supplies for Arduino and accesories (such as Hall effect current sensors).</p>
+<p><img alt="" src="../sites/default/files/11728914_10103637737436873_5142567950538356927_o.jpg" style="width: 500px; height: 500px;" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32559"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 23/07/2015 - 22:23.</div>
+    <div class="content">
+     <p>The design is somewhat restricted because it does not provide you with galvanic isolation on the voltage, and as a consequence of that it requires the battery negative to be both earthed and the common GND connection for the Arduino. As long as that limitation is understood and is acceptable, and it is being used at low voltages only, that is probably OK. But if for any reason the battery negative is not earthed, then you have a potentially dangerous situation.</p>
+<p>The pcb layout also restricts it to low battery voltages, and it will not be possible to use it - even leaving off the dc-dc converters  - on higher voltages because of the minimal creepage distance between battery positive and GND (= battery negative).</p>
+<p>It is not usual to have components at weird angles (R1, R2) and there's no need for it. </p>
+<p>You might find it helpful to put the component values on the silk screen as well as their designations, and outside their profile; you want to show the LED polarity; and the + for C1 wants to go outside its profile too (outside so that you don't need to resort to an empty board to check values and orientation).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33559"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7891.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="kosmonooit&#039;s picture" title="kosmonooit&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7891.html" title="View user profile.">kosmonooit</a> on Sun, 23/08/2015 - 16:38.</div>
+    <div class="content">
+     <p>I&#39;ve built a circuit to measure DC Voltage with full galvanic isolation using the HCPL-7520, and an Isolated DC-DC Converter to supply power to the isolated side, only pencil diags thus far, so will post more details later once I have done formal schematics. Also do isolated DC Current measuring with the ACS 758.</p>
+<p>One has to measure mV from these devices so precision is required, and I used a Max 6126 for this.</p>
+<p>Its taken a while.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33706"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8649.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="queglay&#039;s picture" title="queglay&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8649.html" title="View user profile.">queglay</a> on Sun, 30/08/2015 - 13:51.</div>
+    <div class="content">
+     <p>I really look forward to seeing how this goes, when I first saw the Open Energy Monitor I just assumed it would have this capability. &nbsp;Glad to see it will happen! &nbsp;We have an off grid 48V system here as well.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33708"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6518.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JD&#039;s picture" title="JD&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: 48V DC Energy Monitoring for Off Grid Applications</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6518.html" title="View user profile.">JD</a> on Sun, 30/08/2015 - 14:06.</div>
+    <div class="content">
+     <p>I&#39;m watching this too! &nbsp;@SolarMill, thanks for sharing your progress.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11011"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-dPOJzEfn1gvtQgCHcpJqQ6XI14eJE5qIJNE87YGhl38" value="form-dPOJzEfn1gvtQgCHcpJqQ6XI14eJE5qIJNE87YGhl38"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11011 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:04:28 GMT -->
+</html>

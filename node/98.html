@@ -1,0 +1,650 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>DS18B20 temperature sensing | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><div id="yass_top_edge_dummy" style="width: 1px; height: 1px; padding: 0px; margin: -9px 0px 0px; border-width: 0px; display: block;">&nbsp;</div>
+<div id="yass_top_edge" style="background-image: url(&quot;chrome://yass/content/edgebgtop.png&quot;); background-attachment: scroll; background-position: center bottom; padding: 0px; margin: 0px 0px 8px -8px; border-width: 0px; height: 0px; display: block; width: 1px;">&nbsp;</div>
+<h1>Temperature Sensing using DS18B20 Digital Sensors</h1>
+<div><strong>Note: </strong>When referring to Arduino below, this works in the same way on the emonTx which is arduino-based.</div>
+<div>&nbsp;</div>
+<div>The <a href="http://datasheets.maxim-ic.com/en/ds/DS18B20.pdf">DS18B20</a> is a small temperature sensor with a built in 12bit ADC. It can be easily connected to an Arduino digital input. The sensor communicates over a one-wire bus and requires little in the way of additional components.</div>
+<div>&nbsp;</div>
+<div>The sensors have a quoted accuracy of +/-0.5 deg C in the range -10 deg C to +85 deg C.&nbsp;</div>
+<h2>Hardware</h2>
+<p>Multiple sensors can be connected to the same data bus. Each sensor identifies itself by a unique serial number.</p>
+<p>The sensor can operate in normal or parasite mode. In normal mode, a 3-wire connection is needed. In parasite mode the sensor derives its power from the data line. Only two wires, data and ground, are required.</p>
+<p><span style="font-style: italic"><strong>Note: </strong>The Arduino positive supply rail is referred to as V<sub>cc</sub> and the positive supply for the DS18B20 as V<sub>dd</sub>. In this context, the two are the same.</span></p>
+<div>
+<h3>Normal Mode</h3>
+<p>In normal mode, each sensor is connected between a power line (V<sub>dd</sub> pin 3) and ground (GND pin 1), and the data output (DQ pin 2) connects to a third, data, line.&nbsp;The data output is a 3-state or open-drain port (DQ pin 2) and requires a 4k7 pull-up resistor. The data line is connected to an available&nbsp;Arduino digital input or Arduino digital pin 4 in the case of the emonTx.</p>
+<p>Normal mode is recommended when many devices and/or long distances are involved.</p>
+<h3>Parasite Mode</h3>
+<p>Parasite power mode requires both DS18B20 GND (pin 1) and V<sub>dd</sub> (pin 3) to be connected to ground. The DQ pin (pin 2 - the middle pin) is the data/parasite power line. The data line requires a pull-up resistor of 4k7 connected to + 5 V. The data line is connected to an available Arduino digital input or Arduino digital pin 4 in the case of the emonTx.</p>
+<p>Parasite mode should be used only with a small number of devices, over relatively short distances.</p>
+</div>
+<div>&nbsp;</div>
+<div>
+<table>
+<tbody>
+<tr>
+<td width="400px"><img alt="" src="https://openenergymonitor.org/emon/sites/default/files/normal power conection diagram.png" /><br />
+			&nbsp;Figure 1:&nbsp;Normal Power Connection Diagram</td>
+<td width="350px"><img alt="" src="https://openenergymonitor.org/emon/sites/default/files/parasite power conection diagram.png" /><br />
+			&nbsp;Figure 2:&nbsp;Parasite Power Connection Diagram</td>
+</tr>
+<tr>
+<td width="400px"><img alt="" src="https://openenergymonitor.org/emon/sites/default/files/temp sensors connection diagram 3 wire.png" /><br />
+			&nbsp;Figure 3:&nbsp;Three DS18B20&#39;s in normal power mode</td>
+<td width="350px"><img alt="" src="https://openenergymonitor.org/emon/sites/default/files/temp sensors connection diagram.png" /><br />
+			&nbsp;Figure 4:&nbsp;Three DS18B20&#39;s in parasite power mode</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div>&nbsp;</div>
+<h3>Connecting multiple sensors</h3>
+<div>
+<p>If the sensors are located relatively close to the Arduino/emonTx, then satisfactory operation should be achieved by making a parallel connection of the sensors at the connection to the Arduino or emonTx . This is called a radial or &#39;star&#39; arrangement.</p>
+<p>If long cable runs are required, consideration should be given to connecting in &#39;daisy-chain&#39; fashion where one cable runs from the furthest sensor, connecting to each sensor in turn, before ending at the Arduino or emonTx.</p>
+<p>There is more about this in the note below.</p>
+<p>For short cable runs, unscreened two or three-core cable, or single-core (parasite mode) or twin-core (normal mode) screened audio cable should be suitable. For longer cable runs, low capacitance cable such as RF aerial downlead (parasite mode) has been successfully used over a distance of 10 m. CAT 5 network cable has also been used with success over a distance of 30m, with data &amp; ground using one twisted pair and power &amp; ground using a second twisted pair.</p>
+<div>&nbsp;</div>
+<h2>Cable Length</h2>
+<p>Up to 20m cable length has <a href="https://twitter.com/mharizanov/status/704194316659515392">been successfully&nbsp;reported</a> with a lower pull-up resistor value of 2K. Adding multiple sensors will reduce the practical length, as will&nbsp;non consistent / nonlinear cable runs, <a href="https://www.maximintegrated.com/en/app-notes/index.mvp/id/148">see app note</a></p>
+<p>&nbsp;</p>
+<h2>Temperature Sensing with the emonTx</h2>
+<p>​Update: For emonTx V3 and emonPi see Wiki:</p>
+<p><a href="https://wiki.openenergymonitor.org/index.php/EmonPi#DS18B20_Temperature" title="https://wiki.openenergymonitor.org/index.php/EmonPi#DS18B20_Temperature">https://wiki.openenergymonitor.org/index.php/EmonPi#DS18B20_Temperature</a></p>
+<p><a href="https://wiki.openenergymonitor.org/index.php/EmonTx_V3.4#RJ45_Connection" title="https://wiki.openenergymonitor.org/index.php/EmonTx_V3.4#RJ45_Connection">https://wiki.openenergymonitor.org/index.php/EmonTx_V3.4#RJ45_Connection</a></p>
+<p>The emonTx supports direct connection of DS18B20 temperature sensors, however, there are significant differences between emonTx V2 and&nbsp;emonTx V3.</p>
+<h2>The emonTx V2</h2>
+<p>The PCB includes the option to solder a DS18B20 sensor directly onto the PCB for monitoring the temperature where the emonTx is located. A more useful option is to connect DS18B20 temperature sensors to the 3.5mm temperature jack port for monitoring remote temperatures e.g. outside temperature, living room temperature and boiler temperature.&nbsp;</p>
+<p>The sensors can be connected either in normal or parasite power mode. We recommend normal power mode for increased reliability. 3-core 22AWG wire is perfect for wiring up sensors. Encapsulated sensors can be purchased. and connected. The 4k7 pull-up resistor is provided on the pcb.</p>
+<p>Wire up the sensor(s) to a male 3.5mm jack as follows:&nbsp;</p>
+<p><img alt="" src="https://openenergymonitor.org/emon/sites/default/files/Temperature 3-wire jack.png" style="float: left; margin: 0 2em 2em 2em" /></p>
+<table style="border: 2px solid gray; margin: 0 2em">
+<tbody>
+<tr style="border-bottom: 2px solid gray">
+<td style="border: 1px solid gray; padding: 0.7ex">Connection</td>
+<td style="border: 1px solid gray; padding: 0.7ex">Normal Mode</td>
+<td style="border: 1px solid gray; padding: 0.7ex">Parasite Mode</td>
+<td style="border: 1px solid gray; padding: 0.7ex">Voltage</td>
+</tr>
+<tr>
+<td style="border: 1px solid gray; padding: 0.7ex">Tip</td>
+<td style="border: 1px solid gray; padding: 0.7ex">DQ (data line)</td>
+<td style="border: 1px solid gray; padding: 0.7ex">DQ (data line)</td>
+<td style="border: 1px solid gray; padding: 0.7ex">3.9 V approx</td>
+</tr>
+<tr>
+<td style="border: 1px solid gray; padding: 0.7ex">Ring</td>
+<td style="border: 1px solid gray; padding: 0.7ex">V<sub>dd</sub></td>
+<td style="border: 1px solid gray; padding: 0.7ex">no connection</td>
+<td style="border: 1px solid gray; padding: 0.7ex">+ 5 V</td>
+</tr>
+<tr>
+<td style="border: 1px solid gray; padding: 0.7ex">Sleeve</td>
+<td style="border: 1px solid gray; padding: 0.7ex">GND</td>
+<td style="border: 1px solid gray; padding: 0.7ex">GND + V<sub>dd</sub></td>
+<td style="border: 1px solid gray; padding: 0.7ex">0 V</td>
+</tr>
+</tbody>
+</table>
+<p>(Voltages are for V2.2 boards powered at 5 V)</p>
+<p>&nbsp;</p>
+<p style="clear:left;">Note: If you purchased the <a href="https://shop.openenergymonitor.com/waterproof-ds18b20-temperature-sensing-kit/">Waterproof DS18B20 temperature sensing kit</a> from the shop, it is pre-wired:</p>
+<p class="rteindent1">Data: White wire<br />
+V<sub>cc</sub>: Red wire<br />
+GND: Black wire</p>
+<p>The one-wire temperature data line is hardwired to Arduino Dig I/O 4 on the emonTx PCB. See the emonTx&nbsp;<a href="https://openenergymonitor.org/emon/emontx/reference%20">reference page</a> for schematic and PCB layout.&nbsp;</p>
+<p>The emonTx runs internally at 3.3V. On emonTx PCB version 2.0 and 2.1 the DS18B20 also runs at 3.3V.</p>
+<p>On emonTx V2.2 the temperature sensors are connected to the PWR rail which is 5V when the emonTx is powered via the 5V mini-USB connector. Note: ignore the solder jumper. If you look carefully, it is already connected to PWR. Running the sensors at 5V gives increased reliability and enables for more sensors and longer cable runs to be used.</p>
+<p><a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV2/emonTx_temperature_examples">GitHub emonTx temperature example&nbsp;</a> also includes a sketch to extract the serial number from the DS18B20. (N.B. You must change &quot;#define ONE_WIRE_BUS 4&quot;&nbsp;to &quot;#define ONE_WIRE_BUS 5&quot; for the emonTx V3.4)</p>
+<h2>Software</h2>
+<div>
+<div><a href="http://milesburton.com/Dallas_Temperature_Control_Library#The_Library">Dallas Temperature Control Arduino library by Miles Burton. </a></div>
+<div>&nbsp;</div>
+<div>Version 372 works with Arduino 1.0. download it from <a href="http://download.milesburton.com/Arduino/MaximTemperature/">here</a></div>
+<div>&nbsp;</div>
+<div>This library makes interfacing with the sensors very straightforward and comes with examples.</div>
+<div>&nbsp;</div>
+<div>The OneWire protocol communication library is also required. Version 2.0 can be downloaded from <a href="http://www.pjrc.com/teensy/td_libs_OneWire.html">here</a>.</div>
+<div>&nbsp;</div>
+<div>Once the libraries have been extracted to the Arduino libraries folder, and the Arduino IDE restarted, I recommend checking out the &lsquo;simple&rsquo; and &lsquo;multiple&rsquo; examples which are part of the Dallas Temperature Control Library. These two examples demonstrate two methods to identify and communicate with each sensor.</div>
+<div>&nbsp;</div>
+<div><strong>Addressing the sensors.</strong></div>
+<div>
+<p>Each sensor has a unique serial number assigned by the manufacturer, and your sketch (unless it is the &quot;low-power&quot; sketch that expects a single sensor) must be programmed with these serial numbers so it can identify and interrogate each sensor. Download the examples from <a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV2/emonTx_temperature_examples">GitHub emonTx V2 temperature example</a>. There you will find the <a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV2/emonTx_temperature_examples/temperature_search">temperature search test sketch</a>. You need run the sketch&nbsp;only once to extract and list the serial number from each DS18B20. Then you manually copy the serial numbers into your monitoring sketch.</p>
+<p>See <a href="https://openenergymonitor.org/emon/buildingblocks/DS18B20-temperature-sensing-2">Part 2</a> for a description of how the order in which the sensors are discovered is decided.</p>
+</div>
+</div>
+<div><strong>Error values.</strong></div>
+<div>The sensor works by reading and converting the temperature and storing this value in scratchpad memory. The scratchpad memory is then read via the One-wire bus by the Dallas library.&nbsp;</div>
+<div>
+<p>The power-on value in&nbsp;the scratchpad memory is 85 &deg;C. If the scratchpad memory is read before the temperature conversion has completed, then the erroneous temperature value of 85 &deg;C might be returned. Depending on your application, it might not be possible to distinguish this from a genuine reading. This error value might be caused by an intermittent or absent connection of either the power wire (normal mode) or the GND wire.</p>
+<p>If the data being read from the scratchpad memory is corrupted in transit, then the checksum will fail and the Dallas library will return a value of -127 &deg;C. This is outside the operating temperature range of the sensor, so can easily be detected in software. This error value might be caused by an intermittent or absent connection of either the data wire (normal mode) or the GND wire, or indeed an absent sensor.</p>
+</div>
+<h2>The emonTx V3</h2>
+<p>The emonTx V3 has a connection for the temperature sensors on a screw terminal block. Full details can be found on the <a href="https://wiki.openenergymonitor.org/index.php?title=EmonTx_V3">Wiki page</a>. The pre-loaded sketch will sense a single temperature sensor at start-up and requires no further configuration. Note: The examples for the emonTx V2 and the temperature search sketch will not work without modification.&nbsp;You will need to edit the sketch due to changed&nbsp;I/O usage in the&nbsp;emonTx&nbsp;V3: You must change&nbsp;&quot;#define ONE_WIRE_BUS 4&quot;&nbsp;to &quot;#define ONE_WIRE_BUS 5&quot;.&nbsp;</p>
+<h2>Notes and further reading&nbsp;</h2>
+<p>For large numbers of sensors and longer cable runs, use the&nbsp;<a href="http://www.maxim-ic.com/datasheet/index.mvp/id/2923">DS2480B</a>&nbsp;1-wire driver chip. </p>
+<!-- More info&nbsp;<a href="http://www.shucksmith.co.uk/blog/ds2480bds18b20drivers-1">here</a>. Thanks to<a href="http://twitter.com/#!/shuckc">&nbsp;Chris Shucksmith</a>&nbsp;for sharing.--><!-- More info&nbsp;<a href="http://www.shucksmith.co.uk/blog/ds2480bds18b20drivers-1">here</a>. Thanks to<a href="http://twitter.com/#!/shuckc">&nbsp;Chris Shucksmith</a>&nbsp;for sharing.--><p> [N.B. Some very helpful information from <a href="http://twitter.com/#!/shuckc">&nbsp;Chris Shucksmith</a> appears to have been removed.]</p>
+<p><em>&quot;If you intend to have a large 1-wire network, it is important that you design the network correctly, otherwise you will have problems with timing/reflection issues and loss of data. For very small networks, it is possible to connect each sensor in a star or radial arrangement. This means that each sensor is connected via its own cable back to a central point and then connected to the 1-wire to serial adapter. However, it is strongly recommend that you connect each sensor to a single continuous cable which loops from sensor to sensor in turn (daisy chain). This will reduce potential misreads due to reflections in the cable. Each sensor should have a maximum of 50mm (2&quot;) of cable connected off the main highway. Even using this method, connecting more than 10-15 sensors will still cause problems due to loading of the data bus. To minimise this effect, always place a 100-120 ohm resistor in the data leg of each sensor before connecting to the network.&quot;</em></p>
+<p>quoted from:&nbsp;<a href="http://www.jon00.me.uk/onewireintro.shtml">http://www.jon00.me.uk/onewireintro.shtml</a></p>
+<!--
+<p>Lots of info about 1-wire bus problems here:&nbsp;<a href="http://www.shucksmith.co.uk/blog/ds2480bds18b20drivers-1">http://www.shucksmith.co.uk/blog/ds2480bds18b20drivers-1</a></p>--><!--
+<p>Lots of info about 1-wire bus problems here:&nbsp;<a href="http://www.shucksmith.co.uk/blog/ds2480bds18b20drivers-1">http://www.shucksmith.co.uk/blog/ds2480bds18b20drivers-1</a></p>--></div>
+<p>&nbsp;</p>
+<div id="yass_bottom_edge" style="background-image: url(&quot;chrome://yass/content/edgebgbot.png&quot;); background-position: 0px 0px; position: absolute; margin: 0px; padding: 0px; border-width: 0px; height: 0px; left: 0px; top: 2955px; width: 100%; display: block;">&nbsp;</div>
+<div id="yass_bottom_edge" style="background-image: url(&quot;chrome://yass/content/edgebgbot.png&quot;); background-position: 0px 0px; position: absolute; margin: 0px; padding: 0px; border-width: 0px; height: 0px; left: 0px; top: 2969px; width: 100%; display: block;">&nbsp;</div>
+</div>
+    
+    
+      </div>
+<div id="comments">
+  <a id="comment-2146"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: DS18B20 temperature sensing</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Sat, 01/10/2011 - 10:04.</div>
+    <div class="content">
+     <p>&nbsp;I have tried replacing the code in the Simple example</p>
+<p><strong>&nbsp; sensors.requestTemperatures();&nbsp;</strong></p>
+<p><strong>&nbsp; Serial.print(sensors.getTempCByIndex(0));</strong></p>
+<p>with</p>
+<p>&nbsp; &nbsp;<strong>sensors.requestTemperatures();&nbsp;</strong></p>
+<p><strong>&nbsp; &nbsp;if(sensors.getAddress(0x28, 0xC0, 0x5E, 0x9C, 0x03, 0x00, 0x00, 0xA1, 0))<br />
+&nbsp; &nbsp;temp0=(sensors.getTempC(0x28, 0xC0, 0x5E, 0x9C, 0x03, 0x00, 0x00, 0xA1,));</strong></p>
+<p><strong>&nbsp; &nbsp;if(sensors.getAddress(0x28, 0xC0, 0x5A, 0x9C, 0x09, 0x00, 0x00, 0xB1, 1))<br />
+&nbsp; &nbsp;temp1=(sensors.getTempC(0x28, 0xC0, 0x5A, 0x9C, 0x09, 0x00, 0x00, 0xB1,));</strong></p>
+<p>but I get a zillion error messages when I try and compile it. Have I done it wrong? (again!)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2147"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/10" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: DS18B20 temperature sensing</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/10" title="View user profile.">glyn.hudson</a> on Sat, 01/10/2011 - 10:41.</div>
+    <div class="content">
+     <pre>
+Hi Paul, 
+
+Hope this help, below is an example taken from my monitoring system I'm currently running at home. 
+
+
+//------------------------------------------------------------
+
+  // Setup one-wire sensors
+
+  //------------------------------------------------------------
+
+ // Start up the library
+
+  sensors.begin();
+
+  delay(100);
+
+  
+
+  // Grab a count of devices on the wire
+
+  numberOfDevices = sensors.getDeviceCount();
+
+  
+
+  // locate devices on the bus
+
+  Serial.print(&quot;Locating devices...&quot;);
+
+  
+
+  Serial.print(&quot;Found &quot;);
+
+  Serial.print(numberOfDevices, DEC);
+
+  Serial.println(&quot; devices.&quot;);
+
+
+  // report parasite power requirements
+
+  Serial.print(&quot;Parasite power is: &quot;); 
+
+  if (sensors.isParasitePowerMode()) Serial.println(&quot;ON&quot;);
+
+  else Serial.println(&quot;OFF&quot;);
+
+  
+
+  // Loop through each device, print out address
+
+  for(int i=0;i&lt;numberOfDevices; i++)
+
+  {
+
+    // Search the wire for address
+
+    if(sensors.getAddress(tempDeviceAddress, i))
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>{
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>Serial.print(&quot;Found device &quot;);
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>Serial.print(i, DEC);
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>Serial.print(&quot; with address: &quot;);
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>printAddress(tempDeviceAddress);
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>Serial.println();
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>Serial.print(&quot;Setting resolution to &quot;);
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>Serial.println(TEMPERATURE_PRECISION,DEC);
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>delay(100);
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>// set the resolution to 9 bit (Each Dallas/Maxim device is capable of several different resolutions)
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>sensors.setResolution(tempDeviceAddress, TEMPERATURE_PRECISION);
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>
+
+<span class="Apple-tab-span" style="white-space:pre"> </span> Serial.print(&quot;Resolution actually set to: &quot;);
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>Serial.print(sensors.getResolution(tempDeviceAddress), DEC); 
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>Serial.println();
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>}else{
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>Serial.print(&quot;Found ghost device at &quot;);
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>Serial.print(i, DEC);
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>Serial.print(&quot; but could not detect address. Check power and cabling&quot;);
+
+<span class="Apple-tab-span" style="white-space:pre"> </span>}
+
+  }  
+
+  
+
+    //------------------------------------------------------------
+
+   // Get inital sensor readings 
+
+   //------------------------------------------------------------
+
+    sensors.requestTemperatures();            //issue global request for each temp sensor on network to retunr a temp
+
+       
+
+       if(sensors.getAddress(tempDeviceAddress, 0))
+
+          temp0=(sensors.getTempC(tempDeviceAddress)); //read temp from sensor 0 and store in accumulator 0
+
+    
+
+       if(sensors.getAddress(tempDeviceAddress, 1))
+
+          temp1=(sensors.getTempC(tempDeviceAddress));
+
+       
+
+       if(sensors.getAddress(tempDeviceAddress, 2))
+
+         temp2=(sensors.getTempC(tempDeviceAddress));
+
+         
+
+ //if tempsensor error
+
+ if (temp0 == DEVICE_DISCONNECTED)
+
+  {
+
+    sensors.begin();
+
+    for(int i=0;i&lt;numberOfDevices; i++)
+
+      sensors.getAddress(tempDeviceAddress, i);
+
+      Serial.println(&quot;problem&quot;);
+
+  }
+
+     //------------------------------------------------------------
+
+  
+
+  Ethernet.begin(mac, ip, gateway);            //Setup ethernet client
+
+  
+
+}//end setup 
+
+  
+
+
+   
+
+//**************************************************************************************************
+
+// LOOP
+
+//**************************************************************************************************
+
+   
+
+void loop(){   
+
+      
+
+
+  //------------------------------------------------------------
+
+  // Read temperatuere sensors  
+
+  //------------------------------------------------------------ 
+
+   //if tempsensor error
+
+ if (temp0 == DEVICE_DISCONNECTED)
+
+  {
+
+    sensors.begin();
+
+    for(int i=0;i&lt;numberOfDevices; i++)
+
+      sensors.getAddress(tempDeviceAddress, i);
+
+      Serial.println(&quot;problem&quot;);
+
+  }
+
+    if (acc_count &lt;= temp_samples){
+
+
+      sensors.requestTemperatures();            //issue global request for each temp sensor on network to retunr a temp
+
+       
+
+       if(sensors.getAddress(tempDeviceAddress, 0))
+
+          acc0=acc0 + (sensors.getTempC(tempDeviceAddress)); //read temp from sensor 0 and store in accumulator 0
+
+       
+
+       if(sensors.getAddress(tempDeviceAddress, 1))
+
+          acc1=acc1 + (sensors.getTempC(tempDeviceAddress));
+
+       
+
+       if(sensors.getAddress(tempDeviceAddress, 2))
+
+         acc2=acc2 + (sensors.getTempC(tempDeviceAddress));
+
+       
+
+       acc_count++;                              //increment accumulator count
+
+
+     }
+
+   
+
+   if (acc_count &gt;temp_samples)                                          //after 30 samples have been taken...
+
+     {
+
+     
+
+      temp0=acc0/acc_count;    //get average temperature sensor reading 
+
+      temp1=acc1/acc_count;    //get average temperature sensor reading 
+
+      temp2=acc2/acc_count;    //get average temperature sensor reading 
+
+  
+
+      acc0=0;                  //reset accumulator 
+
+      acc1=0;                  //reset accumulator 
+
+      acc2=0;                  //reset accumulator 
+
+      
+
+      acc_count=0;             //reset accumulator count
+
+     }
+
+     
+
+    Serial.print(temp0);
+
+    Serial.print(&quot;  &quot;);
+
+    //Serial.print(acc0);
+
+    //Serial.print(&quot;   &quot;);
+
+    Serial.print(temp1);
+
+    Serial.print(&quot;  &quot;);
+
+    Serial.println(temp2);
+
+    //Serial.print(&quot;  &quot;);
+
+   //------------------------------------------------------------   </pre><p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2149"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: DS18B20 temperature sensing</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Sat, 01/10/2011 - 21:57.</div>
+    <div class="content">
+     <p>&nbsp;Glyn, do you have the rest of the sketch please, the first part is missing, variable declarations etc.</p>
+<p>Thanks</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2158"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/10" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: DS18B20 temperature sensing</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/10" title="View user profile.">glyn.hudson</a> on Mon, 03/10/2011 - 20:53.</div>
+    <div class="content">
+     <p>Sure, here's all the code from my home monitor setup: <a href="http://openenergymonitor.org/emon/sites/default/files/HomeMonitorV4.zip">http://openenergymonitor.org/emon/sites/default/files/HomeMonitorV4.zip</a>.</p>
+<p>Its a bit outdated, its been running for a few years now. The emonTx was only a pipedream at this stage!&nbsp;</p>
+<p>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" /></p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2212"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: DS18B20 temperature sensing</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Sat, 15/10/2011 - 18:03.</div>
+    <div class="content">
+     <p>&nbsp;Thanks Glyn for your sketch, &nbsp;it has been time well spent working through your code. I have learnt a lot from you!</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2555"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: DS18B20 temperature sensing</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Tue, 27/12/2011 - 22:32.</div>
+    <div class="content">
+     <p>&nbsp;Glyn, I have used extracts from your sketch for a few months now, and occassionally get a rogue reading posted to Pachube, usually a large negative number (it's averaged over 3 or 4 readings), the last one was -25.4 degC.</p>
+<p>I wondered if the error catching code should be;</p>
+<p><span style="font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 13px; line-height: 17px; text-align: left; ">if (temp0 == -127) &nbsp; { ...reset sensors</span></p>
+<p>instead of</p>
+<p><span style="font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 13px; line-height: 17px; text-align: left; ">if (temp0 == DEVICE_DISCONNECTED) &nbsp; { ...reset sensors</span><font face="Verdana, Arial, Helvetica, sans-serif" size="2"><span style="line-height: 17px;"><br type="_moz" /><br />
+</span></font></p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2556"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/10" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: DS18B20 temperature sensing</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/10" title="View user profile.">glyn.hudson</a> on Tue, 27/12/2011 - 22:54.</div>
+    <div class="content">
+     <p>Good observation. Why not have both. Anything less than -40 higher than about 50 (for ambient temperaure monitoring in the UK) &nbsp;could be considered a rouge value.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2559"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: DS18B20 temperature sensing</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Tue, 27/12/2011 - 23:48.</div>
+    <div class="content">
+     <p>&nbsp;Thanks, I'll mod the code to:</p>
+<p>﻿</p>
+<p>&nbsp; sensors.requestTemperatures(); // Send the command to get temperatures</p>
+<p>&nbsp; if(sensors.getAddress(tempDeviceAddress, 0))</p>
+<p>&nbsp; tmpSenseP = (sensors.getTempC(tempDeviceAddress));</p>
+<p>&nbsp; &nbsp; &nbsp; //---Error rejection---//</p>
+<p>&nbsp; &nbsp; &nbsp; if ((tmpSenseP &lt; -50) || (tmpSense &gt; 50)) &nbsp;{</p>
+<p>&nbsp; &nbsp; &nbsp; sensors.begin();</p>
+<p>&nbsp; &nbsp; &nbsp; for(int i=0;i&lt;numberOfDevices; i++)</p>
+<p>&nbsp; &nbsp; &nbsp; sensors.getAddress(tempDeviceAddress, i); &nbsp;&nbsp; &nbsp; }</p>
+<p>&nbsp;else tmpSense = tmpSenseP; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//If no error, then copy provisional data to temp variable</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2561"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/10" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: DS18B20 temperature sensing</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/10" title="View user profile.">glyn.hudson</a> on Wed, 28/12/2011 - 01:00.</div>
+    <div class="content">
+     <p>Looks great. Thanks&nbsp;</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div></div></div></div></div></div></div></div><a id="comment-2128"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/238" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: DS18B20 temperature sensing</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/238" title="View user profile.">Paul Reed</a> on Mon, 26/09/2011 - 20:23.</div>
+    <div class="content">
+     <p>&nbsp;I have built the '2 channel&nbsp;Mains AC: non-invasive 3.0' with a LCD display, and wondered if the addition of a few DS18B20 temperature sensors could be added to the sketch without spoiling the functions of energy monitoring?</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="item-list"><ul class="pager"><li class="pager-current first">1</li>
+<li class="pager-item"><a href="/emon/buildingblocks/DS18B20-temperature-sensing?page=1" title="Go to page 2" class="active">2</a></li>
+<li class="pager-next"><a href="/emon/buildingblocks/DS18B20-temperature-sensing?page=1" title="Go to next page" class="active">next ›</a></li>
+<li class="pager-last last"><a href="/emon/buildingblocks/DS18B20-temperature-sensing?page=1" title="Go to last page" class="active">last »</a></li>
+</ul></div></div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

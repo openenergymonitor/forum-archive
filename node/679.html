@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/679 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:32:08 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonGLCD V1.3 display going blank - FIX | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonGLCD V1.3 display going blank - FIX</h3>
+        <span class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sun, 13/05/2012 - 22:35</span>
+        <div class="content"><p>Following on from the conversation on <a href="541.html">this thread</a>. I think I might have made some progress into what's causing the problem. It's the supply voltage for the emonGLCD.&nbsp;Controlling the backlight and LED's with&nbsp;PWM&nbsp;is not the cause of the problem but might trigger a crash since when the LED's and backlight is dimmed the current drawn will be lower resulting in a lower loading on the power supply which could cause the voltage to rise.&nbsp;</p>
+<h2>​Background:</h2>
+<p>The LCD unit is connected directly to the 5V supply voltage, this supply voltage is then fed through a 3.3V voltage regulator which then supplies the Atmega328 and RFM12B. This is how it's done on the JeeLabs graphics board, on which the emonGLCD is based.</p>
+<p>I think this is an error, since looking at the datasheet the LCD, it's recommended operating voltage is 3.3V. Although running the LCD at 5V with 3.3V logic signals does not seem to do any harm, I have one in my own home which has been running continuously for 8 months without crashing once.</p>
+<h2>The&nbsp;Problem:&nbsp;</h2>
+<p>The crashing of the display (display goes blank, Atmega328 and LED's still functional) problem only happens with some usb power supplies, I measured the voltage on the emonGLCD with a number of power supplies, here are the results:</p>
+<p>&nbsp;</p>
+<ul>
+<li>Power from laptop: 5.06V - works fine&nbsp;</li>
+<li>Power from un-branded USB power supply: 4.95V - works fine sh (used in my home for 8 months)</li>
+<li><strong>Power from Friwo USB power supply sold through OEM shop: 5.11V - CRASH :-(</strong></li>
+</ul>
+<p>The crashing seem to occur at the higher voltage (5.11V). Unfortunately the USB power supply sold through the OEM shop is the one causing the problem. We had extensively used this power supply powering the emonBase/NanodeRF and emonTx before stocking it in the shop but we had not tested it extensively with the emonGLCD.</p>
+<h2>The Fix:</h2>
+<p>&nbsp;I have soldered a 100ohm resistor across the PWR and GND pins on the emonGLCD, this loads the power Friwo power supply enough to pull the voltage down to 5.04V. The display has not crashed since. The resistor get a bit warm since it could be potentially (if it's 90 ohms +-10% and BL and LED's are off) dissipating 280mW which is 30mW over it's max rating of 250mW.</p>
+<p><strong>I would recommend two 200 ohm resistors in parallel this will give an equivalent resistance of 100ohms with 500mW potential dispassion capability (plenty).</strong></p>
+<p>Please post&nbsp;below if this fix works for you.&nbsp;</p>
+<p><strong>Update: it's also possible to implement a (even better) fix without any additional components. The LCD module can be connected directly to the 3.3V output from the voltage regulator. See <a href="541.html#comment-4430">this post </a>for photos and how-to, thanks to Robert Walker for this.&nbsp;</strong></p>
+<p>If you wish we are happy to accept return of the USB power supply bought through the shop. We shop to souce some USB power supplies which work fine with the emonGLCD soon.&nbsp;</p>
+<p>Update: We have power supplies that work with the emonGLCD without the above fixes (smaller capacity and slightly lower voltage). Please get in touch if you want to swap a USB power supply bought through the shop. All further emonGLCD V1.3's sold through the shop will come with a 100 ohm 0.5 W resistor.&nbsp;</p>
+<h2>The Future:&nbsp;</h2>
+<p>If this fix works for everyone, a 100 ohm 0.5W resistor will be included in the remaining emonGLCD V1.3 kits to be sold (we don't have many left). We can also make this resistor available free of charge if it's requested.&nbsp;</p>
+<p>In the new version of the emonGLCD (V1.4), the display is powered from the 3.3V regulator so should not have this problem. Although this new version won't be in the shop for a month or so.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="753.html" class="topic-previous" title="Go to previous forum topic">‹ emonGLCD V1.4 - R7 &amp; R8 ?</a>
+              <a href="755.html" class="topic-next" title="Go to next forum topic">emonGLCD - my feedback ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-4477"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="vworp&#039;s picture" title="vworp&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonGLCD V1.3 display going blank - FIX</h3>
+
+    <div class="submitted">Submitted by vworp (not verified) on Thu, 17/05/2012 - 19:54.</div>
+    <div class="content">
+     <p>I&#39;ve gone for the second fix, directly connecting the LCD to 3.3V.</p>
+<p>My GLCD has been running for just over 48 hours now without the screen blanking.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4962"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="ianjm&#039;s picture" title="ianjm&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonGLCD V1.3 display going blank - FIX</h3>
+
+    <div class="submitted">Submitted by <a href="../user/733.html" title="View user profile.">ianjm</a> on Fri, 22/06/2012 - 16:06.</div>
+    <div class="content">
+     <p>I am still getting blank screens with this fix.</p>
+<p>I have had long periods of stable display after applying the fix but sometimes the screen goes blank.<br />
+Connecting the power usualy gives a display and then it goes blank.<br />
+Somtimes I get rubbish and stripping and then it goes blank.<br />
+It will then start working again for no reason.</p>
+<p>Changing the power supply/USB cable does not seem to help - I can get the screen going blank using USB connectors from my PC, monitor, and mains addaptors and using the programmer connection.</p>
+<p>The measured voltage is always 3.3<br />
+&nbsp;</p>
+<p>Any ideas.</p>
+<p>&nbsp;</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/679"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-UKj-SwbW57Dkq9WXbVMY3jtgwB5t3PwFBsUrDX6Brkc" value="form-UKj-SwbW57Dkq9WXbVMY3jtgwB5t3PwFBsUrDX6Brkc"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/679 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:32:08 GMT -->
+</html>

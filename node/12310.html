@@ -1,0 +1,557 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12310 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:15:51 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Emoncms.org development: next steps | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Emoncms.org development: next steps</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 08/03/2016 - 11:26</span>
+        <div class="content"><p>The last couple of weeks have seen quite a bit of work on emoncms.org with the aim of making it a more secure better maintained service. Emoncms.org now supports HTTPS and has a <a href="12280.html">more advanced data viewer</a>, not everything went quite to plan during the process of the server upgrade with accumulator resets <a href="12250.html">affecting some kwh and daily kwh feeds</a>. The server also suffered performance issues after the reboot which were ultimately fixed by moving the remaining mysql data feeds to phptimeseries.</p>
+<p>The number of users and feeds on emoncms.org has grown significantly over the years, there are now 22000 active feeds up from 13000 this time last year. Feed data is stored across two dedicated servers with SSD drives. The version of emoncms running on emoncms.org has gone through quite a bit of modification to support the increasing load level, it features a faster input processing stage, processing queues and support for multiple storage servers. The latest version of the source code running on emoncms.org can be found here (see readme for more info): <a href="https://github.com/emoncms/emoncmsorg">https://github.com/emoncms/emoncmsorg</a></p>
+<p>For some time there has been a mixture of modules, input processors, visualisations etc. on emoncms.org at varying levels of completeness. Ssome of these less well maintained developments have been removed over the last year in order to focus on a core set of better maintained functionality. The next steps however, require larger changes. Here is my current proposal:</p>
+<p><strong>Histograms: </strong>Rather than generate histogram feeds as they are done now as part of input processing, adding additional disk write load at each update, configuration complication and feed engine support while not being particularly configurable in terms of histogram type and resolution, I would like to move the generation of histograms to a post processing step. At a basic level via the new graph interface which allows <a href="12280.html">on the fly histograms to be built from any feed</a>. And then perhaps as a second stage a post processor that can scan through a whole feed in order to build histograms with a more advanced set of options &ndash; it may however be better to do this locally using a desktop tool.</p>
+<p><strong>phpfiwa : </strong>PHPFiwa calculates a series of averaged layers for each feed so that when a data request is made over a long time scale the returned data provides an accurate representation of the underlying data. The way PHPFiwa is currently implemented means that for every datapoint added, the write load per datapoint can be 4x larger than PHPFina, as 3 additional files need to be written. Ideally, these averaged layers could be calculated as a post processing step so that larger blocks can be written at any one time &ndash; or, for the writing of these layers to be buffered in memory which would ideally be good to implement on emoncms.org for the base layer and phpfina as well. PHPFiwa was initially added before I appreciated the write load implications of updating each file in this way, which I have since written about here: <a href="https://github.com/openenergymonitor/documentation/blob/master/BuildingBlocks/TimeSeries/writeloadinvestigation.md">https://github.com/openenergymonitor/documentation/blob/master/BuildingBlocks/TimeSeries/writeloadinvestigation.md</a>. The low write version of emoncms does not support PHPFiwa or the histogram engine for the this reason.</p>
+<p>Perhaps PHPFina and PHPFiwa could merge into one feed engine with a bit of work. Most of the time when data is posted it would write only to layer 0, essentially functioning as PHPFina does. Then, at the point where the data is requested, a property could be set in the data request that would request an averaged output. It would then compute the average up to the last point that it computed averages for, doing so in one efficient read and write step rather than on every update. PHPFina is currently the default feed engine on emoncms.org both to reduce disk wear and for increased portability moving feeds between emoncms.org and an emonbase/emonpi.</p>
+<p><strong>Complete move to accumulating kWh and Wh, i.e. away from daily input processors</strong>. Kwh per day/month/year could then be calculated on the fly from accumulating kWh feeds. The storage of the data is timezone independent and it&#39;s easier to cross reference with the reading from a billing meter. Ideally, the total kWh reading would be recorded on the emontx/emonpi itself and stored perhaps in battery backed memory &ndash; this could use the memory attached to an RTC module. This would provide a more accurate reading that would be independent of radio and internet connection issues. In the meantime, accumulating kWh data can be generated from power feeds with the power to kWh input processor. The visualisations simple zoom, zoom, stacked, stacked solar and order bars have been updated to support accumulating kwh feeds. There still needs to be a way to generate accumulating kwh data from existing power feeds via a post processing tool.</p>
+<p>See this post on <a href="12308.html">Creating kWh per day bar graphs from Accumulating kWh </a></p>
+<p><strong>Post-processor: </strong>build accumulating kwh feeds from power feeds, calculate weekly, monthly averages etc based on timezones and number of days in a month etc. histograms?</p>
+<p><strong>Front-end custom dashboards: </strong>Documentation on how to build custom front end websites that use emoncms.org for backend data storage. I&#39;ve been putting together a application specific website for heatpump monitoring which does this, the code for which is here: <a href="https://github.com/openenergymonitor/HeatpumpMonitor/tree/master/Dashboard">https://github.com/openenergymonitor/HeatpumpMonitor/tree/master/Dashboard</a></p>
+<p><strong>MySolar app: </strong>Daily generation and consumption, import/export as part of the mysolar module.</p>
+<p><strong>Misc developments</strong> (to elaborate further on in further posts)</p>
+<ul>
+<li>Record feed name and tag to PHPFina feed meta files for use in exports &ndash; making these feeds more portable without a requirement to move the mysql database.</li>
+<li>Implement buffered writing on emoncms.org for phpfina to reduce disk wear.</li>
+<li>Fully documented and publicly accessible API.</li>
+<li>Improved API, remove not-technically-correct .json requirement, use request methods: GET, PUT, POST, DELETE</li>
+<li>Add ability to reset and delete old data in feeds.</li>
+<li>Email verification on account sign-up on emoncms.org</li>
+<li>Ability to change/generate new apikeys</li>
+<li>Ability to use input values in dashboards.</li>
+<li>Investigate possibility of using a MQTT server for receiving data into emoncms.org from monitors. What should the topic and message structure be? Authentication? Timestamps? Bulk uploads?</li>
+<li>Create a tool for efficient bulk upload of feed data to emoncms.org whether from existing emoncms feed engines or CSV etc.</li>
+</ul>
+<p><strong>Emoncms.org service, pricing, billing + admin &amp; development role. </strong>In order to ensure the long term sustainability of emoncms.org as the number of servers required grow along with the associated development and server admin work certain levels of use will need to be on a pay-for basis &ndash; according to the number of feeds and duration of storage required. It is the intention that the income generated from this would be able to pay for a dedicated emoncms.org administration and development role, which we will open to the community here. More on this soon.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11722.html" class="topic-previous" title="Go to previous forum topic">‹ Continuous Sampling EmonPi and EmonTx v3.4 examples</a>
+              <a href="12572.html" class="topic-next" title="Go to next forum topic">Daily kWh/d not resetting (Power to kWh/d) ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-40168"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Tue, 08/03/2016 - 12:46.</div>
+    <div class="content">
+     <p>Good work Trystan. &nbsp;I&#39;ve almost finished the initial version of my more secure sensor nodes which I&#39;ll push up to github soon.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40174"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 08/03/2016 - 17:40.</div>
+    <div class="content">
+     <p><strong>Emoncms.org service, pricing, billing</strong></p>
+<p>Although probably not good news to many readers, it&#39;s a step that&#39;s probably long overdue, and if it funds an admin &amp; development role, then all the better.<br />
+Nice write up, it&#39;s good to know your future development plans, and which direction emoncms is taking.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-40184"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 08/03/2016 - 23:14.</div>
+    <div class="content">
+     <p>Thanks Paul, Stuart. appreciate your support and time reading through</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41037"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 10/04/2016 - 12:38.</div>
+    <div class="content">
+     <p><strong>Progress and recent changes to emoncms.org:</strong></p>
+<ul>
+<li>Emoncms.org has now got a 3rd storage server adding 1TB of SSD disk space to the 0.5TB there at the moment!</li>
+<li>The password reset issue has now been rectified.<br />
+	&nbsp;</li>
+<li><strong>**PHPFiwa: </strong>The option to create new PHPFiwa feeds has been removed, replaced with PHPFina as the standard engine. I have an initial implementation of post processing averaged layers that runs on the PHPFina feed engine that will provide much of the same functionality with the averaged layer being a cached property that can be easily rebuilt and updated on request to the average API. The next step for emoncms.org is to convert all existing PHPFiwa feeds to PHPFina feeds and then at a later stage introduce this post processed averaging once its been refined more&nbsp; thoroughly.<br />
+	&nbsp;</li>
+<li><strong>**Histograms:</strong> The input processing based histogram feature has been removed and the updating of existing histograms via input processing have also been stopped. This input processing implementation has now been replaced with the on the fly post processing option available using the graph module. See section on the histogram feature in the graph module <a href="12280.html">here</a>. I will start archiving existing histogram data towards the start of May. For anyone who wishes to export this data its possible to do this with the<a href="https://github.com/emoncms/usefulscripts"> backup tool in usefulscripts</a> or by using the export api directly: (<a href="https://emoncms.org/feed/export.json?id=HISTOGRAMFEEDID&amp;start=0" title="https://emoncms.org/feed/export.json?id=HISTOGRAMFEEDID&amp;start=0">https://emoncms.org/feed/export.json?id=HISTOGRAMFEEDID&amp;start=0</a>)<br />
+	&nbsp;</li>
+<li><strong>Clearer input processing and feed engine options: </strong>I have tried to improve the grouping of the input processors and added to their descriptions including a link to the forum post on <a href="12308.html">Creating kWh per day bar graphs from Accumulating kWh</a><br />
+	<a href="../sites/default/files/processlist.png"><img alt="" src="../sites/default/files/processlist.png" style="width: 400px; height: 243px;" /></a></li>
+<li>The feed engine descriptions have been amended to Fixed interval (PHPFina Recommended) and Variable interval (PHPTimeseries).</li>
+</ul>
+<p><strong>Next steps for emoncms.org</strong></p>
+<ol>
+<li>Fix timezone support using cumulative kwh data for: simplezoom, stacked solar stacked and zoom visualisations</li>
+<li>Review timezone support for phptimeseries</li>
+<li>Conversion of emoncms.org PHPFiwa feeds to PHPFina</li>
+<li>Addition of the post processor module so that the feeds required for the new mysolar app can be calculated from existing data.</li>
+<li>Launch new mysolar app which uses cumulative kWh feeds</li>
+<li>Complete the new solar pv documentation to reflect the new mysolar app.</li>
+<li>Create publicly accessible API documentation for emoncms.org</li>
+</ol>
+<p><strong>Later stage</strong></p>
+<ol>
+<li>Review datapoint editing + daily and realtime editor visualisations</li>
+<li>Add the ability to save graphs created with the new graph interface replacing the need for the realtime, rawdata, bargraph and multigraph visualisations as all of these could be built from the new more powerful graph interface - simplifying the overall experience of using and configuring emoncms graphs.</li>
+<li>Post processed cached average layers for PHPFina engine.</li>
+</ol>
+<p>&nbsp;</p>
+<p>The result of all of this will be a much more streamlined, simpler to use and easier to maintain emoncms.org. Moving as much as possible away from a reliance on input processing to post processing reduces the reliance on getting everything right at the setup stage and makes processed data recoverable, as its easy to rebuild in the event of a bug, server issue or incorrect initial implementation of a feature as well as providing more flexibility: the ability to modify and reprocess data at a later stage as requirements change.</p>
+<p>The data core of emoncms consisting of the remaining input processes and core feed engines will be a more robust and simpler core that is easier to maintain as emoncms.org develops especially with the way its is distributed across several servers.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41038"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 10/04/2016 - 14:44.</div>
+    <div class="content">
+     <p>I&#39;ve fixed these now on emoncms.org:</p>
+<ul>
+<li>Fix timezone support using cumulative kwh data for: simplezoom, stacked solar stacked and zoom visualisations</li>
+<li>Review timezone support for phptimeseries</li>
+</ul>
+<p>If your using cumulative kWh data created with the input process power_to_kwh on emoncms.org the visualisations bargraph, simplezoom, stacked solar, stacked and zoom + myelectric app will all return daily kWh data that is aligned to the timezone selected on the user profile page - which should complete timezone support across emoncms.org for cumulative kWh feeds.</p>
+<p>A full page refresh might be needed to load the latest javascript.</p>
+<p>If you have daily kWh data using the phptimeseries feed engine on emoncms.org the data is saved and reset at midnight UTC which has been a long running bug. For those on BST the changes to the visualisations required for power_to_kwh feeds mean that at least the day is correctly now for kWh/d phptimeseries data and the missing sunday 27th is back, although the kWh shown will be for the period defined by midnight UTC.</p>
+<p>The post processing module will make it possible to re-process these feeds from their underlying power data feeds to a timezone correct form very soon.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41041"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 10/04/2016 - 16:04.</div>
+    <div class="content">
+     <p>The latest code on emoncmsorg is up here https://github.com/emoncms/emoncms<strong>org</strong>/commits/master. Im going to work out next how to copy the main changes around timezone support over to emoncms v9.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41046"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 10/04/2016 - 18:02.</div>
+    <div class="content">
+     <p>Changes to bargraph, simplezoom, stacked solar stacked and zoom visualisations to support timezone correct daily data for phpfina and phptimeseries have now been implemented on the emoncms v9 master branch for testing.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41118"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 13/04/2016 - 09:39.</div>
+    <div class="content">
+     <p>I&#39;ve started with converting emoncms.org phpfiwa feeds to phpfina feeds today, its quite a simple operation but one thing I have noticed in a number of initial feeds is that if the posting to a particular feed is very sporadic or if the interval has been selected to be significantly less than the actual post interval the graph can show that there is no data present - the data is actually there its just that there are a lot of null values surrounding it. For example lets say we are posting data every 60s but the feed has been created at 10s feed interval. The underlying feed will look like this:</p>
+<table border="1" cellpadding="1" cellspacing="1" style="width: 500px;">
+<tbody>
+<tr>
+<td>0s</td>
+<td>10s</td>
+<td>20s</td>
+<td>30s</td>
+<td>40s</td>
+<td>50s</td>
+<td>60s</td>
+<td>70s</td>
+<td>80s</td>
+<td>90s</td>
+<td>100s</td>
+<td>110s</td>
+<td>120s</td>
+</tr>
+<tr>
+<td><strong>18.5</strong></td>
+<td>NAN</td>
+<td>NAN</td>
+<td>NAN</td>
+<td>NAN</td>
+<td>NAN</td>
+<td><strong>18.2</strong></td>
+<td>NAN</td>
+<td>NAN</td>
+<td>NAN</td>
+<td>NAN</td>
+<td>NAN</td>
+<td><strong>18.1</strong></td>
+</tr>
+</tbody>
+</table>
+<p>If the phpfina request method is not aligned to the data correctly, lets say the data was actually recorded 20s past the minute and the request is pulling data out every 60s, then the data returned will be empty even though its actually there.</p>
+<p>I&#39;ve ran a check on 15000 phpfina feeds on one of the emoncms.org storage servers to see how many feeds have more than 60% of the data as nan values based on the last 5000 datapoints in each feed and it&#39;s 32% which could mean that there are quite a large number of graphs not showing the underlying data that is present.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41119"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 13/04/2016 - 11:58.</div>
+    <div class="content">
+     <p>In order to make it possible to at least see the data recorded in phpfina feeds where the feed interval is less than the data post interval I&#39;ve fast forwarded the introduction of the on the fly averaging (mean) I mentioned above. Its not the full implementation but it provides averaging for up to 1 week of data recorded at 10s.</p>
+<p>So if you looking at your data in emoncms and it appears as thought there is none present this is how its possible to show the data:</p>
+<ol>
+<li>Click on the eye icon for the feed you wish to view in the emoncms feed list to open the feed in the graph viewer (default feed viewer).</li>
+<li>Perhaps there will be no data visible or only some of it will be visible, if you click on show missing it may go blank, or look like this:<br />
+	<a href="../sites/default/files/averaging_off.png"><img alt="" src="../sites/default/files/averaging_off.png" style="width: 400px; height: 237px;" /></a></li>
+<li>With one week or less of data in the view, tick the PHPFina Average checkbox and then click on reload, the data should now appear more complete and as a plus the result is and accurate average:<a href="../sites/default/files/averaging_on.png"><img alt="" src="../sites/default/files/averaging_on.png" style="width: 400px; height: 242px;" /></a></li>
+<li>Beyond 1 week of data it reverts to the default data request method without averaging, the next step is to precompile and cache the layers required for longer term averages.</li>
+</ol>
+<p>I&#39;ve pushed this all up to the emoncms master branch and graph module for other systems.</p>
+<p>The longer term solution for feeds where the feed interval is shorter than the post rate is to recompile the feed to the correct interval but this is a bit more involved, perhaps a feature for the post processor module that&#39;s currently in development.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41132"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9799.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hmm01i&#039;s picture" title="hmm01i&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9799.html" title="View user profile.">hmm01i</a> on Thu, 14/04/2016 - 05:33.</div>
+    <div class="content">
+     <p>Hi guys,</p>
+<p>Loving this project. But wondering about all the work you&#39;ve been doing on database&nbsp;and dashboards.&nbsp;Have you guys looked into Grafana&nbsp;for presenting time&nbsp;series data? And what about using an existing time&nbsp;series database, such as graphite or influxdb? At my work we use send&nbsp;1.3million metrics per minute to&nbsp;graphite. It&#39;s very robust.</p>
+<p>I&#39;m adding various sensors in my house and intend to log an assortment of&nbsp;metrics. emonPi is just one of them. So&nbsp;I was&nbsp;looking at using raintank&nbsp;and grafana.net. They are are hosting a&nbsp;graphite database and use grafana for dashboards. All very slick.</p>
+<p>I&#39;m going to start working on some emonHub interfaces shortly. I&#39;ll share them when I get something working.</p>
+<p>Thanks!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41135"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 14/04/2016 - 08:18.</div>
+    <div class="content">
+     <p>Thanks hmmm01i, to be honest Im very happy with the current solution. Its very lightweight, I understand the code so can modify it to requirements, its scaling very well, the timeseries engine part occupies a very small fraction of the overall server load. The changes above are more a refinement and focus on a version of the timeseries engine I wrote that has now been stable and effective for quite some time. I did look a bit into graphite and I think its very good, I particularly enjoyed reading Chris Davis&#39;s contribution to the book architecture of open source book here <a href="http://aosabook.org/en/graphite.html" title="http://aosabook.org/en/graphite.html">http://aosabook.org/en/graphite.html</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41137"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 14/04/2016 - 09:26.</div>
+    <div class="content">
+     <p>Would part of the solution be to add a check to the &#39;log to feeds process&#39;,&nbsp;to prevent, or at least warn users that they are about to create a process where the interval is less than the actual post interval. It wouldn&#39;t cure existing feeds, but may prevent future feeds from presenting this issue.</p>
+<p>&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41138"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 14/04/2016 - 09:31.</div>
+    <div class="content">
+     <p>Yes something like that would be useful - emoncms would need to know somehow what the post interval is, perhaps the input module could record this as the nodes appear and then suggest the interval on feed creation?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41139"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 14/04/2016 - 09:46.</div>
+    <div class="content">
+     <p>I have now converted all PHPFiwa feeds on the first emoncms.org server to PHPFina which covers about half of the total.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41148"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 14/04/2016 - 16:50.</div>
+    <div class="content">
+     <p>All emoncms.org PHPFiwa feeds have now been converted to PHPFina which is one big step forwards in terms of simplifying and making emoncms.org more maintainable. It also means the same feed format is both supported on emoncms.org and the emonpi.</p>
+<p>I&#39;ve also made quite a bit of progress on the implementation of the on-the-fly averaging using PHPFina feeds mentioned above which will provide much of the functionality of PHPFiwa in a way that is more write efficient and with the benefit of the averaged layers being easily rebuildable from the base data. Its now possible to extract fully calculated averages covering up to 480 days with 10s data on any PHPFina feed on emoncms.org using the graph modules &#39;PHPFina average&#39; tickbox as shown in the screenshot above.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41160"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9799.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="hmm01i&#039;s picture" title="hmm01i&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9799.html" title="View user profile.">hmm01i</a> on Fri, 15/04/2016 - 03:36.</div>
+    <div class="content">
+     <p>Thanks for the reply&nbsp;Trystan. I wasn&#39;t familiar with that book. It is very good!&nbsp;I&#39;m&nbsp;not much of a programmer&nbsp;myself&nbsp;so I&#39;m prone to looking for existing solutions. However, I&#39;ve started learning a bit recently and just had&nbsp;PR accepted to emonhub. :D I look forward to contributing more.</p>
+<p>- Jacob</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41260"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 19/04/2016 - 12:22.</div>
+    <div class="content">
+     <p>Emoncms.org has now got the input and feed api publicly accessible for reference:</p>
+<p><a href="https://emoncms.org/site/api#input" title="https://emoncms.org/site/api#input">https://emoncms.org/site/api#input</a><br />
+<a href="https://emoncms.org/site/api#feed" title="https://emoncms.org/site/api#feed">https://emoncms.org/site/api#feed</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41261"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 19/04/2016 - 12:25.</div>
+    <div class="content">
+     <p>Id like to add to this a page on core concepts (i.e inputs, input processing and feeds), a page on generating kWh per day, week, month data and generating average data for temperature &amp; humidity data.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41280"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 20/04/2016 - 14:13.</div>
+    <div class="content">
+     <p>Hi Trystan - making the api pages publicly available is a nice touch, the point of access may actually be better placed on the <a href="http://emoncms.org/site/home">emoncms.org home screen</a>&nbsp;with a short&nbsp;explanation for new users like the docs, github and install&nbsp;rather than on the navbar since it doesn&#39;t need to be on the navbar&nbsp;once logged in as there are links on the feeds page and&nbsp;inputs page for the pages&nbsp;prepopulated&nbsp;with an apikey and a new user without an account will only see the &quot;logged out&quot; navbar..</p>
+<p>The &quot;API&quot; link looks a bit random when using just the readkey to view the apps, it does work and reveals the api docs when clicked but has very&nbsp;little&nbsp;relevance&nbsp;to the single target link. It&#39;s not really in keeping with the nice clean view you have only just achieved by removing the settings button for the readapi&nbsp;views.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41311"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 21/04/2016 - 14:40.</div>
+    <div class="content">
+     <p>Good point. I will do that, perhaps its worth having a link under setup, especially once I add a section on generating day, week, month, year kWh and temperature, humidity averages.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41559"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 03/05/2016 - 13:25.</div>
+    <div class="content">
+     <p>I&#39;ve moved the api link under the setup section when logged in, at the moment it also shows in the menu bar when on the home page and logged out.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41562"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 03/05/2016 - 15:03.</div>
+    <div class="content">
+     <p>There is now a documentation page on creating daily kWh data available from the emoncms api pages: <a href="https://emoncms.org/site/api#dailykwh" title="https://emoncms.org/site/api#dailykwh">https://emoncms.org/site/api#dailykwh</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-41563"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emoncms.org development: next steps</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 03/05/2016 - 15:40.</div>
+    <div class="content">
+     <p>Moving this to the new guide site: <a href="https://guide.openenergymonitor.org/setup/daily-kwh/" title="https://guide.openenergymonitor.org/setup/daily-kwh/">https://guide.openenergymonitor.org/setup/daily-kwh/</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/12310"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Jj2l7-6fryxaUo_7zgKqne3fFfAGXPqWimwEQZXkzXY" value="form-Jj2l7-6fryxaUo_7zgKqne3fFfAGXPqWimwEQZXkzXY"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12310 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:15:53 GMT -->
+</html>

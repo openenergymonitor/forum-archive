@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3954 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:07:59 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gas monitoring - direct pulse with EmontxV3 | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Gas monitoring - direct pulse with EmontxV3</h3>
+        <span class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Sat, 01/03/2014 - 10:58</span>
+        <div class="content"><p>Hi all,</p>
+<p>I&#39;m doing gas monitoring with success using an emontxV3. After one week, the index displayed in my Emoncms account is exactly the same displayed on my gas meter ! So I am glad to give you some feedbacks.</p>
+<p>My gas meter is a G4 Gallus 2000. Millions of units have been installed worldwild for years. By luck, this meter had already been equipped with a <a href="http://www.compteur-energie.com/media/Gallus 2000 G4.pdf">pulse genera</a>tor by my gas furnisher. This pulse generator which has been designed for my gas meter is basically a reed switch normally opened. You can purchase it <a href="http://www.compteur-energie.com/emetteur-impulsion-pour-compteur-g4-gallus.htm">here</a> in France.</p>
+<p>If you have a different gas meter or if you don&#39;t want to buy this pulse generator you can made your own pulse generator using a reed switch (search for gas monitoring on the forum and have a look in the building block section)</p>
+<p>In the emontxV3 pulse sketch or in the wiki, one can read that it may be needed to add a pull-down resistor onto the emonTx V3 PCB (R31). I didn&#39;t do it as the PCB is already equipped with this resistor. I guess it&#39;s a copy paste error coming from the emontxV2. So I directly connect my pulse generator into emonTx V3 terminal block port 4 (IRQ 0 / Digital 2) and block port 2 (3.3V)</p>
+<p>First, I tried to use the emontxV3 pulse sketch available on github. It was not working as expected because I got a lot of bounces and glitches.See attached graphs. It tried to filter the signal directly in the sketch with an appropriate&nbsp; interrupt service routine. It worked fine for glitches but not well for bounces. I guess some interrupts were ignored because my filtering ISR was too long.</p>
+<p>So I wrote another sketch to smooth the pulse signal without using interrupts. It reads the state of the signal each seconds and detects real state changes. The number of real pulses is sent every ten seconds. It is difficult for me to explain how it works in english but the code is really easy to understand (see below). <strong>It works very well with my pulse signal that does not switch faster than every 6 secondes.</strong> You may adapt the duration between two read to meet your needs</p>
+<p>
+	I realized later that it is possible to filter such a signal using a hardware method. A simple RC circuit well designed should work fine. Look for debouncing circuit in google. For sure, it will free your arduino to do something else....</p>
+<p>Regards,</p>
+<p>Eric</p>
+<p>****************************************</p>
+<p>&nbsp;</p>
+<p>void loop()<br />
+	{&nbsp;&nbsp;<br />
+	&nbsp; emontx_sleep(1);<br />
+	&nbsp;<br />
+	&nbsp; val_2=val_1;&nbsp;&nbsp;&nbsp; // value read 2 sec ago<br />
+	&nbsp; val_1=val;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // value read 1 sec ago<br />
+	&nbsp; val = digitalRead(2);&nbsp;&nbsp;&nbsp; // value of the pin 2<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp; if (debug==1) {Serial.print(val_2);Serial.print(val_1);Serial.println(val);}<br />
+	&nbsp;<br />
+	&nbsp; if ((val_2 &amp; val_1 &amp; val &amp; !state) or (!val_2 &amp; !val_1 &amp; !val &amp; state)){<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; state=!state;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; emontx.pulse=emontx.pulse++;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; if (debug==1) {Serial.print(&quot;&nbsp; Pulse = &quot;);Serial.println(emontx.pulse);}<br />
+	&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;<br />
+	&nbsp; mesure++;</p>
+<p>&nbsp; if (mesure==10){<br />
+	&nbsp;&nbsp;&nbsp; if (debug==1) {Serial.print(&quot;&nbsp; send Pulse = &quot;);Serial.println(emontx.pulse);}<br />
+	&nbsp;&nbsp;&nbsp; send_rf_data();<br />
+	&nbsp;&nbsp;&nbsp; mesure=0;<br />
+	&nbsp;&nbsp;&nbsp; emontx.pulse=0;<br />
+	&nbsp; }</p>
+<p>&nbsp; digitalWrite(LEDpin, HIGH); delay(2); digitalWrite(LEDpin, LOW);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // flash LED<br />
+	}</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2368.html" class="topic-previous" title="Go to previous forum topic">‹ Pool temperature monitor</a>
+              <a href="3946.html" class="topic-next" title="Go to next forum topic">Thoughts from the Open Source Awards ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3954 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:07:59 GMT -->
+</html>

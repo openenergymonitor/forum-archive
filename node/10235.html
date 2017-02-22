@@ -1,0 +1,524 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10235 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:44:16 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+        <span class="submitted">Submitted by <a href="../user/7648.html" title="View user profile.">mrgreedy</a> on Mon, 02/03/2015 - 00:50</span>
+        <div class="content"><p>I&#39;ve had a free weekend, so I finally decided to sit down and properly hammer out measuring pulses from my gas meter.</p>
+<p>Originally I was going to build a 433mhz transmitter - either one of Nathan&nbsp;Chantrell&#39;s tinyTXs, or one of Martin Harizanov&#39;s FunkyV2s..These would connect to my Pi and use NodeRED to spit the data toward emoncms.&nbsp;</p>
+<p>A couple of months back the internet was awash with stories of these super cheap ESP2866&nbsp;wifi&nbsp;enabled chips.. You could plug them into your Arduino&nbsp;projects, send them AT commands and do all kinds of amazing things.. Someone clever figured out how to flash a Lua interpreter onto these chips, so it seemed reasonable to try doing away with the Pi 433mhz middleman and connect directly to emoncms&nbsp;over wifi.</p>
+<p>If anyone is interested in playing with these chips theres an awesome getting started guide written by Peter Jennings on Benlo.com.</p>
+<p>So, connected to a breadboard I have a couple of resistors, a long wire that goes out to the reed switch near the&nbsp;meter and the ESP2866.</p>
+<p>The following code is pretty hacky&nbsp;for now. But pretty bullit-proof. It counts pulses connected to GPO2, saves this count to flash - saving I discovered was important because NodeMCU has a tendency to crash and restart randomly. On each pulse the properly formatted URL is sent to emoncms... My gas in measured in 0.01 increments, but NodeMCU&#39;s&nbsp;Lua implementation isn&#39;t that good at rounding floating point numbers (the type &quot;float&quot; didn&#39;t exist at all in this implementation till around a month ago), so I chose to count in integers and covert to a string with a decimal point before sending it to emoncms. Finally it also runs a little webserver so you can connect to it, see the current gas meter count and change it without having to reconnect the ESP2866 to your PC and edit the source&#39;s &quot;count&quot; variable.</p>
+<pre>
+count = 0
+delay = 0
+tempstr = &#39;&#39;
+convertedfloat = &#39;&#39;
+
+gpio.mode(4,gpio.INT,gpio.PULLUP)
+
+srv=net.createServer(net.TCP)
+ 
+srv:listen(80,function(conn)
+    conn:on(&quot;receive&quot;,function(conn,payload)
+    
+    if string.find(payload,&quot;newgascount=&quot;) ~= nil then
+        if string.find(payload,&quot;send&quot;) ~= nil then    
+            file.open(&quot;counter.lua&quot;, &quot;w+&quot;)
+            file.writeline(string.sub(payload, 13, 19))
+            file.close()
+        end
+    end
+
+    file.open(&quot;counter.lua&quot;, &quot;r&quot;)
+    count = file.readline()
+    file.close()
+    conn:send(&#39;&lt;html&gt;Enter gas meter reading and press &quot;send&quot; to reset the counter&lt;br&gt;&#39;(format XXXXXXX - no decimal)&#39;
+        ..&#39;&lt;form method=&quot;POST&quot; name=&quot;gas_meter&quot; &gt;&#39;
+        ..&#39;&lt;p&gt;&lt;input name=&quot;newgascount&quot; value=&quot;&quot; maxlength=&quot;7&quot; size=&quot;7&quot;&gt;&lt;/p&gt;&#39;
+        ..&#39;&lt;p&gt;&lt;input type=&quot;submit&quot; name=&quot;lo&quot; value=&quot;send&quot; /&gt;&lt;/p&gt;&#39;
+        ..&#39;Current Meter Value: &#39;..count..&#39;&lt;/form&gt;&lt;/body&gt;&#39;)
+    collectgarbage()
+end)
+
+conn:on(&quot;sent&quot;,function(conn) conn:close() 
+end)
+
+end)
+
+function counter(level)
+    conn = nil
+    conn = net.createConnection(net.TCP, 0)
+    x = tmr.now()
+    if x &gt; delay then
+        delay = tmr.now()+250000
+
+        file.open(&quot;counter.lua&quot;, &quot;r&quot;)
+        count = file.readline()
+        file.close()        
+
+        count = count + 1
+        tempstr = tostring(count)
+        convertedfloat = string.sub(tempstr, 1, 5)..&#39;.&#39;..string.sub(tempstr, 6, 7)
+        
+        file.open(&quot;counter.lua&quot;, &quot;w+&quot;)
+        file.writeline(count)
+        file.close()
+
+        conn:on(&quot;receive&quot;, function(conn, payload) 
+        end)
+
+        conn:on(&quot;connection&quot;, function(conn, payload) 
+            conn:send(&quot;GET /input/post.json?json={gas:&quot;..convertedfloat..&quot;}&amp;apikey=XXXXXXXXXXXXXXXXXXXXXXXXXXX &quot;
+            ..&quot; HTTP/1.1\r\n&quot; 
+            ..&quot;Host: emoncms.org\r\n&quot;
+            ..&quot;Connection: close\r\n&quot;
+            ..&quot;Accept: */*\r\n&quot; 
+            ..&quot;User-Agent: Mozilla/4.0 (compatible; esp8266 Lua; Windows NT 5.1)\r\n&quot; 
+            ..&quot;\r\n&quot;)
+            print(&quot;http://emoncms.org/input/post.json?json={gas:&quot;..convertedfloat..&quot;}&amp;apikey=XXXXXXXXXXXXXXXXXXX&quot;)
+        end) 
+
+        conn:on(&quot;disconnection&quot;, function(conn, payload) 
+        end)
+
+        conn:connect(80,&#39;80.243.190.58&#39;)
+    end
+end
+
+gpio.trig(4, &quot;down&quot;,counter)</pre><p>So there you have it, it&#39;s do-able! Any suggestions to getting the best data out of my counter? Is sending an actual pulse-count the best way to go?</p>
+<p>Thanks!</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11949.html" class="topic-previous" title="Go to previous forum topic">‹ Measuring single appliance energy usage</a>
+              <a href="11929.html" class="topic-next" title="Go to next forum topic">remote access ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-28598"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="zhivko&#039;s picture" title="zhivko&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by zhivko (not verified) on Thu, 12/03/2015 - 00:52.</div>
+    <div class="content">
+     <p>Are you really using NodeMCU?</p>
+<p>Is reset pin connected to 3.3V via 10k resistor? I also have found that resets are usual if reset is left floating.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28603"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7648.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mrgreedy&#039;s picture" title="mrgreedy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7648.html" title="View user profile.">mrgreedy</a> on Thu, 12/03/2015 - 10:22.</div>
+    <div class="content">
+     <p>I&#39;m really trying to use NodeMCU yes. I say &quot;try&quot;. Because it&#39;s buggy as hell. That was the initial reason for saving the count to a file every pulse - and having a webserver&nbsp;to change the count.</p>
+<p>I&#39;ve not really had a chance to play with this over the last couple of weeks. I was getting weird resetting behaviour, so I flashed the chip to the latest firmware - that broke its webserving abilities - so I naturally lost interest.</p>
+<p>I&#39;ve finally found a version&nbsp;of NodeMCU that seems pretty stable so I&#39;ll put the thing all back together at try it for a day in situ when I can.</p>
+<p>I&#39;ve not got the reset pin connected to anything, actually. I&#39;ll&nbsp;try this too.</p>
+<p>I&#39;d ordered an ESP07&nbsp;from China ages ago, and that finally arrived, so&nbsp;I&#39;ve&nbsp;been soldering legs on that - it&#39;s got more exposed GPIOs&nbsp;(which is helpful because on the ESP01&nbsp;connecting GPIOs to ground at boot time puts the chip into reflash mode).</p>
+<p>So I&#39;ve got:</p>
+<p>VCC -&gt; 3.3v</p>
+<p>CH_PD -&gt; 3.3v</p>
+<p>GND -&gt; gnd</p>
+<p>GPIO15 -&gt; 10k resistor on one side and my reed switch which is connected to 3.3v on the other</p>
+<p>The ESP07 needs GPIO15&nbsp;to be connect to ground at boot&nbsp;for the LUA interepter&nbsp;to start. So this works well for me.</p>
+<p>I&#39;lll deffo try the reset pin thing. And post my findings (and slightly better code) later.</p>
+<p>Thanks!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28624"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="zhivko&#039;s picture" title="zhivko&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by zhivko (not verified) on Fri, 13/03/2015 - 00:14.</div>
+    <div class="content">
+     <p>Definetely try to connect reset pin to VCC, I remember some guys reported that they were able to reset esp8266, just by moving hand over rst pin. I haven&#39;t experienced any resets - &nbsp;I have esp07 module bought from banggood - and reset is connected to VCC.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29955"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8065.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="socket&#039;s picture" title="socket&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8065.html" title="View user profile.">socket</a> on Mon, 27/04/2015 - 22:16.</div>
+    <div class="content">
+     <p>Hello,</p>
+<p>I launched the code on&nbsp;my ESP&nbsp;but I am getting an error. The server works fine and I am able to update the counter value but when getting new pulses the error below appears:</p>
+<p>-------------------------------------------------</p>
+<p>Config done, IP is 192.168.1.193<br />
+PANIC: unprotected error in call to Lua API (serv.lua:48: attempt to perform arithmetic on global &#39;count&#39; (a string value))<br />
+PANIC: unprotected error in call to Lua API (attempt to call a nil value)</p>
+<p>----------------------------------------------</p>
+<p>The line 48 is around the function couner:</p>
+<p>&nbsp;</p>
+<p>----------------------------------------------------------------</p>
+<p>function counter(level)<br />
+&nbsp; &nbsp; conn = nil<br />
+&nbsp; &nbsp; conn = net.createConnection(net.TCP, 0)<br />
+&nbsp; &nbsp; x = tmr.now()<br />
+&nbsp; &nbsp; if x &gt; delay then<br />
+&nbsp; &nbsp; &nbsp; &nbsp; delay = tmr.now()+250000</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; file.open(&quot;counter.lua&quot;, &quot;r&quot;)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; count = file.readline()<br />
+&nbsp; &nbsp; &nbsp; &nbsp; file.close() &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p><u>&nbsp; &nbsp; &nbsp; &nbsp; count = count + 1</u><br />
+&nbsp; &nbsp; &nbsp; &nbsp; tempstr = tostring(count)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; convertedfloat = string.sub(tempstr, 1, 5)..&#39;.&#39;..string.sub(tempstr, 6, 7)</p>
+<p>---------------------------------------------------------------------------------------------------------------</p>
+<p>I searched for the error message in google&nbsp;but nothing helps.&nbsp;Do you know what could be wrong with this?</p>
+<p>Thank you !</p>
+<p>Regards</p>
+<p>Tom</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29989"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8065.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="socket&#039;s picture" title="socket&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8065.html" title="View user profile.">socket</a> on Wed, 29/04/2015 - 09:41.</div>
+    <div class="content">
+     <p>Finally I have found the root cause of this issue. When uploading the value of the counter from the website it has been saved with the &quot;&amp;&quot; string on the end of the value. That is why when performing arithmetic operation I am getting error &quot;attempt to perform arithmetic on global &#39;count&#39; (a string value))&quot;.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30466"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8178.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="juanpintom&#039;s picture" title="juanpintom&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8178.html" title="View user profile.">juanpintom</a> on Sun, 17/05/2015 - 23:02.</div>
+    <div class="content">
+     <p>Hi all!, Im tryin&nbsp;to integrate emonlib&nbsp;on ESP wifi&nbsp;module and load it directly with this modified&nbsp;Arduino IDE:</p>
+<p><a href="https://github.com/esp8266/Arduino">https://github.com/esp8266/Arduino</a></p>
+<p>It&#39;s a hard work but this could be useful to make easy wifi nodes, and this can be integrated on Souliss too to see the data etc... Any help and ideas are appreciated. I&#39;ll work on it and let you know.</p>
+<p>Regards!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30468"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3426.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3426.jpg" alt="Bill Thomson&#039;s picture" title="Bill Thomson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3426.html" title="View user profile.">Bill Thomson</a> on Sun, 17/05/2015 - 23:39.</div>
+    <div class="content">
+     <p>Socket,</p>
+<p>Have you tried using the tonumber function on your convertedfloat variable to change it back to a numeric value?</p>
+<p>reference: <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tonumber">www.lua.org/manual/5.1/manual.html#pdf-tonumber</a></p>
+<p>additional info here: <a href="http://stackoverflow.com/questions/20543450/how-to-convert-a-lua-string-to-float">http://stackoverflow.com/questions/20543450/how-to-convert-a-lua-string-to-float</a></p>
+<p>Regards,</p>
+<p>Bill</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30492"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="DGee&#039;s picture" title="DGee&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by DGee (not verified) on Mon, 18/05/2015 - 21:42.</div>
+    <div class="content">
+     <p>Picking up the meter pulses</p>
+<p>Is there now a &quot;standard&quot; approach for this?</p>
+<p>The options, in the absence of an electrical connection, seem to be based on the rotating magnet inside the gas meter or on the mirrored zero on the right-most digit of the mechanical meter display or on the meter-pulse-flashing LED.</p>
+<p>The flashing LED, if there is one, should be fairly simple &ndash; use any available photocell to react to its light.</p>
+<p>The silver zero is similar except that an illuminating light source is needed. It also seems that some of the packaged photoreflective devices on offer may not work because they need to be mounted very close to the reflector. Is there a recommended device, or a recipe for cannibalising an optical mouse perhaps?</p>
+<p>The magnetic approach depends on a pick-up coil, a Hall-effect device or on a reed relay, in each case sensitive enough to respond to the changing magnetic field. Are there recommended devices/circuits? A reed looks to be the cheapest option - 10p for a reed and 2-wire connection.</p>
+<p>I note that my gas meter gives my magnetic compass a snappy tug via the magnet &ndash; has anyone thought it worth fitting a compass needle with a photoreflective sensor?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36579"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5886.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="ricard0g0mes&#039;s picture" title="ricard0g0mes&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5886.html" title="View user profile.">ricard0g0mes</a> on Wed, 02/12/2015 - 12:04.</div>
+    <div class="content">
+     <p>Any news about this?</p>
+<p>I would love to see this working.</p>
+<p>I use emoncms&nbsp;to measure my energy with an W5100 and Arduino Nano.</p>
+<p>I have to have ethernet cable and would love to get rid of it :D</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36585"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8178.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="juanpintom&#039;s picture" title="juanpintom&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8178.html" title="View user profile.">juanpintom</a> on Wed, 02/12/2015 - 14:23.</div>
+    <div class="content">
+     <p>Hi, you can get this working using an Arduino to read the data and the ESP act like a W5100.</p>
+<p>On Souliss we&#39;ve made an example to use both devices on this way connected via UART. Here is an example:</p>
+<p><a href="https://github.com/souliss/souliss/wiki/ESP8266 to RS485">https://github.com/souliss/souliss/wiki/ESP8266%20to%20RS485</a></p>
+<p>Regards</p>
+<p>PD. I think it&#39;s possible to read a CT sensor with the A0 of the ESP, If someone accomplish this please let me know.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36588"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5886.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="ricard0g0mes&#039;s picture" title="ricard0g0mes&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5886.html" title="View user profile.">ricard0g0mes</a> on Wed, 02/12/2015 - 15:13.</div>
+    <div class="content">
+     <p>Yes, with the arduino+esp i know but i wanted to use only one device. ;)</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37917"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9245.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="solrac76&#039;s picture" title="solrac76&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9245.html" title="View user profile.">solrac76</a> on Tue, 05/01/2016 - 19:26.</div>
+    <div class="content">
+     <p>Hello Ricardo&nbsp;</p>
+<p>I have done this in Lua, and is working very well :-) , i am counting pulses with my esp8266&nbsp;, after 15 minutes it sends the total pulses to emoncms , the esp do a sync with an ntp server to syncronise the own time , so it is sending every 00 , 15, 30,45 minutes , if you need the project i can give it to you.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37927"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/937.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/937.html" title="View user profile.">Bramco</a> on Wed, 06/01/2016 - 09:03.</div>
+    <div class="content">
+     <p>Solrac,</p>
+<p>Why don&#39;t you share your code anyway. I&#39;m sure you have reused loads of sections of your code from other people&#39;s code.</p>
+<p>I would be interested to see how you did the NTP bit for example.</p>
+<p>Thanks.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37935"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9245.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="solrac76&#039;s picture" title="solrac76&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9245.html" title="View user profile.">solrac76</a> on Wed, 06/01/2016 - 13:46.</div>
+    <div class="content">
+     <p>Hello Bramco, sure i have take take pieces of code from everywhere and have build this for my needs, can you tell me how i can upload this project?, i have 4 lua files.</p>
+<p>Init.lua:&nbsp;looks if the esp has a config&nbsp;file where the info is about your router (ssid and password) if yes the program will start , if not it will start a wifi config</p>
+<p>wifi config: the Esp will start as Ap you can connect with the esp8266&nbsp;and call the webserver (IP 192.168.0.1), there you can put your wifi&nbsp;ssid and password, and you can put a node number and api key for your emoncms, after this wificonfig will create a config file, and restart the esp.</p>
+<p>run_program: counts the pulses and sends to a emoncms server after every 15 minutes, every hour makes a sync with a ntp server, every second will call a file (berechn.lua) there will convert the unix time in a human time :-) , i am only using the minutes.</p>
+<p>Nodemcu has a firmware with an Api for the sntp you can look here <a href="https://github.com/nodemcu/nodemcu-firmware/wiki/nodemcu_api_en" title="https://github.com/nodemcu/nodemcu-firmware/wiki/nodemcu_api_en">https://github.com/nodemcu/nodemcu-firmware/wiki/nodemcu_api_en</a></p>
+<p>I hope maybe we can work together an make it better :-)&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37948"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/937.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bramco&#039;s picture" title="Bramco&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/937.html" title="View user profile.">Bramco</a> on Wed, 06/01/2016 - 17:18.</div>
+    <div class="content">
+     <p>I think you can simply attach the files to a reply to this thread.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37950"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9245.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="solrac76&#039;s picture" title="solrac76&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9245.html" title="View user profile.">solrac76</a> on Thu, 14/01/2016 - 23:00.</div>
+    <div class="content">
+     <p>Here are the files, you need a node mcu Firmware with this api&nbsp;modules: node,file,gpio,wifi,net,tmr,uart,ow,dht,rtctime,sntp</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37971"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1958.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1958.png" alt="fluppie007&#039;s picture" title="fluppie007&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1958.html" title="View user profile.">fluppie007</a> on Thu, 07/01/2016 - 14:18.</div>
+    <div class="content">
+     <p><a href="http://www.esp8266.nu/index.php/PulsCounter" title="http://www.esp8266.nu/index.php/PulsCounter">http://www.esp8266.nu/index.php/PulsCounter</a></p>
+<p>https://github.com/ESP8266nu/ESPEasy​</p>
+<p>Don&#39;t know if it&#39;s reliable enough.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37987"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9245.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="solrac76&#039;s picture" title="solrac76&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting places with gas meters, reed switches and ESP2866/NodeMCU/Lua</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9245.html" title="View user profile.">solrac76</a> on Thu, 07/01/2016 - 18:20.</div>
+    <div class="content">
+     <p>Thanks fluppie , you haved make a nice work , but i think&nbsp;we are here talking about Esp8266&nbsp;with Lua , sending data to Emoncms.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10235"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-DBo5PJkGhDKSBYkzjDU1JezF-j7fbl5VutSJSOf44pI" value="form-DBo5PJkGhDKSBYkzjDU1JezF-j7fbl5VutSJSOf44pI"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10235 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:44:17 GMT -->
+</html>

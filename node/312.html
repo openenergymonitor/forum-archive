@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/312 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:46:10 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Application architecture | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h2>
+	Old Application architecture - kept here for reference</h2>
+<p>The new emoncms documentation location is here <a href="http://emoncms.org/">http://emoncms.org/</a></p>
+<p>Emoncms follows the commonly used Model-View-Controller (MVC) architecture, which provides a clear way of separating the functions of the application in to different parts.</p>
+<p>At the heart of the application is the database, which stores the application data, such as user information and feeds data. Everything else is there to essentially be the bridge between the user and the database. Providing the user with the data requested in the requested format from a http web accessible API.</p>
+<p>The following diagram shows the distinct stages in this process and the flow of data between them using the example of creating a list of a users feeds:</p>
+<h3>
+	Application flow diagram</h3>
+<p><img alt="" height="351" src="../sites/default/files/diagram.jpg" width="700" /></p>
+<h3>
+	Whats going on here?</h3>
+<h3>
+	1) index.php</h3>
+<p>As in the diagram above everything is directed through index.php, this is achieved using mod_rewrite</p>
+<p>The purpose of mod_rewrite is to convert</p>
+<pre>
+emoncms/user/login</pre><p>to:</p>
+<pre>
+emoncms/index.php?q=user/login</pre><p>index.php then fetches the property <strong>q</strong> with <em>$_GET[&#39;q&#39;] </em>and builds the page accordingly.</p>
+<p><font size="2">Anther name for index.php it is the main controller. The controller that decides which sub-controllers are to be called and can put the result of many controllers together.&nbsp;</font><font size="2">When the themed HTML format is requested it wraps the output of the sub-controllers (including sub-views) in the main application theme.</font></p>
+<h3>
+	<strong>1) The models</strong></h3>
+<div>
+	The model translates the mysql database API into a php methods which define the internal API of the application. The internal API can be seen an includable software library that makes the main application scripting a bit neater.</div>
+<div>
+	&nbsp;</div>
+<div>
+	With database requests such as the following:</div>
+<pre>
+</pre><div>
+	$feed_result = db_query(&quot;SELECT * FROM feeds WHERE id = &#39;$feedid&#39;&quot;);</div>
+<div>
+	$feed_row = db_fetch_array($feed_result);</div>
+<div>
+	if ($feed_row[&#39;status&#39;] != 1) { // if feed is not deleted</div>
+<div>
+	&nbsp; $feed = array($feed_row[&#39;id&#39;],$feed_row[&#39;name&#39;],$feed_row[&#39;tag&#39;],$feed_row[&#39;time&#39;],$feed_row[&#39;value&#39;]);</div>
+<div>
+	}</div>
+<div>
+	Being turned into nice one-line commands like this:</div>
+<pre>
+$feed = get_feed($feedid);
+</pre><h3>
+	<strong>2) The controllers</strong></h3>
+<div>
+	The controllers are the bridge between the internal php API and the external HTTP API.</div>
+<div>
+	Converting a request such as:</div>
+<pre>
+http://yoursite/emoncms3/feed/list.html</pre><div>
+	into:</div>
+<pre>
+$feeds = get_user_feeds($userid);</pre><div>
+	and returning the output in the required format. The controllers also handle access privileges and input validation, which are discussed here on the <a href="313.html">security page.</a></div>
+<div>
+	&nbsp;</div>
+<div>
+	A typical controller action might look like this: (the following action is within the function feed_controller() )</div>
+<div>
+<pre>
+if ($action == &#39;list&#39; &amp;&amp; $_SESSION[&#39;read&#39;])
+{
+  $feeds = get_user_feeds($_SESSION[&#39;userid&#39;]);
+
+  if ($format == &#39;json&#39;) $output = json_encode($feeds);
+  if ($format == &#39;html&#39;) $output = view(&quot;feed/list_view.php&quot;, array(&#39;feeds&#39; =&gt; $feeds));
+}</pre></div>
+<div>
+	<strong>Access privileges</strong></div>
+<div>
+	The line $_SESSION[&#39;read&#39;] determines the access privileges of the controller action. In this case the user must have at least read access privileges, which can be granted with a read access apikey.&nbsp;$_SESSION[&#39;write&#39;] would require the user to have write access privileges. No $_SESSION read or write check would make the action public.</div>
+<div>
+	&nbsp;</div>
+<div>
+	<strong>Format control</strong></div>
+<div>
+	The output can currently be themed as a nice HTML page for viewing in a browser or as a JSON string for use in 3rd party applications, AJAX requests or datalogging equipment.</div>
+<div>
+	&nbsp;</div>
+<div>
+	The format is set by adding a .html or .json to the end of the HTTP API. If no format is given it will assume that the format desired is a themed html page.</div>
+<div>
+	&nbsp;</div>
+<div>
+	<strong>JSON format output:<span class="Apple-tab-span" style="white-space:pre"> </span></strong>emoncms/feed/list<strong>.json</strong></div>
+<div>
+	<strong>HTML themed output:</strong><span class="Apple-tab-span" style="white-space:pre"> </span>emoncms/feed/list<strong>.html</strong></div>
+<div>
+	&nbsp;</div>
+<div>
+	For most controller actions you will see the following format control lines:</div>
+<div>
+<pre>
+if ($format == &#39;json&#39;) $output = json_encode($feeds);
+if ($format == &#39;html&#39;) $output = view(&quot;feed/list_view.php&quot;, array(&#39;feeds&#39; =&gt; $feeds));</pre></div>
+<div>
+	For the json option the output is just json encoded and then returned.</div>
+<div>
+	For the html option the output is passed to a <strong>view</strong> which handles the wrapping in a themed html output. The output of the view is passed back to the controller for returning to the main controller: index.php</div>
+<div>
+<div>
+<h3>
+			3) Views</h3>
+<div>
+			The views wrap the variables and objects passed from the controllers in a presentation layer, such as html and css. A simple view outputting a table with a list of feeds might look like this:</div>
+<div>
+			&nbsp;</div>
+</div>
+<pre>
+&lt;table&gt;
+  &lt;?php foreach ($feeds as $feed)  { ?&gt;
+  &lt;tr&gt;
+    &lt;td&gt;&lt;?php echo $feed[&#39;name&#39;]; ?&gt;&lt;/td&gt;
+    &lt;td&gt;&lt;?php echo $feed[&#39;value&#39;]; ?&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;?php } ?&gt;
+&lt;/table&gt;
+</pre></div>
+<p>&nbsp;</p>
+</div>
+    
+    
+      </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/312 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:46:10 GMT -->
+</html>

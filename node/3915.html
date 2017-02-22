@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emoncms time-of-day filter process | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/5">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emoncms time-of-day filter process</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/5190" title="View user profile.">Schism</a> on Mon, 24/02/2014 - 10:07</span>
+        <div class="content"><p>Use case: I&#39;m counting pulses of gas at five minute intervals and I want to log to different feeds depending on the time of day, so I can separate gas used for hot water (5-6am) from space heating (other times).</p>
+<p>There are a few possibilities and I&#39;d like to implement the one which is most consistent with the rest of emonCMS.</p>
+<p>So far my thoughts are:</p>
+<ul>
+<li>
+		Add a filter process which passes through the value unchanged if the current time is within the desired range, otherwise returns 0. This would support other time-selective uses of the input (such as adding or multiplying inputs only at certain times of day).</li>
+<li>
+		The hours of the day to be filtered would be input as a bitmask to make it fully flexible (not sure how the UI would work just yet).</li>
+<li>
+		After the filter I&#39;d place a standard Accumulator process and then Kwh&nbsp;to kwh/d (a daily accumulator by any other name)</li>
+</ul>
+<p>The main problem is that you can&#39;t chain multiple time periods together on a single input.</p>
+<p>Whichever time filter process comes first will sometimes return 0 making the second and subsequent time filters useless. Even were this not the case, you can&#39;t chain two accumulators together because the first one will change the $value being propogated down the chain to the new accumulator total, so the next set of processes logging to an alternative accumulator don&#39;t have access to the original input anyway.</p>
+<p>However I look at it this seems to call for multiple processing chains per input, which might be a bigger undertaking than I really wanted as a first contribution :)</p>
+<p>Any thoughts welcome.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/5445" class="topic-previous" title="Go to previous forum topic">‹ Anyone got a new Raspberri Pi B+ working?</a>
+              <a href="/emon/node/10017" class="topic-next" title="Go to next forum topic">How to change the feed interval later ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-18709"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms time-of-day filter process</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Mon, 24/02/2014 - 12:13.</div>
+    <div class="content">
+     <p>Hi Schism,</p>
+<p>I&#39;ve been working on multiple daily time period reporting in EmonCMS&nbsp;to support peak and off-peak electric rates, I believe the same processing would be required for your needs.</p>
+<p>I have a working solution that could probably be improved vastly as I am currently learning as I go.</p>
+<p>I have found you can report different time periods to individual feeds accumulators and daily accumulators on the same input.</p>
+<p>There is some more info on this thread <a href="http://openenergymonitor.org/emon/node/2499">http://openenergymonitor.org/emon/node/2499</a>&nbsp;but I haven&#39;t had any feedback as yet.</p>
+<p>This workaround relies on another input node to switch time periods, based on your info above you would need 2 transmissions a day, 1 at 5am&nbsp;&amp; another at 6am, each with 3 fields node_id period1 &amp; period2. the only difference between the transmissions would be&nbsp;one having values of period1 = 1 and period2 = 0 and the other reversed to switch back. I&#39;ve used cron and it works well.</p>
+<p>Whilst dev&#39;s may not consider this a &quot;proper&quot; solution it does work without any mods to emoncms and has the advantage of adjusting the time period easily eg&nbsp;BST or seasonal etc and multiple time periods can report to the same feeds just by adding more cron lines eg if you needed to have the hot water on for a second period in the afternoon you only need to add cron lines and the existing processing in emoncms would tally the am and pm periods together for both hot water and heating feeds.</p>
+<p>Additional time periods with separate reporting can be added easily by creating another processing sub-chain on the same input and adding the corresponding crons and periodX active flag to the node transmission.&nbsp;</p>
+<p>A currentCost field can also be used if you need to report use in monetary terms for each period</p>
+<p>If the emoncms&nbsp;processing side is acceptable maybe the cron side could be replaced by a scheduler script which could be edited via&nbsp;packetgen or replaced all together with a packetgen type module posting directly to emoncms</p>
+<p>Apologies if I&#39;ve misinterpreted your requirements or if this is not suitable.</p>
+<p>Regards Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18714"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/5190" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms time-of-day filter process</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/5190" title="View user profile.">Schism</a> on Mon, 24/02/2014 - 13:59.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>Your solution using a synthetic node is really original, I&#39;m impressed!</p>
+<p>It would be cleaner to support from within emoncms but the nice thing about yours is that you can add unlimited granularity which would be tricky to support through the UI (i.e. you can have cron enable something for just a few minutes of the day).</p>
+<p>I&#39;d never considered using allow positive + negative then re-adding the input to its own processing chain to start over either. That&#39;s pretty cunning! (Rather than trying to add multiple processing chains, I could add a &quot;reset&quot; process as a stop-gap which is a little more intuitive for the rest of us!)</p>
+<p>Are you on github? If you sign up for an account you can easily upload your source for us to play with :)</p>
+<p>Great work.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18720"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms time-of-day filter process</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Mon, 24/02/2014 - 15:32.</div>
+    <div class="content">
+     <p>Hi Schism</p>
+<p>Thanks for the kind feedback I was wondering if I had suggested something taboo in the dev&#39;s world when there where no return comments on the other thread.</p>
+<p>I do have a github account but I&#39;m not sure what &quot;source&quot; you refer to as I haven&#39;t coded anything (yet) to implement this for Peak &amp; off-peak Elec&nbsp;I did 3 things</p>
+<p>1) created 2 copies of Jeromes socket example script offPeak.py &amp; onPeak.py with 2 lines changed</p>
+<p><a href="http://https://github.com/Jerome-github/oem_gateway/blob/master/examples/OemGatewaySocketListener_client.py">https://github.com/Jerome-github/oem_gateway/blob/master/examples/OemGatewaySocketListener_client.py</a></p>
+<p class="rteindent1">HOST = &#39;raspberrypi&#39; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;changed to &nbsp; &nbsp;&nbsp;HOST = &#39;oemgateway&#39; &nbsp; &nbsp; &nbsp; &nbsp; in both</p>
+<p class="rteindent1">frame = &#39;15 69 1664&#39; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;changed to &nbsp; &nbsp; frame = &#39;15 15609 1 0&#39; &nbsp; &nbsp; &nbsp; &nbsp; in onPeak.py</p>
+<p class="rteindent1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;and &nbsp; &nbsp; &nbsp;frame = &#39;15 6949 0 1&#39; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;in offPeak.py</p>
+<p class="rteindent1">where 15 is node_id followed by currentrate (unit price x 1000) and then onPeakActive and offPeakActive</p>
+<p><span style="font-size: 12px;">2) added 2 </span>cron<span style="font-size: 12px;"> lines on Pi running </span>oem_gateway to run scripts at 00:15 and 07:15 each day</p>
+<p class="rteindent1">15 00 * * * python /home/offPeak.py<br />
+	15 07 * * * python /home/onPeak.py</p>
+<p>3) create&nbsp;emoncms&nbsp;sub-processes on the grid monitoring input for each period</p>
+<p class="rteindent1">Allow Positive</p>
+<p class="rteindent1">Allow Negative</p>
+<p class="rteindent1">+ Input &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (grid ct in my case &amp; gas pulse in yours)</p>
+<p class="rteindent1">Allow Positive &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;(filter out solar export, you shouldn&#39;t need this)</p>
+<p class="rteindent1">x Input &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;PeriodActiveFlag&quot; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (multiplies by 1 if period active or 0 if inactive)</p>
+<p class="rteindent1">Log to Feed &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; create new &quot;period1use&quot;</p>
+<p class="rteindent1">x &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0.001 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;(this undoes the watts to Kw/hr calcs built into power to kWh/d)</p>
+<p class="rteindent1">Power to kWh/d &nbsp; &nbsp; &nbsp; create new &quot;period1useToday&quot;</p>
+<p class="rteindent1">My processes then go on to determine current pence per hr and pence today for that period and then repeats for&nbsp;<span style="font-size: 12px;">the second period (starting with allow positive &amp; allow negative)</span></p>
+<p>So as you see there is no source code as such at the moment its more of a workaround</p>
+<p>As previously mentioned there are better ways of doing the &quot;synthetic node&quot; side but I haven&#39;t yet explored that side as this works for me a gui would be good to set time periods etc. Maybe for your application rather than a timed cron period maybe &quot;HotWaterNowOn&quot; &amp; &quot;HeatingNowOn&quot; scripts triggered by the master control circuit itself would be better so if the hot water period gets moved or extended the emoncms reporting supports it without alteration.</p>
+<p>If you think it would be of use to have something on github to help improve/develop, I&#39;m happy to do that with a little guidance.</p>
+<p>Excuse the wordy description and terminology I am not a coder, not that you needed me to point that out I&#39;m sure :-)</p>
+<p>Regards Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18740"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/5190" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms time-of-day filter process</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/5190" title="View user profile.">Schism</a> on Mon, 24/02/2014 - 23:10.</div>
+    <div class="content">
+     <p>Hey Paul,</p>
+<p>Thanks for the walkthrough. I like that you say you haven&#39;t coded anything yet, then give me a line by line of the code you changed :) The main reason I suggested&nbsp;github is that it makes it easy to see exactly the line by line changes, and to grab the files onto one&#39;s own Pi if desired. It&#39;s not essential but git is so powerful that you&#39;ll soon wonder how you got by any other way. That&#39;s fine for now though.</p>
+<p>Although... I&#39;ve pushed a branch which supports a new &#39;reset&#39; process. If you fancy giving it a try you could let me know how it goes...</p>
+<p><a href="https://github.com/Dave-McCraw/emoncms/compare/resetProcess" title="https://github.com/Dave-McCraw/emoncms/compare/resetProcess">https://github.com/Dave-McCraw/emoncms/compare/resetProcess</a></p>
+<p>Assuming your Pi setup is OEM, the following should work:</p>
+<pre>
+cd /var/www/emoncms
+git remote add mccraw git@github.com:Dave-McCraw/emoncms.git
+git fetch mccraw
+git checkout -b resetProcess mccraw/resetProcess
+sudo service rfm12piphp restart
+</pre><p>To demonstrate it works, add a new x10 or something onto the end of a processing chain, then reset it, then log to a temporary new feed. Feed value should not be multiplied...</p>
+<p>To go back to stock, run:</p>
+<pre>
+cd /var/www/emoncms
+git checkout master
+sudo service rfm12piphp restart
+</pre>         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18775"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/5190" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms time-of-day filter process</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/5190" title="View user profile.">Schism</a> on Tue, 25/02/2014 - 19:21.</div>
+    <div class="content">
+     <p>OK - that&#39;s the filter by hour of day process working too, if anyone fancies giving it a try.</p>
+<p><a href="https://github.com/Dave-McCraw/emoncms/compare/hour_of_day_filter_process" title="https://github.com/Dave-McCraw/emoncms/compare/hour_of_day_filter_process">https://github.com/Dave-McCraw/emoncms/compare/hour_of_day_filter_process</a></p>
+<p>I would have preferred to pass in an argument of comma separated hours (i.e. 12,13 would cover lunchtime) but emoncms was cropping that to the first number only, so I&#39;ve stuck with the raw bitmask for now.</p>
+<p>You can easily generate arguments using&nbsp;http://www.tfxsoft.com/playground/calc.php</p>
+<p>Settings: from binary to decimal</p>
+<p>Number to convert: supply 24 digits, one for each hour - just remember that they are in reversed order</p>
+<p>111111111111111111111111 (all day)</p>
+<p>000000000000000000111111 (first six hours of the day)</p>
+<p>etc...</p>
+<p>Hit convert and copy the &quot;In base 10 this is [number]&quot; and use that number as your emonCMS&nbsp;input.</p>
+<p>Keen to hear any feedback.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18776"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1741" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1741.jpg" alt="ukmoose&#039;s picture" title="ukmoose&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms time-of-day filter process</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1741" title="View user profile.">ukmoose</a> on Tue, 25/02/2014 - 19:57.</div>
+    <div class="content">
+     <p>Schism, Impressive stuff! &nbsp;</p>
+<p>&nbsp;</p>
+<p>If I understand your code correctly it&#39;s working in <strong>UTC timezone?</strong></p>
+<p>NOT the local timezone of where people are...</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18778"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/5190" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms time-of-day filter process</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/5190" title="View user profile.">Schism</a> on Tue, 25/02/2014 - 20:10.</div>
+    <div class="content">
+     <p>Yeah, I was thinking of emoncms.org when I was setting it up and thought consistency might be best (ideally a second input of local timezone could be supplied).</p>
+<p>Admittedly, it would be better to use the Pi&#39;s local time for everyone else :S</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18817"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4440" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms time-of-day filter process</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4440" title="View user profile.">pb66</a> on Wed, 26/02/2014 - 23:10.</div>
+    <div class="content">
+     <p>Unfortunately I&#39;m not running emoncms on a local server yet, so as much as I&#39;d like to, I can&#39;t try it out just yet.<br />
+	Having said that I have to say my workaround may be more suited to my current needs as if I understand correctly your reporting module works on hourly segments that start on the hour, which wouldn&#39;t align to my wonky off-peak/peak periods which change at quarter past the hour.<br />
+	The reset process I think would definitely be of more use to me although I currently have my additional processes spread over several less processed inputs so rather than reset the input process back to its own input value, I am resetting to a different input to spread the processing and help manage it better, but theres no reason why the same input can&#39;t be used over and over again (although the longer the processing list the more of a pain it gets to add new processes to the top of the chain)<br />
+	None the less I glad you&#39;ve got a resolution that works for you and I will try the modules when I set up emoncms locally.<br />
+	Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18827"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/5190" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-5190.jpg" alt="Schism&#039;s picture" title="Schism&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms time-of-day filter process</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/5190" title="View user profile.">Schism</a> on Thu, 27/02/2014 - 08:39.</div>
+    <div class="content">
+     <p>Hi Paul,</p>
+<p>Yes, only hourly on the hour unfortunately. Something much more sophisticated would be needed to do arbitrary times - but it&#39;s a good goal.</p>
+<p>cheers,</p>
+<p>Dave</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26842"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3695" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms time-of-day filter process</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3695" title="View user profile.">chaveiro</a> on Sun, 18/01/2015 - 15:42.</div>
+    <div class="content">
+     <p>Check this: <a href="http://openenergymonitor.org/emon/node/10019" title="http://openenergymonitor.org/emon/node/10019">http://openenergymonitor.org/emon/node/10019</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/3915"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-xRXFFbl5o-DN7AimI2P5qKNFRBDtXtq465e4vREZt5o" value="form-xRXFFbl5o-DN7AimI2P5qKNFRBDtXtq465e4vREZt5o"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

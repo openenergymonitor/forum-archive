@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3539 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:28:24 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Housekeeping php session files | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Housekeeping php session files</h3>
+        <span class="submitted">Submitted by Guest on Mon, 06/01/2014 - 12:31</span>
+        <div class="content"><p>I have been using a standalone Emoncms (v3) on a Pi for over a year tracking some temperature sensors in my house - 5 individual feeds taken every minute. My post-Christmas project was deploying a RFM12Pi and emonTx to monitor my PV system.</p>
+<p>Because my Pi is doing other things I upgraded to the latest Emoncms software and rfm2pigateway.py&nbsp; as per the instructions rather than taking the complete SD image and I wanted to ask the forum if a behaviour I am seeing is normal.</p>
+<p>As a test I attached one CT to the emonTx v3 and everything worked first time with data arriving as expected on the input page. I left things to soak and the following day, via the &#39;top&#39; display, noticed the Pi was constantly spawning &#39;fuser&#39; processes from a shell script which I had not noticed before making the ssh session sluggish. After investigation I found an /etc/cron.d/php5 script housekeeping php5 session files from /var/lib/php5:</p>
+<pre>
+/etc/cron.d/php5:
+find /var/lib/php5/ -depth -mindepth 1 -maxdepth 1 -type f -ignore_readdir_race -cmin +$(/usr/lib/php5/maxlifetime) ! -execdir fuser -s {} 2&gt;/dev/null \; -delete)</pre><p>While rfm2pigateway.py is running, whether it is receiving data or not, php5 session files are created at a rate of more than one a second. /etc/cron.d/php5&nbsp;is set to run at 9 and 39 minutes past the hour but due to the rate the session files are created it does not finish before the next /etc/cron.d/php5 script kicks in 30 minutes later.</p>
+<p>The new instance together with the earlier invocation does start to make head-way and catches up with deleting, however any reprieve is short-lived leaving the &nbsp;script running almost all the time. I have seen over 5000 session files and with rfm2pigateyway stopped it took about 15 minutes to clear the back-log which implies it does catch-up once a second instance gets to grips with the task.</p>
+<p>Given that the emonTx only sends data every 10 seconds the rate of session files seems excessive. I have googled in and around the topic and it seems the cron method is a Debian fix due to the ownership of /var/lib/php5 not being able to use the php5 built-in garbage collection.&nbsp; I have also seen suggestions of removing the fuser in the php5 script to make it execute faster and that with two instances running they could get into conflict with file locking.</p>
+<p>Any advice on whether this is normal, changing the housekeeping job or reassurance that I am worrying about nothing gratefully received.</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2049.html" class="topic-previous" title="Go to previous forum topic">‹ Sending data from Raspbery Pi to Emoncms.org</a>
+              <a href="3418.html" class="topic-next" title="Go to next forum topic">Questions about the EmonCMS installation procedure (Linux) ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-17352"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Housekeeping php session files</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Mon, 06/01/2014 - 15:46.</div>
+    <div class="content">
+     <p>I don&#39;t know about your problem.</p>
+<p>On a different topic, the python script is not really maintained. Since I created the standalone gateway, it looks like people use either the php script as emoncms RPi module or the standalone gateaway. Since the standalone python gateway exists, there is no real need to maintain the emoncms module python script in parallel.</p>
+<p>Is there a reason (a feature ?) you are using it in place of the php script ? If so, you may want to consider using the standalone gateway.</p>
+<p>I don&#39;t think this is linked to your issue, though. This is just for your information.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17368"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="guyhall&#039;s picture" title="guyhall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Housekeeping php session files</h3>
+
+    <div class="submitted">Submitted by guyhall (not verified) on Tue, 07/01/2014 - 09:11.</div>
+    <div class="content">
+     <p>Ok, so it sounds like I may have two challenges. I chose the py route as I have been trying to learn the language, but it sounds like I could be leaving my system in a bit of a dead-end. I&#39;ll fire up the php route so at least I&#39;m in a more knowledge populated &nbsp;area.</p>
+<p>Maybe a php only solution will not generate so many session files . . .</p>
+<p>Thanks for the advice.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17379"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="guyhall&#039;s picture" title="guyhall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Housekeeping php session files</h3>
+
+    <div class="submitted">Submitted by guyhall (not verified) on Tue, 07/01/2014 - 22:10.</div>
+    <div class="content">
+     <p>Many thanks J&eacute;r&ocirc;me, sound advice. I switched to the php method and now I only see session files for each time I login into the emoncms system.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-17390"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Housekeeping php session files</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Wed, 08/01/2014 - 08:54.</div>
+    <div class="content">
+     <p>Great.</p>
+<p>If you are interested in python, you may want to have a look at the standalone gateway.</p>
+<p><a href="https://github.com/Jerome-github/oem_gateway" title="https://github.com/Jerome-github/oem_gateway">https://github.com/Jerome-github/oem_gateway</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3539"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-oDM1xy2EET7Gt9MCM9g4KgaUOidPfPyOszQDUBaOVEM" value="form-oDM1xy2EET7Gt9MCM9g4KgaUOidPfPyOszQDUBaOVEM"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3539 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:28:24 GMT -->
+</html>

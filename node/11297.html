@@ -1,0 +1,297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11297 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:46:46 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Auto scaling Vref | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Auto scaling Vref</h3>
+        <span class="submitted">Submitted by <a href="../user/8738.html" title="View user profile.">pas940</a> on Thu, 24/09/2015 - 04:31</span>
+        <div class="content"><p>Hi,</p>
+<p>I&#39;m pretty green on the code side but my project needs to measure a current between about 1&nbsp;and&nbsp;60amps&nbsp;(normal run current, then detect when it drops a small percentage set by the user (maybe 10%). so i&#39;d like to have better resolution</p>
+<p>So what I have now is the adc scaled 60A of the 1024 adc counts which makes about 60mA&nbsp;steps, when running at the low end of the normal run current of 1 A i&#39;m looking at about 6% steps so not very good.&nbsp;</p>
+<p>I was hoping to improve the resolution of the adc counts by switching the vref to 1.1v when the readings were low.</p>
+<p>Biasing the ct with Aref/2 instead of vcc/2 so when we switch to 1.1v we move with it.</p>
+<p>&nbsp;</p>
+<p>this code does that:&nbsp;</p>
+<p>if (ledState == LOW)&nbsp;//just using this to test</p>
+<p>analogReference(INTERNAL); //1.1V BAND GAP<br />
+else<br />
+analogReference(DEFAULT);//AVCC 5V</p>
+<p>(take care with this I think I killed an&nbsp;arduino by tieing&nbsp;Aref to vcc then telling it to go to 1.1v internaly)&nbsp;</p>
+<p>I had to comment out the&nbsp;code below in the library&nbsp;as it was setting the admux values which analogReference() sets.</p>
+<p>In emonlib.cpp:</p>
+<p>&nbsp;#if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined (__AVR_ATmega328P__)<br />
+&nbsp; ADMUX = _BV(MUX3) | _BV(MUX2) | _BV(MUX1); //_BV(REFS0) |&nbsp;</p>
+<p>I&#39;m struggling to understand the readVcc function as this sets the admux to 1.1v but I think It may need to do it to calibrate, about here I get in&nbsp;over my head.</p>
+<p>Even with the above commented&nbsp;out theres something else in the library&nbsp;setting it to external or something wierd as I see it going to 0v in a periodic way on the scope when in 1.1 and 5v modes, I guess this may not matter, better to just do it when I need it than&nbsp;to stop every thing else touching it, again I&#39;m over my head.&nbsp;</p>
+<p>Any ideas? It would be a great&nbsp;update for your library&nbsp;although may make calibration a bit more involved ?</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11305.html" class="topic-previous" title="Go to previous forum topic">‹ EmonCMS feed API?</a>
+              <a href="11306.html" class="topic-next" title="Go to next forum topic">phpmqtt_input script blocking publish to MQTT ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-34430"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Auto scaling Vref</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 24/09/2015 - 05:32.</div>
+    <div class="content">
+     <p><em>I&#39;m struggling to understand the readVcc function as this sets the admux to 1.1v but I think It may need to do it to calibrate, about here I get in over my head.</em></p>
+<p>Yes, it sets the reference voltage to AVCC and then measures the 1.1V band gap voltage. &nbsp;The intent is to determine the current Vcc (useful in battery operated situations where Vcc might slowly be declining). &nbsp;There&#39;s more detail in the&nbsp;last posting in this thread: &nbsp;<a href="2522.html">http://openenergymonitor.org/emon/node/2522</a></p>
+<p>[Robert, how do you manage to generate links to specific replies in threads?]</p>
+<p><em>theres something else in the library setting it to external or something wierd</em></p>
+<p>Others here are more familiar with the library than I am, but I think the standard library just uses the analogRead() function and leaves the reference alone (apart from the setting you found in readVcc()). &nbsp;If you&#39;re using the continuous monitoring sketches&nbsp;then I believe they bang on the ADC h/w registers directly.</p>
+<p><em>&nbsp;I see it going to 0v in a periodic way on the scope when in 1.1 and 5v modes</em></p>
+<p>Is it possible you&#39;re dragging it down with whatever you&#39;ve connected to it in order to build your moveable mid-rail? &nbsp;It&#39;s a very high impedance source and is only really exposed to the outside world so you can decouple it with a cap to GND. &nbsp;If you put any load on it (or&nbsp;any noise on it) you&#39;ll change it, which will mess up your conversions.</p>
+<p>And speaking of that decoupling cap (typically 100nF in most designs) it can take a long long time to charge up or discharge after you switch from one reference to another (again because of the high source impedance of that signal) so you want to avoid doing any conversions until it&#39;s settled.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34432"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8738.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="pas940&#039;s picture" title="pas940&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Auto scaling Vref</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8738.html" title="View user profile.">pas940</a> on Thu, 24/09/2015 - 05:45.</div>
+    <div class="content">
+     <p>Yes I know it&#39;s high impedance, and that may cause more issues. I was thinking about doing it with external resistors and pull down controlled&nbsp;by the arduino to shift the Aref(external mode), and Aref/2 if this is not accurate</p>
+<p>For this testing I have just the scope on Aref and the cap. The&nbsp;periodic pulse to 0 on Aref is something in the libarary&nbsp;when I get rid of all emon&nbsp;libarary and functions and just use an&nbsp;analog read it&#39;s not there.</p>
+<p>I don&#39;t understand the sampling,&nbsp;averaging and calibration is there&nbsp;documentation on this?&nbsp;&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34433"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Auto scaling Vref</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 24/09/2015 - 07:05.</div>
+    <div class="content">
+     <p>I&#39;ll be interested to hear what sort of thermal stability you get with your resistor plan.</p>
+<p>I can&#39;t think of anything obvious for your AREF&nbsp;0 pulse.&nbsp;&nbsp;Assuming you&#39;ve knobbled readVcc() I can only find calls to analogRead() in the library and they should behave just like your direct calls to analogRead(). &nbsp;Does the frequency and duration of the pulse give any clues? &nbsp;You might just have to start adding calls back in and seeing which bit of code cause the pulse. &nbsp; How big is the cap?</p>
+<p>Yes, there&#39;s plenty of good detail in the Building Block section.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34438"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Auto scaling Vref</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 24/09/2015 - 08:50.</div>
+    <div class="content">
+     <p>There's an Atmel app.note on which the emonTx is based that uses a 1.1 V reference, it is probably worth reading that.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34442"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Auto scaling Vref</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Thu, 24/09/2015 - 12:55.</div>
+    <div class="content">
+     <p>Whenever I&#39;ve tried using the 1.1V internal reference, the results have been less good than when using the normal mid-rail arrangement for Vref.&nbsp; The maths does a superb job at extracting small amounts of 50Hz signal from the background noise.&nbsp; Providing that your current sensor is scaled such that the max signal (60A) covers most of the ADC&#39;s available range, I would expect to see good performance at the 1A level too.</p>
+<p>My diverter boxes have a working range of around 4kW, yet the power that is consumed by a 40W bulb is recorded surprisingly well too.&nbsp; The reported difference between a 40W and a 60W bulb will always be around the 20W mark.</p>
+<p>This level of performance is only possible when measuring both voltage and current to obtain &quot;real power&quot;.&nbsp; When individual V &amp; I readings are multiplied together, any errors in the first half of each mains cycle will tend to be offset by those in the second half.&nbsp; However, when calculating &quot;apparent power&quot; or RMS current, the performance is considerably worse at low signal levels because all such errors are squared.&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34478"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Auto scaling Vref</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Fri, 25/09/2015 - 07:29.</div>
+    <div class="content">
+     <p><em>The maths does a superb job at extracting small amounts of 50Hz signal from the background noise.</em></p>
+<p>Yes, there&#39;s nothing quite like multiplying a signal by a pure&nbsp;sine wave to filter away&nbsp;all the other frequencies. That all comes down to sin(x) being orthogonal to sin(nx) where n is an integer greater than 1, i.e. their dot product will always be zero. &nbsp;</p>
+<p>You can take a 1A 50 Hz sine wave, and add in a 200A&nbsp;150 Hz sine wave. &nbsp;Once you multiply their sum&nbsp;by the 50Hz&nbsp;voltage sine wave, the 200A signal vanishes. &nbsp;All those harmonics make a big difference to Irms but none at all to real power.</p>
+<p>For those that prefer to think of real power in the frequency domain, it&#39;s&nbsp;defined as:</p>
+<p><img alt="" src="../sites/default/files/active_power_freq.png" /></p>
+<p>but since Vh = 0 for h &gt; 1 all the terms in that sum bar the first go to zero, so it doesn&#39;t matter how big the amplitude of the harmonics are, they get multiplied by 0 and disappear. &nbsp; All of this of course assumes your V is a pure sine wave... closer to true for some of us than others. &nbsp;The more distorted your V, the more you end up getting charged for your harmonics in I because they start to find something non-zero to multiply by.</p>
+<p>But it sounds like pas940 is interested in measuring current not power, in which case all those harmonics do matter and need to be included.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34487"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Auto scaling Vref</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 25/09/2015 - 11:07.</div>
+    <div class="content">
+     <p>I take it you've seen the 'flat-topping' we get in the UK...</p>
+<p>Here's what Fourier says we have:</p>
+<pre>
+Harmonic Rel.amp  Rel angle
+1	   1	      0
+3	   1.17%    319
+5	   1.76%    283
+7	   0.93%     68
+9	   0.51%    259
+11	   0.37%    138
+13	   0.00%     18
+15	   0.32%     13
+17	   0.17%    236
+19	   0.07%     97
+21	   0.04%     25
+23	   0.10%    329
+25	   0.03%    162
+</pre><p>
+It's bound to vary across the country, my understanding is it's all the little rectifier power supplies acting collectively, but Robin's graphs (75 miles from me in a straight line) show very much the same shape.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34498"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Auto scaling Vref</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Sat, 26/09/2015 - 02:24.</div>
+    <div class="content">
+     <p>Indeed it was you I had in mind when I wrote:</p>
+<p><em>All of this of course assumes your V is a pure sine wave... closer to true for some of us than others. &nbsp;The more distorted your V, the more you end up getting charged for your harmonics in I because they start to find something non-zero to multiply by.</em></p>
+<p>Although I hadn&#39;t realised it was that way across the country, I&#39;d assumed it was a single datapoint from your house / &#39;hood and so not necessarily indicative of the country. &nbsp;I&#39;ve shown one of your graphs to a few power engineers here and they questioned whether it would even pass our grid standards. &nbsp;I think we have &nbsp;pretty tight THD limits on grid V, although I haven&#39;t been able to find out what they are. &nbsp;I take it the UK doesn&#39;t? &nbsp;Effectively you&#39;re getting charged for current harmonics that I get for free, although it would be interesting to see by how much. &nbsp;Are you able to do an FFT on your voltage wave please? &nbsp;I guess the misshapen V signal will have a corresponding effect on the I signal. &nbsp;Does the V distortion vary much throughout the day?</p>
+<p>I didn&#39;t bother to implement a Voltage FFT in my monitor (perhaps I should) but I can FFT the Current signal flowing through each breaker, so I just switched on about 800W worth of incandescent bulbs and asked it to plot the signal. &nbsp;You can see just a smidge&nbsp;of a flatop, but very little shows up in the FFT. &nbsp;Then for kicks I did the same with about 130W worth of compact fluros turned on, where you can see the harmonics all the way up to 2kHZ before I run out of bandwidth.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34504"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Auto scaling Vref</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Sat, 26/09/2015 - 08:56.</div>
+    <div class="content">
+     <p>Thanks for the FFT. &nbsp;I&#39;m not sure it&#39;s hugely worse than ours, just looks worse in the pics for some reason.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11297"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-zmJ2tITOcI4uUNnl5cIqPyaXd_icCz2-Fn-LCzF9JZc" value="form-zmJ2tITOcI4uUNnl5cIqPyaXd_icCz2-Fn-LCzF9JZc"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11297 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:46:47 GMT -->
+</html>

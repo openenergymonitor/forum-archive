@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2250 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:53 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>New emoncms with NanodeRF_multinode - &quot;api&quot; vs &quot;input&quot; data posting problem to local installation of emoncms. | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">New emoncms with NanodeRF_multinode - &quot;api&quot; vs &quot;input&quot; data posting problem to local installation of emoncms.</h3>
+        <span class="submitted">Submitted by <a href="../user/1587.html" title="View user profile.">edllew</a> on Wed, 17/04/2013 - 16:38</span>
+        <div class="content"><p>I installed the latest emoncms to my raspberry pi yesterday.&nbsp; I like the changes/improvements.</p>
+<p>	However, my NanodeRf could no longer post data to my local emoncms.&nbsp; It was working fine for about 3 months with the previous emoncms.</p>
+<p>	I don&#39;t understand what is going on behind the scenes on emoncms, but I fixed it by changing my NanodeRf code.&nbsp; I am using a modified version of NanodeRF_multinode.ino.</p>
+<p>	To fix the problem I changed one line in NanodeRF_multinode.ino, using &quot;api&quot; rather than &quot;input&quot;:<br />
+	change<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; str.print(basedir); str.print(&quot;/api/post.json?&quot;);<br />
+	to<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; str.print(basedir); str.print(&quot;/input/post.json?&quot;);</p>
+<p>	Like I said, I don&#39;t understand this.&nbsp; Interestingly, either &quot;api&quot; or &quot;input&quot; work when posting to emoncms.org rather than my local emoncms.&nbsp; From my web browser I can send:</p>
+<p>	<a href="http://raspberrypi/emoncms/input/post.json?csv=100,200,300%c2%a0%c2%a0%c2%a0%c2%a0" title="http://raspberrypi/emoncms/input/post.json?csv=100,200,300    ">http://raspberrypi/emoncms/input/post.json?csv=100,200,300    </a> ====&gt;&nbsp; this works<br />
+	http://raspberrypi/emoncms/<strong>api</strong>/post.json?csv=100,200,300&nbsp;&nbsp;&nbsp;&nbsp; ====&gt;&nbsp; this <strong>FAILS</strong></p>
+<p>	<a href="http://emoncms.org/input/post.json?&amp;csv=100,200,300%c2%a0%c2%a0%c2%a0%c2%a0" title="http://emoncms.org/input/post.json?&amp;csv=100,200,300    ">http://emoncms.org/input/post.json?&amp;csv=100,200,300    </a> ====&gt;&nbsp; this works<br />
+	http://emoncms.org/<strong>api</strong>/post.json?&amp;csv=100,200,300&nbsp;&nbsp;&nbsp;&nbsp; ====&gt;&nbsp; this <strong>works </strong></p>
+<p>	On Github, I see that the NanodeRF_multinode_static_IP.ino created three months ago also changed &quot;api&quot; to &quot;input&quot;, but none of the other NanodeRf versions have that change.</p>
+<p>	-Ed<br />
+	&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2259.html" class="topic-previous" title="Go to previous forum topic">‹ New emoncms install on Pi but No Inputs</a>
+              <a href="2247.html" class="topic-next" title="Go to next forum topic">Feedconvert Module [SOLVED] ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2250 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:51:53 GMT -->
+</html>

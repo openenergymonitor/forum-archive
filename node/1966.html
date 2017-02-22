@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1966 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:25 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>showing 40 feeds to multiple users | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">showing 40 feeds to multiple users</h3>
+        <span class="submitted">Submitted by <a href="../user/2629.html" title="View user profile.">kaiyer</a> on Sun, 27/01/2013 - 11:21</span>
+        <div class="content"><p>I have emoncms&nbsp;from github&nbsp;running on AWS using a micro-EC2&nbsp;and micro-RDS&nbsp;mySQL sessions.</p>
+<p>Our project will eventually have 40 feeds from 40 nanodeRF&nbsp;base stations feeding kwh&nbsp;and temperature data from 40 Solar PV systems.</p>
+<p>We want multiple users to be able to view the same feeds.</p>
+<p>Is this possible with emoncms?</p>
+<p>As administrator, can I set up views that users can get when registering and logging in?</p>
+<p>How do I prevent new users from adding their own feeds from other emonbase stations?</p>
+<p>Any help is greatly appreciated.</p>
+<p>regards</p>
+<p>Kumar</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="6067.html" class="topic-previous" title="Go to previous forum topic">‹ emoncms Temperature and setpoint graph</a>
+              <a href="5250.html" class="topic-next" title="Go to next forum topic">How to build an Energy Monitoring Android App p1 ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-9479"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: showing 40 feeds to multiple users</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 28/01/2013 - 18:21.</div>
+    <div class="content">
+     <p>Hello Kumar</p>
+<p>Although out of the box emoncms isnt&nbsp;setup for this, its not too hard to modify it to at least do most of this. We needed a similar setup for a community energy monitoring project that we did here. In time it would probably be good to have some of these features a little more built in.</p>
+<p>Its possible to restrict access to certain aspects of the system by adding an admin access clause, for example lets say we want to restrict access to feed/list:</p>
+<p>scroll down to line 56 of emoncms/Modules/feed/feed_controller.php</p>
+<pre>
+elseif ($action == &quot;list&quot;)</pre><p>you can restrict access to list by adding&nbsp;</p>
+<pre>
+elseif ($action == &quot;list&quot; &amp;&amp; $session[&#39;admin&#39;]==1)</pre><p>You would want to then remove the feeds link from the top menu when the user is not an administrator you could do this by adding the same clause to feed_menu.php</p>
+<pre>
+if ($session[&#39;admin&#39;]==1) $menu_left[] = array(&#39;name&#39;=&gt;&quot;Feeds&quot;</pre><p>Sharing the feeds with select users without them being public and accessible by all could be a bit more tricky. Can you explain a bit more of what you mean by multiple users wanting to view the same feeds just so Im&nbsp;sure im on the same page.&nbsp;</p>
+<p>Trystan</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9540"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2629.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="kaiyer&#039;s picture" title="kaiyer&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: showing 40 feeds to multiple users</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2629.html" title="View user profile.">kaiyer</a> on Thu, 31/01/2013 - 11:50.</div>
+    <div class="content">
+     <p>Trystan:</p>
+<p>Thanks for your reply. The code snippet is helpful.&nbsp;</p>
+<p>Here is the architecture</p>
+<p>We have feeds on one side</p>
+<p>Feed1, Feed2, ......FeedN</p>
+<p>These feeds can be set up only by administrator (thanks to your code snippet above).</p>
+<p>&nbsp;</p>
+<p>On the other side you have a group of provisioned users to the site.</p>
+<p>User 1, User 2, User3, ...UserM, Admin</p>
+<p>Admin sets up the feeds and standard set of views for all accounts. Admin also provides logins</p>
+<p>- Admin needs to disable registration on home page and be able to set up a user and just email the users password.</p>
+<p>- User then goes to website and on login sees the standard views set up by Admin.</p>
+<p>How can I accomplish this?</p>
+<p>regards</p>
+<p>Kumar</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-9579"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: showing 40 feeds to multiple users</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 02/02/2013 - 22:46.</div>
+    <div class="content">
+     <p>Hello Kumar</p>
+<p>Its possible to disable registration by setting&nbsp;$allowusersregister = TRUE; to FALSE in settings.php.</p>
+<p>There&#39;s not really an easy user interface way for an admin to create a user yet but you could do this by changing</p>
+<p>if ($action == &#39;create&#39; &amp;&amp; $allowusersregister) (line 79 of user_controller.php)</p>
+<p>to&nbsp;</p>
+<p>if ($action == &#39;create&#39; &amp;&amp; $session[&#39;admin&#39;])</p>
+<p>and changing line 81:</p>
+<p>$username = preg_replace(&#39;/[^\w\s-.]/&#39;,&#39;&#39;,post(&quot;name&quot;));&nbsp;to&nbsp;$username = preg_replace(&#39;/[^\w\s-.]/&#39;,&#39;&#39;,get(&quot;name&quot;));</p>
+<p>and line 84 again from a post(&#39;pass&#39;) to a get(&#39;pass&#39;)</p>
+<p>and then as a logged in admin you could create a user via a URL:</p>
+<p>/emoncms/user/register?name=NAMEOFUSER&amp;pass=PASSWORD</p>
+<p>There&#39;s not yet the feature to email the user when an account is created by an admin either so without coding that in youd need to do that manually.</p>
+<p>Once you have created the account youd need to setup the inputs, feeds and dashboards for the user. You could then also turn off the dashboard editor via the same type of if admin check as detailed above and in the previous reply.</p>
+<p>Im working on an improvement to the emoncms user module at the moment so will keep these ideas in mind see if I can make some of these features integrated parts of emoncms.</p>
+<p>Trystan</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24967"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6327.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="SebastianDietz&#039;s picture" title="SebastianDietz&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: showing 40 feeds to multiple users</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6327.html" title="View user profile.">SebastianDietz</a> on Tue, 04/11/2014 - 13:34.</div>
+    <div class="content">
+     <p>Hello,</p>
+<p>we&#39;re using emoncms to monitor a pv-system of a non-provit assosiation (<a href="http://einleuchtend.org/projekte/sonnja/" title="http://einleuchtend.org/projekte/sonnja/">http://einleuchtend.org/projekte/sonnja/</a>) . Now&nbsp; we&#39;re running in the same problem as Kumar (see in the first post) 2 years ago. In order to fulfill the requests of our sponsors we need a reading access to the data via different user accounts (&quot;sharing feeds between emoncms accounts&quot;). As I can see the emoncms core allows just one way: coping the data to each account. I was wondering if there is still no way to share feeds between different Accounts and if there is no development plan to improve the user management?</p>
+<p>Best regards</p>
+<p>Sebastian</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/1966"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-mJzN0xAM7UlA_StFVMyOpEoM93KytPilFehVPRZ1VNQ" value="form-mJzN0xAM7UlA_StFVMyOpEoM93KytPilFehVPRZ1VNQ"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1966 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:25 GMT -->
+</html>

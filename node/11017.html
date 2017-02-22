@@ -1,0 +1,325 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Arduino code optimisation - Low memory available, stability problems may occur. | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/5">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Arduino code optimisation - Low memory available, stability problems may occur.</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/8446" title="View user profile.">mel</a> on Tue, 21/07/2015 - 17:31</span>
+        <div class="content"><p>Hi<br />
+I&#39;ve a sketch for 3 current sensors, and it required too much memory</p>
+<p>Could somebody help me with code optimization?</p>
+<pre>
+#include &quot;EmonLib.h&quot;
+#include &lt;UIPEthernet.h&gt; //https://github.com/ntruchsess/arduino_uip Arduino Uno pins:
+ 10 = CS, 11 = MOSI, 12 = MISO, 13 = SCK
+EnergyMonitor emon0;
+EnergyMonitor emon1;
+EnergyMonitor emon2;   
+byte mac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
+EthernetClient client;
+char server[] = &quot;www.emoncms.org&quot;;  
+  float Irms0;
+  float Irms1;
+  float Irms2;
+
+void setup()
+{ 
+  Serial.begin(9600);
+  Ethernet.begin(mac);
+  emon0.current(0, 67);
+  emon1.current(1, 67);
+  emon2.current(2, 67);
+  int var;
+  while(var &lt; 3){
+    Irms0 = emon0.calcIrms(1480);
+    Irms1 = emon1.calcIrms(1480);
+    Irms2 = emon2.calcIrms(1480);
+   var++;}
+//  Serial.print(&quot;IP Address        : &quot;);
+//  Serial.println(Ethernet.localIP());
+//  Serial.print(&quot;Subnet Mask       : &quot;);
+//  Serial.println(Ethernet.subnetMask());
+//  Serial.print(&quot;Default Gateway IP: &quot;);
+//  Serial.println(Ethernet.gatewayIP());
+//  Serial.print(&quot;DNS Server IP     : &quot;);
+//  Serial.println(Ethernet.dnsServerIP());
+}
+
+void loop()
+{
+int var=0;
+float total_power_i;
+float cooker_i;
+float hall_i;
+float total_power_a;
+float cooker_a;
+float hall_a;
+float total_power_at;
+float cooker_at;
+float hall_at;
+int st;
+int ft;
+
+  while(var &lt; 15)
+  {
+  st = millis();
+
+  total_power_i = (emon0.calcIrms(1480)-0.25)*230;
+  cooker_i = (emon1.calcIrms(1480)-0.25)*230;
+  hall_i = (emon2.calcIrms(1480)-0.25)*230;
+
+  ft = millis();
+  float t=(ft-st)/3600000;
+  total_power_a=total_power_a+total_power_i*t;
+  cooker_a=cooker_a+cooker_i*t;
+  hall_a=hall_a+hall_i*t;
+
+  var++;
+  }
+  total_power_at=total_power_at+total_power_a;
+  cooker_at=cooker_at+cooker_a;
+  hall_at=hall_at+hall_a;
+
+//  Serial.println(total_power);   
+//  Serial.println(cooker);
+//  Serial.println(hall);  
+
+  if (client.connect(server, 80))
+  {
+//   Serial.println(&quot;-&gt; Connected&quot;);
+    client.print( F(&quot;GET /input/post.json?&quot;));
+    client.print(F(&quot;node=1&amp;apikey=c9c87cxxxxxxxxxxxxxxxxxxxxd66d21&amp;json={&quot;));
+    client.print(&quot;total_power_i:&quot;);
+    client.print( total_power_i );
+    client.print(&quot;,cooker_power_i:&quot;);
+    client.print( cooker_i );
+    client.print(&quot;,hall_i:&quot;);
+    client.print( hall_i );
+    client.print(&quot;,total_power_a:&quot;);
+    client.print( total_power_a );
+    client.print(&quot;,cooker_a:&quot;);
+    client.print( cooker_a );
+    client.print(&quot;,hall_a:&quot;);
+    client.print( hall_a );
+    client.print(&quot;,total_power_at:&quot;);
+    client.print( total_power_at );
+    client.print(&quot;,cooker_at:&quot;);
+    client.print( cooker_at );
+    client.print(&quot;,hall_at:&quot;);
+    client.print( hall_at );
+    client.print(&quot;}&quot;);    
+
+        while (client.available()){
+        char line = client.read();
+        if ( line==&#39;ok&#39;){
+          total_power_a=0;
+          cooker_a=0;
+          hall_a=0;
+          Serial.println(F(&quot;Ok&quot;));
+           }
+           else {
+            Serial.println(F(&quot;failed_&quot;));
+            }
+        }
+            client.println( &quot; HTTP/1.1&quot;);
+    client.print( &quot;Host: &quot; );
+    client.println(server);
+    client.println( F(&quot;Connection: close&quot;));
+    client.println();
+    client.println();
+    client.stop();
+  }
+  else {
+   // Serial.println(F(&quot;failed&quot;));
+  }
+
+}</pre><p>&nbsp;</p>
+<pre>
+Sketch uses 24,620 bytes (80%) of program storage space. Maximum is 30,720 bytes.
+Global variables use 1,671 bytes (81%) of dynamic memory,
+leaving 377 bytes for local variables.
+Maximum is 2,048 bytes.
+Low memory available, stability problems may occur.</pre><p>&nbsp;</p>
+<p>
+<em>Edit - wrapped long lines - BT</em></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/11023" class="topic-previous" title="Go to previous forum topic">‹ My Solar page (not refreshing display, showing out of date data)</a>
+              <a href="/emon/node/5806" class="topic-next" title="Go to next forum topic">make emoncms remember username....  ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-32462"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Arduino code optimisation - Low memory available, stability problems may occur.</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Wed, 22/07/2015 - 11:35.</div>
+    <div class="content">
+     <p>I can see you have used the "F(...)" macro in places, but what else have you looked at and tried?<br />
+What about a macro or a function to calculate the power (the same code appears 3 times).<br />
+Why, in setup( ), are you getting the 3 currents, storing them in 3 separate variables, and then not using them? The offset removal filters in emonLib should not now need to be run to stabilise as the latest uses a different filter that's pre-initialised. You could at worst throw the returned values away and save 12 bytes of global variables. And if the offset isn't close to half-supply, tweak it in your version of emonLib.<br />
+You might, but probably won't if the compiler is doing its stuff, save some program memory by removing everything you don't need in emonLib. The same might apply to your Ethernet library also - that's undoubtedly the memory hog.<br />
+Are you still using Serial anywhere? (Is there a dependency in the Ethernet library that I don't know about?)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32473"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/8446" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="mel&#039;s picture" title="mel&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Arduino code optimisation - Low memory available, stability problems may occur.</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/8446" title="View user profile.">mel</a> on Wed, 22/07/2015 - 18:19.</div>
+    <div class="content">
+     <blockquote><p>I can see you have used the &quot;F(...)&quot; macro in places, but what else have you looked at and tried?</p>
+</blockquote>
+<p>I have tried to revise data type for variables, tried to place declaration of variables in different places, remove all serial prints (temporary i need them for debugging).</p>
+<blockquote><p>What about a macro or a function to calculate the power (the same code appears 3 times).</p>
+</blockquote>
+<p>I can assume that this measure can save a lot of memory, but i&#39;m not so advanced in programming to make functions. If somebody can help me with function or share his sketch&nbsp;it would be great.</p>
+<blockquote><p>Why, in setup( ), are you getting the 3 currents, storing them in 3 separate variables, and then not using them? The offset removal filters in&nbsp;emonLib&nbsp;should not now need to be run to stabilise as the latest uses a different filter that&#39;s pre-initialised. You could at worst throw the returned values away and save 12 bytes of global variables. And if the offset isn&#39;t close to half-supply, tweak it in your version of&nbsp;emonLib.</p>
+</blockquote>
+<p>It seems that I&#39;m using the latest&nbsp;version of&nbsp;EmonLib&nbsp;-&nbsp;https://github.com/openenergymonitor/EmonLib&nbsp;- last update in Jan 2014 and i still have problems. In the evening I will work on this part</p>
+<blockquote><p>You might, but probably won&#39;t if the compiler is doing its stuff, save some program memory by removing everything you don&#39;t need in&nbsp;emonLib. The same might apply to your Ethernet library also - that&#39;s undoubtedly the memory hog.</p>
+</blockquote>
+<p>I&#39;m not so advanced ))</p>
+<blockquote><p>
+Are you still using Serial anywhere? (Is there a dependency in the Ethernet library that I don&#39;t know about?)</p>
+</blockquote>
+<p>I&#39;m using serial.print for debugging. In production i will remove it.</p>
+<p>My plan is to use 6 current sensors (currently I have only 3, and I&#39;m waiting&nbsp;for another 3), but I&#39;m not sure&nbsp;that it will be possible without specific function for measuring power.</p>
+<p>Could you give me some tips how to do it?</p>
+<p>Thanks</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32482"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Arduino code optimisation - Low memory available, stability problems may occur.</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Thu, 23/07/2015 - 00:12.</div>
+    <div class="content">
+     <p>You won't save a lot of memory with a macro, again if the compiler is smart, you won't save any, but any saving will be useful if you have compiler warnings.</p>
+<p>What saving do you see when you remove Serial? - Is it enough to get rid of the warning?</p>
+<p>I don't think I will be able to find time to rewrite your sketch, which is what I think you want. I do think you should read some tutorials on C &amp; C++ programming, because understanding and being able to create a function is one of the fundamental skills you need.</p>
+<p>My bible for C is of course "Kernigan &amp; Ritchie" <a href="http://www.amazon.co.uk/C-Programming-Language-2nd/dp/0131103628/ref=sr_1_3?s=books&amp;ie=UTF8&amp;qid=1292502807&amp;sr=1-3" title="http://www.amazon.co.uk/C-Programming-Language-2nd/dp/0131103628/ref=sr_1_3?s=books&amp;ie=UTF8&amp;qid=1292502807&amp;sr=1-3">http://www.amazon.co.uk/C-Programming-Language-2nd/dp/0131103628/ref=sr_...</a>. This is the standard text book.  The normal place I point people at who want to move up to C++ is <a href="http://www.relisoft.com/book/index.htm" title="http://www.relisoft.com/book/index.htm">http://www.relisoft.com/book/index.htm</a>  and that assumes you know C. Because the Arduino environment normally uses a very small subset of the language, neither are the best place for a beginner to start, nor are many of the other on-line tutorials. I'd still suggest you have both of those, and maybe Bruce Eckel's "Thinking in C++" <a href="http://www.planetpdf.com/developer/article.asp?ContentID=6634" title="http://www.planetpdf.com/developer/article.asp?ContentID=6634">http://www.planetpdf.com/developer/article.asp?ContentID=6634</a> available for reference.</p>
+<p>However, there is this: <a href="http://www.me.umn.edu/courses/me2011/arduino/arduinoGuide.pdf" title="http://www.me.umn.edu/courses/me2011/arduino/arduinoGuide.pdf">http://www.me.umn.edu/courses/me2011/arduino/arduinoGuide.pdf</a> which does look to be a good starting place for a beginner. It does not go as far as classes and methods that are used here, though.</p>
+<p>As for wanting to have 6 current inputs - I think there is a risk that you might never succeed if you also have the Ethernet library. All I know for certain is that the NanodeRF sketches, which also use an Ethernet library, broke when an updated and larger JeeLib was used.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32502"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/450" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Arduino code optimisation - Low memory available, stability problems may occur.</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/450" title="View user profile.">stuart</a> on Thu, 23/07/2015 - 11:32.</div>
+    <div class="content">
+     <p>Its the dynamic memory which the compiler is reporting problems with - don&#39;t forget this is only a warning - your code may be fine.</p>
+<p>So try and remove any global variables - can the ethernet library be tweaked or does it have some options you can disable - that will also be using a memory &quot;buffer&quot; - can that be shrunk?</p>
+<p>&nbsp;</p>
+<p>&nbsp;try and merge all your client.print functions together to see if that helps - ensure you use the &quot;F&quot; macro as mentioned by Robert.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/11017"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-V_lprZH22QQmvkrskskSBqmgyOoFMP87B7HXWFBTutw" value="form-V_lprZH22QQmvkrskskSBqmgyOoFMP87B7HXWFBTutw"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

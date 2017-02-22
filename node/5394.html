@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5394 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:24:40 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Misformed RX packet from Arduino to RPI gateway via serial | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Misformed RX packet from Arduino to RPI gateway via serial</h3>
+        <span class="submitted">Submitted by <a href="../user/6635.html" title="View user profile.">asd978f</a> on Thu, 10/07/2014 - 19:36</span>
+        <div class="content"><p>Hey all, Im having a strange problem here...</p>
+<p>I have an arduino&nbsp;board monitoring two of its analog inputs, and sending the value of them to a Raspberry PI with OEM-Gateway installed via the instructions, over a serial connection to the PI. I have verified that oemgateway.conf is correctly setup, is listening to /dev/ttyAMA0 and does receive&nbsp;correct-looking data over that port.</p>
+<p>For some reason, the RPI keeps telling me that it received a &quot;malformed&quot; RX string from the arduino (and does not attempt to post the info via HTTP), but then it shows an apparently correctly-formed set of data in the displayed&nbsp;str(received) string.&nbsp;</p>
+<p>This is the arduino code that is sending the &#39;malformed&#39; string via serial. Can anyone see anything glaringly wrong with it? (besides maybe a missed semi-colon or something, I typed it here, not pasted it...)</p>
+<p>&nbsp;</p>
+<p>[code]</p>
+<p>#include &quot;EmonLib.h&quot;</p>
+<p>EnergyMonitor emon1;</p>
+<p>EnergyMonitor&nbsp;emon2;</p>
+<p>void setup(){</p>
+<p>Serial.begin(9600);</p>
+<p>emon1.current(A7, 59); // Current transformers on A6 &amp; A7; &quot;59&quot; is the calib.</p>
+<p>emon2.current(A6, 59);</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>void loop(){</p>
+<p>double Irms1 = emon1.calcIrms(10000);</p>
+<p>double Irms2 = emon2.calcIrms(10000);</p>
+<p>&nbsp;</p>
+<p>int a = 12; &nbsp;//dummy sensor node number for now</p>
+<p>&nbsp;</p>
+<p>Serial.print(a, DEC);</p>
+<p>Serial.print(&#39; &#39;);</p>
+<p>Serial.print(&#39;Irms1&#39;);</p>
+<p>Serial.print(&#39; &#39;);</p>
+<p>Serial.println(&#39;Irms2&#39;);</p>
+<p>}</p>
+<p>[/code]</p>
+<p>&nbsp;</p>
+<p>seemingly simple, yet frustrating.... the RPI console will output something like :</p>
+<p>&nbsp;</p>
+<p>INFO Serial RX: 12 0.05 9.8</p>
+<p>WARNING Misformed RX packet: &#39;12&#39; &#39;0.05&#39; &#39;9.8&#39;</p>
+<p>INFO Serial RX: 12 0.12 7.6</p>
+<p>WARNING Misformed RX packet: &#39; 12&#39; &#39;0.12&#39; &#39;7.6&#39;</p>
+<p>&nbsp;</p>
+<p>(this is repeated every time the arduino sends a serial packet; &#39;12&#39; being nodeID, &#39;0.05&#39; and &#39;9.8&#39; are current in # amps measured from the two sensors)</p>
+<p>the sensor values change as they normally would, so I know that the arduino is correctly sensing current, and sending the values, and the RPI is correctly seeing them come in over the GPIO&nbsp;serial port. If I plug the arduino into a PC and open serial port monitor, i see an apparently- correct string of data... I dont know why they are marked as &#39;misformed&#39;... help?</p>
+<p>Thanks</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>PS... this is the relevant section of oemgatewaylistener.py, I just dont know why</p>
+<p>if (len(received) &lt; 2)</p>
+<p>is returning &#39;TRUE&#39; when received() is supposedly &#39;12&#39; &#39;0.05&#39; &#39;9.8&#39;</p>
+<p>&nbsp;</p>
+<p>[code]</p>
+<p>def _process_frame(self, f):<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot;Process a frame of data</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f (string): &#39;NodeID val1 val2 ...&#39;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This function splits the string into integers and checks their<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; validity.</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &#39;NodeID val1 val2 ...&#39; is the generic data format. If the source uses<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a different format, override this method.</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Return data as a list: [NodeID, val1, val2]</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Log data<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._log.info(&quot;Serial RX: &quot; + f)</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get an array out of the space separated string<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; received = f.strip().split(&#39; &#39;)</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Discard if frame not of the form [node, val1, ...]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # with number of elements at least 2<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (len(received) &lt; 2):<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._log.warning(&quot;Misformed RX frame: &quot; + str(received))</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Else, process frame<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try:<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; received = [int(val) for val in received]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; except Exception:<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._log.warning(&quot;Misformed RX frame: &quot; + str(received))<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._log.debug(&quot;Node: &quot; + str(received[0]))<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._log.debug(&quot;Values: &quot; + str(received[1:]))<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return received</p>
+<p>&nbsp;</p>
+<p>[/code]</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="5415.html" class="topic-previous" title="Go to previous forum topic">‹ Feeds visualization problem with Emoncms version 8.2.8 on raspberry pi</a>
+              <a href="5385.html" class="topic-next" title="Go to next forum topic">Backup/migration of emoncms data [SOLVED] ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-22442"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Misformed RX packet from Arduino to RPI gateway via serial</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 10/07/2014 - 20:06.</div>
+    <div class="content">
+     <blockquote><p>PS... this is the relevant section of oemgatewaylistener.py, I just dont know why</p>
+</blockquote>
+<p>Are you sure it&#39;s that line causing the issue? that log message is used multiple time in OEM gateway, in the excerpt you show, it is used again further on in the exception for the try: received = [int(val) for val in received], which will fail due to the float values. Try changing int(val) to float(val).</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22444"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Misformed RX packet from Arduino to RPI gateway via serial</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 10/07/2014 - 20:16.</div>
+    <div class="content">
+     <p>In fact you should probably&nbsp;change that line from</p>
+<p class="rteindent1"><strong>received = [int(val) for val in received]</strong></p>
+<p>to</p>
+<p class="rteindent1"><strong>[float(val) for val in received]</strong></p>
+<p>so it doesn&#39;t get cast at all, just tested for all numeric content</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22445"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6635.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="asd978f&#039;s picture" title="asd978f&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Misformed RX packet from Arduino to RPI gateway via serial</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6635.html" title="View user profile.">asd978f</a> on Thu, 10/07/2014 - 20:27.</div>
+    <div class="content">
+     <p>Winner, Winner.&nbsp;</p>
+<p>I just tried your first suggestion of switching&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;received = [int(val) for val in received]</p>
+<p>for</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;received = [float(val) for val in received]</p>
+<p>&nbsp;</p>
+<p>and it is now posting correctly to my emoncms instance! Strange that all the arduino examples ive poured thru looking for this didnt mention the data type difference (or i missed it).</p>
+<p>&nbsp;</p>
+<p>So now, which is more correct for the long run, this way, or&nbsp;</p>
+<p>[float(val) for val in received]</p>
+<p>?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-22450"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Misformed RX packet from Arduino to RPI gateway via serial</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 10/07/2014 - 22:23.</div>
+    <div class="content">
+     <p>I don&#39;t think it&#39;s vitally important, but the purpose of the try: is to confirm all the values are numeric. the int(val) is left over from the int only days and float(int) works with both ints and floats, but if you use the received = float(val) that will cast all values to floats, which isn&#39;t necessary&nbsp;as a test will do.</p>
+<p>If you look at your log entries now you will notice even the node id is a float, again it will work ok. I prefer the last way as it has no effect on the data, it only tests so floats remain floats and the node id and&nbsp;ints vals remain as ints - easier on the eye and the processor but only by a nano fraction :-)</p>
+<p>either way is ok. The reason you probably didn&#39;t find any ref to this is that most data is piped to OEM gateway via an rfm2pi so most sketches are written for that application and then sometimes adapted for serial etc. to use rfm2pi&nbsp;&amp; JeeLib, all values are transmitted as whole numbers and scaled at either end, a temperature of 19.5 is usually sent as 1950 and divided by 100 in emonCMS so floats just don&#39;t get used that often.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5394"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-D1BHChooveAx9csB6k3GLH0rsJtXXMBAGaPtExzt8y8" value="form-D1BHChooveAx9csB6k3GLH0rsJtXXMBAGaPtExzt8y8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5394 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:24:40 GMT -->
+</html>

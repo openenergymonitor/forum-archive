@@ -1,0 +1,1462 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/589 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:50:01 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Software only solution for feeding weather data | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Software only solution for feeding weather data</h3>
+        <span class="submitted">Submitted by <a href="../user/380.html" title="View user profile.">mharizanov</a> on Sun, 15/04/2012 - 19:06</span>
+        <div class="content"><p>You may be interested in gathering weather data but lack the hardware to measure humidity, air pressure, dew point temperature, wind speed and so forth. The weather data added over power consumption via a multigraph reveals quite interesting tendencies, worth giving a try.</p>
+<p>My solution was to create a &quot;Stratus Developer&quot; free API key for weather underground and then a small PHP script to collect the data and post to emoncms.&nbsp;You get 500 queries a day, so you can afford to run the script 20 times an hour or every three minutes. Just set up a cron&nbsp;job to do it for you.</p>
+<p>&nbsp;</p>
+<p><a href="http://www.wunderground.com/weather/api/">http://www.wunderground.com/weather/api/</a></p>
+<p>Here is my code:</p>
+<p>&nbsp;</p>
+<div>&lt;html&gt;</div>
+<div>&lt;?php</div>
+<div>&nbsp;</div>
+<div>//http://www.wunderground.com/weather/api/d/documentation.html</div>
+<div>&nbsp;</div>
+<div>//Change the weather underground API and city below</div>
+<div>$json_string = file_get_contents(&quot;http://api.wunderground.com/api/****API***/geolookup/conditions/q/***MY CITY NAME****.json&quot;);</div>
+<div>$parsed_json = json_decode($json_string);</div>
+<div>$location = $parsed_json-&gt;{&#39;location&#39;}-&gt;{&#39;city&#39;};</div>
+<div>&nbsp;</div>
+<div>$temp_c = $parsed_json-&gt;{&#39;current_observation&#39;}-&gt;{&#39;temp_c&#39;};</div>
+<div>$relative_humidity = $parsed_json-&gt;{&#39;current_observation&#39;}-&gt;{&#39;relative_humidity&#39;};</div>
+<div>$pressure_mb = $parsed_json-&gt;{&#39;current_observation&#39;}-&gt;{&#39;pressure_mb&#39;};</div>
+<div>$wind_kph = $parsed_json-&gt;{&#39;current_observation&#39;}-&gt;{&#39;wind_kph&#39;};</div>
+<div>&nbsp;</div>
+<div>echo &quot;Current temperature in ${location} is: ${temp_c}&lt;br&gt;&quot;;</div>
+<div>echo &quot;Current relative humidity in ${location} is: ${relative_humidity}&lt;br&gt;&quot;;</div>
+<div>echo &quot;Current pressure in ${location} is: ${pressure_mb}&lt;br&gt;&quot;;</div>
+<div>echo &quot;Current wind speed in ${location} is: ${wind_kph}&lt;br&gt;&quot;;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>//Change the URL and EmonCMS API below</div>
+<div>$url = &#39;http://***********/emoncms3/api/post?apikey=***EMONCMS_API*****&amp;json={humidity:&#39; . $relative_humidity . &#39;,pressure:&#39; . $pressure_mb . &#39;,wind:&#39; . $wind_kph . &#39;,temp:&#39; . $temp_c .&#39;}&#39;;</div>
+<div>echo $url;</div>
+<div>$ch = curl_init();</div>
+<div>curl_setopt($ch, CURLOPT_URL,$url);</div>
+<div>curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);</div>
+<div>$contents = curl_exec ($ch);</div>
+<div>curl_close ($ch);</div>
+<div>&nbsp;</div>
+<div>?&gt;</div>
+<div>&lt;/html&gt;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11634.html" class="topic-previous" title="Go to previous forum topic">‹ Emonpi sketch compilation</a>
+              <a href="11624.html" class="topic-next" title="Go to next forum topic">generating a &quot;so far today&quot; value ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-3903"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 19/04/2012 - 08:15.</div>
+    <div class="content">
+     <p>Great idea! thanks for posting you code&nbsp;mharizanov</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28544"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3818.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3818.png" alt="fversteegen&#039;s picture" title="fversteegen&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3818.html" title="View user profile.">fversteegen</a> on Tue, 10/03/2015 - 11:14.</div>
+    <div class="content">
+     <p>Thanks! This was exactly what I was looking for.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28622"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7802.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7802.jpg" alt="gab.lau&#039;s picture" title="gab.lau&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7802.html" title="View user profile.">gab.lau</a> on Fri, 13/03/2015 - 00:03.</div>
+    <div class="content">
+     <p>Super great!!! Thank you mharizanov, for this old post, these api works very well!!</p>
+<p>Installation in crontab every 3 minutes:<br />
+*/3 * * * * /usr/bin/php /home/pi/wu2emoncms.php</p>
+<p>Below my code:</p>
+<h5>#### my code: wu2emoncms.php#####<br />
+&lt;html&gt;<br />
+&lt;?php</h5>
+<h5>//Weather underground setting<br />
+$wuapi=&#39;xxxxxxxxxxxxxxxx&#39;; //Weather underground API<br />
+$pws=&#39;ILAZIORO62&#39;; //Personal Wheater station ID closer to your location<br />
+$lang=&#39;IT&#39;;</h5>
+<h5>//EmonCMS setting<br />
+$nodeid=&#39;12&#39;; //node id<br />
+$emoncms=&#39;localhost/emoncms&#39;; //emoncms url &nbsp;<br />
+$emoncmsapi=&#39;yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy&#39;; //EmonCMS r&amp;w Api key</h5>
+<h5>$json_string = file_get_contents(&quot;http://api.wunderground.com/api/&quot;.$wuapi.&quot;/conditions/lang:&quot;.$lang.&quot;/pws:1/q/pws:&quot;.$pws.&quot;.json&quot;);<br />
+$data = json_decode($json_string);<br />
+if ($data-&gt;response-&gt;error) {<br />
+&nbsp; echo &#39;Error: &#39;.str_replace(&#39;:&#39;,&#39; &#39;,$data-&gt;response-&gt;error-&gt;type);<br />
+&nbsp; die;<br />
+}</h5>
+<h5>$co=$data-&gt;{&#39;current_observation&#39;};</h5>
+<h5>$temp_c = str_replace(&#39;,&#39;,&#39;.&#39;,$co-&gt;{&#39;temp_c&#39;});<br />
+$relative_humidity = trim($co-&gt;{&#39;relative_humidity&#39;},&#39;%&#39;);<br />
+$pressure_mb = $co-&gt;{&#39;pressure_mb&#39;};<br />
+$wind_degrees = $co-&gt;{&#39;wind_degrees&#39;};<br />
+$wind_kph = str_replace(&#39;,&#39;,&#39;.&#39;,$co-&gt;{&#39;wind_kph&#39;});<br />
+$dewpoint_c = str_replace(&#39;,&#39;,&#39;.&#39;,$co-&gt;{&#39;dewpoint_c&#39;});<br />
+$precip_1hr_metric = str_replace(&#39;,&#39;,&#39;.&#39;,$co-&gt;{&#39;precip_1hr_metric&#39;});<br />
+$temp_feelslike_c = str_replace(&#39;,&#39;,&#39;.&#39;,$co-&gt;{&#39;feelslike_c&#39;});</h5>
+<h5>echo &quot;Current Condition @ &quot;.$co-&gt;{&#39;observation_location&#39;}-&gt;{&#39;city&#39;}.&#39;&lt;br&gt;&#39;;<br />
+echo &quot;&nbsp; Temperature is: $temp_c C&lt;br&gt;&quot;;<br />
+echo &quot;&nbsp; Temperature Feel Like is: $temp_feelslike_c C&lt;br&gt;&quot;;<br />
+echo &quot;&nbsp; Relative humidity is: $relative_humidity%&lt;br&gt;&quot;;<br />
+echo &quot;&nbsp; Pressure is: $pressure_mb (mb)&lt;br&gt;&quot;;<br />
+echo &quot;&nbsp; Wind direction is: $wind_degrees &deg; &lt;br&gt;&quot;;<br />
+echo &quot;&nbsp; Wind speed is: $wind_kph kmh&lt;br&gt;&quot;;<br />
+echo &quot;&nbsp; Dewpoint is: $dewpoint_c C&lt;br&gt;&quot;;<br />
+echo &quot;&nbsp; Precipitation 1hr is: $precip_1hr_metric mm&lt;br&gt;&quot;;<br />
+&nbsp;<br />
+$url = &#39;http://&#39;.$emoncms.&#39;/input/post.json?json={temp:&#39;.$temp_c.&#39;,humidity:&#39;.$relative_humidity.&#39;,pressure:&#39;.$pressure_mb.&#39;,wind_kph:&#39;<br />
+.$wind_kph.&#39;,wind_dir:&#39;.$wind_degrees.&#39;,dewpoint:&#39;.$dewpoint_c.&#39;,precip:&#39;.$precip_1hr_metric.&#39;<br />
+,temp_feel:&#39;.$temp_feelslike_c.&#39;}&amp;node=&#39;.$nodeid.&#39;&amp;apikey=&#39;.$emoncmsapi;</h5>
+<h5>$ch = curl_init();<br />
+curl_setopt($ch, CURLOPT_URL,$url);<br />
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);<br />
+$contents = curl_exec ($ch);<br />
+curl_close ($ch);<br />
+echo &quot;&lt;br&gt;Send Data to emoncms OK!!&quot;</h5>
+<h5>?&gt;<br />
+&lt;/html&gt;<br />
+#### end my code: wu2emoncms.php#####</h5>
+<p>&nbsp;</p>
+<p><em>Edit - wrapped long lines - BT</em></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32788"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Wed, 29/07/2015 - 22:10.</div>
+    <div class="content">
+     <p>I took the code created by Martin &amp; Gabriele (thank you!) and modified it slightly for my own needs. &nbsp;There are issues with the&nbsp;post to <strong>emoncms.org</strong>:</p>
+<p>&nbsp; &nbsp;http://emoncms.org/input/post.json?json={temp:86,humidity:27}&amp;node=12&amp;apikey=EMONCMS-API-KEY</p>
+<p>The post returns an &ldquo;<strong>ok</strong>&rdquo; every time and 70% to 80% of the time the Temperature and Humidity data appear in Feed area. &nbsp;But 20% to 30% of the time the data does not make it to Input or Feed areas (even though the emoncms.org server responds&nbsp;to the post with an &ldquo;<strong>ok</strong>&rdquo;).</p>
+<p>The PHP code is located on the emonPi in the &ldquo;/home/pi/data/myApps&rdquo; directory. &nbsp; The cron job runs once per hour at 3 minutes past the hour.</p>
+<p>&nbsp; &nbsp;3 * * * * /usr/bin/php /home/pi/data/myApps/wu2emoncms.php &gt;&gt; /var/log/wu2emoncms.php.log 2&gt;&amp;1</p>
+<p>Any ideas &amp; hints&nbsp;would be greatly appreciated!</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32795"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 30/07/2015 - 10:56.</div>
+    <div class="content">
+     <p>Can you confirm the data&nbsp;was actually populated before it was sent to emoncms?</p>
+<p>What has been&nbsp;logged in&nbsp;/var/log/wu2emoncms.php.log when the data is missing from emoncms?</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32817"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Thu, 30/07/2015 - 17:45.</div>
+    <div class="content">
+     <p>Yes - I can confirm via the log file and the data is being populated. &nbsp;This is the log for a post that was missed earlier today:</p>
+<p>&nbsp;&nbsp; &nbsp;Thursday 30th of July 2015 06:03:02 AM<br />
+&nbsp;&nbsp; &nbsp;URL is: http://emoncms.org/input/post.json?json={temp:67,humidity:70}&amp;node=12&amp;apikey=EMONCMS-API-KEY<br />
+&nbsp;&nbsp; &nbsp;Response from POST: ok</p>
+<p>
+This is the PHP code updated to gather the Response from the emoncms.org:<br />
+&nbsp;&nbsp; &nbsp;$url = &#39;http://&#39; .$emoncms. &#39;/input/post.json?json={temp:&#39; .$temp_f. &#39;,humidity:&#39; .$relative_humidity. &#39;}&amp;node=&#39; .$nodeid. &#39;&amp;apikey=&#39; .$emoncmsapi;<br />
+&nbsp;&nbsp; &nbsp;echo &quot;\nURL is: &quot; .$url. &quot;\n&quot;;</p>
+<p>&nbsp;&nbsp; &nbsp;$ch = curl_init();<br />
+&nbsp;&nbsp; &nbsp;curl_setopt($ch, CURLOPT_URL,$url);<br />
+&nbsp;&nbsp; &nbsp;curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);<br />
+&nbsp;&nbsp; &nbsp;<strong>$contents</strong> = curl_exec ($ch);<br />
+&nbsp;&nbsp; &nbsp;curl_close ($ch);<br />
+&nbsp;&nbsp; &nbsp;echo &quot;\nResponse from POST: &quot; .<strong>$contents</strong>. &quot;\n&quot;;</p>
+<p>Jon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32840"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 30/07/2015 - 23:44.</div>
+    <div class="content">
+     <p>What feed type are you logging with?</p>
+<p>Are the datapoints totally missing from emoncms or are they zero or null data ?</p>
+<p>Can you try using a phptimeseries&nbsp;variable feed as well for a while to compare the two?</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32842"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Fri, 31/07/2015 - 01:08.</div>
+    <div class="content">
+     <p>The data points are totally missing (no NULL, no zero). &nbsp;I just added the PHPTimeSeries. &nbsp;Here is how things are set up now (see images). &nbsp;I&#39;ll check the PHPTimeSeries in a few hours to see what happens.</p>
+<p>Jon</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32872"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Fri, 31/07/2015 - 17:34.</div>
+    <div class="content">
+     <p>Both of the Feeds (with&nbsp;PHPFIWA and the new&nbsp;with&nbsp;PHPTIMESERIES)&nbsp;drop data at the same time. &nbsp;Over a period of 15 hours there were three dropped posts. &nbsp;The&nbsp;wu2emoncms.php.log has post responses as OK. &nbsp;Did I set up something incorrectly?</p>
+<p>Jon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32885"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 01/08/2015 - 10:44.</div>
+    <div class="content">
+     <p>It&#39;s a long shot but could you swap the order of the phpfiwa and phptimeseries in case the phpfiwa is blocking the phptimeseries in some way and provide the relative send url and confirmation for the missing data from the emonhub log. These three things, correct url formation, &quot;ok&quot; response and missing phptimeseries entry (with the feed being the very first process)&nbsp;would certainly suggest data is being lost in emoncms.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32898"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Sat, 01/08/2015 - 16:24.</div>
+    <div class="content">
+     <p>I flipped the order of&nbsp;the phpfiwa and phptimeseries. &nbsp;I&#39;ll let you know what happens!</p>
+<p>Just curious -&nbsp;is it possible to POST data to the emoncms within the&nbsp;emonPi? &nbsp;I&#39;ve not seen anything written about that so I am guessing not.</p>
+<p>Jon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32905"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Sat, 01/08/2015 - 19:15.</div>
+    <div class="content">
+     <p>I tried this , but i get a stdClass $error from tje $json_string= line, it polls the data but does not appear on emoncms as node 12&nbsp;, any help? , new to this so all input would be appreciated</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32922"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Mon, 03/08/2015 - 22:41.</div>
+    <div class="content">
+     <p>Mike,</p>
+<p>What happens when you enter the completed&nbsp;$json_string line into a web browser? &nbsp;Does it return an error or the current conditions?</p>
+<p>The complete&nbsp;$json_string should look similar to this:</p>
+<p>http://api.wunderground.com/api/<strong>Your_Wunderground_API_Key</strong>/conditions/q/pws:ILAZIORO62.json</p>
+<p>PS - I&#39;m not an expert at PHP, Wundeground APIs, emoncms APIs. &nbsp;Most of the above I just learned recently!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32926"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Sun, 02/08/2015 - 18:32.</div>
+    <div class="content">
+     <p>Paul - With the&nbsp;phptimeseries first, over a period of 25 hours there are&nbsp;2 dropped posts.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32960"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Mon, 03/08/2015 - 15:22.</div>
+    <div class="content">
+     <p><em>&nbsp;&quot;and provide the relative send url and confirmation for the missing data from the emonhub log&quot;</em></p>
+<p>Can we&nbsp;see the emonhub.log entires for those missing datapoints?</p>
+<p>I&#39;m no expert either I&#39;m just trying to establish where you should focus your efforts, is it definitely in emoncms or is it a network,&nbsp;emonhub,&nbsp;wunderground&nbsp;or parsing script issue and for that we need to see the same packets&nbsp;leave and&nbsp;arrive (or not as the case maybe).</p>
+<p>Paul&nbsp;&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32983"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Mon, 03/08/2015 - 22:13.</div>
+    <div class="content">
+     <p>It returns the data, but does not appear to be posting to Emoncms, nor does the crontab seem to be running every 2 minutes like its set to . When i run the php via ssh is when i see the error and presume that is why it doesnt run again as it should.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32984"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Tue, 04/08/2015 - 01:43.</div>
+    <div class="content">
+     <p>Paul - Sorry, I forgot to mention the emonhub&nbsp;log... &nbsp; &nbsp;I went thru the emonhub.log and the emoncms.log files on my emonPi. &nbsp;There are no references to the wu2emoncms.php app or a my&nbsp;post to the emoncms.org server. &nbsp;I do see when the cron runs in the emonPi syslog.</p>
+<p>I am not sure how to access the emonhub log on the <strong>emoncms.org&nbsp;</strong>server. &nbsp;Can you point me in the correct direction for viewing those logs? &nbsp;(I stupidly assumed I would not have access to the logs on the&nbsp;emoncms.org server)</p>
+<p>Jon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33001"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 04/08/2015 - 10:07.</div>
+    <div class="content">
+     <p>Jon - Sorry, my mistake I thought you were using emonHub&nbsp;locally, So rather than the emonhub logs we need to check your own &quot;wu2emoncms&quot; logs.&nbsp;</p>
+<p>emonHub is not installed at emoncms.org, although often installed on the same machine as emoncms, emonhub is the &quot;remote&quot;&nbsp;interface for emoncms and passes collated data to&nbsp;emoncms&nbsp;remote and/or local.</p>
+<p>Mike - You need to get the assembled url to function correctly from a browser first, when you are sure you have a fully functioning url you can then test the script, then a single cron entry and then a scheduled cron. If you are not getting a valid response to&nbsp;a browser url there could be an account problem or just a error in the url formation.</p>
+<p>Be aware the &quot;free&quot; accounts with wunderground only allow a certain number of uses per day, last time I checked (if memory serves) it worked out to a minimum of 3min interval any less and you will go over your limit, every day. This limit is easily hit when developing or debugging too.</p>
+<p>Once you are unable to get a valid response you will probably get an error message and too many logged error messages could choke the log file IF you are running a read-only OS image, Whilst I have no idea if you are or not I have experienced a &quot;runaway&quot; error on an un capped log in RAM&nbsp;and the cron stopped functioning.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33014"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3426.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3426.jpg" alt="Bill Thomson&#039;s picture" title="Bill Thomson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3426.html" title="View user profile.">Bill Thomson</a> on Tue, 04/08/2015 - 14:15.</div>
+    <div class="content">
+     <p>Weather Underground free accounts are good for 500 calls/day at a max rate of 10 calls/minute.</p>
+<p><img alt="" src="../sites/default/files/wu.jpg" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33015"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 04/08/2015 - 14:40.</div>
+    <div class="content">
+     <p>Thanks Bill that makes sense.</p>
+<p>24hrs&nbsp;x 60mins&nbsp;= 1440mins per day /&nbsp;500 per 24hrs&nbsp;= 2.88mins (2mins 52.8secs) rounded to 3mins.</p>
+<p>The 10 calls per minute is just to control the speed at which you bombard the server and use the 500 per day ie a daily allowance can be burnt&nbsp;no quicker than 50&nbsp;minutes in a race condition.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33017"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3426.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3426.jpg" alt="Bill Thomson&#039;s picture" title="Bill Thomson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3426.html" title="View user profile.">Bill Thomson</a> on Tue, 04/08/2015 - 14:56.</div>
+    <div class="content">
+     <p>YVW,S!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33028"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Tue, 04/08/2015 - 22:21.</div>
+    <div class="content">
+     <p>Paul / Jon&nbsp;</p>
+<p>It works properly in a browser , no error its when i run the script php script.php in an ssh that I see the error below , i thinks its simply a syntax error in my copying the original script , I only adjusted the cron to a 2 minute interval to see if it was actually running , I believe that portion of my problem is resolved.&nbsp;</p>
+<p>PHP Notice: &nbsp;Undefined property: stdClass::$error in /php/wu2emoncms/weather.php on line 12<br />
+Current Condition @ Heller Drive, Newcomerstown&lt;br&gt; &nbsp;Temperature is: 82.7 F&lt;br&gt; &nbsp;Temperature Feel Like is: 83 F&lt;br&gt; &nbsp;Relative humidity is: 47%&lt;br&gt; &nbsp;Pressure is: 29.95 (in)&lt;br&gt; &nbsp;Wind direction is: 302 &deg; &lt;br&gt; &nbsp;Wind speed is: 0 mph&lt;br&gt; &nbsp;Dewpoint is: 60 F&lt;br&gt; &nbsp;Precipitation 1hr is: 0.00 (in)&lt;br&gt;&lt;br&gt;Send Data to emoncms OK!!&lt;/html&gt;</p>
+<p>Line 12 reads&nbsp;<br />
+$data=json_decode($json_string);if($data-&gt;response-&gt;error){echo&#39;Error:&#39;.str_replace(&#39;:&#39;,&#39;&#39;,$data-&gt;response-&gt;error-&gt;type);die;}</p>
+<p>Mike</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33030"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Tue, 04/08/2015 - 22:42.</div>
+    <div class="content">
+     <p>Mike,</p>
+<p>I could not fix&nbsp;that code segment so I ended up commenting it out for the short term (until I have time to learn more about PHP and the&nbsp;responses from wunderground). &nbsp;Once I did that then everything ran without error.</p>
+<p>&nbsp; &nbsp; &nbsp;/*<br />
+&nbsp; &nbsp; &nbsp;if ($data-&gt;response-&gt;error) {<br />
+&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;echo &#39;Error: &#39;.str_replace(&#39;:&#39;,&#39; &#39;,$data-&gt;response-&gt;error-&gt;type);<br />
+&nbsp; &nbsp; &nbsp; &nbsp; die;<br />
+&nbsp; &nbsp; &nbsp; }<br />
+&nbsp; &nbsp; &nbsp;*/</p>
+<p>Jon</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33031"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Wed, 05/08/2015 - 00:04.</div>
+    <div class="content">
+     <p>Jon - the other part i know im having trouble with is adding the variables to the emoncms.org server im not so sure they care spelled out by the script although it does specify a node &quot;12&quot; , ive only got about a week under my belt on this so bear with ..&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33035"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Wed, 05/08/2015 - 05:29.</div>
+    <div class="content">
+     <p>Mike,</p>
+<p>If it helps, this is what my node 12 post originally looked like:</p>
+<p>http://emoncms.org/input/post.json?json={temp:69,humidity:90,pressure:30.00,wind_mph:0,wind_dir:0,dewpoint:66,precip:-9999.00,temp_feel:69} &nbsp; &nbsp;&amp;node=12&amp;apikey=<strong>emoncms.org_Write_API_Key</strong></p>
+<p>The very first post to Node 12 created the variable on the emoncms.org <strong>Inputs</strong> page. &nbsp;I did not&nbsp;do anything special. &nbsp;My units are for the US (degrees&nbsp;Fahrenheit, inches,&nbsp;miles per hour, etc.). &nbsp;Since I was experimenting, the post is now just temperature&nbsp;&amp; humidity:</p>
+<p>http://emoncms.org/input/post.json?json={temp:86,humidity:27}&amp;node=12&amp;apikey=<strong>emoncms.org_Write_API_Key</strong></p>
+<p>This post with just temperature and humidity looks like this on the <strong>Inputs</strong> page (see attached image):</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33048"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Wed, 05/08/2015 - 14:59.</div>
+    <div class="content">
+     <p>Paul,</p>
+<p>Here are the PHPTIMESERIES data points. &nbsp;The 22:03:00 run and the 04:03:00 run are missing from the Feed. &nbsp;</p>
+<p>Is there other info that I can provide?</p>
+<p>Jon</p>
+<p>&nbsp;</p>
+<p><strong>Epoch &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;Temp&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;UTC &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; CDT&nbsp;&nbsp; &nbsp;</strong><br />
+1438740240000&nbsp;&nbsp; &nbsp;71&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;08/05/2015 02:04:00&nbsp;&nbsp; &nbsp;08/04/2015 21:04:00&nbsp;&nbsp; &nbsp;<br />
+1438747440000&nbsp;&nbsp; &nbsp;67&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;08/05/2015 04:04:00&nbsp;&nbsp; &nbsp;08/04/2015 23:04:00&nbsp;&nbsp; &nbsp;x<br />
+1438751040000&nbsp;&nbsp; &nbsp;66&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;08/05/2015 05:04:00&nbsp;&nbsp; &nbsp;08/05/2015 00:04:00&nbsp;&nbsp; &nbsp;<br />
+1438754640000&nbsp;&nbsp; &nbsp;64&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;08/05/2015 06:04:00&nbsp;&nbsp; &nbsp;08/05/2015 01:04:00&nbsp;&nbsp; &nbsp;<br />
+1438758240000&nbsp;&nbsp; &nbsp;63&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;08/05/2015 07:04:00&nbsp;&nbsp; &nbsp;08/05/2015 02:04:00&nbsp;&nbsp; &nbsp;<br />
+1438761840000&nbsp;&nbsp; &nbsp;63&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;08/05/2015 08:04:00&nbsp;&nbsp; &nbsp;08/05/2015 03:04:00&nbsp;&nbsp; &nbsp;<br />
+1438769040000&nbsp;&nbsp; &nbsp;62&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;08/05/2015 10:04:00&nbsp;&nbsp; &nbsp;08/05/2015 05:04:00&nbsp;&nbsp; &nbsp;x<br />
+1438772640000&nbsp;&nbsp; &nbsp;62&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;08/05/2015 11:04:00&nbsp;&nbsp; &nbsp;08/05/2015 06:04:00&nbsp;&nbsp; &nbsp;</p>
+<p>&nbsp;</p>
+<p>from the wu2emoncms.php.log -&nbsp;Dates &amp; Times below&nbsp;are CDT<br />
+<strong>Good</strong><br />
+2015-08-04 21:03:01,480 &nbsp;Running wu2emoncms.php<br />
+2015-08-04 21:03:01,481 &nbsp;WUnderground URL is: <a href="http://api.wunderground.com/api/WU_API/conditions/q/IL/KPWK.json" title="http://api.wunderground.com/api/WU_API/conditions/q/IL/KPWK.json">http://api.wunderground.com/api/WU_API/conditions/q/IL/KPWK.json</a><br />
+&nbsp; Observation time: Last Updated on August 4. 8:52 PM CDT<br />
+&nbsp; Observation Epoch (UTC) is: 1438739520<br />
+&nbsp; Temperature is: 71&deg;F<br />
+&nbsp; Relative humidity is: 63%<br />
+2015-08-04 21:03:01,706 &nbsp;URL is: http://emoncms.org/input/post.json?json={temp:71,humidity:63}&amp;node=12&amp;apikey=EMONCMS_API<br />
+2015-08-04 21:03:01,940 &nbsp;Response from POST: ok</p>
+<p><strong>Missing</strong><br />
+2015-08-04 22:03:01,513 &nbsp;Running wu2emoncms.php<br />
+2015-08-04 22:03:01,514 &nbsp;WUnderground URL is: <a href="http://api.wunderground.com/api/WU_API/conditions/q/IL/KPWK.json" title="http://api.wunderground.com/api/WU_API/conditions/q/IL/KPWK.json">http://api.wunderground.com/api/WU_API/conditions/q/IL/KPWK.json</a><br />
+&nbsp; Observation time: Last Updated on August 4. 9:52 PM CDT<br />
+&nbsp; Observation Epoch (UTC) is: 1438743120<br />
+&nbsp; Temperature is: 69&deg;F<br />
+&nbsp; Relative humidity is: 70%<br />
+2015-08-04 22:03:01,790 &nbsp;URL is: http://emoncms.org/input/post.json?json={temp:69,humidity:70}&amp;node=12&amp;apikey=EMONCMS_API<br />
+2015-08-04 22:03:02,32 &nbsp;Response from POST: ok</p>
+<p><strong>Missing</strong><br />
+2015-08-05 04:03:01,596 &nbsp;Running wu2emoncms.php<br />
+2015-08-05 04:03:01,596 &nbsp;WUnderground URL is: <a href="http://api.wunderground.com/api/WU_API/conditions/q/IL/KPWK.json" title="http://api.wunderground.com/api/WU_API/conditions/q/IL/KPWK.json">http://api.wunderground.com/api/WU_API/conditions/q/IL/KPWK.json</a><br />
+&nbsp; Observation time: Last Updated on August 5. 3:52 AM CDT<br />
+&nbsp; Observation Epoch (UTC) is: 1438764720<br />
+&nbsp; Temperature is: 62&deg;F<br />
+&nbsp; Relative humidity is: 84%<br />
+2015-08-05 04:03:01,827 &nbsp;URL is: http://emoncms.org/input/post.json?json={temp:62,humidity:84}&amp;node=12&amp;apikey=EMONCMS_API<br />
+2015-08-05 04:03:02,62 &nbsp;Response from POST: ok</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33091"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Fri, 07/08/2015 - 02:29.</div>
+    <div class="content">
+     <p>Jon ,&nbsp;</p>
+<p>Im going to back up and go step by step what you told me to how you got to where you are and see how that goes with 1 or 2 variables, but did you first have to add the nodes to emoncms.org with a json&nbsp;line or did they jsut(pun typo intended) appear on there when you ran it?&nbsp;</p>
+<p>Mike</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33092"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Fri, 07/08/2015 - 05:41.</div>
+    <div class="content">
+     <p>Mike - they jsut appeared with the data. &nbsp;So this POST created Node 12 and the Temp and Humidity inputs included the first data points:</p>
+<p>&nbsp; &nbsp; &nbsp;http://emoncms.org/input/post.json?json={temp:86,humidity:27}&amp;node=12&amp;apikey=EMONCMS-API-KEY</p>
+<p>And this would create new stuff for Node 14:</p>
+<p>&nbsp; &nbsp; &nbsp;http://emoncms.org/input/post.json?json={temp:86,humidity:27}&amp;node=<strong>14</strong>&amp;apikey=EMONCMS-API-KEY</p>
+<p>This come from&nbsp;Martin &amp; Gabriele&#39;s example above and from the&nbsp;http://emoncms.org/input/api&nbsp;<strong>Input API</strong> page.</p>
+<p>Jon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33096"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 07/08/2015 - 10:22.</div>
+    <div class="content">
+     <p>Jon - Ok so we do see 2 posts with what seems likes valid data, url and response and those 2 packets are not seen when exporting CSV, I was rather&nbsp;hoping we could spot something external to emoncms as I&#39;m not clued up enough on the inner workings of emoncms&nbsp;to fathom out the most likely cause and the data set is probably considered too small to instigate an investigation at this stage.</p>
+<p>I have experienced occasional&nbsp;missing&nbsp;datapoint mysteries myself but have not found any rhyme or reason to them either.</p>
+<p>There is an easy &quot;workaround&quot; that you can use though.</p>
+<p>I noticed that the parsing script does not use the timestamp supplied with the data which seems odd to me. the timestamping is left for emoncms to do upon reciept (hopefully) within a couple of seconds of the data being fetched, parsed and forwarded, but it is even&nbsp;~11mins&nbsp;old at that time.</p>
+<p>By parsing the &quot;&nbsp;Observation Epoch (UTC) is:&quot; value with a &quot;&nbsp;&amp;time= &quot; prefix into the emoncms&nbsp;input api url you would be not only&nbsp;using the correct timestamp but also releiving emoncms of&nbsp;that responsibility, (possibly reducing chance of error?).</p>
+<p>The main benefit in this particular instance is that you can then send the same data more than once, either by having additional cron entries or just by adding a &#39;wait nSecs&nbsp;and send again&#39; to the script. It&#39;s a quick and dirty &quot;&quot;&quot;fix&quot;&quot;&quot; that could be improved to check the &quot;last updated&quot; time or value of the feed using the feed api of emoncms, The likelyhood of emoncms losing the same post twice I would hope is slim to none. Any repeated data will just overwrite the last, not ideal I know but not really a big problem either.</p>
+<p>To&nbsp;fix this properly I think you will need to start by changing the log output of the script (or add a 2nd one) to log the data rather than messages, in a format that is easily handled (eg csv) to get a bigger data set to help locate the root issue.</p>
+<p>Jon - The named inputs should get created automatically when you run the script, You said the &quot;url&quot; worked perfectly when run in a browser, so they should already be there, or at least you should of witnessed the process if experimenting with different values and names etc.</p>
+<p>The best thing to do is indeed to start with one or two variables, in the browser, then&nbsp;in the&nbsp;script, then lastly in&nbsp;cron as I suggested&nbsp;before.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33122"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Fri, 07/08/2015 - 22:53.</div>
+    <div class="content">
+     <p>Paul,</p>
+<p>I actually started my script experiments using the &ldquo;&amp;time=&ldquo; parameter. &nbsp;Here is an example of a POST from two weeks ago:<br />
+http://emoncms.org/input/post.json?json={temp:84.3,humidity:71,pressure:29.93,wind_mph:1,wind_dir:48,dewpoint:74,precip:0.00,temp_feel:91} &nbsp;&amp;node=12&amp;apikey=EMONCMS_API_KEY&amp;time=1437837455</p>
+<p>With the &ldquo;&amp;time=&ldquo; parameter I also tried a double post. &nbsp;I could not re-post the same URL - it would be missing data also (very odd!). &nbsp;Longer delays between posts and additional attempts did not matter. &nbsp;</p>
+<p>I will add the &ldquo;&amp;time=&ldquo; back into the post and test again.</p>
+<blockquote><p><em>&quot;To fix this properly I think you will need to start by changing the log output of the script (or add a 2nd one) to log the data rather than messages, in a format that is easily handled (eg csv) to get a bigger data set to help locate the root issue.&quot;</em></p>
+</blockquote>
+<p>A simple csv of weather data like &quot;<strong>observed</strong>&nbsp;<strong>time</strong> comma&nbsp;<strong>temp</strong> comma&nbsp;<strong>humidity</strong> return&quot;? &nbsp;Or is there other data or info that might help?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33131"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 08/08/2015 - 00:27.</div>
+    <div class="content">
+     <p><em>&quot;A simple csv of weather data like &quot;observed&nbsp;time&nbsp;comma&nbsp;temp&nbsp;comma&nbsp;humidity&nbsp;return&quot;? &nbsp;Or is there other data or info that might help?&quot;</em></p>
+<p>The timestamp is important and you could include the response too, I know it will probally always be &#39;ok&#39; but you never know, the data content isn&#39;t important if you want to minimize writes or file size, when debuging it can be tricky knowing in advance what will be relevent and what isn&#39;t but at this point we are more interested in IF a post is successful rather than if the content is right, but there again is something in the data causing an issue??</p>
+<p>Including the url as a string would&nbsp;be good to check too.</p>
+<p>Important points are to have one line for each send attempt and consistent columns to compare in a spreadsheet.</p>
+<p>Interesting point about not being able to repost as you should always be able to overwrite with a phptimeseries&nbsp;unless running low-write on a SDcard, hopefully a pattern will emerge.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33136"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Sat, 08/08/2015 - 01:07.</div>
+    <div class="content">
+     <p>But that does not work when I try it on emoncms.org nothing appears. I does however work on my local emoncms server if i add to it <a href="http://my.i.p/emoncms/" title="http://my.i.p/emoncms/">http://my.i.p/emoncms/</a> then the rest&nbsp;</p>
+<p>no script no pulling data, just injecting the two pieces of data as is on the line above i get temp 86 and humidity 27 as i would expect.&nbsp;</p>
+<p>strangest part is i get the OK response back from the .org server</p>
+<p>(yes i did use the proper keys )&nbsp;</p>
+<p>Stumped</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33142"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 08/08/2015 - 10:08.</div>
+    <div class="content">
+     <p>Mike - Try using a simple manual url to emoncms.org and work back</p>
+<p><a href="http://emoncms.org/input/post.json?json={temp:22}&amp;node=1">http://emoncms.org/input/post.json?json={temp:22}&amp;node=1</a>&amp;apikey=<em>API_KEY</em></p>
+<p>If you are already logged in the browser clicking the link above should create an input called &quot;temp&quot; with a value of 22 for node 1, adding your emoncms<strong>.org</strong> &quot;Read &amp; Write:&quot; api key as shown to the browser url should allow you to post after logging out of emoncms ( edit the value so it is obvious if successful) you will need to log back in to confirm this.</p>
+<p>Assuming it works you can either expand the payload or add the details used to the script, run manually once and confirm the output is as expected and emoncms&nbsp;has received the data.</p>
+<p>If it does, great.&nbsp;If it does not, comment out the fetch and parse parts of the script and manually set the scripts vars to construct the url that you know works, if that works reintroduce original parts of the script to establish what does or doesn&#39;t work.</p>
+<p>Based on what you have told us I strongly suspect&nbsp;the issue is with the emoncms.org address/url formation, can you post some of the&nbsp;wu2emoncms.php.log? (remember to hide your apikey)</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33153"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Sun, 09/08/2015 - 01:09.</div>
+    <div class="content">
+     <p>I got it working by manipulating things, but now im wanting a widget to show wind direction in a 360 rotation , or figure out a way to input something other than a numerical value such as wind direction is &quot;NNW&quot; as a alpha string</p>
+<p>Mike</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33166"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 09/08/2015 - 15:52.</div>
+    <div class="content">
+     <p>Glad you got it working, would be so good as to confirm if the script needs fixing or not for the benefit&nbsp;of future readers of this thread?</p>
+<p>The&nbsp;<a href="5532.html">Wind turbine monitoring</a>&nbsp;and<a href="6183.html">&nbsp;Wind direction visualization</a>&nbsp;threads look like a good place to start re the widget.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33172"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Sun, 09/08/2015 - 18:44.</div>
+    <div class="content">
+     <p>Paul ,&nbsp;</p>
+<p>The problem appears to have been that somehow I missed that i had an error in my post i had an invalid directory&nbsp;</p>
+<p>http://emoncms.org/<s>emoncms</s>/input/post.json?json={temp:86,humidity:27}&amp;node=14&amp;apikey=EMONCMS-API-KEY</p>
+<p>Perhaps im wrong but appears the directory structure has changed&nbsp;over time and some information is dated,</p>
+<p>Mike&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33351"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Sat, 15/08/2015 - 00:44.</div>
+    <div class="content">
+     <p>Paul ,&nbsp;</p>
+<p>I looked at those and posted there, but think they are inactive&nbsp;at this time. Im going to try and search around the web and see what i can learn looks like i need a lesson in java for this leg of the adventure.</p>
+<p>Mike</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33718"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Mon, 31/08/2015 - 00:36.</div>
+    <div class="content">
+     <p>Paul - I tried a number of different things:<br />
+1)&nbsp;&nbsp; &nbsp;Posting data without the &ldquo;&amp;time=&ldquo; parameter<br />
+2)&nbsp;&nbsp; &nbsp;Posting data to PHPTimeSeries feed with &ldquo;&amp;time=&ldquo; parameter<br />
+3)&nbsp;&nbsp; &nbsp;Posting same data, multiple times to PHPTimeSeries feed with &ldquo;&amp;time=&ldquo; parameter</p>
+<p>The process that seems to work 100% (so far) is:</p>
+<p><strong>Get current Weather (for me updated once per hour)</strong><br />
+&nbsp;&nbsp; &nbsp;http://api.wunderground.com/api/WU_API_KEY/q/&hellip;</p>
+<p><strong>Get last data point from PHPTimeSeries feed</strong><br />
+&nbsp;&nbsp; &nbsp;http://emoncms.org/feed/timevalue.json?apikey=API_KEY_READ&amp;id=Feed_ID</p>
+<p><strong>Compare time&nbsp;stamps - &nbsp;weather observation&nbsp;epoch&nbsp;compared&nbsp;to last PHPTimeSeries feed data point</strong></p>
+<p><strong>If weather data is newer, post new weather data to PHPTimeSeries feed</strong><br />
+&nbsp;&nbsp; &nbsp;http://emoncms.org/input/post.json?json={temp:73,humidity:48}&amp;node=12&amp;apikey=API_KEY_WRITE&amp;time=1440370<strong>320</strong></p>
+<p><strong>Get last data point from PHPTimeSeries feed (again!)</strong><br />
+&nbsp;&nbsp; &nbsp;http://emoncms.org/feed/timevalue.json?apikey=API_KEY_READ&amp;id=Feed_ID</p>
+<p><strong>Compare again &amp; if weather data is still newer (meaning the 1st post to emoncms.org was dropped) then add 60 seconds to &quot;&amp;time&quot; and repost new data PHPTimeSeries feed</strong><br />
+&nbsp;&nbsp; &nbsp;http://emoncms.org/input/post.json?json={temp:73,humidity:48}&amp;node=12&amp;apikey=API_KEY_WRITE&amp;time=1440370<strong>380</strong></p>
+<p>
+Jon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33787"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 01/09/2015 - 23:41.</div>
+    <div class="content">
+     <p>Well that is bizarre!</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33789"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Wed, 02/09/2015 - 00:00.</div>
+    <div class="content">
+     <p>Yes it is! &nbsp;Thanks for your help! &nbsp; Jon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33829"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Thu, 03/09/2015 - 15:22.</div>
+    <div class="content">
+     <p>Paul - could you point me to an article that explains or defines&nbsp;PHPTIMESERIES, PHPFIWA, PHPFINA? &nbsp;I&#39;d like to understand these better and why to pick one feed over another. &nbsp;I searched thru the website and found many issues related to the above but not the explanations or definitions.</p>
+<p>Jon</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33834"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 03/09/2015 - 16:38.</div>
+    <div class="content">
+     <p>There's this, but I'm not sure whether it is still accurate.</p>
+<p><a href="https://github.com/openenergymonitor/documentation/tree/master/BuildingBlocks/TimeSeries" title="https://github.com/openenergymonitor/documentation/tree/master/BuildingBlocks/TimeSeries">https://github.com/openenergymonitor/documentation/tree/master/BuildingB...</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33851"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 04/09/2015 - 10:22.</div>
+    <div class="content">
+     <p>The link Robert supplied is a good insight to the anatomy and reasoning of the php feeds (I believe it is still accurate) but you should also look&nbsp;to see if the values are dropping through a crack in the<span style="line-height: 20.7999992370605px;">&nbsp;code in&nbsp;</span>emoncms since there is a probability the values are being excluded via logic rather than &quot;missing&quot; from the feed.</p>
+<p>If using emoncms.org the<a href="https://github.com/emoncms/emoncms/tree/v8.3.5"> version is v8.3.5</a>&nbsp;and the key areas to check are the inputs and feeds Modules and the&nbsp;<a href="https://github.com/emoncms/emoncms/tree/v8.3.5/Modules/feed/engine">engines</a>.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33953"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8666.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Cyberslow&#039;s picture" title="Cyberslow&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8666.html" title="View user profile.">Cyberslow</a> on Tue, 08/09/2015 - 13:24.</div>
+    <div class="content">
+     <p>Jon,</p>
+<p>&nbsp;</p>
+<p>just seen your request in this post, take a look at&nbsp;</p>
+<p><a href="11223.html" title="http://openenergymonitor.org/emon/node/11223">http://openenergymonitor.org/emon/node/11223</a></p>
+<p>I post data from emonPi to emonccs, the emonPi was the only thing available for me to run a script on, works very well</p>
+<p>&nbsp;</p>
+<p>Keith</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33978"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Wed, 09/09/2015 - 08:57.</div>
+    <div class="content">
+     <p>Will this feature be built in to the emoncms? Could it be done?</p>
+<p>It would be a very nice feature in the emoncms, to just add the name of a weatherstation and maybe the login ID for wunderground, and then have the emoncms download data from a specified weather station and display it like a feed from a emon unit.</p>
+<p>With no commandline hassle, scripts, code or stuff like that. Just in the emoncms GUI.</p>
+<p>&nbsp;</p>
+<p>Best regards</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34002"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Thu, 10/09/2015 - 01:41.</div>
+    <div class="content">
+     <p>Just an update on my dilema,&nbsp;</p>
+<p>Started uploading to wunderground from&nbsp;my own weatherstation&nbsp;, then redownloading it back&nbsp;to emoncms with the script , weewx&nbsp;could do it directly from the weather station but i cant find a driver for the USB interface on the raspberry to just run the script locally and avoid wunderground all together</p>
+<p>I saw someone ask about loading it to emoncms locally , i think their question was about on the pi , yes you can. I&nbsp;upload to three places , cms.org local on the pi and to my own instance of emoncms server that i run on a machine on the network here, works fine you just need to repeat the pearl section of the script&nbsp;</p>
+<p>But all seems to be working out , may need to find a different weather station and do it with that.&nbsp;</p>
+<p>Mike</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34022"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Thu, 10/09/2015 - 11:20.</div>
+    <div class="content">
+     <p>Thanks for input Mike!</p>
+<p>&nbsp;</p>
+<p>Do you think there can be any easy way to get this done that will not require tampering with scripts, drivers or stuff like that?</p>
+<p>I would be grate to have a weather&nbsp;station that works straight with the emoncms. No fuzz, just like any of the nodes in the network.</p>
+<p>If you are situated in Europe, conrad has some good weather stations for low prices. They also have ones that upload directly to wunderground&nbsp;that costs &euro;200.</p>
+<p>In the US there are plenty as well, but models can be different due to voltage and ROHS. In the wunderground website you can find some recommendations for online weather stations.</p>
+<p>I chose one cheap model just to try it out. I noticed some obvious design flaws like the wind speed meter to close to the rain meter (will cause problems in snow) but it had rain/wind/temp/humidity/solarpower and that is what i needed. Pressure could be nice too.</p>
+<p>I would really like a fast and simple plugin for the emoncms, that just fetches data to feeds with no advanced setup process required.</p>
+<p>I tried to write a thread about it <a href="11193.html">here</a> but no really good stuff turned up just yet.</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34050"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Fri, 11/09/2015 - 00:32.</div>
+    <div class="content">
+     <p>J,</p>
+<p>Theres no easy out of the box answer for what you want , someones&nbsp;gotta&nbsp;tell it what data you want where it needs to go and the API key to got there&nbsp;&nbsp;node you&nbsp;want it at to appear under, only you know that information .&nbsp;</p>
+<p>Its no more complicated than editing text.&nbsp;</p>
+<p>M</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34061"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 11/09/2015 - 10:15.</div>
+    <div class="content">
+     <p><em>&quot;Will this feature be built in to the emoncms? Could it be done?&quot;</em></p>
+<p>Just over a year ago I wrote an emonHub&nbsp;&quot;wunderground&quot; interfacer&nbsp;but there was little or no interest at that time so it didn&#39;t make it into the mainstream version. If you have a &quot;wunderground&quot; account you could just add the details in emonhub.conf for example</p>
+<p>&nbsp; &nbsp; # <a href="http://www.wunderground.com/" title="http://www.wunderground.com/">http://www.wunderground.com/</a><br />
+&nbsp; &nbsp; [[Weather]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; Type = EmonHubWundergroundInterfacer<br />
+&nbsp; &nbsp; &nbsp; &nbsp; [[[init_settings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;[[[runtimesettings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;apikey = xxxxxxxxxxxxxxxx<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;#location = post_code or zipcode or Country/city or USstate/city or Airportcode or latitude,longitude<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;datafields = temp_c,&nbsp;relative_humidity</p>
+<p>The datafields being any or all of &quot;temp_c, feelslike_c, dewpoint_c, wind_mph, wind_gust_mph, visibility_mi, precip_1hr_metric, precip_today_metric, wind_degrees, pressure_mb, relative_humidity&quot;. Location was automatically &quot;guessed by IP&quot; by default but could be overridden by a location description, long&amp;lat or a specific weatherstation code, which code be used to access your own if it&#39;s&nbsp;publishing to &quot;wunderground&quot; directly.</p>
+<p>emonhub&nbsp;has changed since I wrote this initial implementation so it no longer &quot;just drops in&quot; but I planned to revive it at a later data as there seems to be a demand but perhaps it was before its time or appeared too complex at the time maybe?</p>
+<p>Ideally I would like to interface directly with the weatherstation hardware rather than via wunderground&nbsp;so there is no dependency on network or api credits/allowances etc, but it&nbsp;does seem to give an additional (easy?) option for hooking up to any&nbsp;weatherstation that has a wunderground api.</p>
+<p>Mike - I don&#39;t recall you mentioning you had a weather station previously, what model is it?</p>
+<p>In addition to&nbsp;<a href="http://www.weewx.com/">WeeWX</a>&nbsp;there is also&nbsp;<a href="http://www.wviewweather.com/">wview</a>&nbsp;or&nbsp;<a href="http://pywws.readthedocs.org/en/latest/">pywws</a>&nbsp;and many many smaller projects so it maybe possible despite not being WeeWX&nbsp;compatible,</p>
+<p>Paul&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34064"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Fri, 11/09/2015 - 11:56.</div>
+    <div class="content">
+     <p><em>Just over a year ago I wrote an emonHub&nbsp;&quot;wunderground&quot; interfacer&nbsp;but there was little or no interest at that time so it didn&#39;t make it into the mainstream version</em></p>
+<p>Wohh ! I was not aware of that feature but I will be very interested to have it now !</p>
+<p>Eric</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34071"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 11/09/2015 - 13:34.</div>
+    <div class="content">
+     <p>Hi Eric, I have added some notes to the original code merged into the current version, it is&nbsp;<strong><u>UNTESTED</u></strong> and unlikely to work without some amendments&nbsp;if you fancy dabbling,&nbsp;</p>
+<p>I will take a look when I can but I&#39;m juggling a few too many things at the moment so cannot promise anything.</p>
+<p><a href="https://github.com/emonhub/emonhub/tree/test-wunderground">This branch is the untested result&nbsp;of merging the old patch with current emonhub</a></p>
+<p><a href="https://github.com/emonhub/emonhub/compare/test-wunderground">This is the &quot;diff&quot; when compared to the emonhub v1.2 (development)</a></p>
+<p>It did work well, at the time so could be worth pursuing further.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34072"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 11/09/2015 - 14:25.</div>
+    <div class="content">
+     <p>So I couldn&#39;t resist the urge and tried it out, it seems to work fine.</p>
+<p>adding a &quot;nodeid&nbsp;= &quot;?? to [runtimesettings] will override the default of node 15 (advised in case the default gets changed which it probably will since I have something else planned for the &quot;baseid&quot; node id which by default is 15)</p>
+<p>and using &quot;interval = &quot; ?? in seconds overrides the interval between requests, the default is 180secs&nbsp;to spread the free daily&nbsp;allowance evenly across 24hrs, but (for example) setting it to 360 could allow 2 instances to report 2 different locations eg home and place of work.</p>
+<p>Anyway..... what was it I was supposed to be doing again ?????? :-)</p>
+<p>Paul</p>
+<p>EDIT - Oh! and I just recalled there was an issue with different weather stations updating different values at different intervals and some not even including some variables if they weren&#39;t active eg snow not included in summer etc. this can cause a problem in some instances if a missing value gets forwarded as a 0. This wa one of the reasons I submitted the <a href="https://github.com/emoncms/emoncms/pull/268">&quot;Selectable input updates&quot;</a> code to emoncms so that values that where not present could simply be &quot;missing&quot; and not updated, however this hasn&#39;t been implemented in this code yet.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34088"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Fri, 11/09/2015 - 22:14.</div>
+    <div class="content">
+     <p>Paul,&nbsp;</p>
+<p>I didnt&nbsp;have a weather station when we started talking , but i purchased it not long after that . It is a Tycon Power Systems TP2700WC. Come with windows bases software for logging log term and posting to wunderground. I have been tinkering with ways to get around that.&nbsp;</p>
+<p>Mike</p>
+<p><i>[Duplicate post deleted - Moderator (RW)]</i></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34111"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Sun, 13/09/2015 - 15:53.</div>
+    <div class="content">
+     <blockquote><p>Theres no easy out of the box answer for what you want , someones&nbsp;gotta&nbsp;tell it what data you want where it needs to go and the API key to got there&nbsp;&nbsp;node you&nbsp;want it at to appear under, only you know that information .&nbsp;</p>
+<p>Its no more complicated than editing text.&nbsp;</p>
+</blockquote>
+<p>Mcihon.</p>
+<p>The problem for me is not to put the API key, and my user ID for emoncms. The problem is where to put it and how to do it. There is no graphical interface for this. I don&#39;t even know where to begin. For people who have keyboards with other layouts printed on them, just trying to use command&nbsp;line and typing lots of stuff is really time consuming because its not even obvious what button to use on the keyboard. Linux, config files and stuff like that is for developers. Not for end users. That&#39;s my point, i am really interested in solving the whole problem, with making this feature available to all users and not just the keyboard talanted ones.</p>
+<p>If this problem is properly addressed, there should be a feature built around it. So that anyone can do this with no knowledge what so ever about linux, php, config files and so on.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>For a while i was thinking about possibilities relaying weather station data through the emonPie, but i don&#39;t know if this is very difficult or not?</p>
+<p>All weather stations that are posting to wunderground is using the same language/format for the data. So if another USB dongle with Ethernet was added to the Emonbase (raspberry) the signal could be routed&nbsp;through the raspberry and logged to the emoncms.org at the same time. Or if the emonbase is on WiFi, the Ethernet port is free for the weather station to be hooked up.</p>
+<p>This would require some skills with network routing, and man-in-the-middle redirecting of the traffic but it would on the other side not require specific drivers for each weather station unit, because they all speak the same language when posting to the wunderground site. This solution would not be limited by the wonderground service, and would not require User ID/API key from them.</p>
+<p>In other words this could be a plug and play one time solution that fits all stations that posts directly to wounderground.</p>
+<p>This service could be running in the emonPi all the time, but only creating feeds if the weather station is connected.</p>
+<p>One way to do this could be to setup a feature in the emonPi that simply answers to the domain of wunderground, and acts like the wunderground server..&nbsp;</p>
+<p>Someone who is more into networking will know if this is possible or not. I do however think this is quite a simple thing to do compared to other stuff that all the good, creative and smart people on this board pulls off.</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34117"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 13/09/2015 - 16:35.</div>
+    <div class="content">
+     <p>If you are posting to wunderground&nbsp;from the supplied windows software it would be fairly easy to retrieve that data from wunderground&nbsp;but that would eat into your daily allowance if you also wanted other data from a wider area or another location.</p>
+<p>A quick websearch&nbsp;tells me that must be a fairly new station? the&nbsp;<a href="http://proweatherstation.com/Products/products.htm">ProWeatherStation&nbsp;TP2700WC</a>&nbsp;uses &nbsp;<a href="http://proweatherstation.com/weathersmart/weathersmart.htm">WeatherSmart</a>&nbsp;but it&#39;s predecessor(s) used&nbsp;<a href="http://proweatherstation.com/easyweather/easyweather.htm">EasyWeather</a>&nbsp;which is supported by <a href="http://pywws.readthedocs.org/en/latest/">pywws</a>&nbsp;and the wording in the 2nd paragraph on that page suggests any weather station using the previous SW was supported. I can&#39;t tell how different the softwares are but you could ask on the&nbsp;<a href="https://github.com/jim-easterbrook/pywws/issues">pywws&nbsp;repo on github by raising an issue</a>&nbsp;or by asking on the <a href="https://groups.google.com/forum/#!forum/pywws">pywws&nbsp;forum group</a>&nbsp;if nothing comes up with some searches.</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34135"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Thu, 17/09/2015 - 08:22.</div>
+    <div class="content">
+     <p>Hi guys!</p>
+<p>In the search for weather station solution i&nbsp;just went in to the website of this company:</p>
+<p><a href="http://www.ambientweather.com/">http://www.ambientweather.com/</a></p>
+<p>They have a weather&nbsp;station that uploads direct to the wunderground.com website and that unit looks like this:</p>
+<p><img alt="Ambient Weather WS-1400-IP-WEATHERBRIDGE OBSERVER Solar Powered Wireless Internet Remote Monitoring Weather Station featuring WeatherBridge" src="../../../ep.yimg.com/ay/yhst-37697109791737/ambient-weather-ws-1400-ip-weatherbridge-kit-observer-solar-powered-wireless-internet-remote-monitoring-weather-" style="width: 300px; height: 300px; border-width: 1px; border-style: solid;" /></p>
+<p>Model name is:</p>
+<p><strong>Ambient Weather WS-1400-IP-WEATHERBRIDGE OBSERVER.</strong></p>
+<p>I think European model is this:</p>
+<p><a href="http://www.conrad.se/Internet-v%e4derstation-Renkforce-Internet-v%e4derstation-Svart.htm?websale8=conrad-swe&amp;pi=1267654&amp;ci=SHOP_AREA_17192_0514061">WH 2600, Renkingforce</a>&nbsp;sold by conrad. (Difference from WS1400 is ROHS&nbsp;certification)</p>
+<p>​And i think this is the OEM producer for the same station sold under many names:</p>
+<p><a href="http://www.foshk.com/Weather_Professional/">Fine Offset</a></p>
+<p><strong>On this page i found there is a download for the firmware:</strong></p>
+<p><a href="http://www.ambientweather.com/observerip.html">http://www.ambientweather.com/observerip.html</a></p>
+<p>The firmware URL:</p>
+<p><a href="http://site.ambientweatherstore.com/iptools/USA_v3.0.3.bin">Firmware Download</a></p>
+<p>&nbsp;</p>
+<p>When i open the firmware for this station i notepad, i get all kinds of information, see image attached. There are cleare references to the wunderground site and upload API in the firmware. I think that the format of the data string is there, URL for uploading and stuff like that.</p>
+<p>On this site there is information about how the wunderground servers receive data.</p>
+<p><a href="http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol">wunderground</a>&nbsp;upload protocol.&nbsp;</p>
+<p>There are two URLs for uploading, one of them allows fast (rapid) uploading with 2.5s interval.</p>
+<p>I read through all the text in the firmware, and i can find reference to&nbsp;wunderground&nbsp;and their rapid post service that allows&nbsp;dataposting&nbsp;every 2.5sec. So the weather station is updating data with a high frequency.</p>
+<p>This weather station also comes with indoor temperature /pressure and humidity meter. Wich makes it a good complement for the Emon system.</p>
+<p>Maybe you guys understand the firmware, and can rewrite it to post to emoncms instead, or even better, both? As of today data can only be sent to one station at the time.</p>
+<p>There is already a function in the firmware that will allow the weather data to be posted to URL of the users choice, supplied with two fields of user ID and Password. (se attatched image)</p>
+<p>So, basically emoncms.org can be typed in to the weather station. Only that emoncms&nbsp;does not understand the API of the wunderground service i would guess. And we use API key instead of ID and PW.</p>
+<p>Can this be a opening for us to get weather data into emoncms.org with minimum hassle? Maybe also update time can be adjusted. The router mentioned in the post above <strong>(ProWeatherStation&nbsp;TP2700WC)</strong> is from the same company, it just has a different name. Maybe there is a firmware also for this weather station that can be rewritten to post direct to emoncms.</p>
+<p>If we can have a compatible weather station that would be really nice. And this together with at software link to wunderground for those who don&#39;t wish to use a dedicated station and don&#39;t need many datapoints.</p>
+<p>Much of the information seems to be plan text in the firmware, so i think you guys can figure it out easily.</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34256"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8436.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mcihon&#039;s picture" title="mcihon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8436.html" title="View user profile.">mcihon</a> on Sat, 19/09/2015 - 01:06.</div>
+    <div class="content">
+     <p>//J&nbsp;</p>
+<p>I think the point you are missing is that yes you can do it ,</p>
+<p>currently I am uploadind&nbsp;wetherstaition independent of the emonpi&nbsp;to wunderground then back again into the emoncpi, to emoncms and to my own instance of emon server on a local machine.&nbsp;</p>
+<p>It seems you are wanting a GUI interface for that and i think i heard mention of it being worked on by Glyn so maybe&nbsp;its coming , but with some enthusiasm on your part editing the text files with API keys&nbsp;etc is nothing more than copying the data you want to the place you need it to go .&nbsp;</p>
+<p>maybe you dont want certain data that is being collected by the weather station to be logged or even sent , adjusting things to your needs allows you to that rather than just plug it in and it works.&nbsp;</p>
+<p>Open source software is designed that way for a reason so everyone is able to look at it and change it for their needs&nbsp;</p>
+<p>I belive anyone myself included all though not tha knowledgeable&nbsp;myself about it would be willing to help you sort it out , but it seems like you want someone to do it for you , that typically comes with a price from a big software firm .&nbsp;</p>
+<p>Mike</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34295"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Mon, 21/09/2015 - 15:52.</div>
+    <div class="content">
+     <p>Mike!</p>
+<p>&nbsp;</p>
+<p>You got what i was aiming for, but my point was not for someone to do it for me. This is a open source project, so everything done here is for the community.</p>
+<p>My wish is rather that someone who has the skills should do it and add the feature to the system so that everyone can start using weather data in their energy monitoring system.</p>
+<p>I think it would contribute a&nbsp;lot to the system. I am sure i could do this myself the manual way that is suggested in this thread, just as well as i could manage&nbsp;DOS back in the days. But there i a reason people don&#39;t do that anymore, and why we should find other ways.</p>
+<p>I am on this board to push for, and help developing the features of the emoncms&nbsp;to make it more usable to more people as i find it a nice and fantastic product. I love the open source idea. It just needs to be just as simple and easy to understand as all the other commercial systems out there.</p>
+<p>I just think editing text and typing command&nbsp;line&nbsp;lingo is something that should be left in the 70s where it all started. Today people use GUI for everything, and we are lazy. If we can&#39;t do it fast we usually don&#39;t&nbsp;do it at all, or we look for it elsewhere. Using GUI saves so much time setting up systems..&nbsp;</p>
+<p>If someone has the time to make a nice, easy to setup&nbsp;GUI for getting weather data into the emoncms..&nbsp;This will save all the thousands of other users the time of setting up an old fashion out dated way of adding weather data to the emoncms.</p>
+<p>With more energy spent&nbsp;on GUI and ease of use, the users of openenergymonitor.org will multiply fast.</p>
+<p>In my job i give people advice. (I don&#39;t sell anything, nor do i configure or set it up for them.) Today&nbsp;I cannot advise this system to any of my customers, because they could never figure it out. &nbsp;And they would never ever pay anyone to do it because&nbsp;computer guys in Norway charge &euro;100/h minimum fee. They will just go for other systems instead and save that money.</p>
+<p>If emoncms is made simple, easy, flexible it will be the obvious choice for everyone. Not just for hardcore data hackers that thinks .php and linuxs is something that can be handled easily.</p>
+<p>So.. We just need make this simple enough for everybody, and not try to turn people into the computer wiz which they are not. This is where i want to contribute. To be creative and find the solutions for this, rather then using out date ways of doing stuff.</p>
+<p>I think that if we put our heads together, we can all give our input to this and find good compatible weather stations that will work direct with the emoncms. We can also find nice GUI ways to interface the emoncms with wunderground&nbsp;with no .php or linux skills what so ever.</p>
+<p>&nbsp;</p>
+<p>As an example, the eliq system (energy monitor) asks for the users address when the account is registered. And then automatically fetches weather data for that location, and plots it straight into the energy graph. This way they dont need outdoor temperature sensors if the customer does not want to buy one.&nbsp;That is easy, useful, fast and simple. How come we cant do good stuff like that with the emoncms? Are we not as good and smart as the people developing other systems?</p>
+<p>&nbsp;</p>
+<p>//J</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35813"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/524.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-524.jpg" alt="Larsjo&#039;s picture" title="Larsjo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/524.html" title="View user profile.">Larsjo</a> on Wed, 11/11/2015 - 18:55.</div>
+    <div class="content">
+     <p>Been trying out the php code, and get a strange error, everything is working except <strong>&quot;precip_1hr_metric&quot;:&quot; 0&quot; </strong>has a dash in front of the 0 ?? and therefore not accepted. How to fix this its not there in inch.</p>
+<p>EX:</p>
+<p>
+{ &quot;response&quot;: { &quot;version&quot;:&quot;0.1&quot;, &quot;termsofService&quot;:&quot;http://www.wunderground.com/weather/api/d/terms.html&quot;, &quot;features&quot;: { &quot;conditions&quot;: 1 } } , &quot;current_observation&quot;: { &quot;image&quot;: { &quot;url&quot;:&quot;http://icons.wxug.com/graphics/wu2/logo_130x80.png&quot;, &quot;title&quot;:&quot;Weather Underground&quot;, &quot;link&quot;:&quot;http://www.wunderground.com&quot; }, &quot;display_location&quot;: { &quot;full&quot;:&quot;Juelsminde, Denmark&quot;, &quot;city&quot;:&quot;Juelsminde&quot;, &quot;state&quot;:&quot;&quot;, &quot;state_name&quot;:&quot;Denmark&quot;, &quot;country&quot;:&quot;DN&quot;, &quot;country_iso3166&quot;:&quot;DK&quot;, &quot;zip&quot;:&quot;00000&quot;, &quot;magic&quot;:&quot;7&quot;, &quot;wmo&quot;:&quot;06102&quot;, &quot;latitude&quot;:&quot;55.701344&quot;, &quot;longitude&quot;:&quot;9.996547&quot;, &quot;elevation&quot;:&quot;0.00000000&quot; }, &quot;observation_location&quot;: { &quot;full&quot;:&quot;Fjordvej, Juelsminde, &quot;, &quot;city&quot;:&quot;Fjordvej, Juelsminde&quot;, &quot;state&quot;:&quot;&quot;, &quot;country&quot;:&quot;DN&quot;, &quot;country_iso3166&quot;:&quot;DK&quot;, &quot;latitude&quot;:&quot;55.701344&quot;, &quot;longitude&quot;:&quot;9.996547&quot;, &quot;elevation&quot;:&quot;42 ft&quot; }, &quot;estimated&quot;: { }, &quot;station_id&quot;:&quot;IJUELSMI5&quot;, &quot;observation_time&quot;:&quot;Last Updated on November 11, 7:47 PM CET&quot;, &quot;observation_time_rfc822&quot;:&quot;Wed, 11 Nov 2015 19:47:11 +0100&quot;, &quot;observation_epoch&quot;:&quot;1447267631&quot;, &quot;local_time_rfc822&quot;:&quot;Wed, 11 Nov 2015 19:49:48 +0100&quot;, &quot;local_epoch&quot;:&quot;1447267788&quot;, &quot;local_tz_short&quot;:&quot;CET&quot;, &quot;local_tz_long&quot;:&quot;Europe/Copenhagen&quot;, &quot;local_tz_offset&quot;:&quot;+0100&quot;, &quot;weather&quot;:&quot;Overcast&quot;, &quot;temperature_string&quot;:&quot;55.0 F (12.8 C)&quot;, &quot;temp_f&quot;:55.0, &quot;temp_c&quot;:12.8, &quot;relative_humidity&quot;:&quot;96%&quot;, &quot;wind_string&quot;:&quot;Calm&quot;, &quot;wind_dir&quot;:&quot;North&quot;, &quot;wind_degrees&quot;:-9999, &quot;wind_mph&quot;:-9999.0, &quot;wind_gust_mph&quot;:0, &quot;wind_kph&quot;:0, &quot;wind_gust_kph&quot;:0, &quot;pressure_mb&quot;:&quot;1013&quot;, &quot;pressure_in&quot;:&quot;29.92&quot;, &quot;pressure_trend&quot;:&quot;0&quot;, &quot;dewpoint_string&quot;:&quot;54 F (12 C)&quot;, &quot;dewpoint_f&quot;:54, &quot;dewpoint_c&quot;:12, &quot;heat_index_string&quot;:&quot;NA&quot;, &quot;heat_index_f&quot;:&quot;NA&quot;, &quot;heat_index_c&quot;:&quot;NA&quot;, &quot;windchill_string&quot;:&quot;NA&quot;, &quot;windchill_f&quot;:&quot;NA&quot;, &quot;windchill_c&quot;:&quot;NA&quot;, &quot;feelslike_string&quot;:&quot;55.0 F (12.8 C)&quot;, &quot;feelslike_f&quot;:&quot;55.0&quot;, &quot;feelslike_c&quot;:&quot;12.8&quot;, &quot;visibility_mi&quot;:&quot;3.1&quot;, &quot;visibility_km&quot;:&quot;5.0&quot;, &quot;solarradiation&quot;:&quot;--&quot;, &quot;UV&quot;:&quot;0&quot;,&quot;precip_1hr_string&quot;:&quot;0.00 in ( 0 mm)&quot;, &quot;precip_1hr_in&quot;:&quot;0.00&quot;, &quot;precip_1hr_metric&quot;:&quot; 0&quot;, &quot;precip_today_string&quot;:&quot;0.09 in (2 mm)&quot;, &quot;precip_today_in&quot;:&quot;0.09&quot;, &quot;precip_today_metric&quot;:&quot;2&quot;, &quot;icon&quot;:&quot;cloudy&quot;, &quot;icon_url&quot;:&quot;http://icons.wxug.com/i/c/k/nt_cloudy.gif&quot;, &quot;forecast_url&quot;:&quot;http://www.wunderground.com/global/stations/06102.html&quot;, &quot;history_url&quot;:&quot;http://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=IJUELSMI5&quot;, &quot;ob_url&quot;:&quot;http://www.wunderground.com/cgi-bin/findweather/getForecast?query=55.701344,9.996547&quot;, &quot;nowcast&quot;:&quot;&quot;<br />
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35835"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8066.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="firefox7518&#039;s picture" title="firefox7518&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8066.html" title="View user profile.">firefox7518</a> on Thu, 12/11/2015 - 14:29.</div>
+    <div class="content">
+     <p>@ goodfidelity</p>
+<p>I absolutly agree on your points Thats why I enhanced the my accounts page to allow for entering additional data, in my case Gateway serial numbers of the enecsys&nbsp;solar systems and also define feeds which will be delivered to pvoutput.org as they, at the moment, have still some nice features like reporting and ROI calculations on it which is easy to use.</p>
+<p>How about entering a Wunderground station ID to this page like I did for my above mentioned stuff?</p>
+<p><img alt="" src="../../../gruppo-radicale.ch/dl/files/account.jpg" style="width: 600px; height: 435px;" /></p>
+<p>I have a scheduled task which then runs a perl scripts which reads out the data from emon&nbsp;and send it to pvoutput.org. Still need some time to make it using the dropdown logic of selecting the feed but I think it could be as easy as this.</p>
+<p>The only question is if you want to have the data from wunderground stored in emoncms or if should just show the actual weather information. In my case I pull everything from wunderground from my own <a href="http://www.wunderground.com/personal-weather-station/dashboard?ID=IBASELLA12" target="_blank">Weatherstation&nbsp;</a>&nbsp;and storing it in feeds to used it on my own made <a href="http://swiss-solar-log.ch:85/firefox/wetter">dashboard</a></p>
+<p>I think there we have to gather a more precise requirement. In my case storing the wunderground data in feeds is what I would expect as they then can be used where I need them. Other maybe just want to use a widget-like thing like a multigraph etc.</p>
+<p>What do others think about that?</p>
+<p><i>[Please READ and HEED "Read this before posting". Duplicate post deleted - Moderator (RW)]</i></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35837"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Thu, 12/11/2015 - 15:40.</div>
+    <div class="content">
+     <p>Lars - can you post the exact wording of the error you are seeing? &nbsp;I entered the same location (using PWS&nbsp;IJUELSMI5) and I don&#39;t see the dash you refer to. &nbsp;</p>
+<p>Jon</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35897"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/524.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-524.jpg" alt="Larsjo&#039;s picture" title="Larsjo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/524.html" title="View user profile.">Larsjo</a> on Sat, 14/11/2015 - 10:50.</div>
+    <div class="content">
+     <p>Found a workaround.</p>
+<p>the data i get for precip_1hr_mm is: = 0 (where there is a dash between = and 0)<br />
+and there for i get a non number to post to emoncms.<br />
+Did a control for other locations, and all gave me a dash when its not raining.</p>
+<p>The workaround it to get the data in inch pr hour, where the data is =00 (no dash)<br />
+and convert the inch to mm in php.</p>
+<p>$precip_1hr_in = str_replace(&#39;,&#39;,&#39;.&#39;,$co-&gt;{&#39;precip_1hr_in&#39;});<br />
+$precip_1hr_mm = $precip_1hr_in*25.4;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35898"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/524.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-524.jpg" alt="Larsjo&#039;s picture" title="Larsjo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/524.html" title="View user profile.">Larsjo</a> on Sat, 14/11/2015 - 10:52.</div>
+    <div class="content">
+     <p>why can&#39;t i see the post i make to this..?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35901"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 14/11/2015 - 11:46.</div>
+    <div class="content">
+     <p>It is explained in <a href="11355.html">Read this before posting</a>.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36062"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8255.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="goodfidelity&#039;s picture" title="goodfidelity&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Software only solution for feeding weather data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8255.html" title="View user profile.">goodfidelity</a> on Wed, 18/11/2015 - 21:29.</div>
+    <div class="content">
+     <p>Nice idea there Firefox7518!</p>
+<p>&nbsp;</p>
+<p>I am looking for something simple for everybody to use. It would be nice if one could just enter the station ID of any wunderground station but that still limits to 500 calls per day.</p>
+<p>&nbsp;</p>
+<p>A friend of mine have managed to make a script that accepts me redirecting the wether&nbsp;station direct into emoncms. We are still trying it out, but because i am traveling i havent&nbsp;tested yet.</p>
+<p>My weather station is cheap, and also has indoor temperature. So for many people it will be alternative to the emonTH and also ad pressure measurments.</p>
+<p>Posting direct to emoncms will allow for much higher amounts of data to be stored for analyze.</p>
+<p>&nbsp;</p>
+<p>I had one universal idea, that would work for ALL IP weather stations. That would be to make &quot;man in the middle&quot; attack simply by connecting the IP station to (a internal or external) Raspberry ethernet port. And have the raspberry reroute internet traffic to emoncms AND wunderground service.</p>
+<p>This way it would require no drivers, no special setup or anything. Just plug and play for all IP weather stations because they all post to the same address (URL) and they all use the same URL encoding.</p>
+<p>I bought a ethernet USB dongle, and will give it for free for anyone who can make this work ;)</p>
+<p>Still havent tried it.</p>
+<p>&nbsp;</p>
+<p>//J</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/589"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-yCGXzdadWVOBBNWTCfdyob-zkVv0BzDIFiclpIHIDoc" value="form-yCGXzdadWVOBBNWTCfdyob-zkVv0BzDIFiclpIHIDoc"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/589 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:50:02 GMT -->
+</html>

@@ -1,0 +1,283 @@
+// Wind speed, current and voltage logging software (to SD memory) using real time clock.
+
+
+//Software part of the OpenEnergyMonitor.org project
+// and designed for V3 power (application at Bath University)
+//Author: Suneil Tagore
+// Date: 25/2/11
+
+
+// This sketch logs windspeed, current and voltage
+// Implements a real time clock DS1302 using DS1302.h library
+// Writes data (including timestamp) to an SD card using SD.h library, comma separated.
+// Red LED indicates write operation to SD card 
+// Green LED indicates it is safe to remove SD card (but be quick! the green LED will time out after a short delay)w
+// pushbutton on analog(2) halts program to allow safe SD removal
+// wind pulses are counted using an interupt method
+
+
+
+/*
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    see <http://www.gnu.org/licenses/>.
+*/
+
+#include <SD.h>
+#include <DS1302.h> // rtc lib
+
+
+// Init the DS1302
+DS1302 rtc(6, 4, 3);
+
+const int chipSelect = 10;    // for SD on nuelectronics 
+
+int redLEDpin=7;
+int greenLEDpin=9;
+int yellowLEDpin =8;  // not implemented
+
+
+
+int INTERVAL = 10000;    // interval at which sampling takes place over the entire loop
+double avVoltage, voltage, voltageSum = 0;
+double avCurrent, current, currentSum = 0;
+double power;
+int counter=0;
+
+
+// calibration
+double CURRENT_OFFSET = 0.5;            // the hall probe is offset from zero amps.
+double CURRENT_SCALER = 0.133;          //use multimeter to verify.
+double VOLTAGE_SCALER = 0.055932203;        // R1 = 3.3.K, R2 = 56K, 3.3/59 = 0.055932203. measure accurately with multimeter!
+double VOLTS_PER_DIV = 0.004882813;   //    5/1024    (or is it 1023?)
+double WIND_CALIB = (2.5)*(0.44704);          // 2.5 mph per Hz, and mph to m/s 
+
+
+double windPulses; 
+double windSpeed;
+unsigned long lastMillis; 
+
+
+
+void setup(){
+
+
+Serial.begin(9600);
+
+//   ------------------SD card initialise ----------------------------------
+  Serial.print("Initializing SD card...");
+  // make sure that the default chip select pin is set to
+  // output, even if you don't use it:
+  pinMode(10, OUTPUT);
+  // see if the card is present and can be initialized:
+  if (!SD.begin(chipSelect)) {
+    Serial.println("Card failed, or not present");
+    // don't do anything more:
+   
+    return;
+  }
+  Serial.println("card initialized.");
+  
+ 
+  
+     // RTC stuff ---------------------------
+  // Set the clock to run-mode, and disable the write protection
+  rtc.halt(false);
+  rtc.writeProtect(false);
+  // Setup Serial connection
+  Serial.begin(9600);  
+   // The following lines can be commented out to use the values already stored in the DS1302
+  //rtc.setDOW(SATURDAY);        // Set Day-of-Week to FRIDAY
+  //rtc.setTime(15, 00, 0);     // Set the time to 12:00:00 (24hr format)
+  //rtc.setDate(26, 2, 2011);   // Set the date to August 
+  // ---------------------------------------
+  
+
+// ----- LED pins
+
+  pinMode(redLEDpin, OUTPUT);    // SD writing warning  
+  pinMode(greenLEDpin, OUTPUT);  // safe SD card removal
+  pinMode(yellowLEDpin, OUTPUT);  // windspeed pulses 
+
+
+// do this last in setup, so that pulsecounts are properly initialised with timer millis..
+attachInterrupt(0, pulseCount, RISING);  // interupt in digital pin2
+lastMillis = millis();
+
+}
+
+
+void loop()
+{
+  
+  if(analogRead(2) > 500)      // if.. to halt program to allow safe SD card removal
+  {
+    //Serial.println(analogRead(2));
+    digitalWrite(greenLEDpin, HIGH);
+    Serial.println("halted");
+    
+    delay(10000);
+    //Serial.println(analogRead(2));
+    digitalWrite(greenLEDpin, LOW);
+    
+    
+    //reset all values:
+    avCurrent =0;
+    currentSum =0;
+    avVoltage =0;    
+    voltageSum =0;
+    
+    counter =1;                // reset
+    lastMillis = millis();    // reset 
+    windPulses = 0;    //reset
+    
+  }
+  analogRead(0);      // creates a delay to prepare analog(0) channel
+  
+  if((millis() - lastMillis) > INTERVAL){
+    
+    
+    // do wind calc first so that interupt value does not change.. 
+    windSpeed = (windPulses/(INTERVAL/1000))*WIND_CALIB;        // in metres per second
+    //Serial.println(windSpeed);
+    //Serial.println("here");
+    //Serial.print(" ");
+    
+    
+    avCurrent = ((avCurrent* VOLTS_PER_DIV) - CURRENT_OFFSET )/ CURRENT_SCALER;  // calibrate
+    //Serial.print(avCurrent);
+    //Serial.print(" ");
+    
+    avVoltage = avVoltage * VOLTAGE_SCALER;    // calibration
+    //Serial.print(avVoltage);
+    //Serial.print(" ");
+    
+    power = avCurrent*avVoltage;
+    //Serial.println(power);
+    
+    
+    // create datastring and write to SD card..
+    
+    String dataString = "";    // reset string
+    
+    //dataString += rtc.getDOWStr();    // day of week not necessary
+    //dataString += ",";
+    dataString += rtc.getDateStr();
+    dataString += ",";
+    dataString += rtc.getTimeStr();
+    dataString += ",";
+    //dataString += String(int(windSpeed));    // String() does not work in doubles it seems, will int truncate?
+    // .. therefore write doubles directly to file...
+    
+ 
+    
+    // file automation, abandoned method due to SD file coruption.. try to implement at later date..
+    //String dateString;
+   //dateString = rtc.getDateStr();
+   //char this_char[dateString.length() + 1];
+   //dateString.toCharArray(this_char, sizeof(this_char));
+   //int my_integer_data = atoi(this_char);
+//int filenameSize = sizeof(this_char) -1;      // -1 or -2 for less dots.. 
+  //   char filename[filenameSize];
+  //   int skipdot =0;
+ //for(int x; x<sizeof(this_char) ; x++)
+  //   {       
+  //     if(this_char[x]=='.')
+  //     {  skipdot = skipdot+1;}   
+  //      filename[x]= this_char[x+skipdot];   
+  //   }
+
+    // Serial.println(this_char);
+   //  Serial.println(filename);
+     
+        
+   File dataFile = SD.open("data.txt", FILE_WRITE);
+    
+
+    
+   // File dataFile = SD.open(this_char, FILE_WRITE);
+
+     // if the file is available, write to it:
+    if (dataFile) {
+
+    digitalWrite(redLEDpin,HIGH);
+    //Serial.println("here1");
+    dataFile.print(dataString);
+    dataFile.print(windSpeed);
+    dataFile.print(",");
+    dataFile.print(avCurrent);
+    dataFile.print(",");
+    dataFile.println(avVoltage);
+    //dataFile.print(",");
+    //dataFile.println(power);        // not needed to save memory
+    
+    dataFile.close();
+    digitalWrite(redLEDpin,LOW);
+    
+    // print to the serial port too:
+    Serial.print(dataString);
+    Serial.print(windSpeed);
+    Serial.print(",");
+    Serial.print(avCurrent);
+    Serial.print(",");
+    Serial.print(avVoltage);
+    Serial.print(",");
+    Serial.println(power);
+    
+    
+    
+    }
+    else {
+    Serial.println("error opening datalog.txt");
+  } 
+        
+  
+    avCurrent =0;
+    currentSum =0;
+    avVoltage =0;    
+    voltageSum =0;
+    
+    counter =1;                // reset
+    lastMillis = millis();    // reset 
+    windPulses = 0;    //reset
+    
+  }
+  
+  
+  
+   //-----------------Average current Calc -----------------------
+  
+  current = analogRead(0);
+  analogRead(1);              // acts as delay between sampling channels
+  
+  
+  currentSum = current + currentSum;
+  avCurrent = currentSum/counter;
+  
+  
+  
+  // -------------- Average voltage Calc -----------------------
+  voltage = analogRead(1);
+  analogRead(2);              // acts as delay between sampling channels
+  voltageSum = voltage + voltageSum;
+  avVoltage = voltageSum/counter;
+  
+ 
+  counter++;
+    
+  
+}
+
+
+
+void pulseCount(){
+  windPulses++; 
+  //Serial.println(windPulses);
+}

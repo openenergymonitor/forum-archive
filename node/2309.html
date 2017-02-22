@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2309 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:43 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Posting to local server | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Posting to local server</h3>
+        <span class="submitted">Submitted by Guest on Sun, 28/04/2013 - 05:40</span>
+        <div class="content"><p>Hi,</p>
+<p>&nbsp;</p>
+<p>I want to modify emonBase to post to emoncms.com.as per normal and a second http GET to a custom PHP script on&nbsp; my local network.&nbsp; I have added the following line of code to the emonBase sketch.&nbsp; However it doesn&#39;t work.&nbsp; From what I can tell it has to do with the fact that I am specifying an IP address rather than a DNS name.&nbsp; I can&#39;t find much documentation on browseURL to figure out how to specify an IP address in the third argument of the following line.&nbsp;</p>
+<p>ether.browseUrl(PSTR(&quot;&quot;) ,&quot;/monitoring/water.php?litres=0.5&amp;flowrate=1.0&quot;, &quot;192.168.252.30&quot; , my_callback);</p>
+<p>&nbsp;</p>
+<p>I have tested my code by setting use_hisip to true and specifying my IP address as the hisip address.&nbsp; However this has the side effect of using the internal address for the second post to emonCMS rather than using emoncms.com.&nbsp; Any thoughts.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2345.html" class="topic-previous" title="Go to previous forum topic">‹ [Solved] Recovering from a changed password</a>
+              <a href="2334.html" class="topic-next" title="Go to next forum topic">raspi root login? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-11680"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Posting to local server</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 28/04/2013 - 16:31.</div>
+    <div class="content">
+     <p>If use_hisip is true, which you need for local addressing as you don&#39;t have a local DNS, both the first and third arguments to browseURL are unused, and the IP address makes its way in via hisip[ ];&nbsp; then it gets copied into ether.hisip with a call to ether.copyIp(ether.hisip, hisip); in dhcp_dns().</p>
+<p>So it looks to me as if you&#39;ll need to plug the IP address into ether.hisip separately and set use_hisip differently before each call to browseURL. Whether you need to save the emoncms.org IP address out of ether.hisip first, I don&#39;t know.</p>
+<p>Hope that helps.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11691"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stephena&#039;s picture" title="stephena&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Posting to local server</h3>
+
+    <div class="submitted">Submitted by stephena (not verified) on Mon, 29/04/2013 - 00:10.</div>
+    <div class="content">
+     <p>Thanks.&nbsp; Great idea.&nbsp; I tried the following but didn&#39;t have any luck.</p>
+<p>&nbsp;</p>
+<p>byte hisip_old[4];<br />
+	for (int i = 0; i&lt;5; ++i){<br />
+	hisip_old[i] = ether.hisip[i];<br />
+	}</p>
+<p>	static byte hisip_local[] = { 192,168,252,30 };<br />
+	ether.copyIp(ether.hisip, hisip_local);<br />
+	ether.browseUrl(PSTR(&quot;&quot;) ,&quot;/monitoring/water.php?litres=0.5&amp;flowrate=1.0&quot;, NULL , my_callback);<br />
+	ether.copyIp(ether.hisip, hisip_old);</p>
+<p>&nbsp;</p>
+<p>Maybe I&#39;m approaching it the wrong way.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11692"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Posting to local server</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 29/04/2013 - 00:21.</div>
+    <div class="content">
+     <p>Don&#39;t you need to set use_hisip to false to use the URL, and to true to use the IP?&nbsp; I&#39;ve not played with this - I will try to give it a go tomorrow.</p>
+<p>N.B. Aren&#39;t you writing past the end of the array with &quot;for (int i = 0; i&lt;5; ++i){ &quot;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11693"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stephena&#039;s picture" title="stephena&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Posting to local server</h3>
+
+    <div class="submitted">Submitted by stephena (not verified) on Mon, 29/04/2013 - 01:03.</div>
+    <div class="content">
+     <p>Hi Robert,</p>
+<p>&nbsp;</p>
+<p>I&#39;ve got use_hisip set to true and then are substituting the IP address of the emoncms.org server with my internal server as above.&nbsp; From what I can tell it should work.</p>
+<p>&nbsp;</p>
+<p>You&#39;re right.&nbsp; There is a problem with the index on the array.&nbsp; I&#39;ve fixed that but still no good.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11717"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Posting to local server</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 29/04/2013 - 23:53.</div>
+    <div class="content">
+     <p>Hmmm. This is proving difficult. I&#39;ve run into all manner of problems, out of memory, spotted a probable bug in the PacketBuffer class, now browseURL appears to picking up the wrong string despite the parameter passed to it being correct. But progress is being made: I&#39;m posting to emoncms.org and getting the time from my local WAMP server.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11738"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stephena&#039;s picture" title="stephena&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Posting to local server</h3>
+
+    <div class="submitted">Submitted by stephena (not verified) on Tue, 30/04/2013 - 10:46.</div>
+    <div class="content">
+     <p>Thanks for looking into this Robert. Have you found anything that you would like to share?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11740"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Posting to local server</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 30/04/2013 - 11:15.</div>
+    <div class="content">
+     <p>Apart from adding my moan about the apparent absence of meaningful documentation - not yet! (The phrase &#39;going off at half-cock&#39; comes to mind.)&nbsp; There&#39;s a lot going on inside the Ethercard library that is less than clear at the moment. When I&#39;ve got it sorted and understand <strong>why</strong> what I&#39;m doing works, then I&#39;ll document and publish.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11751"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="RBJensen&#039;s picture" title="RBJensen&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Posting to local server</h3>
+
+    <div class="submitted">Submitted by RBJensen (not verified) on Tue, 30/04/2013 - 18:04.</div>
+    <div class="content">
+     <p>Sounds great.I am facing a similar task here, so I will eagerly await your findings.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11770"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stephena&#039;s picture" title="stephena&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Posting to local server</h3>
+
+    <div class="submitted">Submitted by stephena (not verified) on Wed, 01/05/2013 - 10:53.</div>
+    <div class="content">
+     <p>&nbsp;I completely agree re the lack of documentation. It is very frustrating.&nbsp;Thanks again Robert.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11786"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Posting to local server</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 01/05/2013 - 22:19.</div>
+    <div class="content">
+     <p>I am still struggling. In essence, what I have is three sections of code:</p>
+<ol>
+<li>
+		Post to the public emoncms.org server every 5 s</li>
+<li>
+		Post to my private WAMP server every 5 s</li>
+<li>
+		Get the time from my private WAMP server every 60 s</li>
+</ol>
+<p>I can do 1 &amp; 3 or 2 &amp; 3.</p>
+<p>If I enable both 1 &amp; 2, then it does 2 &amp; 3.&nbsp; If I reverse the order of 1 &amp; 2, (i.e. 2 - 1 - 3) it does 1 &amp; 3, i.e the last one plus 3. You might expect inserting a delay or an extra</p>
+<pre class="rteindent1">
+ether.packetLoop(ether.packetReceive());</pre><p>to make a difference - it doesn&#39;t.</p>
+<p>There&#39;s this comment in the library code: &quot;<em>packetLoop(), unfortunately, is strange and undocumented.</em>&quot; It doesn&#39;t exactly inspire confidence.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-11874"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Posting to local server</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 05/05/2013 - 13:14.</div>
+    <div class="content">
+     <p>A breakthrough - the solution is in sight.</p>
+<p>It appears that it is necessary to wait for &#39;ok&#39; to come back from the first server before issuing the GET (aka BrowseUrl) to the second server. The time request to a different server worked because most of the time, the &#39;ok&#39; response <em>had</em> been received, but this appears to be entirely fortuitous.</p>
+<p>The problem now is how to handle timeouts if one server fails to respond. Clearly, it must not lock up and it ought to carry on sending to the second server, and I suppose send an equivalent to the &quot;rf fail&quot; message?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2309"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-aVTZLkqtfu8dnGBDqw-KJWHGKp0WkT0cjZGTrpZpP8c" value="form-aVTZLkqtfu8dnGBDqw-KJWHGKp0WkT0cjZGTrpZpP8c"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2309 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:53:43 GMT -->
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Home energy monitor | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h2>How to build a whole home energy monitor</h2>
+<p>This page and the linked pages detailed below, document how to build whole house energy monitor that displays current energy use information, can do usb data logging and has Internet connectivity for online graphing.</p>
+<p>First a quick look at the installed setup:</p>
+<h3>The Display</h3>
+<p>The display unit consists of 4 large green 7-segment LEDs. On the right is a mode chooser you operate by turning the potentiometer (bottom &ndash; right) to display real power, apparent power, power factor, RMS Voltage, RMS Current, frequency or cumulative kWh used. The display is connected to the main unit by a cable that goes through the wall at the back of the display.</p>
+<p><img alt="" border="0" height="300" hspace="0" src="http://openenergymonitor.org/emon/sites/default/files/display_0.jpg" width="400" /></p>
+<h3>The Main unit</h3>
+<p>The main unit is the small box in the far left of pic below with the white CT sensor wire crossing the shelf over to the sensor clipped on to an AC-mains wire on the right. The main unit contains the Arduino, voltage and current measurement electronics, power electronics, USB pen datalogger and Xbee wireless link.</p>
+<p><img alt="" border="0" height="300" hspace="0" src="http://openenergymonitor.org/emon/sites/default/files/mainunit_0.jpg" width="400" /></p>
+<h3>The Ethernet unit</h3>
+<p>The Ethernet unit is connected to the router. The small box on top of the larger box houses the wireless Xbee link.</p>
+<p><img alt="" height="300" hspace="0" src="http://openenergymonitor.org/emon/sites/default/files/ethernet_0.jpg" width="400" /></p>
+<h3>Web based graphing</h3>
+<p>Below is a screenshot of the web based graphing that can be seen live <a href="http://power.openenergymonitor.org/">here</a>.<br />
+Graphing is done with <a href="http://code.google.com/p/flot/">flot</a>.</p>
+<p><img alt="" height="339" src="http://openenergymonitor.org/emon/sites/default/files/graph.PNG" width="400" /></p>
+<p>For more pictures of the setup, check out the picasa album <a href="http://picasaweb.google.com/trystan.lea/FinishedEnergyMonitor?feat=directlink">here</a>.</p>
+<h3>Main Features:</h3>
+<ul>
+<li>Voltage measurement via AC to AC adapter</li>
+<li>Current measurement via CT sensor.</li>
+<li>Power for sensor board provided with same AC to AC adapter used for voltage measurement.</li>
+<li>Calculation of Real power, Apparent power, power factor, RMS voltage, RMS current, frequency, cumulative kWh.</li>
+<li>Display unit consisting of large green 7-segment display,</li>
+<li>Mode selector and red/green LED indicator to indicate if grid frequency is above or below 50Hz.</li>
+<li>USB pen data logging using VDIP1 board</li>
+<li>Xbee wireless link from sensor unit to the Ethernet unit.</li>
+<li>Ethernet board for logging and graphing on Internet.</li>
+<li><a href="http://code.google.com/p/flot/">Flot</a> based graphing on website.</li>
+</ul>
+<p>The block diagram below details the overall setup:</p>
+<p><img alt="" height="566" src="http://openenergymonitor.org/emon/sites/default/files/block.png" width="800" /></p>
+<p>&nbsp;</p>
+<h3>How the documentation works</h3>
+<p>The documentation is organised in such a way that each major part in the above setup is covered independently so that each part can be tested to ensure it works. There is a section at the end about bringing each part together to complete the build. Hopefully this way, it will be easier to troubleshoot if things don&#39;t work, and make it easier to bring the parts together in different configurations, and use them for other projects.</p>
+<p>Apart from the measurement board, each section has been documented by others to some extent, so there will be links to the tutorials I found useful, and I will add the only relevant details and adaptations if any.</p>
+<h3><a href="http://openenergymonitor.org/emon/node/56">Measurement board</a></h3>
+<p><strong>Note</strong>: This guide needs updating to be consistent with version 3.0 of the mains AC- non invasive energy monitor.</p>
+<p>The measurement and power board consists of the electronics required to convert signals from the CT sensor and AC power adapter to signals in the voltage range suitable for the Arduino analogue inputs. It also contains components to convert the AC from the adapter to DC for the Arduino. Currently, it works with single-phase 2 wire distribution system as is common in many UK homes. If you&#39;re in the US, and have a split-phase 3-wire system and would like to help adapt the design for the 3-wire system, please contact me.</p>
+<h3><a href="http://openenergymonitor.org/emon/node/44">USB data logger board</a></h3>
+<p>USB pen drive datalogging is done using a Viniculum VDIP1 USB host controller board and a write-start/stop button and indicator, to safely start/stop/remove the pen drive. The datalogger makes it possible to store large quantities of high detail data over a long time.</p>
+<h3><a href="http://openenergymonitor.org/emon/node/45">How to build the Display unit</a></h3>
+<p>How to build the 7-segment display using a &nbsp;MAX7221&nbsp;and a mode selector using a shift register and potentiometer.</p>
+<h3><a href="http://openenergymonitor.org/emon/node/47">Xbee wireless link</a></h3>
+<p>Point-to-point wireless serial link via Xbees. Connection between the main unit and the Ethernet unit. The Xbees relay serial messages between the Arduinos. A wire connection can be used instead of the Xbees without changing the Arduino sketches.</p>
+<h3><a href="http://openenergymonitor.org/emon/node/48">Ethernet unit and web based Flot graphing.</a></h3>
+<p>How to send data to a MySQL database using the Ethernet shield and a Perl script on the server and how to graph the data in the database with <a href="http://code.google.com/p/flot/">flot</a>.</p>
+<h3>Bringing it all together</h3>
+<p>Once you have each section working independently, the next step is to get them all working together. The wiring diagram below shows how each major part is connected together and how the I/O of the Arduinos are configured:</p>
+<p><img alt="" height="499" src="http://openenergymonitor.org/emon/sites/default/files/wiringdiagram2.jpg" width="800" /></p>
+<p>The pictures at these links may be of use when deciding how to route wires and position the various parts<b>:</b></p>
+<p><a href="http://picasaweb.google.com/trystan.lea/MainUnitBuild?feat=directlink">Main unit assembly</a>&nbsp;|&nbsp;<a href="http://picasaweb.google.com/trystan.lea/FinishedEnergyMonitor?feat=directlink">Installed energy monitor</a>&nbsp;|&nbsp;<a href="http://picasaweb.google.com/trystan.lea/MeasurementBoard#">Measurement board assembly</a></p>
+<p>And here&#39;s a short description of how to <a href="http://openenergymonitor.org/emon/node/49">build an enclosure</a></p>
+<h3>Arduino Software</h3>
+<p>Here are the complete Arduino sketches for the main and Ethernet units. They are made up of the stand-alone sketches from each section above. So if you&#39;re wondering how one part works, or want to use, say the usb data-logger section, in another project, then have a look at the stand alone code.</p>
+<p>I tried to annotate them as best I could, so I wont cover how they work here, but let me know if anything is not clear.</p>
+<p><strong>Download:</strong>&nbsp;<a href="http://openenergymonitor.org/emon/sites/default/files/MainSketch27jan.tar.gz">MainSketch27Jan.tar.gz</a></p>
+<p><strong>Download:</strong>&nbsp;<a href="http://openenergymonitor.org/emon/sites/default/files/EthernetSketch27Jan.tar.gz">EthernetSketch27Jan.tar.gz</a></p>
+<h3>&nbsp;</h3>
+<h3>Full parts list</h3>
+<p>Here&#39;s the full parts list. It contains links to suppliers (mainly Farnell), prices and alternative parts to reduce the project cost.</p>
+<p style="font-size: 1.1em; margin-top: 0.5em; margin-bottom: 0.9em;"><a href="https://spreadsheets.google.com/ccc?key=0AjAoiPsmZy4sdHh4UmtTQmdFX2c4R01iWXNDSE9JX2c&amp;hl=en">Google Docs part list</a></p>
+<p style="font-size: 1.1em; margin-top: 0.5em; margin-bottom: 0.9em;"><strong>Quick cost breakdown</strong></p>
+<p style="font-size: 1.1em; margin-top: 0.5em; margin-bottom: 0.9em;">Measurement Board: &pound;12.68<br />
+Xbee link: &pound;54.32<br />
+Xbee link cable: &pound;0.57<br />
+DataLogger: &pound;15.44<br />
+Display: &pound;19.56<br />
+Display cable: &pound;1.53<br />
+Ethernet shield: &pound;29.00<br />
+2 Arduino&#39;s: &pound;41.16<br />
+<strong>Total: &pound;174.25</strong>!!!</p>
+<p style="font-size: 1.1em; margin-top: 0.5em; margin-bottom: 0.9em;">Thats a bit steep I know! I&#39;ve been looking at how to bring it down a bit. If the Xbee wireless connection is replaced with a simple RF link, the Nuelectronics Ethernet shield and Arduinos are used with a display based on an SAA1064 driver chip, the overall cost can be reduced to <strong>&pound;91.71</strong>. I&#39;ve added details on the alternate components including links to suppliers, and tutorials, in the spreadsheet. I&#39;m hoping to get a chance at making a lower cost version soon as I may be building an energy monitor for the local community center here. I will update as soon as there are any developments.</p>
+</div>
+    
+    
+      </div>
+<div id="comments">
+  <div class="indented"><a id="comment-1491"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Home energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Mon, 03/01/2011 - 11:27.</div>
+    <div class="content">
+     <p>Nice work! and find with the rf atmega. Can you get the arduino bootloader on to it? How do you program it? I will follow your progress on your blog, how about making a documentation wiki/website about it?</p>
+<p>Thanks for the heads up</p>
+<p>Trystan</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div><a id="comment-1474"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Home energy monitor</h3>
+
+    <div class="submitted">Submitted by Guest (not verified) on Thu, 16/12/2010 - 22:40.</div>
+    <div class="content">
+     <p>I am interested to build this project on my own, do you think that it is difficult for me to do it??<br />
+Moreover, because I got lost reading this and from here going to other links...maybe you know something more simpler to read</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<a id="comment-1347"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Graeme Lawton&#039;s picture" title="Graeme Lawton&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Home energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="http://www.graemelawton.co.uk/" rel="nofollow">Graeme Lawton</a> (not verified) on Thu, 15/07/2010 - 07:57.</div>
+    <div class="content">
+     <p>Would it really be that complicated to add the Ethernet shield to the main Arduino board? If that was possible it would work out a lot cheaper.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-1352"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/3" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Home energy monitor</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/3" title="View user profile.">TrystanLea</a> on Mon, 19/07/2010 - 19:44.</div>
+    <div class="content">
+     <p>&nbsp;Hey Graeme, I agree with you that this could certainly be a good option. Im suprised really that they are not already available, shouldnt be too complicated.</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+<div class="indented"><a id="comment-2119"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="RexKI&#039;s picture" title="RexKI&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Home energy monitor</h3>
+
+    <div class="submitted">Submitted by RexKI (not verified) on Tue, 20/09/2011 - 16:20.</div>
+    <div class="content">
+     <p>Combo Arduino plus Ethershield, logging, etc.</p>
+<p>Called and &quot;Ethernut&quot;</p>
+<p><a href="http://www.ethernut.de/en/index.html" title="http://www.ethernut.de/en/index.html">http://www.ethernut.de/en/index.html</a></p>
+<p>?? Not sure if it talks Pure Arduino library code or not&nbsp; &quot;Nut O/S&quot; ??</p>
+         </div>
+    <div class="links">&raquo; </div>
+  </div>
+</div></div><div class="item-list"><ul class="pager"><li class="pager-first first"><a href="/emon/node/43" title="Go to first page" class="active">« first</a></li>
+<li class="pager-previous"><a href="/emon/node/43" title="Go to previous page" class="active">‹ previous</a></li>
+<li class="pager-item"><a href="/emon/node/43" title="Go to page 1" class="active">1</a></li>
+<li class="pager-current last">2</li>
+</ul></div></div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

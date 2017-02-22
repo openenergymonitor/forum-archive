@@ -1,0 +1,658 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10380 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:52:08 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 25/03/2015 - 13:26</span>
+        <div class="content"><p>Over the years emoncms has stored data in different ways starting with mysql then a timeseries database called timestore then phptimestore. Since February 2014 emoncms has used 3 feed engines called:</p>
+<p>phpfiwa: php fixed interval with averaging<br />
+phpfina: php fixed interval no averaging<br />
+phptimeseries. php variable interval (no averaging)</p>
+<p>These 3 feed engines have now been stable for almost a year, they provide a number of benefits both over the original mysql feed engine and timestore/phptimestore. If your interested in learning more about timeseries engine development in emoncms you may be interested in reading more about it here: <a href="https://github.com/openenergymonitor/documentation/tree/master/BuildingBlocks/TimeSeries" title="https://github.com/openenergymonitor/documentation/tree/master/BuildingBlocks/TimeSeries">https://github.com/openenergymonitor/documentation/tree/master/BuildingB...</a></p>
+<p>With these 3 engines stable Id like to depreciate the older engines so that I can focus new developments like the new get data method that is used in the application specific dashboards on the new engines. Ensuring that all engines maintain the same api and provide the same output adds a lot of extra development work.</p>
+<p>Im aware that there are many systems out there running these older feed engines partly because there isnt any documentation at the moment on how to upgrade existing data to the newer engines so Id like to change that and open this thread to help people upgrade!</p>
+<h2>Upgrading timestore/phptimestore to phpfina</h2>
+<p>Both timestore and phptimestore store the data in layer 0 in the same format as phpfina does. So this conversion is just a simple move and file rename of the main timestore/phptimestore data file, then the writing of the phpfina format meta data file and updating of emoncms to tell it that the feed engine has changed for that feed. There&#39;s already a script to do this in the emoncms/usefulscripts repository on github and this is the script I used on emoncms.org to upgrade the feeds there. I&#39;ve updated it a bit today to put the config all in the same place and add a couple of checks.</p>
+<p>Before starting you will want to note the location where emoncms is installed on your system (usually /var/www/emoncms on linux) and the location of the timestore data folder (usually (/var/lib/timestore) and its probably wise to do a backup following the backing up a full emoncms installation documentation here: <a href="https://github.com/emoncms/emoncms/blob/master/docs/Backup.md" title="https://github.com/emoncms/emoncms/blob/master/docs/Backup.md">https://github.com/emoncms/emoncms/blob/master/docs/Backup.md</a></p>
+<p>1) Start by checking that you have created the phpfina feed directory and set the correct permissions:</p>
+<p>sudo mkdir /var/lib/phpfina<br />
+sudo chown www-data:root /var/lib/phpfina</p>
+<p>2) Then download the &quot;usefulscripts&quot; folder:</p>
+<p>git clone <a href="https://github.com/emoncms/usefulscripts.git" title="https://github.com/emoncms/usefulscripts.git">https://github.com/emoncms/usefulscripts.git</a><br />
+or download zip: <a href="https://github.com/emoncms/usefulscripts/archive/master.zip" title="https://github.com/emoncms/usefulscripts/archive/master.zip">https://github.com/emoncms/usefulscripts/archive/master.zip</a></p>
+<p>3) Navigate to the &quot;convertdata&quot; directory:&nbsp; cd convertdata</p>
+<p>4) Open to edit the script called: phptimestore_to_phpfina_mv.php</p>
+<p>5) check that line 5 corresponds to your emoncms installation location, line 6 corresponds to your timestore folder location and 7 to your phpfina folder location.</p>
+<p>6) run the script from the command line with:</p>
+<p>sudo php phptimestore_to_phpfina_mv.php</p>
+<p>That should now run through and convert the timestore/phptimestore feeds to phpfina.</p>
+<p>7) You may need to check that your emoncms/settings.php file has the feed engine entry for phpfina. If its an old settings file it may be easiest to start by creating a new settings.php file from default.settings.php</p>
+<p>I will detail a method for converting mysql timeseries feeds to phptimeseries feeds next.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11270.html" class="topic-previous" title="Go to previous forum topic">‹ MQTT init script not working (Solved)</a>
+              <a href="11269.html" class="topic-next" title="Go to next forum topic">Emoncms export kwh ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-29051"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4638.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borpin123&#039;s picture" title="borpin123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4638.html" title="View user profile.">borpin123</a> on Thu, 26/03/2015 - 21:27.</div>
+    <div class="content">
+     <p>Hi Trystan, &nbsp;I think this is a good move, but often the HowTo&#39;s assume a level of knowledge that simply the end user does not have. &nbsp;I&#39;m not without knowledge completely here so I&#39;ll have a go at the weekend and post questions as I go along.</p>
+<p>First question is, do I upgrade emoncms first before running the above? &nbsp;If so does it matter what version I am on? &nbsp;If so how do I find out the version? :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29372"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4638.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borpin123&#039;s picture" title="borpin123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4638.html" title="View user profile.">borpin123</a> on Fri, 03/04/2015 - 21:48.</div>
+    <div class="content">
+     <p>Hi Trystan, &nbsp;OK ran that on a fresh install of 8.4 with database previously converted / updated. &nbsp;The question is - so what? &nbsp;Does emoncms now update all the different engines? &nbsp;I feel I am missing something :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29374"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4638.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borpin123&#039;s picture" title="borpin123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4638.html" title="View user profile.">borpin123</a> on Fri, 03/04/2015 - 22:10.</div>
+    <div class="content">
+     <p>Ok I&#39;ve goosed something as all the feeds have gone :(</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29378"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5437.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="EmilianoM&#039;s picture" title="EmilianoM&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5437.html" title="View user profile.">EmilianoM</a> on Sat, 04/04/2015 - 06:22.</div>
+    <div class="content">
+     <p>What about emoncms.org feeds ? Tnx</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29391"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4638.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borpin123&#039;s picture" title="borpin123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4638.html" title="View user profile.">borpin123</a> on Sat, 04/04/2015 - 17:32.</div>
+    <div class="content">
+     <p>Ok solved (sleep helps!) When I went into the logs it was clear that emoncms could not open the new files. &nbsp;Once I had changed the ownership of all the files in the phpfina folder everything came back up again.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29392"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4638.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borpin123&#039;s picture" title="borpin123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4638.html" title="View user profile.">borpin123</a> on Sat, 04/04/2015 - 17:33.</div>
+    <div class="content">
+     <p>Hi, I just run emoncms&nbsp;locally.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30462"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 17/05/2015 - 18:55.</div>
+    <div class="content">
+     <p>The latest version of emoncms v8.5 no longer contains the timestore, phptimestore and mysqltimeseries feed engines focusing on phpfina, phpfiwa and phptimeseries. (mysqltimeseries is still supported in emoncms v8.5.0 XT maintained by&nbsp;chaveiro for anyone keen to use mysql)</p>
+<p>If anyone wants to try upgrading to emoncms v8.5 from an older installation using either timestore or phptimestore Id be happy to help through the process described above.</p>
+<p>If there is enough interest I could try putting the steps above together into a script.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30465"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 17/05/2015 - 21:29.</div>
+    <div class="content">
+     <p>There&#39;s also a new script in the usefulscripts repository created 5 days ago thanks to arjenhiemstra for converting mysql to phptimeseries.</p>
+<p>from <a href="https://github.com/arjenhiemstra">arjenhiemstra</a>:</p>
+<p>I had to migrate several users from old SQL feeds to new PHPTimeSeries feeds to make the upgrade to emoncms v8.5 possible, preferably keeping to same feedid.<br />
+I have created this script that will do just that</p>
+<p>it will:<br />
+1. Get list of SQL feeds<br />
+2. Create PHPTimeSeris feeds (with same feedid as current) and add all current data<br />
+3. (create CSV backup if requested)<br />
+4. Update SQL database to new engine<br />
+5. Feed the current feedvalue into SQL db<br />
+6. chown the created files to the specified uid and gid</p>
+<p>This script can be ran with:</p>
+<p>&nbsp; &nbsp; sudo php sql_to_phptimeseries_mv.php</p>
+<p>I&#39;d recommend backing up before running as always</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30476"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3818.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3818.png" alt="fversteegen&#039;s picture" title="fversteegen&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3818.html" title="View user profile.">fversteegen</a> on Mon, 18/05/2015 - 08:03.</div>
+    <div class="content">
+     <p>Great work! It would be helpful (for the bit less tech savvy people) to indicate a step by step procedure on how to do this. For example: I do not&nbsp; have SSH/Telnet access to my hosting provider (it is a shared hosting provider). Another q: to which folder should I upload the &quot;usefulscripts&quot; folder?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30490"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 18/05/2015 - 15:28.</div>
+    <div class="content">
+     <p>thanks @fversteegen I will bear that in mind, I think I have an idea that could work for systems without SSH, Il give it a go and report back</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30504"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 19/05/2015 - 10:51.</div>
+    <div class="content">
+     <p>Ok, I&#39;ve created a simple webpage based migration tool that can be used on shared hosting or any other server to migrate from timestore and mysql to phpfina and phptimeseries. I&#39;ve tested moving from emoncms v6 and v7 to v8.5 with it.</p>
+<p>This is what it looks like:</p>
+<p><img alt="" src="../sites/default/files/migrate.png" style="width: 500px;" /></p>
+<p><strong>You can download the script from here: </strong><br />
+<strong><em>(click save as and save to your emoncms v8.5 folder)</em></strong><br />
+<a href="https://raw.githubusercontent.com/emoncms/usefulscripts/master/convertdata/migrate.php" title="https://raw.githubusercontent.com/emoncms/usefulscripts/master/convertdata/migrate.php">https://raw.githubusercontent.com/emoncms/usefulscripts/master/convertda...</a></p>
+<p>The script does not delete existing data the timestore files are left in the timestore data folder and the mysql data is left in the mysql tables. It does however change the engine field in the feeds table which you can change back if you wanted to switch back to timestore and mysql. Its advisable to make a backup of your emoncms mysql database before running the script, restoring the state of the database from before the script was run would be easiest from a mysqldump export of the emoncms database.</p>
+<p>Run the script by going to <a href="http://emoncms-location/migrate.php" title="http://emoncms-location/migrate.php">http://emoncms-location/migrate.php</a></p>
+<p><strong>Note redis users: </strong>The script performs a redis flushall at the end, if your using redis for anything else non-emoncms related it would cause data loss, you may want to remove this line in that case.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30506"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3818.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3818.png" alt="fversteegen&#039;s picture" title="fversteegen&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3818.html" title="View user profile.">fversteegen</a> on Tue, 19/05/2015 - 13:30.</div>
+    <div class="content">
+     <p>Thank you for this Trystan! Worked perfectly here!</p>
+<p>Judging by the script (bear in mind: I am in no way a php scripter) it looks like this script can also be tweaked to allow old MySQL data to be imported into ready existing phptimeseries feeds. Am I seeing this correctly? Back in january I created a new install, but I still have 2 years of data lying around in a MySQL database which I would love to include in the new system again.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30509"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 19/05/2015 - 15:01.</div>
+    <div class="content">
+     <p>Yes thats true, although the feed id&#39;s do stay the same, but I guess you could have multiple emoncms installs and db&#39;s with conflicting feed ids? I will add a check into the script anyway to be safe, good idea!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30511"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 19/05/2015 - 15:16.</div>
+    <div class="content">
+     <p>Added in a check for both phpfina and phptimeseries feeds</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30512"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3818.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3818.png" alt="fversteegen&#039;s picture" title="fversteegen&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3818.html" title="View user profile.">fversteegen</a> on Tue, 19/05/2015 - 15:16.</div>
+    <div class="content">
+     <p>Well, that is not exactly what I am looking for. I have an old installation in which the power consumption of my house is stored under ID 10 Realtime MySQL. I want to migrate this data (covering 2012 and 2014) to my new installation which measures the power consumption of my house under ID 1 Realtime PHPTIMESERIES.</p>
+<p>So I am actually looking for the possibility to map different ID&#39;s.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30560"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 21/05/2015 - 10:31.</div>
+    <div class="content">
+     <p>@fversteegen, do you want to merge current data with the old data as well? While technically possible this is quite a complex operation that would take quite a bit of development to implement. Could you migrate the old data to its own phptimeseries feed and at least have it accessible as something like house_power_archive?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-30561"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3818.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3818.png" alt="fversteegen&#039;s picture" title="fversteegen&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3818.html" title="View user profile.">fversteegen</a> on Thu, 21/05/2015 - 11:07.</div>
+    <div class="content">
+     <p>Yes, I was actually looking to merge the old and new data. Main reason why I want to do this is to discover the trends (can also be done with seperate feeds, but analysis is much easier if you have 1 overview).</p>
+<p>Migrating to PHPTIMERSERIES is of course, with the abovementioned script, a piece of cake.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31317"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4638.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borpin123&#039;s picture" title="borpin123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4638.html" title="View user profile.">borpin123</a> on Mon, 15/06/2015 - 20:21.</div>
+    <div class="content">
+     <p>Trystan,&nbsp; How can I tell what feeds I am using?&nbsp; I have a right mishmash I think.&nbsp; If some have already been converted what would happen if you ran this script?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31319"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Mon, 15/06/2015 - 20:56.</div>
+    <div class="content">
+     <p><em>How can I tell what feeds I am using?</em><br />
+Your feeds page?</p>
+<p><em>If some have already been converted what would happen if you ran this script?</em><br />
+Nothing, if they have already been converted, there will be nothing to convert.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31321"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4638.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="borpin123&#039;s picture" title="borpin123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4638.html" title="View user profile.">borpin123</a> on Mon, 15/06/2015 - 21:35.</div>
+    <div class="content">
+     <p>Ah OK, that was obvious!&nbsp;</p>
+<p>[edit] sorry misread the answer.</p>
+<p>But some feeds are PHPFINA and some SQL how do I just change those that need changing (the SQL ones) or should some be SQL?&nbsp; I am rather confused!</p>
+<p>Cheers,</p>
+<p>Brian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31327"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Mon, 15/06/2015 - 22:15.</div>
+    <div class="content">
+     <p>Emoncms&nbsp;uses a number of different feed storage engines, but MYSQL is the core database which records api keys, user detail, dashboard&nbsp;layouts, and importantly - what databases are used for storing data, such as phpfiwa, phpfina, etc.</p>
+<p>In a up-to-date&nbsp;emoncms installation, you should have just one&nbsp;MYSQL database table, the rest will be&nbsp;a multitude of other types phpfina, phpfiwa, etc.</p>
+<p>Hope this is clear!</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31545"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3052.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="engeeaitch&#039;s picture" title="engeeaitch&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3052.html" title="View user profile.">engeeaitch</a> on Sat, 20/06/2015 - 14:09.</div>
+    <div class="content">
+     <p>I&rsquo;ve been a long-time user of emoncms (currently running version 8.4.0).&nbsp; A while ago, I converted my temperature feeds from MYSQL to TIMESTORE.&nbsp; I now want to convert these to PHPFINA.&nbsp; I have run the migrate.php script and they appear to have converted successfully.</p>
+<p>I also ran the sql_to_phptimeseries.php script to convert my daily feeds (Min, Max, Kwhd) from MYSQL to phptimeseries.&nbsp; I think that this worked &ndash; but can&rsquo;t see the datestamp changing on these files &ndash; maybe because these are daily files, this won&rsquo;t happen until tomorrow.&nbsp; I also converted one of my realtime feeds from sql to phptimeseries &ndash; I had to edit the script so that it did not restrict the datatype to 2 &ndash; this may or may not have been a mistake?</p>
+<p>However, I have now noticed that my daily feeds no longer appear in the list of feeds.&nbsp; In addition, the realtime feed still appears as MYSQL.&nbsp; I have then noticed that if I turn off redis, all the feeds display correctly &ndash; but I am no longer able to query the api to obtain a feed value.</p>
+<p>Here is a summary:</p>
+<table border="1" cellpadding="1" cellspacing="1" height="132" width="619">
+<thead>
+<tr>
+<th scope="col">redis_enabled</th>
+<th scope="col">datatype</th>
+<th scope="col">engine</th>
+<th scope="col">feeds display</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&nbsp;true</td>
+<td>&nbsp;realtime (1)</td>
+<td>&nbsp;phptimeseries (2)</td>
+<td>&nbsp;shown as MYSQL</td>
+</tr>
+<tr>
+<td>&nbsp;true</td>
+<td>&nbsp;daily (2)</td>
+<td>&nbsp;phptimeseries (2)</td>
+<td>&nbsp;not displayed</td>
+</tr>
+<tr>
+<td>&nbsp;false</td>
+<td>&nbsp;realtime (1)</td>
+<td>&nbsp;phptimeseries (2)</td>
+<td>&nbsp;shown as PHPTIMESERIES</td>
+</tr>
+<tr>
+<td>&nbsp;false</td>
+<td>&nbsp;daily (2)</td>
+<td>&nbsp;phptimeseries (2)</td>
+<td>&nbsp;shown as PHPTIMESERIES</td>
+</tr>
+</tbody>
+</table>
+<p>Any idea what is going on here please?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31550"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 20/06/2015 - 19:27.</div>
+    <div class="content">
+     <p>Have you updated your emoncms/settings.php file?<br />
+If not, you may need to create a new one from the v8.4.0&nbsp;default.settings.php as older versions did not contain the feed engine entry for phpfina.<br />
+&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31559"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3052.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="engeeaitch&#039;s picture" title="engeeaitch&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3052.html" title="View user profile.">engeeaitch</a> on Sun, 21/06/2015 - 06:52.</div>
+    <div class="content">
+     <p>Yes - my settings file is taken from the default version in 8.4.0 and has references to the phpfina, phpfiwa, phptimeseries and phptimestore directories.</p>
+<p>I have noticed that my realtime feed, which has an engine of &#39;2&#39; (phptimeseries) is showing as MYSQL in the feeds table, and values are still getting updated in the mysql database.&nbsp; And there has been no change to the datestamp of the files in the phptimeseries directory.</p>
+<p>It&#39;s as if redis is out of sync with the mysql database. (I am assuming that redis gets its data from mysql on startup?).&nbsp; Is there something I need to do to get them back in sync? (I have tried sudo service redis-server restart).</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31560"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 21/06/2015 - 09:06.</div>
+    <div class="content">
+     <p>You could try flushing redis and reloading the metadata;</p>
+<pre>$&nbsp;sudo redis-cli FLUSHALL</pre>         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31564"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3052.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="engeeaitch&#039;s picture" title="engeeaitch&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3052.html" title="View user profile.">engeeaitch</a> on Sun, 21/06/2015 - 14:25.</div>
+    <div class="content">
+     <p>So I ran the command, and all the feed engines are now showing as they should.&nbsp; (So that explains why changing the SQL database made no difference.&nbsp; I&#39;m surprised that the redis command is not run at system startup?.).</p>
+<p>Anyway, this has now introduced a new problem.&nbsp; My temperature feeds are updated every 25 seconds.&nbsp; However, when I look at the feeds page, the &#39;Updated&#39; column is seemingly random - for example, 6 mins ago, 109 secs ago, 9 mins ago, all in the space of 10 seconds???</p>
+<p>I have a secondary problem, in that one of my inputs logs to max and min.&nbsp; The max field appears to be updated in sync with the temperature, but the min field does not appear to be being updated.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31585"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 22/06/2015 - 08:28.</div>
+    <div class="content">
+     <p>When you see the longer update periods i.e 6min is there data missing in the graph? It sounds like not all the radio packets are getting through.</p>
+<p>The min and max feeds will update only if a new maximum or minimum occurs, so these can go without update for long periods of time.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31616"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3052.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="engeeaitch&#039;s picture" title="engeeaitch&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3052.html" title="View user profile.">engeeaitch</a> on Mon, 22/06/2015 - 20:01.</div>
+    <div class="content">
+     <p>Hi all - I have finally got there - the owner on the phptimeseries files were incorrectly set to root (might be something to point out in the sql_to_phptimeseries_mv.php script).&nbsp; I changed the owner to www-data and everything started to work properly again (both the updating time, and the max and min feeds).</p>
+<p>So my temperature feeds are now using phpfina.&nbsp; However, the documentation indicates that phpfiwa is the best engine for this type of feed.&nbsp; I can see that there is a script for getting from phpfiwa to phpfina, but is there a way of getting from phpfina to phpfiwa, and should I bother?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-31623"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Mon, 22/06/2015 - 21:24.</div>
+    <div class="content">
+     <p>Both phpfina and phpfiwa&nbsp;are both up to date feed engines, and the main difference between them is that there is no averaging in the phpfina engine, making the phpfina &#39;database&#39; smaller and therefore more suited to daily feeds rather than data that you want to analyze&nbsp;in graphs over different periods.</p>
+<p>The downside to using phpfina&nbsp;for temperature feeds, is that it will take slightly longer to load graphs, depending upon the date/time period selected, but apart from that phpfina should be fine.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34006"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3818.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3818.png" alt="fversteegen&#039;s picture" title="fversteegen&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3818.html" title="View user profile.">fversteegen</a> on Thu, 10/09/2015 - 06:09.</div>
+    <div class="content">
+     <p>Sorry to bring this up (again) but I tried to migrate 4 feeds to PHPtimeseries (2 realtime feeds, 1 histogram feed and 1 daily feed, all on MYSQL engine). After running the script above I end up with a converted daily feed, but the other feeds remain in MYSQL.</p>
+<p>By reading the script from @TrystanLea that is the expected outcome, but wouldn&#39;t it make sense to also convert the daily and histogram feeds to one of the modern engines, or am I completely missing the point here?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-34241"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4162.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="modenet&#039;s picture" title="modenet&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Upgrading mysql, timestore, phptimestore feed engines to phpfina and phptimeseries</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4162.html" title="View user profile.">modenet</a> on Fri, 18/09/2015 - 11:08.</div>
+    <div class="content">
+     <p>hi, I tried the script to convert from mysql&nbsp;that I saw that are converted only feeds with datatype=2 (&quot;SELECT * FROM feeds WHERE `engine`= 0 AND `datatype`= 2) but I have many feeds with datatype 1 and 3.</p>
+<p>what can I do to convert them from mysql to&nbsp;PHPFIWA (or&nbsp;phptimeseries)?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10380"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-YIHmH6FHIfGTEbY2TzXoroQ0c4A0xMrj4icoKbFTDI0" value="form-YIHmH6FHIfGTEbY2TzXoroQ0c4A0xMrj4icoKbFTDI0"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10380 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:52:16 GMT -->
+</html>

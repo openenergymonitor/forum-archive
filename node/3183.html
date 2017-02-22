@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3183 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:27:46 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>How to process kWh pulses in emoncms | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">How to process kWh pulses in emoncms</h3>
+        <span class="submitted">Submitted by <a href="../user/4717.html" title="View user profile.">fredrike</a> on Wed, 13/11/2013 - 09:47</span>
+        <div class="content"><p>I&#39;ve built a pulse counter much like the example sketch for emonTxV2&nbsp;on <a href="https://github.com/openenergymonitor/emonTxFirmware/blob/master/emonTxV2/emonTx_Pulse/emonTx_Pulse.ino">github</a>&nbsp;I&#39;ve just made modifications to support rotating micros() and compensation for my meeter&#39;s 100 pulses per kWh.</p>
+<p>My output looks like this:</p>
+<p>119272688,1,1582,1485<br />
+	[micros(),emontx.pulse,totalPulses,emontx.power]</p>
+<p>And with a simple python scipt i read this from serial and publish the emonx.puse (a deltaPulse value) and emontx.power to emoncms.org every 10 second.</p>
+<p>&nbsp;</p>
+<p>My issue are how to set up the processing on emoncms for my deltaPulse&nbsp;value (likely just a 1 or a 0) to get the kWh/d and histogram to work.</p>
+<p>One thing that would be really cool were if there could be ready made templates in emoncms for common inputs (Power, Pulses, Current and so on) that the user just could choose from.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10004.html" class="topic-previous" title="Go to previous forum topic">‹ Is it possible to use feed time for calculations with pulsecounter?</a>
+              <a href="6408.html" class="topic-next" title="Go to next forum topic">help with file_get_contents php scripting ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-16303"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to process kWh pulses in emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 13/11/2013 - 15:02.</div>
+    <div class="content">
+     <p>If you could convert your pulse into watt hours, if your pulses are 100 pulses per kWh then for every 1 pulse you could sent the value 10.</p>
+<p>You should be able to then use the input processor kwhinc_to_kwhd2, that should generate kwhd values.</p>
+<p>To get the histogram to work you will need to calculate power in watts on the emontx itself and send that to emoncms which you can then use in the normal way to generate histogram data.</p>
+<p>hope that helps</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16324"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to process kWh pulses in emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Fri, 15/11/2013 - 09:44.</div>
+    <div class="content">
+     <p>Hi.</p>
+<p>Please allow me to hijack this thread, as I&#39;m facing an issue that I think is similar.</p>
+<p>I setup a sensor on my gas meter, to detect the turn of the least significant gear.</p>
+<p>The TX increments a counter each time the gear gets to 0.</p>
+<p>I don&#39;t want to send a frame only at each turn, because the RF link is not reliable enough. Hence the counter, that I send at least each minute, more if the wheel turns.</p>
+<p>Example:</p>
+<p>t val<br />
+	7:12 29<br />
+	7:13 29<br />
+	7:14 29<br />
+	7:15 30 &lt;- if I miss this frame<br />
+	7:16 30 &lt;- I get this one a minute later, so the total is correct<br />
+	7:17 30&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; only the power is a bit shifted in time<br />
+	7:18 31<br />
+	7:19 33<br />
+	7:20 33<br />
+	7:21 33<br />
+	7:22 33</p>
+<p>The issue with this is with the postprocessing.</p>
+<p>The power calculation is the following: P = (val(n) - val (n-1)) / (t(n) - t(n-1))</p>
+<p>This is wrong because the energy consumed during the whole last gear turn is attributed to the time interval between last frame and now, whereas it should be attributed to the time interval between last index change and now.</p>
+<p>Two options:</p>
+<p>- Only record input if the index actually changed. Keep post-processing as it is. This way, the power will be averaged on the whole period, which is the better precision we can have. I wanted to modify emoncms&#39;s code do this, but I&#39;m realizing this might not be possible with timestore, right ?</p>
+<p>- Record all inputs, then improve post-processing to be able to attribute the power to the whole time interval. This requires the capacity to go back in time to find the input time and value when the index last changed. Moreover, this means to be able to change the feed values <em>a posteriori</em>.</p>
+<p>I don&#39;t think we can compute the power in the TX, because we don&#39;t know the power realtime. Only when the meter index increments do we get to know the power on the last time period.</p>
+<p>I don&#39;t see a way to do this that does not break the code architecture of emoncms.</p>
+<p>Trystan:</p>
+<blockquote><p>If you could convert your pulse into watt hours, if your pulses are 100 pulses per kWh then for every 1 pulse you could sent the value 10.</p>
+</blockquote>
+<p>If you do this, for an input like</p>
+<p>7:12 29<br />
+	7:13 29<br />
+	7:14 29<br />
+	7:15 30<br />
+	7:16 30<br />
+	7:17 30<br />
+	7:18 31<br />
+	7:19 33<br />
+	7:20 33<br />
+	7:21 33<br />
+	7:22 33</p>
+<p>you&#39;ll get</p>
+<p>7:12 ?<br />
+	7:13 0<br />
+	7:14 0<br />
+	7:15 10<br />
+	7:16 0<br />
+	7:17 0<br />
+	7:18 10<br />
+	7:19 20<br />
+	7:20 0<br />
+	7:21 0<br />
+	7:22 0</p>
+<p>The power is not properly averaged. If the time interval is small, it can generate power peaks higher than the actual power of the boiler.</p>
+<p>If viewed through a one hour period histogram, this may be averaged about correctly in real life use cases, but is thi satisfying ?</p>
+<p>Just submitting my questions and doubts. I don&#39;t have a solution right now.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16464"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to process kWh pulses in emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Wed, 04/12/2013 - 21:12.</div>
+    <div class="content">
+     <blockquote><p>- Only record input if the index actually changed. Keep post-processing as it is. This way, the power will be averaged on the whole period, which is the better precision we can have. I wanted to modify emoncms&#39;s code do this, but I&#39;m realizing this might not be possible with timestore, right ?</p>
+</blockquote>
+<p>I just did a simple modification inspired from this. In fact, it should work with timestore. I just needed to get my head into the process model.</p>
+<p>I modified the input() function to allow process functions to return NULL to stop the processing.</p>
+<p>Then in pulse_diff function, I return NULL if the index has not changed. This way, the feed is modified only if the index is modified. The graphs are now going to look nice.</p>
+<p>Here&#39;s the diff:</p>
+<p><a href="https://github.com/Jerome-github/emoncms_emoncms/commit/51644bc899c3e0febea4db14e5b577dedac0f174" title="https://github.com/Jerome-github/emoncms_emoncms/commit/51644bc899c3e0febea4db14e5b577dedac0f174">https://github.com/Jerome-github/emoncms_emoncms/commit/51644bc899c3e0fe...</a></p>
+<p>As far as I understand it, this modification in input() should not affect any existing processing function, the merge should be safe.</p>
+<p>We could modify kWh_to_power instead, but I don&#39;t think it would be a good idea. Consider a case where an index is sent on a regular basis, then you can expect to receive</p>
+<pre>
+1664 (One index every hour)
+1664 &lt;- No power during last hour
+1664 &lt;- No power during last hour
+1678 &lt;- Consumption of 14 units during last hour
+</pre><p>In this case, losing the information that at time = 2h, nothing had been consumed would be a loss of information.</p>
+<p>However, I believe the pulse_diff function is meant precisely for use cases where a pulse is sent each time a counter increases, not on a regular basis, so this should not be an issue, as an index will be sent for each pulse, which is the best resolution available.</p>
+<p>I&#39;ll try it a bit then send a pull request when I&#39;m happy with it.</p>
+<p>One thing I don&#39;t like: the hardcoded &quot;1&quot; that stands for &quot;if index increased by more than *1* times the number of seconds since last update, then there must have been a wraparound&quot;. It means that I assume my meter should not turn faster than *1* round per minute. This may depend on the meter and I&#39;d like it to be an argument to the pulse_diff process, but unfortunately, it already has an argument, which is the feed to log the index to, and we need that too, to get the last value of the index and compute the power.</p>
+<p>&nbsp;</p>
+<p>Edit: Actually, this approach is both complicated and wrong. I&#39;ll try to come back with a better one.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26772"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2242.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="filartrix&#039;s picture" title="filartrix&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: How to process kWh pulses in emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2242.html" title="View user profile.">filartrix</a> on Wed, 14/01/2015 - 11:00.</div>
+    <div class="content">
+     <p>Hi, I have a gas meter and a KWh meter that send only a counter value ( i.e. &nbsp;42 43 44 45 46&nbsp;...etc) every time the counter is incremented. I would like to convert those pulses to watts&nbsp;. Unfortunately the Arduino cannot send also a time information (since it is in low power mode and millis() does not work).</p>
+<p>I thought also that I could send the counter value every 15 min, but then if a packet is loss I wouldn&#39;t have reliable watt hours.</p>
+<p>I think that Emoncms has the time information about when the data has been received. I could do</p>
+<p>(counter(1) - counter(0))*(time(1) - time(0)) and have the watt value&nbsp;</p>
+<p>is it possible to do such a thing?</p>
+<p>Thanks&nbsp;</p>
+<p>Filippo</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3183"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Hjw1_3NtQiN1fe1pJTd36cyIQinSZvWQHKL9iXhvvNg" value="form-Hjw1_3NtQiN1fe1pJTd36cyIQinSZvWQHKL9iXhvvNg"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3183 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:27:46 GMT -->
+</html>

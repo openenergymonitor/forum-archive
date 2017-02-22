@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11636 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:59 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Update process from v8 to v9 | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Update process from v8 to v9</h3>
+        <span class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 19/11/2015 - 21:19</span>
+        <div class="content"><p>I&#39;ve started with a fresh install of emoncms v8.5.2 on a spare Raspberry Pi v1 running Raspbian Wheezy, empty data folders &amp; new MYSQL database, and worked through the update process to v9.0, so I thought I&#39;d note the process and post it here in case it helps anyone. You may find that on other OS that the update process may differ slightly.&nbsp;</p>
+<p>Whilst in v8, I created two identical &#39;power&#39; feeds which respectively fed&nbsp;&#39;kwh&#39; feeds via a &#39;power to kwh process&#39; and also&nbsp;&#39;power to kwh/d&#39; feeds. I gave them a suffix of 1 and&nbsp;2, and created a multigraph&nbsp;comparing both kwh feeds.</p>
+<p>I also repeated the whole process of updating from v8.5.2 to the development branch v9.x and got identical results.</p>
+<p><u><strong>The Update Process</strong></u></p>
+<p>This update makes a number of changes to the MYSQL database making it difficult to roll back to v8 once you&nbsp;have updated, so it&#39;s probably wise to back up your data folders &amp; MYSQL data before starting.</p>
+<p>Stop emonhub &amp; update to v9</p>
+<pre>
+sudo service emonhub stop
+cd /var/www/emoncms
+​git fetch origin
+git checkout stable
+git pull</pre><p>Make feedwriter executable:</p>
+<pre>
+sudo chown root:root /var/www/emoncms/scripts/feedwriter
+sudo chmod 755 /var/www/emoncms/scripts/feedwriter</pre><p>Create a new settings file:</p>
+<pre>
+cp default.settings.php settings.php</pre><p>Enter your mysql database settings in settings:</p>
+<pre>
+nano settings.php</pre><p>In your browser login to emoncms:</p>
+<ul>
+<li>Check the Administration page - &#39;Setup &gt; Administration&#39; noting and acting upon any messages reported.</li>
+<li>Update your database - &#39;Setup &gt; Administration &gt; Update database&#39;.</li>
+<li>Ensure that the correct&nbsp;timezone is selected &amp; saved in &#39;Setup &gt; My Account&#39;</li>
+</ul>
+<p>Flush Redis &amp; start emonhub</p>
+<pre>
+redis-cli flushall
+sudo service emonhub start</pre><p>Your inputs &amp; feeds should now start updating, and you should again check the Administration page and deal with any messages reported in there.</p>
+<p><strong>Feed Errors</strong></p>
+<p>If you check your&nbsp;<strong>power to kWh feeds</strong>, you may see that&nbsp;the value has dropped during the update. This is a bug in v9.0 hopefully to be resolved.</p>
+<p><img alt="" src="../sites/default/files/before%20script.png" style="width: 701px; height: 297px;" /></p>
+<p>To correct the error, you will need to recalculate the kWh data by using a script.</p>
+<p>First, stop emonhub</p>
+<pre>
+sudo service emonhub stop</pre><p>Install and run the script:</p>
+<pre>
+cd &amp;&amp; sudo git clone <a href="https://github.com/emoncms/usefulscripts.git" title="https://github.com/emoncms/usefulscripts.git">https://github.com/emoncms/usefulscripts.git</a>
+sudo php usefulscripts/process/power_to_kwh.php</pre><p>Answer the questions when prompted, choosing to overwrite the existing kWh feed. Repeat this for all of your affected kWh feeds.</p>
+<p>Please note that entering a value for the kWh feed interval period is compulsory and although I chose 10 (seconds) in this example, you may find that 300 is more appropriate for this type of feed. i.e don&#39;t leave it blank! &nbsp;I would assume the same for &quot;set max power level&quot; so enter a value in there too.</p>
+<p><img alt="" src="../sites/default/files/rsz_564e2c92162f8.png" style="width: 669px; height: 496px;" /></p>
+<p>Flush Redis &amp; start emonhub</p>
+<pre>
+redis-cli flushall
+sudo service emonhub start</pre><p><img alt="" src="../sites/default/files/after%20script.png" style="width: 703px; height: 304px;" /></p>
+<p>As you can see above, the script has rebuilt the FINA&nbsp;kwh1&nbsp;data from my FIWA kwh source feed, whilst the&nbsp;kwh2&nbsp;feed still shows the drop. I&#39;ve since run the script on the kwh2 feed an that too is now fine.</p>
+<p>If you have the &#39;app&#39; module installed, you will also need to update that to v9 as follows:</p>
+<pre>
+cd /var/www/emoncms/Modules/apps
+git checkout 9.0
+git pull</pre><p>If you are using the &#39;notify&#39; module, see the <a href="11636.html#comment-36116">mod by Jumpmaster</a> to ensure it also works under v9.</p>
+<p>It&#39;s probably worth mentioning than when you install/update to v9, a number of scripts will also be available to you to make some of the other tasks easier, such as installing a USB HDD. Please see the <a href="https://github.com/emoncms/emoncms/tree/9.0/docs/RaspberryPi">Raspberry Pi initial installation guides</a> for more details.</p>
+<p>Paul</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10691.html" class="topic-previous" title="Go to previous forum topic">‹ Packetgen and button on dashboard</a>
+              <a href="11625.html" class="topic-next" title="Go to next forum topic">emonPi_Startup.ino calc_rms BUG ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-36093"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Update process from v8 to v9</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 19/11/2015 - 22:09.</div>
+    <div class="content">
+     <p>Hi Paul, nice write-up,&nbsp;could this process also work with an&nbsp;emoncms.org back-up?</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36096"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Update process from v8 to v9</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 19/11/2015 - 22:27.</div>
+    <div class="content">
+     <p>I&#39;t seems that the location of the feed libraries, feeds etc are hardcoded in Trystan&#39;s&nbsp;script, so provided that they are met I assume so, but I don&#39;t use emoncms.org, or am familiar with the format of the backups.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36114"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8609.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8609.jpg" alt="JumpMaster&#039;s picture" title="JumpMaster&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Update process from v8 to v9</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8609.html" title="View user profile.">JumpMaster</a> on Fri, 20/11/2015 - 11:39.</div>
+    <div class="content">
+     <p>Thanks for the write up Paul.</p>
+<p>For anyone else performing this, the step &quot;Would you like to modify thw kwh feed interval...&quot; is compulsory and 10 is not the default option if it is left blank. &nbsp;I would assume the same for &quot;set max power level&quot; so enter a value in both of these.</p>
+<p>[Thanks Kev, good point, I&#39;ve added it in above - Paul]</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36116"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8609.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8609.jpg" alt="JumpMaster&#039;s picture" title="JumpMaster&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Update process from v8 to v9</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8609.html" title="View user profile.">JumpMaster</a> on Fri, 20/11/2015 - 12:23.</div>
+    <div class="content">
+     <p>I thought I&#39;d also post about a couple of&nbsp;issues I ran into during the upgrade. &nbsp;I run this on my own server so this might not be applicable to many people. &nbsp;emoncms 9.0+ requires PHP 5.4+ and I was using PHP 5.3. &nbsp;I used to following guide to perform the PHP upgrade and made sure my emoncms 8.5 install worked as expected before continuing.</p>
+<p><a href="https://webtatic.com/packages/php56/" title="https://webtatic.com/packages/php56/">https://webtatic.com/packages/php56/</a></p>
+<p>The second issue I found before upgrading to emoncms 9.0 was that I was missing emoncms.log in /var/log/ so I created that and set the permissions to 666.</p>
+<pre>
+touch /var/log/emoncms.log
+chmod 666 /var/log/emoncms.log</pre><p>After this I created a test kwh feed and could see the creation process in the newly created emoncms.log. &nbsp;The kwh feed incremented as expected so I continued with the upgrade.</p>
+<p>The upgrade process was then very simple following Paul&#39;s guide. &nbsp;If you&#39;ve pulled the apps repo you will also need to do the following.</p>
+<p>cd /var/www/emoncms/Modules/apps<br />
+git checkout 9.0<br />
+git pull</p>
+<p>If you have notify install you will need to modify it.</p>
+<p>nano /var/www/emoncms/Modules/notify/notify_menu.php</p>
+<p>Change the following line to add &#39;order&#39; =&gt; 10 to the end.<br />
+&nbsp; $menu_dropdown[] = array(&#39;name&#39;=&gt; dgettext($domain, _(&quot;Notify&quot;)), &#39;path&#39;=&gt;&quot;notify&quot; , &#39;session&#39;=&gt;&quot;write&quot;);</p>
+<p>&nbsp; $menu_dropdown[] = array(&#39;name&#39;=&gt; dgettext($domain, _(&quot;Notify&quot;)), &#39;path&#39;=&gt;&quot;notify&quot; , &#39;session&#39;=&gt;&quot;write&quot;, &#39;order&#39; =&gt; 10);</p>
+<p>After that the&nbsp;upgrade is working really well and the interface is a nice improvement.&nbsp; Looking forward to future updates!</p>
+<p>[Thanks Kev, info re Modules added to above post -&nbsp;Paul]</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36119"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Update process from v8 to v9</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Fri, 20/11/2015 - 12:31.</div>
+    <div class="content">
+     <p><em>...was that I was missing emoncms.log in /var/log/</em>&nbsp;</p>
+<p>I beleive&nbsp;that the log is not created by emoncms&nbsp;until feed data starts flowing. When you start emonhub, and emoncms has something to log, it should create the log file itself.&nbsp;</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11636"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-GBWLwrRuu_cBLCP9CLjLyq0wsxK6WLneEi-YI9fZz_s" value="form-GBWLwrRuu_cBLCP9CLjLyq0wsxK6WLneEi-YI9fZz_s"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11636 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:50:01 GMT -->
+</html>

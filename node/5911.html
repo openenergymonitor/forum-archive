@@ -1,0 +1,635 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5911 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:38:31 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonTx 3-phase with 3 wires (no neutral) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonTx 3-phase with 3 wires (no neutral)</h3>
+        <span class="submitted">Submitted by <a href="../user/6963.html" title="View user profile.">Amaury</a> on Wed, 08/10/2014 - 16:36</span>
+        <div class="content"><p>Hi all,</p>
+<p>I just installed an emonTx in Belgium, in a house where they get 3x230V, without the neutral wire. I believe this is pretty common in the country, even for small apartments.</p>
+<p>So I came up with a solution to measure the total power, using ideas from the 3-phase, 4-wire sketch that was already in the Example repository. I created my version in <a href="https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3/RFM12B/Examples/emonTxV3_RFM12B_DiscreteSampling_3wires">https://github.com/openenergymonitor/emonTxFirmware/tree/master/emonTxV3/RFM12B/Examples/emonTxV3_RFM12B_DiscreteSampling_3wires</a></p>
+<p>The general idea is: you just need 2 power measurements to get the total power. Here&#39;s how it works in the sketch:</p>
+<p>- You get a current measurement from CT1&nbsp;and CT2 (let&#39;s call them I1 and I2), and a voltage measurement from the AC-AC transformer (let&#39;s call it V13 because it&#39;s measured between wires 1 and 3)</p>
+<p>- In my example,&nbsp;EmonLib&nbsp;modified library file (called emonlib2) allows to time-shift V13 by 120 degrees so that it becomes V23</p>
+<p>- I use this in the main sketch by using first CalcVI with CT1, then with CT2, then again on CT2 but with shifting the phase by 120 degrees (equivalent to shifting by 16 samples).</p>
+<p>- Then the total power P = V13 * I1 + V23 * I2, so I have my total power measurement by adding the 2 power measures</p>
+<p>I&#39;m reasonably confident this is correct, but would love to have expert eyes on this to make sure I didn&#39;t do anything wrong.</p>
+<p>In addition, I&#39;m still trying to figure out what happens to the power factor. Not sure I should add Pf1 and Pf2, or do any other calculation. All ideas are welcome!&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10101.html" class="topic-previous" title="Go to previous forum topic">‹ Arduino mega</a>
+              <a href="10094.html" class="topic-next" title="Go to next forum topic">Example sketch not working: emonTxV3 continuous kwhtotals noeeprom.ino ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-24387"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 08/10/2014 - 17:43.</div>
+    <div class="content">
+     <p>The principle looks correct. It is standard theory that you need one less wattmeter (read emonTx power measurement) than the number of wires.&nbsp;</p>
+<p>But I don&#39;t follow what you&#39;re doing by using CT2 twice, and I&#39;m sorry but there&#39;s a serious error in your understanding of three-phase supplies.</p>
+<p>What I think you need to do is forget emonLib and start with the emonTxV3_3Phase_Voltage sketch, which doesn&#39;t use emonLib. It&#39;s probably best to remove the maths for Phase 2, but use its I/O allocation for Phase 3, then change the delay for Phase Three to give you the correct angle between the phases - which is <strong>NOT</strong> 120&deg; of course.</p>
+<p>And you can&#39;t add power factors - you need to go back to how the power factor is calculated to get the overall power factor. So you need to use the definition, which is the ratio of the total real power and the total apparent power. Obvious when you think about it: if you have a pf=0.9 on each phase, adding gives a pf &gt; 1 which is clearly ridiculous.</p>
+<p>But you can add the real powers, either as instantaneous values before averaging or after averaging - both should give the same answer, and the apparent powers after first obtaining the rms currents and voltage and multiplying.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24403"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 09/10/2014 - 05:32.</div>
+    <div class="content">
+     <p><em>I just installed an emonTx in Belgium, in a house where they get 3x230V, without the neutral wire.</em></p>
+<p>Is that 230V between the phases? &nbsp;Does anything get connected to GND?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24405"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 09/10/2014 - 08:57.</div>
+    <div class="content">
+     <p>If there is a ground connection other than a protective earth, then all bets are off, and it is not a 3-wire system. I was highly suspicious because as far as I&#39;m aware, most of Europe is 3 phase, 230 V phase-neutral. If he really does not have a neutral connection to any of his installed equipment, and if his ac adapters are 400 V input, that&#39;s fine and he&#39;ll get the right answers. Otherwise there will be a nasty smell of burning transformer. I think he needs to look <a href="http://en.wikipedia.org/wiki/Earthing_system">here</a>, measure some voltages and decide what type of system he has.</p>
+<p>I have to believe people know what they are talking about until there is good evidence that is not the case.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24406"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Thu, 09/10/2014 - 09:07.</div>
+    <div class="content">
+     <p>I&#39;m wondering where they buy their light bulbs and TVs. &nbsp;Surely they don&#39;t have to find 400V light bulbs? &nbsp;That got me wondering if it&#39;s 230V between phases.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24419"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 09/10/2014 - 12:30.</div>
+    <div class="content">
+     <p><em>&quot;That got me wondering if it&#39;s 230V between phases.&quot; &nbsp;</em>That&#39;s always possible, so 130 V phase-neutral, but I&#39;m subscribing to the view that&nbsp;Amaury has got his facts wrong and the supply is a perfectly normal 230 V three-phase, four wire TN-S or TN-C-S and he&#39;s got 2 of the three phases. If he measures the voltages between all possible permutations of wires and earth, we&#39;ll soon know.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24421"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/2888.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Tinbum&#039;s picture" title="Tinbum&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/2888.html" title="View user profile.">Tinbum</a> on Thu, 09/10/2014 - 13:31.</div>
+    <div class="content">
+     <p><br type="_moz" /><br />
+	I understand in some countries it&#39;s quite common / normal practice&nbsp;not to have a neutral in a 3 phase supply. I think Norway is one typical country.</p>
+<p><a href="http://www.ccontrolsys.com/w/Electrical_Service_Types_and_Voltages" title="http://www.ccontrolsys.com/w/Electrical_Service_Types_and_Voltages">http://www.ccontrolsys.com/w/Electrical_Service_Types_and_Voltages</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24497"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6963.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Amaury&#039;s picture" title="Amaury&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6963.html" title="View user profile.">Amaury</a> on Sun, 12/10/2014 - 19:55.</div>
+    <div class="content">
+     <p>Hi all, and thanks for your messages!</p>
+<p>Sorry for my absence of reply: I thought I&#39;d receive an email, but clearly it isn&#39;t the case. So I&#39;ll try to clear all doubts below:</p>
+<p>- My supply is a perfectly normal three-phase, with 230V between any 2 of the phases. So all circuits in the house are connected between two phases, not between a phase and neutral. I think you can get a 4-wire connection in Belgium, upon special request if you have more power requirements. Then it&#39;s 380V phase-phase, which gives you about 230V neutral-phase</p>
+<p><strong>@Robert:</strong></p>
+<p>Sorry I think I got my explanation a bit wrong and clogged by code details. I&#39;ll try to summarize just the concepts, abstract from the implementation:</p>
+<p>In each cycle, I do:</p>
+<p>1) A power measure using CT1 and the voltage</p>
+<p>2) A power measure using CT2 and the voltage shifted back by 120 degrees</p>
+<p>Then I sum these two powers P1 and P2.&nbsp;</p>
+<p>All the rest (measuring two times on CT2) is unnecessary programming details I used for debugging. Robert, most of the code I used is from the sketch you mentioned, including the time-shifting logic (indeed I used phase 3 as a reference). I just plugged it in emonLib2 so that I could start from the latest version. I don&#39;t think there&#39;s an error in that part.</p>
+<p><u>A question I had for you</u>, as you will probably have hit the same when programming the 4-wire version. In case a wire is switched from what you think, and you multiply the current for a phase by the voltage shifted by the wrong angle, how do you notice?</p>
+<p>For the power factor, I found that if you have a balanced system, the power factor is PF = (P1+P2) / ( sqrt(3) * V * I). V being phase-phase voltage. However, in reality one rarely has a balanced system, in particular I will not be equal in the two measured phases. I&#39;m planning to use I = &nbsp;average of I1 and I2&nbsp;and see what the result is.&nbsp;</p>
+<p>Thanks again!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24502"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 13/10/2014 - 00:03.</div>
+    <div class="content">
+     <p>You have not tested that sketch, have you?</p>
+<p>The general perception is that everything contained in the openenergymonitor GitHub account is accurate, and reliable. Your sketch cannot give accurate results and so cannot be relied upon. GitHub is not a place for experimental designs that are not in a usable form. You must withdraw your sketch from GitHub. Only after you have verified that it gives accurate results (and I strongly recommend that you should ask another independent user to verify that the sketch is accurate) should you contemplate reinstating it.</p>
+<p>As for how do I notice the wrong phase rotation? You apply a very obvious and basic test. If you knew some electrical engineering, you would not need to ask that question. You would also not have made a fundamental error in your understanding of 3-phase supplies.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24503"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1332.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1332.html" title="View user profile.">JBecker</a> on Mon, 13/10/2014 - 07:59.</div>
+    <div class="content">
+     <p><em>I understand in some countries it&#39;s quite common / normal practice not to have a neutral in a 3 phase supply. I think Norway is one typical country.</em></p>
+<p>I have never seen that in Norway. But Belgium (France and Italy) really seems to have a three phase configuration with 220V between phases, I found this (in German, but the table values are easy to interpret):</p>
+<p><a href="http://cache.automation.siemens.com/dnl/Tc/Tc0ODM2MQAA_34973099_HB/Kap_3_Netzspannungen_Frequenzen_V15_END_V2.pdf">http://cache.automation.siemens.com/dnl/Tc/Tc0ODM2MQAA_34973099_HB/Kap_3_Netzspannungen_Frequenzen_V15_END_V2.pdf</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24504"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6963.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Amaury&#039;s picture" title="Amaury&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6963.html" title="View user profile.">Amaury</a> on Mon, 13/10/2014 - 08:26.</div>
+    <div class="content">
+     <p>Yes, that&#39;s correct, 230V between phases in 3-wire configuration in Belgium.</p>
+<p>Robert, I sent you a couple questions in a private message.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24506"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 13/10/2014 - 09:32.</div>
+    <div class="content">
+     <p>Amaury, forgive me for quoting here what you wrote in a private message, but it is important for others to understand what I&#39;m saying to you:</p>
+<p class="rteindent1">&quot; 2) I measure power with CT2, using current I2 and voltage V, shifted by 120 degrees, which gives me P2. I copied the logic you have in your 4-wire sketch and adapted it for 2-phase measurement instead of 3.</p>
+<p class="rteindent1">Then the power is the sum of these 2 components. Do you see an issue here so far? Would love your help to understand where the mistake is. I willingly admit my knowledge of 3-phase power is rusty, but I thought that part was error-free.</p>
+<p class="rteindent1">In the meantime I tested it and it works fine...&quot;</p>
+<p>I told you in my first response what the principal problem is, and you continue repeating your mistake. I simply do not believe, with the sketch as it is, that it gives the correct values for power on the second phase (or if it does, you have found a way to make the ADC work really fast, and I can see no evidence of that). Go away, read my first post again, think carefully about the relationship between the three phase voltages and where you are measuring from, and while you are doing that, take down your sketch from GitHub.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24508"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 13/10/2014 - 09:47.</div>
+    <div class="content">
+     <p>J&ouml;rg, that&#39;s a useful table and rather more comprehensive than Wikipedia in this regard, thanks.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24510"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Mon, 13/10/2014 - 10:41.</div>
+    <div class="content">
+     <p><em>My supply is a perfectly normal three-phase, with 230V between any 2 of the phases. So all circuits in the house are connected between two phases,</em></p>
+<p>So is one of the phases used as the &quot;anchor&quot; for all loads, or do loads get connected across all 3 phases?</p>
+<p>For example, do all loads run between just A-B &nbsp;and &nbsp;A-C with the A phase being the &quot;anchor&quot; for all &nbsp;OR</p>
+<p>can loads be run between A-B, A-C and B-C?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24536"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3016.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="dBC&#039;s picture" title="dBC&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3016.html" title="View user profile.">dBC</a> on Tue, 14/10/2014 - 03:58.</div>
+    <div class="content">
+     <p><em>&nbsp;to give you the correct angle between the phases - which is NOT 120&deg; of course.</em></p>
+<p>Robert, can you explain this part a bit more please? &nbsp; If you start out with three&nbsp;133V&nbsp;phasors (A, B, C) 120&deg; apart representing the phase-to-neutral voltages, and then subtract them to produce three 230V phasors&nbsp;(D, E, F) representing the phase-to-phase voltages, such that:</p>
+<p>D = B - A, &nbsp; E = C - B, &nbsp;and F = A - C</p>
+<p>then the three 230V phasors (D, E, F) are also&nbsp;120&deg; apart&nbsp;<strong>from each other</strong>, right? &nbsp; The subtraction makes their magnitude scale up by sqrt(3), and their phase shift around by 30&deg; when compared to the original 3 phasors, but so long as you remain solely within one set of three phasors, or the other, then you&#39;ll only ever see&nbsp;120&deg; between them, right?</p>
+<p>If you were trying to extrapolate the phase of the 230V phasors from one of the 133V phasors I can see the&nbsp;30&deg; would matter, but since he has no neutral to measure against, I assume phasors A, B and C are irrelevant to him.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24537"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6963.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Amaury&#039;s picture" title="Amaury&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6963.html" title="View user profile.">Amaury</a> on Tue, 14/10/2014 - 07:13.</div>
+    <div class="content">
+     <p>Thanks dBC - let&#39;s continue the Cluedo game.</p>
+<p>What you explained is the first thing Robert said I got wrong. I started from scratch again, and got to the same conclusion as you. See attached the diagram of phasors. If V1, V2, V3 are your phase-neutral voltages, then V12, V23 and V31 are your phase-phase voltages and also form a 120 degrees triangle, shifted by 30 degrees compared to the phase-neutral voltages.</p>
+<p>Next, I checked the power calculations using 2 current measures and 1 voltage measure:</p>
+<p>I&#39;m measuring the current on phases 1 and 2, let them be I1 and I2. I&#39;m also measuring voltage between phase 1 and the third wire, being V13.</p>
+<p>Theory tells us that the power will be the sum of the three phases&#39; powers, which for a Star connection would be:<br />
+	P=V1*I1+V2*I2+V3*I3<br />
+	As I dont have access to V1, V2 and V3, I&#39;m transforming this, using the knowledge that<br />
+	V1=V3-V31<br />
+	V2=V3-V32<br />
+	We can transform the equation into<br />
+	P=-V31*I1-V32*I2<br />
+	or<br />
+	P=V13*I1+V23*I2</p>
+<p>The two terms above would be what traditional wattmeters would measure and that you can add either instantaneously or in average - as Robert said.</p>
+<p>Now if I measure directly V13 (=-V31), I1&nbsp;and I2, the only missing thing is V23 (or -V32). Based on my phasor&nbsp;diagram, V32 is V13 delayed back by 240 degrees (I added a 2nd picture of phasors&nbsp;with the negative versions for clarity).&nbsp;</p>
+<p>As I said in another post, the only issue here is if your initial assumption is wrong and you were actually measuring I1, I3 and V12. Then the formula should be P=V12*I1+V32*I3. And you get V32&nbsp;(=-V23) by delaying V12 by 120 degrees.</p>
+<p>I think the way to distinguish the two is that in a 0 phase system, the power you should add to your directly measured term (V13*I1 in the first example) should be positive, where if you calculate the wrong phase shift, you&#39;ll end with a negative number. But that&#39;s only a guess.</p>
+<p>Now, Robert made another comment:</p>
+<p><em>&quot;I simply do not believe, with the sketch as it is, that it gives the correct values for power on the second phase (or if it does, you have found a way to make the ADC work really fast, and I can see no evidence of that)&quot;</em></p>
+<p>This points to an implementation issue.</p>
+<p>The only fundamental difference between my sketch and Robert&#39;s is that Robert&#39;s, the measuring loop acquires the 3 currents and the voltage in one go, then do all the calculations to shift phases and average the power.</p>
+<p>In my sketch, from the main loop, I first go in a sub-loop to acquire I1 and V, calculate P1, then go in another sub-loop to acquire I2, re-acquire V, shift it by 120 degrees (or 240), and calculate P2. Then I sum P1 and P2.</p>
+<p>The two approaches seem to be equivalent, as Robert&#39;s sketch calculates P1,&nbsp;P2 and P3 independently even if they&#39;re acquired in one go. As for the reference to the ADC I give up...</p>
+<p>Thanks for your help!</p>
+<p>Amaury</p>
+<p>
+	&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24544"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 14/10/2014 - 12:34.</div>
+    <div class="content">
+     <p>I had written this out in words, then my browser threw them away when I tried to paste in the diagram. So only a brief explanation.</p>
+<p>V<sub>1</sub>, V<sub>2</sub> &amp; V<sub>3</sub> exist when you measure with respect to earth or neutral. But for you, V<sub>3</sub> (U3 in your terminology) does not exist, it is your reference, from which you are measuring the other 2 voltages. (V<sub>n</sub> exists, but you don&#39;t have a wire to it so you cannot measure it.) So when you move V<sub>3</sub> to the origin of the diagram, it should look like this:</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img alt="" src="data:;base64,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" /></p>
+<p>(Sorry, but I always draw my first phase along the +ve real axis!)</p>
+<p>You had this in the maths, but you did not recognise that when you drew the diagram.</p>
+<p>But there&#39;s another problem in your sketch: There are not exactly 8 / 16 sample pairs in 60&deg; / 120&deg;, therefore you need a separate adjustment to interpolate between 2 voltage samples. Phasecal will do that, but it has to be a different value for each of the two currents.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24545"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6963.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Amaury&#039;s picture" title="Amaury&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6963.html" title="View user profile.">Amaury</a> on Tue, 14/10/2014 - 13:31.</div>
+    <div class="content">
+     <p>It brings some warmth to my heart seeing us drawing the same thing.</p>
+<p>My thinking was: if I measure V13, shift it back 240 degrees I get V32, but as I actually want V23, so I just reverse the sign.</p>
+<p>I think what you&#39;re saying is that there&#39;s an easier way to do that: simply shift V13 back by 60 degrees? Given our diagrams are equivalent, this should come to the same.</p>
+<p>Now in the second situation, where I measure V12, I1 and I3, I want to get V32 from V12. Here I think the only way is to shift back 120 degrees and reverse sign, or to shift back 300 degrees, as you can&#39;t shift forward in real life.</p>
+<p>Following on, the disambiguation test:</p>
+<p>As you don&#39;t know yet if you&#39;re measuring I2 or I3 when you plug the Tx, you can calculate the two variants of the voltage you could need: one shifted back by 60 degrees, the other by 300 degrees. If you made sure you had only consumption in your system (to avoid power flowing back), set your Voltage and Current transformers so that P1&nbsp;is positive, and assume a power factor not too far from 1:</p>
+<p>- If P2, using V shifted back by 60 degrees is positive, it means you had I2, therefore that&#39;s the measure to use. The other power measure, shifted by 300 should be negative (that&#39;s your diagram, Robert)</p>
+<p>- Conversely, it should be the opposite if you were measuring I3: there you&#39;d see P2 using V shifted by 60 degrees being negative, and the other positive.</p>
+<p>(I attach the two pictures, I don&#39;t know how to make them appear in-line as you did.)</p>
+<p>I follow you on the interpolation issue, but will have to dig deeper in the code to understand that issue better.&nbsp;</p>
+<p>Amaury</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-24548"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 14/10/2014 - 14:54.</div>
+    <div class="content">
+     <p>Staying with my diagram, because you have me confused with &quot;Now in the second situation...&quot;. And your diagrams appear to use L2 as the reference now?</p>
+<p>You don&#39;t want V<sub>12</sub>, you have no need for it. If your &quot;neutral&quot; is L<sub>3</sub>, then you measure the currents on L<sub>1</sub> and L<sub>2</sub> and the voltages to L<sub>1</sub> and L<sub>2</sub> from L<sub>3</sub>.&nbsp; There is no need to know anything about the new &#39;neutral&#39; because it is your reference. So now you have a <strong>two</strong>-phase system. You don&#39;t need I<sub>3</sub> because it is now the &#39;neutral&#39; current. (It is of course the vector sum of the other two, the same as in a 4-wire system, and likewise we don&#39;t care.&nbsp; OK, if the loads are balanced it has the same magnitude as the other two currents, not zero, but we still don&#39;t care.)</p>
+<p>Then, if your primary voltage - the one you actually measure - is V<sub>13</sub>, the voltage you are deriving from that by delaying it by 60&deg; is V<sub>23</sub> . You have everything you need.<br />
+	Of course, when you come to calibrate Phasecal, you must have only two resistive loads connected L1-L3 and L2-L3, and you adjust for pf = 1 on each.</p>
+<p>You should know the phase rotation from the wiring colours. I1 is the CT on L1 (brown) (the reference voltage that you are measuring) and I2 is on L2 (black) (whose voltage you are obtaining with the delay). The new &#39;neutral&#39; is L3 (grey).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27035"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7594.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Maier&#039;s picture" title="Robert Maier&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7594.html" title="View user profile.">Robert Maier</a> on Fri, 23/01/2015 - 10:27.</div>
+    <div class="content">
+     <p>Amaury,</p>
+<p>Have you eventually managed to finalize this sketch and get it working?</p>
+<p>Since I also live in Belgium and have the same three phase 3-wire system (recently realized it) I am a good candidate to test the sketch in order to get it back up on GitHub.</p>
+<p>Let me know, otherwise I&#39;ll have to start from the existing three phase sketch and follow this thread to create mine.</p>
+<p>Cheers,</p>
+<p>Robert.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27045"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="RWall&#039;s picture" title="RWall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by RWall (not verified) on Fri, 23/01/2015 - 13:48.</div>
+    <div class="content">
+     <p>Robert,</p>
+<p>The changes you require are quite simple, I will be able to help when the system allows me to post.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27055"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7594.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Maier&#039;s picture" title="Robert Maier&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7594.html" title="View user profile.">Robert Maier</a> on Fri, 23/01/2015 - 18:41.</div>
+    <div class="content">
+     <p>Hi RWall (I guess Robert Wall alter-ego) :-)</p>
+<p>Did the system lock you out?</p>
+<p>I feel the changes to your&nbsp;3 phase sketch are not very big, I went through the sketch and through this thread and conceptually I think it is mainly about changing&nbsp;the phase&nbsp;delay of the phase 2 voltage and getting rid of phase 3 altogether, then some testing and&nbsp;calibration work.</p>
+<p>But as the devil is in the details and from concept to realization can be a long way of small things to take into account, if the system allows it I would appreciate the help.</p>
+<p>Thank you in advance.</p>
+<p>Robert.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27056"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="RWall&#039;s picture" title="RWall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by RWall (not verified) on Fri, 23/01/2015 - 23:02.</div>
+    <div class="content">
+     <p>Yes, we are one and the same person!</p>
+<p>I don't have a 3-phase supply, so the way I will test will be the same as before - get the correct "wrong" values! Then it's over to you to prove that I got it right.</p>
+<p>You are indeed correct about the changes that are required, I have not looked at the sketch recently but I can't think of any traps that you might fall into.</p>
+<p>If you're prepared to wait a few days, I can probably produce a "2-phase" (because that's what it really is) or more likely I shall call it "3-phase Delta" sketch.</p>
+<p>[Edit - the snag was that sketch uses a high pass filter to remove the bias offset. I've changed it to extract the offset with a LP filter (see the change to emonLib), but it's too late now to set up my test rig and prove it.]</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27059"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7594.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Maier&#039;s picture" title="Robert Maier&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7594.html" title="View user profile.">Robert Maier</a> on Fri, 23/01/2015 - 19:56.</div>
+    <div class="content">
+     <p>Thanks Robert!</p>
+<p>Cannot promise to wait the few days but might have to, I am now reverse engineering my distribution panel to be able to identify which wire/phase&nbsp;goes where in the house and know which phase pair I have in each socket.Mainly to be able to have a reliable testing environment away from the distribution panel.</p>
+<p>It really depends how the weekend will look like, if I have enough time I might plunge into the sketch also, then I will post the modifications and the results here, if not then I will wait for the 3-phase delta sketch.</p>
+<p>The major part I did not go yet into details is&nbsp;the relationship between the number of samples corresponding to a certain degree phase delay. Not sure yet whether an empirical approach would get me to the result or if I have to get into the details :-)</p>
+<p>Cheers,</p>
+<p>Robert.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27066"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="RWall&#039;s picture" title="RWall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by RWall (not verified) on Fri, 23/01/2015 - 23:05.</div>
+    <div class="content">
+     <p>"A few days" might be tomorrow - see the edit above!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27073"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="RWall&#039;s picture" title="RWall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by RWall (not verified) on Sat, 24/01/2015 - 18:01.</div>
+    <div class="content">
+     <p><img alt="" src="../sites/default/files/rsz_54c3ecb90de12.jpg" style="width: 683px; height: 98px;" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27083"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7594.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Maier&#039;s picture" title="Robert Maier&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7594.html" title="View user profile.">Robert Maier</a> on Sun, 25/01/2015 - 10:18.</div>
+    <div class="content">
+     <p><strong>Thanks Robert, I will certainly give it a try and let you know the results.</strong></p>
+<p>&nbsp;</p>
+<p>What I did so far last night is:</p>
+<p>I identified which sockets have which pairs in order to be able to plug the AC-AC in the right one (L1/L3) in order to have the correct reference voltage. I then calibrated the Vcal so that I have the same value for the reference voltage measured by the emonTx and measured via a voltmeter.</p>
+<p>I modified the original 3-phase sketch and halved the number of samples for PHASE2 (I now have 4) following the very error-prone logic - I think - that if 120 degrees corresponds to 8, 60 should correspond to 4. I left PHASE3 defined at 18 since I saw it is used as the size of the array that stores historical voltage values, used for delaying the phase.</p>
+<p>I set up my testing rig: light bulb as load, one wire (times 10) in the CT1, the other (times 1) in the CT2. The second wire (times 10) also goes through a standard clamp meter to have a better idea on the current value (times 10) flowing through the circuit.</p>
+<p>Using the test rig plugged into a socket (L1/L3) I calibrated the values of Ical1 and Phasecal1 to have correct values for I1 and PF1 (1.0)</p>
+<p>Using the test rig plugged into a socket (L2/L3) I calibrated the values of Ical2 and Phasecal2 to have correct values for I2 and PF2 (1.0)</p>
+<p>All I did was mainly empirical (lots of trial and error especially in the calibration) and now once calibrated I have a feeling it might work (again feeling is based on watching the meter turn 12 times for a 0.1kWh and then seeing the consumption in my emoncms go up by 0.1kWh), I am now gathering more data during a longer period.</p>
+<p>I do not have a very good feeling about the calibration constants but that is mainly because I do not understand their role, did not go into those details.</p>
+<p>Cheers,</p>
+<p>Robert.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27208"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7594.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Maier&#039;s picture" title="Robert Maier&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7594.html" title="View user profile.">Robert Maier</a> on Wed, 28/01/2015 - 18:33.</div>
+    <div class="content">
+     <p>Robert,</p>
+<p>Your sketch works like a charm! Thank you!</p>
+<p>I placed it in &#39;production&#39; yesterday evening after calibration and so far I have only a 3% deviation (while with my empirical modifications I was at around 5-10%).</p>
+<p>I will try to redo the calibration to try an get to an even better accuracy.</p>
+<p>One question for my education: how is the PHASE2 (and PHASE3 in the original sketch) calculated? I tried to get the number&nbsp;of samples per voltage cycle and then take 1/6th for 60 degrees, but cannot get to the values in the sketch. Starting from 125 kHz (the feq of the ADC) divided by 13 (the number of clock cycles for one conversion) then divided by 50 (the number of voltage cycles) and then divided by 3 (the number of analog inputs) I get 64...How to get from here to 7? :-)</p>
+<p>Thanks again!</p>
+<p>Robert.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27212"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonTx 3-phase with 3 wires (no neutral)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 28/01/2015 - 21:10.</div>
+    <div class="content">
+     <p>Thank you for that. I'll send it to Glyn &amp; Trystan for inclusion in Github. (Along with the 4-wire sketches, which I'm modifying to incorporate the LP filter, when I've done and checked them.)</p>
+<p>Don't forget that the ADC is only part of the process. With the rest of the processing - loading and retrieving from the array, interpolation for Phasecal, the rms accumulators, etc; we've found (mainly from experience because it's too hard to go through the code and try to work out timing, especially as there's not too much information about what happens inside the Arduino IDE) that you get around 50 sample pairs per cycle. At the end of the day, any tweak to the code, or any shift in mains frequency, is going to affect the timing, so the possibly safe, certainly quick, way is empirical!</p>
+<p>One day I'll rework MartinR's PLL sketch for 3 phase working. By locking the readings to exact known points on the wave, that should remove many of the variables in the phase angle department.</p>
+<p>[For your amusement, I've just been playing with emonLib. As used in the "discreteSamples" sketch, the new LP filter version has improved on the old HP filter (which has slightly more maths in the filter calculations) by about 7 samples in 10 cycles (~200 ms), from 504-5 to 511-512. Removing temporary values, for example in the filters and where the squared value is added to the accumulator, and making it one line, has pushed the number of samples up to 516-517.<br />
+The additional performance increase - 1% - isn't great and won't have any measurable effect on the overall accuracy, so for the sake of newbies' understanding the code, I probably won't suggest that the rest of these changes should be incorporated into the library.]</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5911"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-_YmeNL_FQbZJPPpAP-KMmIdk8vp8OCaLV6czY6kITWM" value="form-_YmeNL_FQbZJPPpAP-KMmIdk8vp8OCaLV6czY6kITWM"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5911 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:38:32 GMT -->
+</html>

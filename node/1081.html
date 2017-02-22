@@ -1,0 +1,389 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1081 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:18:57 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>SolarNanode Immersion Controller | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+          <span class="submitted"></span>
+      <div class="taxonomy"></div>
+      <div class="content"><h1>
+	Background</h1>
+<p>In September 2011 I had a 3.92kWp PV system installed. My house is heated by oil and I was attracted by the idea of an <a href="http://www.coolpowerproducts.com/uk/emma.php" target="_blank">EMMA</a> unit, but not by the price...</p>
+<p>Inspired by the OpenEnergyMonitor project and specifically by pauldreed&#39;s <a href="217.html" target="_blank">Solar Power Manager</a> I thought I&#39;d have a go at an <a href="http://www.arduino.cc/" target="_blank">Arduino </a>microcontroller&nbsp;based system myself...&nbsp;</p>
+<p>The basic idea is simple - when generating more solar power than the house is using, rather than export the surplus energy I send it to the water tank immersion heater. In the summer this is much more efficient than firing up the oil boiler and heating the long indirect pipework&nbsp;- despite hot boiler efficiency claimed at &gt;80%, I worked out the overall efficiency in heating small amounts of water is more like 25% for my system. In the winter when the oil boiler is already heating radiators it&#39;s probably better than that, but still a waste of precious oil!</p>
+<p>The system has been up and running for about 10 months without a hitch - recently I&#39;ve moved on to the final phase which is internet data posting to Pachube (now called&nbsp;<a href="https://cosm.com/feeds/76004" target="_blank">Cosm</a>) and a revised &#39;daily boost&#39; function linked to measured cylinder water temperature to top up the hot water on cloudy days.</p>
+<p>I thought it was about time I documented what I&#39;ve been up to:</p>
+<p>a) in case it helps anyone else</p>
+<p>b) in case I forget what I&#39;ve done and can&#39;t fix it if it breaks!</p>
+<h1>
+	The Project Build</h1>
+<p>I made life a little difficult by choosing a rather small aluminium project box, but have managed to squeeze it all in...</p>
+<p><img alt="" src="../../../i1152.photobucket.com/albums/p492/mikerowland1/SolarNanode/IMG_2137_zps4e05d450.jpg" style="width: 512px; height: 384px; " /></p>
+<p><img alt="" src="../../../i1152.photobucket.com/albums/p492/mikerowland1/SolarNanode/IMG_2134_zpsf985b3c6.jpg" style="width: 512px; height: 384px; " /></p>
+<p>Front cover removed for access to the FTDI&nbsp;programming pins on the <a href="http://www.nanode.eu/what-is-nanode/" target="_blank">Nanode</a>&nbsp;(an internet-enabled microcontroller based on Arduino). I also have to pull the black and grey Rx/Tx&nbsp;wires out when programming.</p>
+<p>On the left is the&nbsp;Freeduino (an Arduino clone) with a useful prototyping shield on top and&nbsp;BV4236 real time clock.</p>
+<p>Top right is the Nanode, below that is the stripboard&nbsp;for the 3 current transformer inputs (Solar, Immersion and House), 9V AC sampling circuit for real and apparent power calcs&nbsp;and current&nbsp;direction measurement (import/ export) and a bridge rectifier with 8V&nbsp;L7808CV voltage regulator - I use this to power the Freeduino and Nanode. I&#39;ve since seen various threads on the problems with powering the Arduino&nbsp;from the same supply used to sample the AC, but haven&#39;t really noticed a problem other than needing to re-calibrate the power measurements once the circuits are all live. Perhaps my separate voltage regulator helps?</p>
+<p>The vertically mounted stripboard has two micro-switches (single rocker button robbed from an old modem) and 2 tri-state LED&#39;s:</p>
+<p>LED1 - RED when the timed immersion &#39;boost&#39; function is on.</p>
+<p>LED2 - GREEN when exporting to the grid, RED when importing from the grid, ORANGE when exporting and diverting power to the immersion heater.</p>
+<p>&nbsp;</p>
+<p>On the LHS end cover I have the 3 CT connections (Solar, House, Immersion), the Freeduino USB port and a co-axial F-socket for the Dallas DS18B20&nbsp;one-wire temperature chip. This is great as the only connections needed are Ground and Data line (connected to 5V through a 5K pull-up resistor). I used standard co-ax as I had a roll spare and thought it would be good for data transmission and easy to add more sensors in the future with splitters:</p>
+<p><img alt="" src="../../../i1152.photobucket.com/albums/p492/mikerowland1/SolarNanode/IMG_2135_zps012272d0.jpg" style="width: 512px; height: 384px; " /></p>
+<p>On the RHS end cover I have the RJ45&nbsp;Nanode connection - this goes straight to a power line network adaptor. The jack plugs are 9V&nbsp;AC input to the sampling/rectifying board and 0-5V DC output to the <a href="http://www.united-automation.com/content/X10773 - 4kW Fan Speed Controller.pdf" target="_blank">Phase Angle Controller</a> (4kW&nbsp;industrial triac controller). This needed a little careful matching as the input resistance is only 5000 Ohms:</p>
+<p><img alt="" src="../../../i1152.photobucket.com/albums/p492/mikerowland1/SolarNanode/IMG_2136_zps15ab4983.jpg" style="width: 512px; height: 384px; " /></p>
+<p>Dallas 1-wire DS18B20&nbsp;temperature sensor installed in airing cupboard - approx&nbsp;10m of co-axial cable to the Nanode and no communication problems:</p>
+<p><img alt="" src="../../../i1152.photobucket.com/albums/p492/mikerowland1/SolarNanode/IMG_2130_zps988d3941.jpg" style="width: 512px; height: 384px; " /></p>
+<p>Incredibly simple wiring - data line (grey) to centre core of co-ax, ground and power wire joined to outer shield of co-ax. The 1-wire chips are really cheap and fantastic for networked sensor set-ups (each has a unique identifying address) - I may add more just &nbsp;because I can!</p>
+<p><img alt="" src="../../../i1152.photobucket.com/albums/p492/mikerowland1/SolarNanode/IMG_2127_zpsa3d32739.jpg" style="width: 512px; height: 384px; " /></p>
+<p>All fitted to my consumer unit cupboard - Current Transformers (CT&#39;s) on solar feed, house tail and immersion wires (plus an extra CT on solar that goes to the EON Current Cost transmitter for display in another room). The Phase Angle Controller is the metal box on the LHS of the consumer unit - complete with semi-conductor fast blow triac fuse and integral heatsink. The PAC actually stays cooler than the 9V&nbsp;wall wart... I fitted another metal box (RHS top) for a Schaffner&nbsp;EMC filter, but to be honest I haven&#39;t seen any interference on any other appliances, or on the power line network, so not sure I need to bother with this.</p>
+<p><img alt="" src="../../../i1152.photobucket.com/albums/p492/mikerowland1/SolarNanode/IMG_2132_zps2f42deb0.jpg" style="width: 384px; height: 512px; " /></p>
+<h1>
+	Features</h1>
+<ul>
+<li>
+		Arduino (Freeduino) and Nanode communicating via serial link on Dig 0/1 pins</li>
+<li>
+		Real time data posted to <a href="https://cosm.com/feeds/76004" target="_blank">Cosm</a>&nbsp;for Solar, House and Immersion W and Wh (reset at midnight) and hot water cylinder temperature</li>
+<li>
+		3 day summary of total Solar, House (Import and Export), Immersion power written to Arduino EEPROM</li>
+<li>
+		Real Time Clock with battery back-up for Arduino</li>
+<li>
+		One-wire DS18B20&nbsp;temperature logging support on Nanode (I ran out of pins on the Arduino)</li>
+<li>
+		One-hour immersion &#39;boost&#39; function from menu button at 2500W&nbsp;target power (less than the full 3000W rating as I guessed it might be more durable)</li>
+<li>
+		British Summer Time (BST) adjustment from menu system</li>
+<li>
+		0-5VDC output control of 4kW United Automation <a href="http://www.united-automation.com/4kw-fan-controller-230vac-c-w-signal-input/" target="_blank">Phase Angle Controller</a> using a PID&nbsp;controller tuned around target export of 30W. This keeps the 240V circuitry limited to commercially approved products.</li>
+<li>
+		9 different menus using 16x2&nbsp;LCD display with time-out return to base menu</li>
+<li>
+		2 buttons for menu and function control</li>
+<li>
+		2 tri-state LEDs&nbsp;to quickly show status (and blind anyone staying in the guest bedroom...)</li>
+</ul>
+<h1>
+	Menu screens</h1>
+<p><img alt="" src="../../../i1152.photobucket.com/albums/p492/mikerowland1/SolarNanode/Menu_zps77ae1e18.jpg" style="width: 111px; height: 257px; " /></p>
+<h1>
+	Performance</h1>
+<p>Overall performance has been fantastic - the main limitation being that on sunny days I can only dump about 3-4kWh to the immersion before the water is scalding. I&#39;m thinking of swapping the hot water cylinder to a larger one with an immersion in the bottom rather than the traditional top-mounted one I currently have. Other good suggestions from forum members have been to fit a 36inch heater or to use a recirculating pump to mix the water in the tank - I&#39;ve just started trying this.</p>
+<p>I find that the immersion control is stable to approx&nbsp;+-20W and that the solar readings (W and kWh) agree to within approx 2% of my Diehl&nbsp;3800S inverter stats.</p>
+<p>A typical day&#39;s Cosm&nbsp;feed looks like this:</p>
+<p><img alt="" src="../../../i1152.photobucket.com/albums/p492/mikerowland1/SolarNanode/Dailyoutput1_zpsae9c09bf.jpg" style="width: 300px; height: 336px; float: left; " /><img alt="" src="../../../i1152.photobucket.com/albums/p492/mikerowland1/SolarNanode/Dailyoutput2_zps5910e053.jpg" style="width: 300px; height: 305px; float: right; " /></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h1>
+	&nbsp;</h1>
+<h1>
+	&nbsp;</h1>
+<h1>
+	&nbsp;</h1>
+<h1>
+	&nbsp;</h1>
+<h1>
+	&nbsp;</h1>
+<h1>
+	&nbsp;</h1>
+<h1>
+	&nbsp;</h1>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h1>
+	Emoncms</h1>
+<p>I have modified the Nanode&nbsp;sketch to upload to <a href="http://emoncms.org/mikerowland">Emoncms</a>&nbsp;as well as Cosm - I love the dashboard feature. Here is my current dashboard layout which works really well on smartphone and laptop:</p>
+<p><img alt="" src="../../../i1152.photobucket.com/albums/p492/mikerowland1/SolarNanode/Emoncms_zps8627aa04.jpg" style="width: 512px; height: 317px; " /></p>
+<p>I like this&nbsp;Emoncms&nbsp;dashboard so much I think an android tablet for the kitchen may be needed next...</p>
+<h1>
+	Costs</h1>
+<table border="1" cellpadding="1" cellspacing="1" style="width: 492px; ">
+<tbody>
+<tr>
+<td style="width: 203px; ">
+				Arduino development shield</td>
+<td style="width: 167px; ">
+				Ciseco</td>
+<td style="width: 104px; ">
+				4.99</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				Arduino Freeduino</td>
+<td style="width: 167px; ">
+				Jungletronics</td>
+<td style="width: 104px; ">
+				14.20</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				RTC</td>
+<td style="width: 167px; ">
+				Jungletronics</td>
+<td style="width: 104px; ">
+				6.49</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				Case</td>
+<td style="width: 167px; ">
+				Maplins</td>
+<td style="width: 104px; ">
+				11.99</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				12mm CT</td>
+<td style="width: 167px; ">
+				Current Cost</td>
+<td style="width: 104px; ">
+				10.74</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				AVR programmer and component bundle</td>
+<td style="width: 167px; ">
+				Oomlout</td>
+<td style="width: 104px; ">
+				29.00</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				12mm CT pack of 2</td>
+<td style="width: 167px; ">
+				Current Cost</td>
+<td style="width: 104px; ">
+				17.99</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				Components</td>
+<td style="width: 167px; ">
+				Spiratronics</td>
+<td style="width: 104px; ">
+				6.55</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				Components</td>
+<td style="width: 167px; ">
+				Spiratronics</td>
+<td style="width: 104px; ">
+				16.30</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				DC Power Jack sockets</td>
+<td style="width: 167px; ">
+				ebay</td>
+<td style="width: 104px; ">
+				5.44</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				Nylon bolts</td>
+<td style="width: 167px; ">
+				ebay</td>
+<td style="width: 104px; ">
+				2.45</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				DC Power Jacks</td>
+<td style="width: 167px; ">
+				ebay</td>
+<td style="width: 104px; ">
+				1.49</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				Nanode</td>
+<td style="width: 167px; ">
+				Earthshine</td>
+<td style="width: 104px; ">
+				22.38</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				LCD display</td>
+<td style="width: 167px; ">
+				ebay</td>
+<td style="width: 104px; ">
+				2.90</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				Schaffner filter</td>
+<td style="width: 167px; ">
+				ebay</td>
+<td style="width: 104px; ">
+				14.00</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				PAC 4kW heater controller</td>
+<td style="width: 167px; ">
+				United Automation</td>
+<td style="width: 104px; ">
+				107.00</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				Connectors and solder</td>
+<td style="width: 167px; ">
+				Maplins</td>
+<td style="width: 104px; ">
+				16.99</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				Mains box</td>
+<td style="width: 167px; ">
+				Toolstation</td>
+<td style="width: 104px; ">
+				4.06</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				Dallas DS18B20</td>
+<td style="width: 167px; ">
+				ebay</td>
+<td style="width: 104px; ">
+				3.50</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				Cable</td>
+<td style="width: 167px; ">
+				Wilkinsons</td>
+<td style="width: 104px; ">
+				2.15</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				&nbsp;</td>
+<td style="width: 167px; ">
+				&nbsp;</td>
+<td style="width: 104px; ">
+				&nbsp;</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				&nbsp;</td>
+<td style="width: 167px; ">
+				&nbsp;</td>
+<td style="width: 104px; ">
+				&nbsp;</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				&nbsp;</td>
+<td style="width: 167px; ">
+				&nbsp;</td>
+<td style="width: 104px; ">
+				&nbsp;</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				&nbsp;</td>
+<td style="width: 167px; ">
+				&nbsp;</td>
+<td style="width: 104px; ">
+				&nbsp;</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				&nbsp;</td>
+<td style="width: 167px; ">
+				&nbsp;</td>
+<td style="width: 104px; ">
+				&nbsp;</td>
+</tr>
+<tr>
+<td style="width: 203px; ">
+				&nbsp;</td>
+<td style="width: 167px; ">
+				<strong>Total</strong></td>
+<td style="width: 104px; ">
+				<strong>300.61</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Certainly not the cheapest project around (three hundred pounds) but it&#39;s been a great learning experience and the industrial PAC means the 240V&nbsp;power electronics should be safe and reliable - all my tinkering is low voltage!</p>
+<p>This was my first microcontroller project, but I know it won&#39;t be my last.</p>
+<p>Mike Rowland</p>
+<h1>
+	Update 18/10/12</h1>
+<p>I have been suffering from unexplained Nanode&nbsp;hangs about once per day recently - no idea why as it was previously stable for weeks. This is a real pain as the Nanode has to be physically reset to recover, but as usual Google had the answer - Trystan&nbsp;has solved this already by using a watchdog timer from the AVR&nbsp;library.</p>
+<p>All I had to do was update Nanode/ Arduino&nbsp;bootloader to Uno Optiboot (I used a USBTiny AVR programmer and soldered the ISCP pins onto the Nanode board). Then add the watchdog library&nbsp;#include &lt;avr/wdt.h&gt; and add&nbsp;wdt_enable(WDTO_8S); in the setup() portion of code and wdt_reset(); at the start of the loop()- then if 8secs expires without a reset, the Atmega&nbsp;chip is reset. I have tested this with several different types of error and it works perfectly - no more frozen feeds!</p>
+</div>
+    
+    
+      </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1081 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:19:33 GMT -->
+</html>

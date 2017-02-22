@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6084 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:44:22 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emonhub&#039;s data buffers | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emonhub&#039;s data buffers</h3>
+        <span class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 09/11/2014 - 11:13</span>
+        <div class="content"><p>emonHub has in-built buffers to cope with short network interruptions, this was introduced in the OEM gateway and is one of the major benefits of using emonhub with a remote emonCMS. The default buffer size is 1000 frames and this can be changed by the user. OEM gateway gave many months of reliable service and never gave me great cause to question the buffer size as I very rarely, if ever noticed any periods of missing data. I did however notice periods of&nbsp;&quot;sparse&quot;&nbsp;data due to the fact that while OEM gateway was trying in vain to deliver data to an unavailable server, it was missing some incoming data, not a big problem as some data is better than no data.</p>
+<p>Now that emonHub runs several threads so that it doesn&#39;t get bogged down with failed delivery attempts there is no incoming data being missed and therefore the buffers fill up much quicker and older data is dropped for new, The end result now is that when the network comes back up the last 1000 frames are 100% accurate at the correct intervals and all previous data is lost&nbsp;rather than the same number of frames spread more sparsely over a longer period. IMO this is a negative side effect of a great improvement.</p>
+<p>Last night I lost my internet connection (about 15mins after the ISP&#39;s helpline closed, typically!) being aware of the above I changed the default buffer size in one of my Pi&#39;s as an experiment and to hopefully reduce the potential data loss. So having just got my internet connection back after an outage of 10hrs+ and checked my emonCMS for data loss, I thought I would share my findings.</p>
+<p>I currently have 2 Pi&#39;s running emonHub that post data to emonCMS.org, Pi A is live (valuable) data and Pi B is experimental (expendable) data. Both were using the default buffer size of 1000 until I changed Pi A&#39;s buffer size to 10000 whilst it was running, at around an hour into the outage. I didn&#39;t do any math at the time I just &quot;made it bigger&quot;.</p>
+<p>Pi A has a single node reporting every 5 seconds (12 frames per min or 720ph) and Pi B currently reporting from 3 nodes every 5 seconds (12 frames per min per node or 2160ph).</p>
+<p>Pi A retained absolutely everything, no loss of data either before, during or after changing the buffer size, the whole 10hrs+ took seconds to catch up when the network came up this morning, where as Pi B only managed to retain the preceding 27mins of data, here&#39;s the math...</p>
+<p>Pi A&#39;s larger buffer of 10000 at just 720 frames/ph could last for 13.9hrs where as Pi B&#39;s default buffer of 1000 at a whooping rate of 2160 frames/ph is 0.46Hrs or 27.6 minutes.</p>
+<p>Although I had no memory monitoring software on either Pi at the time I have roughly calculated that since all the payloads are the same size (5 values) Pi A&#39;s buffer size in the memory &nbsp;must be 10x that of Pi B and yet it did not choke, hang or crash so was probably ok with the increase. I think this is due to the buffers using minimal space ie Pi A&#39;s 5 values plus node id, unix timestamp and internal emonhub packet ref, all at 4bytes each is 32bytes per frame x 10000 = 320kB (plus overheads ??), I have 2 destinations set up which is still only 0.64MB total RAM used by buffered data during a 13.9hr outage..</p>
+<p>The conclusion is my buffer sizes need to be recalculated and set to a level determined by the rate I&#39;m producing data and if that&#39;s a significant amount I should also consider the <strong>RAM</strong>&#39;ifications (sorry)</p>
+<p>The RAM used will of course depend heavily on the size of the buffers which will in turn depend on both the number of frames and the size of each frame, but in general I think the buffer sizes could be increased sensibly, over cook it and the Pi will choke, at what level depends on what else you have running, but small increases should not cause an issue. Also play fair with emonhub.org, if you have a dodgy network connection every time the network comes up emoncms.org will get the backlog dumped on it&#39;s doorstep.</p>
+<p>The buffer size is set in emonhub.conf in each reporters init_settings, there isn&#39;t currently a value set as the default of 1000 is hardcoded in. To change the buffer size add a &quot;buffer_size = &quot; line for example</p>
+<blockquote><p>[reporters] &nbsp;</p>
+<p>&nbsp; [[emoncms]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; Type = EmonHubEmoncmsReporter<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;[[[init_settings]]]<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <strong>&nbsp;buffer_size = 5000</strong><br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;[[[runtimesettings]]]</p>
+</blockquote>
+<p>I&#39;m not an expert on memory management and do not know the overheads involved so if anyone can expand on or confirm&nbsp;the math or assumptions I&#39;ve made, please do.</p>
+<p>Paul</p>
+<p>PS just as a yard stick for comparison the same Pi A with the same one node would previously retain over an hour and a half of data when running OEM gateway, so I guess I was losing&nbsp;around 2 out of every 3 frames due to an unavailable server, thus extending the life of the buffer.</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11187.html" class="topic-previous" title="Go to previous forum topic">‹ switching fixed load on when surplus pv passes programmed amount.</a>
+              <a href="11895.html" class="topic-next" title="Go to next forum topic">ITI / CBEMA power curve analysis ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-37537"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8733.jpg" alt="CidiRome&#039;s picture" title="CidiRome&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonhub's data buffers</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8733.html" title="View user profile.">CidiRome</a> on Sun, 27/12/2015 - 02:39.</div>
+    <div class="content">
+     <p>Hi.</p>
+<p>This is quite an old post, but today it interested me.</p>
+<p>I tried to use it</p>
+<blockquote><p>[[emoncmsvieirasoft]]<br />
+&nbsp; &nbsp; Type = EmonHubEmoncmsHTTPInterfacer<br />
+&nbsp; &nbsp; [[[init_settings]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; buffer_size = 10000<br />
+&nbsp; &nbsp; [[[runtimesettings]]]</p>
+</blockquote>
+<p>But I got</p>
+<blockquote><p>2015-12-27 02:31:56,159 ERROR &nbsp; &nbsp;MainThread Unable to create &#39;emoncmsvieirasoft&#39; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; interfacer: __init__() got an unexpected keyword argument &#39;buffer_size&#39;</p>
+</blockquote>
+<p>Is there any change necessary on the main code to user buffer_size option?<br />
+I has to change the code for&nbsp;<em>interval = 5</em> to work, maybe this is the same situation.</p>
+<p>Cheers.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37540"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonhub's data buffers</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sun, 27/12/2015 - 10:18.</div>
+    <div class="content">
+     <p>Basically the &quot;buffers&quot; are a feature of emonhub&#39;s reporters and the &quot;emon-pi&quot; variant no longer has&nbsp;reporters,&nbsp;the replacement interfacers&nbsp;don&#39;t do the same job, to reintroduce the buffers would definitely&nbsp;require some coding.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37610"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8733.jpg" alt="CidiRome&#039;s picture" title="CidiRome&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonhub's data buffers</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8733.html" title="View user profile.">CidiRome</a> on Tue, 29/12/2015 - 01:01.</div>
+    <div class="content">
+     <p>Is there any alternative to keep emonhub&nbsp;from sending the data when the server is unavailable and keep it to send later when it later when it becomes available again?</p>
+<p>Cheers?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37649"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emonhub's data buffers</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 29/12/2015 - 22:00.</div>
+    <div class="content">
+     <p>Not easily that I can think of.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/6084"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-VQbtbvXxLfhiN15S2SO7-P0ySl59Rye84NfMsP2AFDw" value="form-VQbtbvXxLfhiN15S2SO7-P0ySl59Rye84NfMsP2AFDw"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/6084 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:44:22 GMT -->
+</html>

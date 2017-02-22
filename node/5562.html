@@ -1,0 +1,494 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5562 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:48:48 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Eliminate OEMGateway Buffer (Direct From Socket Listening) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+        <span class="submitted">Submitted by <a href="../user/6347.html" title="View user profile.">sprocket_3</a> on Fri, 15/08/2014 - 17:57</span>
+        <div class="content"><p>I have a project where I&#39;m looking to read from RTD&#39;s and display and track live data. It seems to be taking a lot of readings but not transferring them to Emoncms very quickly as I think they are stacking up in the buffer. I thought about turning down the sample rates but I really want to pull data and display every second instead of 10s if possible. I didn&#39;t know exactly how the listeners work and if I could just put the runtime_settings right into the listener and have it pass the data directly. Does anyone have any ideas on how to go about this?</p>
+<p>Also when I use OEMGateway to pass data to Emoncms&nbsp;it seems to make 20-30 inputs that are inactive but I only have two being sent which it shows them as active. Don&#39;t know if anyone has any thoughts on that.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12090.html" class="topic-previous" title="Go to previous forum topic">‹ emonhub.conf documentation</a>
+              <a href="12077.html" class="topic-next" title="Go to next forum topic">Redis-server failing to start ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-23094"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 15/08/2014 - 18:42.</div>
+    <div class="content">
+     <p>Can you attach your code or explain a little&nbsp;more about what you have ?</p>
+<p>OEMG&nbsp;forwards what it receives quite reliably, normally. It will only buffer what it can&#39;t deliver, although if you have a target that is not accepting or acknowledging,&nbsp;OEMG can get bogged down trying in vain to deliver. If you can turn on logging and post some logs it may show something.</p>
+<p>Generally if OEMG gets good data frames and the targets are accepting and acknowledging then you are unlikely to experience any trouble with it, so I would confirm the data frames and targets are doing their bit before altering OEMG if you want it to do something custom that&#39;s different but it shouldn&#39;t need fixing to just forward data supplied via a socket.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23097"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6347.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sprocket_3&#039;s picture" title="sprocket_3&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6347.html" title="View user profile.">sprocket_3</a> on Fri, 15/08/2014 - 21:16.</div>
+    <div class="content">
+     <p>/***************************************************************************<br />
+	* File Name: serial_MAX31865.h<br />
+	* Processor/Platform: Arduino Uno R3 (tested)<br />
+	* Development Environment: Arduino 1.0.5<br />
+	*<br />
+	* Designed for use with with Playing With Fusion MAX31865 Resistance<br />
+	* Temperature Device (RTD) breakout board: SEN-30201 (PT100 or PT1000)<br />
+	*&nbsp;&nbsp; ---&gt; <a href="http://playingwithfusion.com/productview.php?pdid=25" title="http://playingwithfusion.com/productview.php?pdid=25">http://playingwithfusion.com/productview.php?pdid=25</a><br />
+	*&nbsp;&nbsp; ---&gt; <a href="http://playingwithfusion.com/productview.php?pdid=26" title="http://playingwithfusion.com/productview.php?pdid=26">http://playingwithfusion.com/productview.php?pdid=26</a><br />
+	*<br />
+	* Copyright &copy; 2014 Playing With Fusion, Inc.<br />
+	* SOFTWARE LICENSE AGREEMENT: This code is released under the MIT License.<br />
+	*<br />
+	* Permission is hereby granted, free of charge, to any person obtaining a<br />
+	* copy of this software and associated documentation files (the &quot;Software&quot;),<br />
+	* to deal in the Software without restriction, including without limitation<br />
+	* the rights to use, copy, modify, merge, publish, distribute, sublicense,<br />
+	* and/or sell copies of the Software, and to permit persons to whom the<br />
+	* Software is furnished to do so, subject to the following conditions:<br />
+	*<br />
+	* The above copyright notice and this permission notice shall be included in<br />
+	* all copies or substantial portions of the Software.<br />
+	*<br />
+	* THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR<br />
+	* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,<br />
+	* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE<br />
+	* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER<br />
+	* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING<br />
+	* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER<br />
+	* DEALINGS IN THE SOFTWARE.<br />
+	* **************************************************************************<br />
+	* REVISION HISTORY:<br />
+	* Author&nbsp;&nbsp; Date&nbsp; Comments<br />
+	* J. Steinlage&nbsp;&nbsp; 2014Jan25 Original version<br />
+	*<br />
+	* Playing With Fusion, Inc. invests time and resources developing open-source<br />
+	* code. Please support Playing With Fusion and continued open-source<br />
+	* development by buying products from Playing With Fusion!<br />
+	*<br />
+	* **************************************************************************<br />
+	* ADDITIONAL NOTES:<br />
+	* This file configures then runs a program on an Arduino Uno to read a<br />
+	* MAX31865 RTD-to-digital converter breakout board and print results to<br />
+	* a serial port. Communication is via SPI built-in library.<br />
+	*&nbsp;&nbsp;&nbsp; - Configure Arduino Uno<br />
+	*&nbsp;&nbsp;&nbsp; - Configure and read resistances and statuses from MAX31865 IC<br />
+	*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Write config registers (MAX31865 starts up in a low-power state)<br />
+	*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - RTD resistance register<br />
+	*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - High and low status thresholds<br />
+	*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Fault statuses<br />
+	*&nbsp;&nbsp;&nbsp; - Write formatted information to serial port<br />
+	*&nbsp; Circuit:<br />
+	*&nbsp;&nbsp;&nbsp; Arduino Uno&nbsp;&nbsp; --&gt;&nbsp; SEN-30201<br />
+	*&nbsp;&nbsp;&nbsp; CS: pin 10&nbsp;&nbsp;&nbsp; --&gt;&nbsp; CS<br />
+	*&nbsp;&nbsp;&nbsp; MOSI: pin 11&nbsp; --&gt;&nbsp; SDI (must not be changed for hardware SPI)<br />
+	*&nbsp;&nbsp;&nbsp; MISO: pin 12&nbsp; --&gt;&nbsp; SDO (must not be changed for hardware SPI)<br />
+	*&nbsp;&nbsp;&nbsp; SCK: pin 13&nbsp;&nbsp; --&gt;&nbsp; SCLK (must not be changed for hardware SPI)<br />
+	*&nbsp;&nbsp;&nbsp; GND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --&gt;&nbsp; GND<br />
+	*&nbsp;&nbsp;&nbsp; 5V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --&gt;&nbsp; Vin (supply with same voltage as Arduino I/O, 5V)<br />
+	***************************************************************************/</p>
+<p>// the sensor communicates using SPI, so include the hardware SPI library:<br />
+	#include &lt;SPI.h&gt;<br />
+	// include Playing With Fusion MAX31865 libraries<br />
+	#include &lt;PlayingWithFusion_MAX31865.h&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // core library<br />
+	#include &lt;PlayingWithFusion_MAX31865_STRUCT.h&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // struct library</p>
+<p>//Sensor addresses:<br />
+	const byte CONFIG_REG_W = 0x80; // Config register write addr<br />
+	const byte CONFIG_VALUE = 0xC3; // Config register value (Vbias+Auto+FaultClear+50Hz, see pg 12 of datasheet)<br />
+	const byte ADC_WORD_MSB = 0x01; // Addr of first byte of data (start reading at RTD MSB)<br />
+	const byte ADC_FAULT_REG = 0x07; // Addr of the fault reg</p>
+<p>// CS pin used for the connection with the sensor<br />
+	// other connections are controlled by the SPI library)<br />
+	const int CS_PIN = 10;<br />
+	const int nodeID = 10;</p>
+<p>PWFusion_MAX31865_RTD rtd_ch0(CS_PIN);</p>
+<p>void setup() {<br />
+	&nbsp; Serial.begin(9600);</p>
+<p>&nbsp; // setup for the the SPI library:<br />
+	&nbsp; SPI.begin();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // begin SPI<br />
+	&nbsp; SPI.setDataMode(SPI_MODE3);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // MAX31865 is a Mode 3 device<br />
+	&nbsp;<br />
+	&nbsp; // initalize the chip select pin<br />
+	&nbsp; pinMode(CS_PIN, OUTPUT);<br />
+	&nbsp; rtd_ch0.MAX31865_config();<br />
+	&nbsp;<br />
+	&nbsp; // give the sensor time to set up<br />
+	&nbsp; delay(100);<br />
+	}</p>
+<p>
+	void loop()<br />
+	{<br />
+	&nbsp; delay(150);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 500ms delay... can be much faster<br />
+	&nbsp;</p>
+<p>&nbsp; static struct var_max31865 RTD_CH0;<br />
+	&nbsp; double tmp;<br />
+	&nbsp;<br />
+	&nbsp; RTD_CH0.RTD_type = 1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // un-comment for PT100 RTD<br />
+	&nbsp; // RTD_CH0.RTD_type = 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // un-comment for PT1000 RTD<br />
+	&nbsp;<br />
+	&nbsp; struct var_max31865 *rtd_ptr;<br />
+	&nbsp; rtd_ptr = &amp;RTD_CH0;<br />
+	&nbsp;<br />
+	&nbsp; rtd_ch0.MAX31865_full_read(rtd_ptr);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Update MAX31855 readings<br />
+	&nbsp;<br />
+	&nbsp; // Print information to serial port</p>
+<p>	&nbsp; if(0 == RTD_CH0.status)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // no fault, print info to serial port<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; if(1 == RTD_CH0.RTD_type)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // handle values for PT100<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // calculate RTD resistance<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tmp = (double)RTD_CH0.rtd_res_raw * 400 / 32768;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot;nodeID&quot;);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // print Node set to 10<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(&quot; &quot;);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.print(tmp)<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; // calculate RTD temperature (simple calc, +/- 2 deg C from -100C to 100C)<br />
+	&nbsp;&nbsp;&nbsp; // more accurate curve can be used outside that range<br />
+	&nbsp;&nbsp;&nbsp; tmp = (((double)RTD_CH0.rtd_res_raw / 32) - 256) * 9 / 5 + 32;<br />
+	&nbsp;&nbsp;&nbsp; Serial.println(tmp);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // print RTD resistance<br />
+	&nbsp; }&nbsp; // end of no-fault handling<br />
+	&nbsp; else<br />
+	&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp; Serial.print(&quot;RTD Fault, register: &quot;);<br />
+	&nbsp;&nbsp;&nbsp; Serial.print(RTD_CH0.status);<br />
+	&nbsp;&nbsp;&nbsp; if(0x80 &amp; RTD_CH0.status)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot;RTD High Threshold Met&quot;);&nbsp; // RTD high threshold fault<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; else if(0x40 &amp; RTD_CH0.status)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot;RTD Low Threshold Met&quot;);&nbsp;&nbsp; // RTD low threshold fault<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; else if(0x20 &amp; RTD_CH0.status)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot;REFin- &gt; 0.85 x Vbias&quot;);&nbsp;&nbsp; // REFin- &gt; 0.85 x Vbias<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; else if(0x10 &amp; RTD_CH0.status)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot;FORCE- open&quot;);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // REFin- &lt; 0.85 x Vbias, FORCE- open<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; else if(0x08 &amp; RTD_CH0.status)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot;FORCE- open&quot;);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // RTDin- &lt; 0.85 x Vbias, FORCE- open<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; else if(0x04 &amp; RTD_CH0.status)<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot;Over/Under voltage fault&quot;);&nbsp; // overvoltage/undervoltage fault<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp; else<br />
+	&nbsp;&nbsp;&nbsp; {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Serial.println(&quot;Unknown fault, check connection&quot;); // print RTD temperature heading<br />
+	&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp; }&nbsp; // end of fault handling<br />
+	}</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23101"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6347.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sprocket_3&#039;s picture" title="sprocket_3&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6347.html" title="View user profile.">sprocket_3</a> on Fri, 15/08/2014 - 23:21.</div>
+    <div class="content">
+     <p>What I have is not the norm I guess. I have a Raspberry Pi and a Arduino&nbsp;Uno and a playingwithfusion&nbsp;RTD to digital max adapter. I have that outputting into the serial out connected to the Pi with a usb cable. I&#39;m using the OEMGateway&nbsp;to transfer that data using the serial listener. I had the program outputting the data every 100ms to the OEMGateway and that apparently is way too fast. But that&#39;s about the speed I want it to work at. 1 second intervals is about as slow as what I need it for can handle. I hope that&#39;s possible.</p>
+<p>[[Socket]]<br />
+	&nbsp;&nbsp;&nbsp; type = OemGatewaySerialListener<br />
+	&nbsp;&nbsp;&nbsp; [[[init_settings]]]<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; com_port = /dev/ttyACM0</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23108"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 16/08/2014 - 09:24.</div>
+    <div class="content">
+     <p>10 times per second is fast, I can&#39;t imagine why you would want to report that frequently. I think you may have issues each step of the way using this method. Even if OEMG&nbsp;is able to maintain that speed, can the router, network and server accommodate&nbsp;? and then if they did, what will the data do?</p>
+<p>Where is the data being sent ?&nbsp;</p>
+<p>What is the incoming frame structure and value range ? can give examples?</p>
+<p>Can the data be crunched locally and forwarded less frequently as totals or averages?</p>
+<p>If you must have 10 samples per second. do they need to be forwarded at that rate could 100 frames be forwarded every 10 seconds? or 300 every 30 secs etc. OEMG&nbsp;could buffer and send in batches with a little modification.</p>
+<p>I really do not know if OEMG&nbsp;can do that speed but I do know that it operates on one thread, so it may be worth looking at emonHub. although based on OEMG&nbsp;it has an additional thread for each target so if one is slow or not responding it will not slow the main loop.</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23168"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6347.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sprocket_3&#039;s picture" title="sprocket_3&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6347.html" title="View user profile.">sprocket_3</a> on Mon, 18/08/2014 - 18:44.</div>
+    <div class="content">
+     <p>Yeah, unfortunately I know it&#39;s asking a lot. This setup is on a very fast network and everything is accessed locally. What I have is a group of motors that are hard to get to and kind of dangerous to get to for readings and such ( also getting someone to take a reading is like pulling teeth haha). What I am hoping for is to be able to get data quick enough to be able to save these motors. They can go in a matter of minutes and we do have people watching the data in the control rooms. What I have is an Arduino&nbsp;sending data to a PI through USB and the PI runs OEMG&nbsp;and hosts the EmonCMS server. It&#39;s all accessed over the local network. I&#39;m working on a script to send an email and SMS alert to the techs when the motors start to get hot. The goal is to take readings for power, temp, humidity, and eventually vibration using the FFT libraries.</p>
+<p>I haven&#39;t seen EmonHub. I&#39;ll have to check that out. I realize that I&#39;m asking a lot of the software. I guess tolerable would be 1 reading per second. It could batch send if it had to. I just don&#39;t want there to be too much delay if possible. I really appreciate the help. I&#39;m newer to the Emon&nbsp;stuff but find it fascinating.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23183"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 19/08/2014 - 07:48.</div>
+    <div class="content">
+     <p>I&#39;m not qualified or experienced in motor control but for what&#39;s worth I think you would be better to run some custom code locally, either a standalone intermediary&nbsp;program or modify either the output of the script above or the input of OEMG.</p>
+<p>As it is currently I think the script above is outputting way too much for the OEMG&nbsp;input. not only is it fast but it&#39;s output is not guaranteed to be formatted correctly and so OEMG will need to also discard any unsuitable packets (additional workload) and at first glance&nbsp;it seems that warning messages will come at the times most critical to getting the data through.</p>
+<p>If a warning is to be sent for the techs to action via email or text, a 3, 5 or even 10 second interval will have little impact on the techs response time, certainly a tenth of a second will have no noticeable effect to response times, but will probably have the system working at a rate that could delay messages or be prone to failure and leave you without protection.</p>
+<p>This looks like a &quot;less is more&quot; scenario, the less you have going on and the less frequently you update, the more likely you are to get a timely and accurate&nbsp;warning.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23184"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 19/08/2014 - 12:23.</div>
+    <div class="content">
+     <p>Putting on my systems engineer&#39;s hat, it strikes me that your philosophy is totally wrong. It&#39;s a classic case of where the line between monitoring and protection has been crossed. Those are two functions that ought to be kept quite separate.</p>
+<p>If a motor is getting hot, you shouldn&#39;t be expecting someone to come off their tea break to take remedial action. Your control system should be reducing the load or, if necessary, shutting the process down in a controlled fashion to prevent further damage. You should be using the data after the event to look for the cause of the motor getting hot, not relying on human intervention as a result of an SMS message.</p>
+<p>I have no idea what your process is, but in my book and in general terms, what you need to be doing is:</p>
+<p>1. The motor temperature starts to rise: You flag a warning to the control room operators.<br />
+	2. If the temperature continues to rise, the control system should reduce the load or start an orderly shutdown.<br />
+	3. If the temperature reaches the critical value where damage to the insulation is imminent, the control system should immediately stop the process (and if the control room operators ignore the warning in (1) or override the system in (2), it&#39;s for management to take disciplinary action).</p>
+<p>[Or, as a supervisor at a brewery once said to me: &quot;I like having you lot here - you&#39;re engineers. You shut the plant down safely first before any damage is done, <u>then</u> you worry about the software bug.&quot;]</p>
+<p>But I have to ask, why is the motor getting hot? There can be 3 causes: overcurrent, harmonics in the supply or a ventilation failure. The standard motor protection should be capable of dealing with overcurrent if it&#39;s been specified properly at the design stage (and not been &#39;improved&#39; later).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23192"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6347.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sprocket_3&#039;s picture" title="sprocket_3&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6347.html" title="View user profile.">sprocket_3</a> on Tue, 19/08/2014 - 16:10.</div>
+    <div class="content">
+     <p>It&#39;s the fourth and most common reason we have around here; Lack of lubrication. I use to work for a motor shop for many years and we&#39;ve seen some serious damage caused to shafts and housing from the bearings overheating. Around here it&#39;s like pulling teeth to get someone to lubricate especially on these particular motors. I know it a management problem but with unions here we don&#39;t seem to get anywhere.</p>
+<p>Yes I agree that it crosses the line between monitoring and protection but we don&#39;t really have another way other than a retrofit which really isn&#39;t going to happen on our budget. I&#39;m just doing this to make our lives a little easier. We have controls to monitor vibration that require a person to go out and trend the bearings on the motors but that doesn&#39;t happen very often and in the case of vibration we usually catch things early. But in the case of bearing thermal protection, we have none.</p>
+<p>So I guess what I&#39;m saying is that getting data in 10s intervals is fine and would work. I just was trying to come up with a way to get more real time data. Mostly I&#39;m trying to be as proactive as possible and with the the code I have right now it seems to be stacking up tons of points in the buffer and then releasing them slowly. I&#39;m just here for help if anyone has suggestions I openly welcome them.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23213"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 19/08/2014 - 19:54.</div>
+    <div class="content">
+     <p>Initially you could leave OEMG&nbsp;pr emonhub&nbsp;as it is and concentrate on the sketch. You could have the sketch averaging and totaling etc and then every so many seconds send the data via serial in the normal way, ie an array of values in a predefined order that can be relayed to emoncms or elsewhere for monitoring and or analysis, with an alert mechanism actioned from that data. you could probably use the events module combined with something like <a href="https://www.notifymyandroid.com/">https://www.notifymyandroid.com</a>&nbsp;to alert the techs and once you have the procedure in place and working, you can maybe start increasing the frequency.</p>
+<p>Maybe just not to the point where the raspberry pi needs overheat monitoring to prevent burnout :-)</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23339"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6347.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sprocket_3&#039;s picture" title="sprocket_3&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6347.html" title="View user profile.">sprocket_3</a> on Mon, 25/08/2014 - 23:15.</div>
+    <div class="content">
+     <p>Okay I took your advice on the averaging. It works a lot better now. I brought it down to 5 sec and it isn&#39;t stacking up in the buffer anymore! I really appreciate the help. I got an email alert script up and running. Now the only thing I can&#39;t figure out is why I can&#39;t get emoncms to run as a daemon when the Pi starts up.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23351"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 26/08/2014 - 07:56.</div>
+    <div class="content">
+     <p>Good to hear you&#39;re making progress</p>
+<p>Do you mean you can&#39;t get OEMG&nbsp;to run as a daemon&nbsp;? emoncms&nbsp;doesn&#39;t need starting as such, normally the &quot;server&quot; starts when&nbsp;apache&nbsp;and mySQL&nbsp;start at boot up.</p>
+<p>How are you currently starting it?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23363"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6347.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sprocket_3&#039;s picture" title="sprocket_3&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6347.html" title="View user profile.">sprocket_3</a> on Tue, 26/08/2014 - 17:26.</div>
+    <div class="content">
+     <p>Sorry, my brain has been elsewhere. I mean OEMGateway. I went through the instructions a few times looking for any possible mistakes but I can&#39;t find any. It&#39;s very frustrating. I hope I have time to do a write up on all this when I&#39;m done.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-23365"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 26/08/2014 - 19:25.</div>
+    <div class="content">
+     <p>From memory I think can vaguely recall having a similar issue many months ago, but I didn&#39;t pay much attention, as if I recall correctly it cleared when I carried out the <a href="https://github.com/Jerome-github/oem_gateway/blob/master/README.md#grant-write-privilege-to-logging-file-skip-if-logging-is-not-used">additional steps to enable logging</a>. So I would recommend doing that first and if still no joy then a little more info would help.</p>
+<p>How are you currently starting OEMG?</p>
+<p>Where is your conf file located?</p>
+<p>Are you able to use the daemon start or stop commands at the command line?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-38781"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6347.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sprocket_3&#039;s picture" title="sprocket_3&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Eliminate OEMGateway Buffer (Direct From Socket Listening)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6347.html" title="View user profile.">sprocket_3</a> on Tue, 26/01/2016 - 23:59.</div>
+    <div class="content">
+     <p>Well at long last my problems have all been solved and it&#39;s been up and running for almost 1 year. I ended up going with playingwithfusions&nbsp;pt100&nbsp;to spi converter and used an arduino&nbsp;to convert and buffer the data to serial through the usb port. Then configured the Pi with emoncms and oemgateway and had it input the serial signal. The original pi couldn&#39;t handle the load of 4 sensors reading ones every 10 sec in 2 sec increments. But the Pi 2 loves it. Currently am adding CT&#39;s to the mix for power spike detection and will be adding vibration monitoring in the future. Right now we have this installed on our industrial bake oven to determine part temperature. Works great.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/5562"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-7HFOpfpVWYCeC4Fu0Zx1TijDrTMOioS7NLk5njAPOws" value="form-7HFOpfpVWYCeC4Fu0Zx1TijDrTMOioS7NLk5njAPOws"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/5562 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:48:48 GMT -->
+</html>

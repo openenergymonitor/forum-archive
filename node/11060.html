@@ -1,0 +1,404 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11060 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:46:13 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Server monitoring | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Server monitoring</h3>
+        <span class="submitted">Submitted by <a href="../user/8066.html" title="View user profile.">firefox7518</a> on Thu, 30/07/2015 - 15:52</span>
+        <div class="content"><p>Hi all</p>
+<p>Just wanted to contribute something maybe useful to the community :-)</p>
+<p>I use EmonCMS&nbsp;mostly for the solar logging of the Enecsys Stuff I have written but I always thought there is more usage of it and I made a Server monitoring script which uses the Windows WMI stuff to read out the syste information. WMI is really powerful and once understood you can change and read out almost everything of Windows. I have it tested on Win8 and Windows Server 2012.</p>
+<p>To browse through the WMI Namespaces I suggest to use a tool called WMI Explorer:&nbsp;https://wmie.codeplex.com/<br />
+WMI Explorer is a utility intended to provide the ability to browse and view WMI namespaces/classes/instances/properties in a single pane of view.</p>
+<p>A demo of what you can do with it is here:&nbsp;<a href="http://swiss-solar-log.ch:85/firefox&amp;id=62">http://swiss-solar-log.ch:85/firefox&amp;id=62</a></p>
+<p>Here is the code:</p>
+<blockquote><p>#!/usr/bin/perl<br />
+#---------------------------------------------------------------------<br />
+# This is a simple Monitoring script which reads out data from Windows WMI<br />
+# Storage. WMI can be accessed and used like SQL Queries. Use Tools like<br />
+# WMI Explorer to browse through all the available classes. Microsoft already&nbsp;<br />
+# pre formatted a lot of the data so you can most of the time use the data without<br />
+# any calculations!<br />
+# To access the data you have to use the connection string:<br />
+# $objWMIService = Win32::OLE-&gt;GetObject&nbsp;<br />
+# &nbsp; &nbsp;(&quot;winmgmts:\\\\$computer\\root\\CIMV2&quot;) or die &quot;WMI connection failed.\n&quot;;&nbsp;<br />
+# U can exchange the CIMV2 with an other object to access other data. Most of the data<br />
+#&nbsp; however is available in CIMV2 as you can see in the script below.<br />
+#<br />
+# Author: Andreas Messerli, Switzerland<br />
+# e-mail of Author: firefox7518(at)gmail.com<br />
+# If you find issues or failures please let the author now about it so that he can update and<br />
+# enhance the script for the usage of all of us.<br />
+#---------------------------------------------------------------------</p>
+<p>use Win32::OLE(&#39;in&#39;);&nbsp;<br />
+use constant wbemFlagReturnImmediately =&gt; 0x10;&nbsp;<br />
+use constant wbemFlagForwardOnly =&gt; 0x20;&nbsp;<br />
+use LWP::Simple;<br />
+use IO::Socket;</p>
+<p>my $apikey=&quot;Your write Api Key here&quot;;<br />
+my $emonhost = &quot;Your EmonCMS IP or domain name here&quot;;<br />
+# To poll for example running servers like MySQL, E-Mail POP etc. you have to define the Server IP here or use 127.0.0.1<br />
+my $host = &quot;Server IP adress&quot;;</p>
+<p>
+&nbsp;<br />
+$computer = &quot;.&quot;;&nbsp;<br />
+$objWMIService = Win32::OLE-&gt;GetObject&nbsp;<br />
+&nbsp; &nbsp; (&quot;winmgmts:\\\\$computer\\root\\CIMV2&quot;) or die &quot;WMI connection failed.\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;</p>
+<p># Init WMI for CPU<br />
+my $wmi = Win32::OLE-&gt;GetObject(&quot;winmgmts://./root/cimv2&quot;)<br />
+&nbsp; &nbsp; or die &quot;Failed getobject\n&quot;;</p>
+<p># get WMI values for CPU<br />
+sub get_wmi{<br />
+&nbsp;&nbsp; &nbsp;my $wmi = shift;<br />
+&nbsp;&nbsp; &nbsp;my $list, my $v;<br />
+&nbsp;&nbsp; &nbsp;my @properties = qw(PercentProcessorTime TimeStamp_Sys100NS);<br />
+&nbsp;&nbsp; &nbsp;my $class = &#39;Win32_PerfRawData_PerfOS_Processor&#39;;<br />
+&nbsp;&nbsp; &nbsp;my $key = &#39;Name&#39;;<br />
+&nbsp;&nbsp; &nbsp;$list = $wmi-&gt;InstancesOf(&quot;$class&quot;)<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;or die &quot;Failed getobject\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;my $hash;<br />
+&nbsp;&nbsp; &nbsp;foreach $v (in $list) { &nbsp; &nbsp; &nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$hash-&gt;{$v-&gt;{$key}}-&gt;{$_} &nbsp;= $v-&gt;{$_} for @properties;<br />
+&nbsp;&nbsp; &nbsp;}<br />
+&nbsp;&nbsp; &nbsp;$hash;<br />
+}</p>
+<p>my $cpu;<br />
+my $hash_prev = get_wmi($wmi);<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp;<br />
+while (1){&nbsp;</p>
+<p>&nbsp;&nbsp; &nbsp;$RAMItems = $objWMIService-&gt;ExecQuery&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;(&quot;SELECT * FROM Win32_OperatingSystem&quot;,&quot;WQL&quot;,wbemFlagReturnImmediately | wbemFlagForwardOnly);&nbsp;</p>
+<p>&nbsp;&nbsp; &nbsp;$CPUItems = $objWMIService-&gt;ExecQuery&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;(&quot;SELECT * FROM Win32_PerfRawData_PerfOS_Processor&quot;,&quot;WQL&quot;,wbemFlagReturnImmediately | wbemFlagForwardOnly);&nbsp;</p>
+<p>&nbsp;&nbsp; &nbsp;$HDDItems = $objWMIService-&gt;ExecQuery&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;(&quot;SELECT * FROM Win32_LogicalDisk&quot;,&quot;WQL&quot;,wbemFlagReturnImmediately | wbemFlagForwardOnly);&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;$Perfitems = $objWMIService-&gt;ExecQuery&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;(&quot;SELECT * FROM Win32_PerfFormattedData_PerfOS_System&quot;,&quot;WQL&quot;,wbemFlagReturnImmediately | wbemFlagForwardOnly); &nbsp;&nbsp; &nbsp;</p>
+<p>&nbsp;&nbsp; &nbsp;$IISItems = $objWMIService-&gt;ExecQuery&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;(&quot;SELECT * FROM Win32_PerfRawData_W3SVC_WebService&quot;,&quot;WQL&quot;,wbemFlagReturnImmediately | wbemFlagForwardOnly);&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;Start Server Performance Usasge Check section<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;{<br />
+&nbsp;&nbsp; &nbsp;foreach my $objItem (in $Perfitems) {</p>
+<p>&nbsp;&nbsp; &nbsp;my $FileDataOperationsPersec = $objItem-&gt;{FileDataOperationsPersec};<br />
+&nbsp;&nbsp; &nbsp;my $FileReadKBytesPersec = $objItem-&gt;{FileReadBytesPersec} / 1024;<br />
+&nbsp;&nbsp; &nbsp;my $FileReadOperationsPersec = $objItem-&gt;{FileReadOperationsPersec};<br />
+&nbsp;&nbsp; &nbsp;my $FileWriteKBytesPersec = $objItem-&gt;{FileWriteBytesPersec} / 1024;<br />
+&nbsp;&nbsp; &nbsp;my $FileWriteOperationsPersec = $objItem-&gt;{FileWriteOperationsPersec};<br />
+&nbsp;&nbsp; &nbsp;my $FloatingEmulationsPersec = $objItem-&gt;{FloatingEmulationsPersec};<br />
+&nbsp;&nbsp; &nbsp;my $Processes = $objItem-&gt;{Processes};<br />
+&nbsp;&nbsp; &nbsp;my $ProcessorQueueLength = $objItem-&gt;{ProcessorQueueLength};<br />
+&nbsp;&nbsp; &nbsp;my $SystemCallsPersec = $objItem-&gt;{SystemCallsPersec};<br />
+&nbsp;&nbsp; &nbsp;my $Threads = $objItem-&gt;{Threads};<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp; &nbsp; &nbsp; print &quot;File Data Operations Per sec: $objItem-&gt;{FileDataOperationsPersec}\n&quot;;<br />
+&nbsp;&nbsp; &nbsp; &nbsp;print &quot;File Read KBytes Per sec: $FileReadKBytesPersec\n&quot;;<br />
+&nbsp;&nbsp; &nbsp; &nbsp;print &quot;File Read Operations Per sec: $objItem-&gt;{FileReadOperationsPersec}\n&quot;;<br />
+&nbsp; &nbsp; &nbsp; print &quot;File Write KBytes Per sec : $FileWriteKBytesPersec \n&quot;;<br />
+&nbsp;&nbsp; &nbsp; &nbsp;print &quot;File Write Operations Per sec : $objItem-&gt;{FileWriteOperationsPersec}\n&quot;;<br />
+&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Floating Emulations Per sec : $objItem-&gt;{FloatingEmulationsPersec}\n&quot;;<br />
+&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Processes : $objItem-&gt;{Processes}\n&quot;;<br />
+&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Processor Queue Length : $objItem-&gt;{ProcessorQueueLength}\n&quot;;<br />
+&nbsp;&nbsp; &nbsp; &nbsp;print &quot;System Calls Per sec : $objItem-&gt;{SystemCallsPersec}\n&quot;;<br />
+&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Threads : $objItem-&gt;{Threads}\n&quot;;<br />
+&nbsp;&nbsp; &nbsp; &nbsp;print &quot;\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;my $IDDec = &quot;OS_Performance_Data&quot;;<br />
+&nbsp;&nbsp; &nbsp;my $url = &quot;http://$emonhost/input/post.json?node=$IDDec&amp;json={FileDataOperationsPersec:$FileDataOperationsPersec, FileReadKBytesPersec:$FileReadKBytesPersec, FileReadOperationsPersec:$FileReadOperationsPersec, FileWriteKBytesPersec:$FileWriteKBytesPersec, FileWriteOperationsPersec:$FileWriteOperationsPersec, FloatingEmulationsPersec:$FloatingEmulationsPersec, Processes:$Processes, ProcessorQueueLength:$ProcessorQueueLength, SystemCallsPersec:$SystemCallsPersec, Threads:$Threads}&amp;apikey=$apikey&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;my $content = get $url;<br />
+&nbsp;&nbsp; &nbsp;print &quot;Sending data to EmonCMS = $url\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;}<br />
+&nbsp;&nbsp; &nbsp;}<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;End Server Performance Usasge Check section<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------&nbsp;&nbsp; &nbsp;</p>
+<p>&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;Start IIS Usasge Check section<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;{<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;foreach my $objItem (in $IISItems){&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $AnonymousUsersPersec = $objItem-&gt;{AnonymousUsersPersec};<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $BytesReceivedPersec = $objItem-&gt;{BytesReceivedPersec};<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $KBytesReceivedPersec = $objItem-&gt;{BytesReceivedPersec} / 1024;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $BytesSentPersec = $objItem-&gt;{BytesSentPersec};<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $KBytesSentPersec = $objItem-&gt;{BytesSentPersec} / 1024;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $CurrentConnections = $objItem-&gt;{CurrentConnections};<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $BytesSentPersec = $objItem-&gt;{BytesSentPersec};<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;print &quot;Websitename: $objItem-&gt;{Name}\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;print &quot;Anonymous Users Per sec: $objItem-&gt;{AnonymousUsersPersec}\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;print &quot;Bytes Received Per sec: $objItem-&gt;{BytesReceivedPersec}\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;print &quot;Bytes Sent Per sec: $objItem-&gt;{BytesSentPersec}\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;print &quot;Current Connections: $objItem-&gt;{CurrentConnections}\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;print &quot;Bytes Sent Per sec: $objItem-&gt;{BytesSentPersec}\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;print &quot;\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $IDDec = $objItem-&gt;{Name};<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $url = &quot;http://$emonhost/input/post.json?node=$IDDec&amp;json={AnonymousUsersPersec:$AnonymousUsersPersec , BytesReceivedPersec:$BytesReceivedPersec , BytesSentPersec:$BytesSentPersec , CurrentConnections:$CurrentConnections , BytesSentPersec:$BytesSentPersec, KBytesSentPersec:$KBytesSentPersec, KBytesReceivedPersec:$KBytesReceivedPersec}&amp;apikey=$apikey&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $content = get $url;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;print &quot;Sending data to EmonCMS = $url\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}&nbsp;<br />
+&nbsp;&nbsp; &nbsp;}<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;End IIS Usasge Check section<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------&nbsp;&nbsp; &nbsp;</p>
+<p>
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;Start Memomry Usasge Check section<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;{<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;foreach my $objItem (in $RAMItems){&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;$total_mem = $objItem-&gt;{TotalVisibleMemorySize} / 1024;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;$free_mem = $objItem-&gt;{FreePhysicalMemory} / 1024;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;$used_mem = $total_mem - $free_mem;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;$mem_percent = sprintf(&quot;%.2f&quot;, $used_mem / $total_mem * 100);<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;$free_percent &nbsp;= &nbsp;sprintf(&quot;%.2f&quot;, $free_mem / $total_mem * 100);<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Free Physical Memory: $objItem-&gt;{FreePhysicalMemory}\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Free Virtual Memory: $objItem-&gt;{FreeVirtualMemory}\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Number Of Processes: $objItem-&gt;{NumberOfProcesses}\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Total Virtual Memory Size: $objItem-&gt;{TotalVirtualMemorySize}\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Total Visible Memory Size: $objItem-&gt;{TotalVisibleMemorySize}\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Used Memory: $used_mem \n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Used Memory Percent: $mem_percent \n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Free Memory percent: $free_percent \n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;my $IDDec = &quot;RAM-data&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;my $url = &quot;http://$emonhost/input/post.json?node=$IDDec&amp;json={Memory_used_percent:$mem_percent,Memory_free_percent:$free_percent,Memory_total:<br />
+$total_mem,Memory_used:$used_mem,Memory_free:$free_mem}&amp;apikey=$apikey&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;my $content = get $url;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Sending data to EmonCMS = $url\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}&nbsp;<br />
+&nbsp;&nbsp; &nbsp;}<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;End Memomry Usasge Check section<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;Start HDD Usasge Check section<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;{<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;foreach my $objItem (in $HDDItems){&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;$free_hdd = $objItem-&gt;{FreeSpace} / 1024 / 1024;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;$hdd_size = $objItem-&gt;{Size} / 1024 / 1024;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;$hdd_used = $hdd_size - $free_hdd;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;$hdd_used_percent = sprintf(&quot;%.2f&quot;, $hdd_used / $hdd_size * 100);<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;$hdd_free_percent &nbsp;= &nbsp;sprintf(&quot;%.2f&quot;, $free_hdd / $hdd_size * 100);<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Free Space: $free_hdd\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Size: $hdd_size\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;\n&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;my $IDDec = &quot;HDD-Usage&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;my $url = &quot;http://$emonhost/input/post.json?node=$IDDec&amp;json={HDD_Free_Space:$free_hdd,HDD_free_percent:$hdd_free_percent}&amp;apikey=$apikey&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;my $content = get $url;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;print &quot;Sending data to EmonCMS = $url\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}&nbsp;<br />
+&nbsp;&nbsp; &nbsp;}<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;End HDD Usasge Check section<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;Start CPU Usasge Check section<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;{<br />
+&nbsp;&nbsp; &nbsp;my $hash = get_wmi($wmi);<br />
+&nbsp;&nbsp; &nbsp;$cpu = sprintf(&quot;%.2f&quot;,&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;(<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;1 - (<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$hash-&gt;{&#39;_Total&#39;}-&gt;{&#39;PercentProcessorTime&#39;} - $hash_prev-&gt;{&#39;_Total&#39;}-&gt;{&#39;PercentProcessorTime&#39;}<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;) /&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;(<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$hash-&gt;{&#39;_Total&#39;}-&gt;{&#39;TimeStamp_Sys100NS&#39;} - $hash_prev-&gt;{&#39;_Total&#39;}-&gt;{&#39;TimeStamp_Sys100NS&#39;}<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;)&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;)* 100 );&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;print &quot;CPU=$cpu\n&quot;;&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;$hash_prev = $hash;<br />
+&nbsp;&nbsp; &nbsp;my $IDDec = &quot;CPU-Usage&quot;;<br />
+&nbsp;&nbsp; &nbsp;my $url = &quot;http://$emonhost/input/post.json?node=$IDDec&amp;json={CPU_Average:$cpu}&amp;apikey=$apikey&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;my $content = get $url;<br />
+&nbsp;&nbsp; &nbsp;print &quot;Sending data to EmonCMS = $url\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;}<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;End CPU Usasge Check section<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;Start MySQL Server Check section<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;{<br />
+&nbsp;&nbsp; &nbsp;my $port = &quot;3307&quot;;<br />
+&nbsp;&nbsp; &nbsp;#<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;Try to connect<br />
+&nbsp;&nbsp; &nbsp;#<br />
+&nbsp;&nbsp; &nbsp;my $remote = IO::Socket::INET-&gt;new(<br />
+&nbsp; &nbsp; Proto &nbsp; &nbsp;=&gt; &quot;tcp&quot;,<br />
+&nbsp; &nbsp; PeerAddr =&gt; $host,<br />
+&nbsp; &nbsp; PeerPort =&gt; $port,<br />
+&nbsp; &nbsp; Timeout &nbsp;=&gt; 8,<br />
+&nbsp;&nbsp; &nbsp;);</p>
+<p>&nbsp;&nbsp; &nbsp;#<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;Print response<br />
+&nbsp;&nbsp; &nbsp;#<br />
+&nbsp;&nbsp; &nbsp;if ($remote) {<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $url = &quot;http://$emonhost/input/post.json?node=MySQLServer&amp;json={Server-running:1}&amp;apikey=$apikey&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $content = get $url;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;print &quot;$host MySQL Server is alive\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;close $remote;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;}<br />
+&nbsp;&nbsp; &nbsp;else {<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $url2 = &quot;http://$emonhost/input/post.json?node=MySQLServer&amp;json={Server-running:0}&amp;apikey=$apikey&quot;;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;my $content2 = get $url2;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;print &quot;$host MySQL Server failed\n&quot;;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br />
+&nbsp;&nbsp; &nbsp;}<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;# &nbsp;End MySQL Server Check section<br />
+&nbsp;&nbsp; &nbsp;#--------------------------------------------------------------------<br />
+&nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp; &nbsp;print &quot;Restart monitoring in 10secodns&quot;;<br />
+&nbsp;&nbsp; &nbsp;sleep 20;<br />
+}<br />
+# End of Script, it will loop forever because of while(1)&nbsp;</p>
+</blockquote>
+<p>If you don&#39;t have IIS installed you can delete the IIS section.&nbsp;</p>
+<p>If you find issues or failures please let me know. I&#39;m not a pro when it comes to programming, still have to learn a lot.....</p>
+<p>Hope there people out there finding it useful....</p>
+<p>Enjoy<br />
+Andreas</p>
+<p>&nbsp;</p>
+<p><em>Edit - wrapped long lines - BT</em></p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11063.html" class="topic-previous" title="Go to previous forum topic">‹ Removing nodes from node list?</a>
+              <a href="11058.html" class="topic-next" title="Go to next forum topic">3 Phase tx firmware &gt; hub nodes config? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-32845"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6359.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="pisoni.silvano@gmail.com&#039;s picture" title="pisoni.silvano@gmail.com&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Server monitoring</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6359.html" title="View user profile.">pisoni.silvano@...</a> on Fri, 31/07/2015 - 07:01.</div>
+    <div class="content">
+     <p>Great work!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11060"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-YetPCWVbxCDfalmy7I7KwHRSwAgCRh8MI44rfFuV7a8" value="form-YetPCWVbxCDfalmy7I7KwHRSwAgCRh8MI44rfFuV7a8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11060 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:46:13 GMT -->
+</html>

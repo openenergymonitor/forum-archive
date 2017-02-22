@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11465 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:50:08 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Input Processor Enhancement Request | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Input Processor Enhancement Request</h3>
+        <span class="submitted">Submitted by <a href="../user/3052.html" title="View user profile.">engeeaitch</a> on Fri, 23/10/2015 - 16:04</span>
+        <div class="content"><p>Hi - I would like to propose an enhancement to the &#39;Total pulse count to pulse increment&#39; input processor.</p>
+<p>At the moment, if the total pulse count is less than the last value, the processor assumes that the count in the &#39;transmitter&#39; has been reset to zero, and that the new total pulse count should be treated as the number of pulses that has been received by the transmitter since the reset.</p>
+<p>However, I have another scenario:&nbsp; if the transmitter has incorrectly received too many pulses, then it should be possible to reduce the total held by the transmitter to compensate for the error.&nbsp; In my case, this could arise because I am counting pulses of a reed switch connected to a gas meter, and my &#39;debounce&#39; hardware is not perfect.&nbsp; I therefore need to reduce the total to match that of the gas meter - and I would then like the processor to generate a negative number of pulses.</p>
+<p>I had thought of adding a parameter to the processor, but I could also have a (rare!) scenario where the gas meter is replaced and the total reset to zero. My proposal is therefore as follows:&nbsp; The assumption is that if the transmitter has been reset, then the new total number of pulses sent will be a small percentage of the previous total.&nbsp; Similarly, if the total has been reduced to adjust for an error, then the reduction will be a small percentage of the total. So my suggestion is that if the new value is more than half the previous value, then this is treated as a negative adjustment, otherwise it is treated as the first value after a reset.</p>
+<p>Here is the code (from input_processor.php) that I am using:</p>
+<pre>
+public function pulse_diff($feedid,$time_now,$value)
+{
+    $value = $this-&gt;signed2unsigned(false,false, $value);
+    if($value&gt;0)
+    {
+        $pulse_diff = 0;
+        $last = $this-&gt;feed-&gt;get_timevalue($feedid);
+        $last[&#39;time&#39;] = strtotime($last[&#39;time&#39;]);
+        if ($last[&#39;time&#39;]) {
+            // Need to handle resets of the pulse value (and negative 2**15?)
+            if ($value &gt;= $last[&#39;value&#39;]) {
+                $pulse_diff = $value - $last[&#39;value&#39;];
+            } else {
+                if ($value &gt;= $last[&#39;value&#39;] / 2)
+                {
+                    //Assume that this is a negative adjustment to the total number of pulses
+                    $pulse_diff = $value - $last[&#39;value&#39;];
+                }
+                else
+                {
+                    //Assume that the total number of pulses has been reset
+                    $pulse_diff = $value;
+                }
+            }
+        }
+        // Save to allow next difference calc.
+        $this-&gt;feed-&gt;insert_data($feedid,$time_now,$time_now,$value);
+        return $pulse_diff;
+    }
+}</pre>  <div class="forum-topic-navigation clear-block">
+          <a href="11525.html" class="topic-previous" title="Go to previous forum topic">‹ power_to_kwh script bug</a>
+              <a href="11513.html" class="topic-next" title="Go to next forum topic">V9.0 RC2 bar graph x-axis date labels off-by-one ? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-35738"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3052.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="engeeaitch&#039;s picture" title="engeeaitch&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Input Processor Enhancement Request</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3052.html" title="View user profile.">engeeaitch</a> on Sun, 08/11/2015 - 15:24.</div>
+    <div class="content">
+     <p>Hi - does anyone else think this is a good (or bad) idea?</p>
+<p>Thanks,</p>
+<p>Nick</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35740"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Input Processor Enhancement Request</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 08/11/2015 - 15:46.</div>
+    <div class="content">
+     <p>The flaw I see in your algorithm is, what is the situation when the stored count is small? Any automatic adjustment like this is bound to be wrong in some circumstances, and I can't see an absolutely foolproof algorithm that will satisfy all use cases.</p>
+<p>A "feature" like this MUST be carefully documented, else someone is bound to report the "bug" sooner or later.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11465"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Cv934bucYCXZ8hT8HvKSi4RMIuiKHifOxw8Jbv64Nz8" value="form-Cv934bucYCXZ8hT8HvKSi4RMIuiKHifOxw8Jbv64Nz8"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11465 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:50:08 GMT -->
+</html>

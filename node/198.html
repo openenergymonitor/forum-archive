@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/198 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:42:17 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Recording of Kwh | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Recording of Kwh</h3>
+        <span class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 19/07/2011 - 21:29</span>
+        <div class="content"><p>&nbsp;In Emon, I have found this code;</p>
+<p>//if (millis()-wtime&gt;10000) {realPower = realPower + 100.0; wtime = millis();}<br />
+//delay(1000);<br />
+lwhtime = whtime;<br />
+whtime = millis();<br />
+whInc = realPower * ((whtime-lwhtime)/3600000.0);</p>
+<p>Presumably its to calculate power usage, but the first part of the code is commented out - //</p>
+<p>Could this be used to calculate power over a 24hr period?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="286.html" class="topic-previous" title="Go to previous forum topic">‹ Frequency</a>
+              <a href="284.html" class="topic-next" title="Go to next forum topic">Added code (at the end) in JSON part for value &lt; 0.10 ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-1956"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 20/07/2011 - 10:21.</div>
+    <div class="content">
+     <p>Hmm not sure why I left that in there, I think its a bit of code to test the whInc calculation, it increase realpower by a 100 every 10s.</p>
+<p>A rolling 24 hours period would be quite hard to do on the arduino due to memory size, however its fairly straightforward to do a kwh today, yesterday, day before type calculation.</p>
+<p>1) You need to sum whInc:</p>
+<p>kwh_today = kwh_today + (whInc/1000);</p>
+<p>2) reset kwh_today every 24 hours without a realtime clock we can set this by reseting the arduino around 12 pm</p>
+<p>in setup: start_time = millis();</p>
+<p>if ((millis() - start_time) &gt; (3600000 *&nbsp;24)){</p>
+<p>&nbsp; kwh_yesterday = kwh_today;</p>
+<p>&nbsp; kwh_daybefore = kwh_yesterday;</p>
+<p>&nbsp; kwh_today = 0; // RESET</p>
+<p>}</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-1959"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Wed, 20/07/2011 - 22:32.</div>
+    <div class="content">
+     <p>&nbsp;Hi Trystan,</p>
+<p>I can follow most of the code, but not sure how this code deals with the second 24hrs, how does it start again once millis &gt;(3600000*24)??</p>
+<p>Please be patient...!! &nbsp; I'm new to this..</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-1960"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 21/07/2011 - 10:54.</div>
+    <div class="content">
+     <p>a yes I see, I forgot one crucial line</p>
+<p>after:</p>
+<p>if ((millis() - start_time) &gt; (3600000 *&nbsp;24)){</p>
+<p>start_time = millis(); // this line is needed to reset start_time</p>
+<p>Is that the bit that did not make sense?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-1962"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 21/07/2011 - 11:10.</div>
+    <div class="content">
+     <p>&nbsp;I get it now thanks.</p>
+<p>So start_time is reset to the new millis(), and the process repeats itself.</p>
+<p>This will be handy to see what the daily solar power generation is, and now I have a simple menu system to control the LCD, I can call this up at any time, or leave it on permenant display. Great stuff!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-1969"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 23/07/2011 - 20:12.</div>
+    <div class="content">
+     <p>&nbsp;Hi, have given some thought to what happens after day 49 when millis overflows and is reset, and re-written this section to try and handle it in the background.</p>
+<p>&nbsp;//Power measurement<br />
+&nbsp; t_now = millis();<br />
+&nbsp; &nbsp; if ( t_now &gt; t_last ) { &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//check to see if millis has overflowed back to zero (after approx 49 days)<br />
+&nbsp; &nbsp; &nbsp; t_diff = t_now - t_last; } &nbsp;//if not, the time each emon cycle takes<br />
+&nbsp; &nbsp; &nbsp; &nbsp; else { &nbsp;//if millis has reset...<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; t_diff = 4127; } &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//t_diff = (the amount of time each average emon cycle takes), again dealing with the millis reset.<br />
+&nbsp; t_culm = t_culm + t_diff;<br />
+&nbsp; t_last = t_now;</p>
+<p>&nbsp; if ( t_culm &gt; (3600000 * 24)){ &nbsp; &nbsp; &nbsp;//check to see if 24hrs has elapsed<br />
+&nbsp; Solarkwh = 0; // RESET<br />
+&nbsp; Mainskwh = 0; // RESET<br />
+&nbsp; t_culm = 0; &nbsp; // RESET</p>
+<p>It's a bit clunky, and am sure that somebody more skilfull could come up with more elequent code, but it seems to work OK!!</p>
+<p>Also added a line in setup, to advance the t_culm by 12hrs on first run - so can start the module at lunchtime, instead of waiting till midnight.</p>
+<p>&nbsp;t_culm = (3600000 * 12); //On first run, advances the 24hr timer by 12hrs (so can reset at midday!)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2268"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by Guest on Wed, 02/11/2011 - 04:11.</div>
+    <div class="content">
+     <p>OEM n00b here, going on third week of learning Arduino. So far, everything I've tried works! Yay!! Like paulreed, I'm building a controller to strip off excess solar power before it reaches my utility meter (I get charged by the kWh for putting it back into the grid). The system is based on an optical mouse reading an old rotating-disc watthour meter movement, then sending control signals to a 20 ampere motor-driven autotransformer (Variac). This works very well using the (modified) "basicSketchWCal.pde" sketch . Will soon begin prototyping a triac controller, more on that later.</p>
+<p>Right now, I'm toying with LCD displays to indicate the amount of power being dumped into the water heater. I'd like to have a daily total of the kWh sent to the heater using the calculated watts. So far, I'm not able to grasp what's necessary to integrate the parts of the emon code into setup() and loop() to do this. Perhaps someone could point me to a sketch with the relevant bits in it so I could copy-paste and attempt to get a working Kwh display? It doesn't have to run for more than 12 hours before the Arduino is reset at the end of the day, so resetting millis() isn't important.</p>
+<p>Thanks for any advice, I can reward you with a build thread once I get it working.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2269"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by Guest on Wed, 02/11/2011 - 04:13.</div>
+    <div class="content">
+     <p>I guess it makes sense to read the form fields before submitting, I thought that the "subject" field was "name". Is this an intellegence test?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2272"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Wed, 02/11/2011 - 21:02.</div>
+    <div class="content">
+     <p>&nbsp;You need 2 sections adding to the loop, 1) to calculate the time that has passed, and 2) to multiply that time by power to give kwh, so the sketch would be something like;</p>
+<p>&nbsp;</p>
+<div><strong>&nbsp;//Time Calcs</strong></div>
+<div><strong>&nbsp; t_now = millis();</strong></div>
+<div><strong>&nbsp; &nbsp; if ( t_now &gt; t_last ) { &nbsp; //check to see if millis has overflowed back to zero (after approx 49 days)</strong></div>
+<div><strong>&nbsp; &nbsp; &nbsp; t_diff = t_now - t_last; } //if not, the time each emon cycle takes</strong></div>
+<div><strong>&nbsp; &nbsp; &nbsp; &nbsp; else { &nbsp;//if millis has reset...</strong></div>
+<div><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; t_diff = 4127; } &nbsp; //t_diff = (the amount of time each average emon cycle takes), again dealing with the millis reset.</strong></div>
+<div><strong>&nbsp; t_culm += t_diff;</strong></div>
+<div><strong>&nbsp; t_last = t_now;</strong></div>
+<div>&nbsp;</div>
+<div>
+<div><strong>if ( t_culm &gt; (3600000 * 24)){ //check to see if 24hrs has elapsed and if so reset the kwh to zero</strong></div>
+<div><strong>&nbsp; kwh = 0; // RESET</strong></div>
+<div><strong>&nbsp; t_culm = 0; &nbsp; // RESET</strong></div>
+<div><strong>&nbsp; }</strong></div>
+</div>
+<p>&nbsp;</p>
+<p><strong>&nbsp; //Calculate number of kwh generated.<br />
+&nbsp;kwh += ((ch1.realPower)* t_diff) / 3600000 ;</strong><br />
+&nbsp;</p>
+<p>You will note that the code will reset the kwh's every day (24hrs after starting the Arduino).<br />
+kwh is the variable which tots up the &nbsp;kw's.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2273"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Guest&#039;s picture" title="Guest&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by Guest on Wed, 02/11/2011 - 23:57.</div>
+    <div class="content">
+     <p>After doing quite a lot of clicking around on this site, I eventually found the Emon sketch which I was able to look through and see what I needed to add into my sketch to allow me to use the variables in your example. Since I'm not using the actual emon sketch, but a modified version of the basic sketch, the variables such as t_now, t_diff, etc. will need to be declared before it will compile. I wasn't exactly sure what I'd need unitl I looked through emon.</p>
+<p>I'll code things up tonight and see if it works.</p>
+<p>(I guess I might comment in the <a href="268.html">"disoranized"</a> topic thread, that using the Drupal menu structure more effectively might help a lot in navigating and finding things on this site, as would a site map.)</p>
+<p>-Sharkey</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2275"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Mr. Sharkey&#039;s picture" title="Mr. Sharkey&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by Mr. Sharkey (not verified) on Thu, 03/11/2011 - 05:44.</div>
+    <div class="content">
+     <p>I snatched some code from the Emon sketch, pasted parts of it into my prototype program, changed up some of the values (Wh instead of kWh), and put it to the test. With a simulated load of 600 watts (AC adapter, voltage divider, 1k pot), I was able to accumulate 601.4 Wh in an hour, accurate to within .24%. It was a royal pain keeping the current simulation steady, the AC line voltage out here in the sticks must wander all over the place.</p>
+<p>Thanks for the attention, like I said previously, everything I try with the Arduino seems to work, I wish all my projects were so easy.</p>
+<p>I'll be putting together a build thread in my blog in case anyone is interested in details.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2288"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 05/11/2011 - 13:53.</div>
+    <div class="content">
+     <p>&nbsp;Great news, look forward to your build thread.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2332"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 15/11/2011 - 21:14.</div>
+    <div class="content">
+     <p>Sounds like good work! Could you post a link to your blog so that we can follow your progress. It's possible to add your blog and twitter to your openenergymonitor account profile.</p>
+<p>Looking forward to seeing your progress.</p>
+<p>All the best, Glyn. &nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-2336"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Mr. Sharkey&#039;s picture" title="Mr. Sharkey&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Recording of Kwh</h3>
+
+    <div class="submitted">Submitted by Mr. Sharkey (not verified) on Wed, 16/11/2011 - 06:40.</div>
+    <div class="content">
+     <p>Yep, did that already.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/198"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-96OAUhxrzkhuZYMzy59SRK7doKbBUeeFf4oyZ5s-2-E" value="form-96OAUhxrzkhuZYMzy59SRK7doKbBUeeFf4oyZ5s-2-E"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/198 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:42:17 GMT -->
+</html>

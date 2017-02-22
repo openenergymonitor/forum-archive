@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3543 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:33:40 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>No ACKs from RFM12PI | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">No ACKs from RFM12PI</h3>
+        <span class="submitted">Submitted by Guest on Tue, 07/01/2014 - 00:31</span>
+        <div class="content"><p>Hi,</p>
+<p>I purchased a RFM12PI to send data from my Arduino nodes to my Raspberry PI via RFM12B radios. I am using the RFM12PI with the pre-installed firmware without any modifications.</p>
+<p>I wrote a scetch which sends the data and the RFM12PI does receive the data. My problem is that the nodes never receive any ACKs from the RFM12PI.</p>
+<p>I use the following code for my Arduino nodes:</p>
+<p>for (byte i = 0; i &lt;= 5; ++i) {&nbsp; // tx and wait for ack up to 5 times<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_sleep(-1);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Wake up RF module<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (!rf12_canSend())<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_recvDone();<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_sendStart(RF12_HDR_ACK, &amp;paylod, sizeof paylod);<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_sendWait(2);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Wait for RF to finish sending while in standby mode<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; boolean acked = waitForAck();&nbsp; // Wait for ACK<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_sleep(0);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Put RF module to sleep<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (acked) {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Return if ACK received&nbsp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Sleepy::loseSomeTime(5000);&nbsp;&nbsp;&nbsp;&nbsp; // If no ack received wait 5s and try again<br />
+	&nbsp;&nbsp; }</p>
+<p>static byte waitForAck() {<br />
+	&nbsp;&nbsp; MilliTimer ackTimer;<br />
+	&nbsp;&nbsp; while (!ackTimer.poll(5000)) { // try to receie an ACK for max. 5 seconds<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (rf12_recvDone() &amp;&amp; rf12_crc == 0 &amp;&amp;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rf12_hdr == (RF12_HDR_DST | RF12_HDR_CTL | myNodeID)) {<br />
+	&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return 1;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp; return 0;<br />
+	}</p>
+<p>&nbsp;</p>
+<p>I also tried a less strict check for the header - no success either:</p>
+<p>static byte waitForAck() {<br />
+	&nbsp;&nbsp; MilliTimer ackTimer;<br />
+	&nbsp;&nbsp; while (!ackTimer.poll(5000)) { // try to receie an ACK for max. 5 seconds<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (rf12_recvDone() &amp;&amp; rf12_crc == 0) {<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return 1;<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+	&nbsp;&nbsp; return 0;<br />
+	}</p>
+<p>The function waitForAck always returns 0. Unfortunately I can not debug the code except by &quot;LED debugging) which makes it quite hard to trace the problem.</p>
+<p>Does Anybody have any ideas?</p>
+<p>How can I check whether the RFM12PI is sending the ACKs as requested?</p>
+<p>Thx,&nbsp;&nbsp; chris</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="3505.html" class="topic-previous" title="Go to previous forum topic">‹ Will the emonGLCD work with the NanodeRF base station </a>
+              <a href="3524.html" class="topic-next" title="Go to next forum topic">Problem with current transformer ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3543 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:33:40 GMT -->
+</html>

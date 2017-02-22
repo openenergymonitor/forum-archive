@@ -1,0 +1,969 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10045 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:00:32 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>What i can monitor | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">What i can monitor</h3>
+        <span class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Thu, 22/01/2015 - 00:00</span>
+        <div class="content"><p>Hi all,</p>
+<p>First post here, i have just received a Raspberry Pi, 3 x emonTx V3 and GLCD.</p>
+<p>The property has 3 phase incoming and we have a 3 phase solar 7kW inverter.</p>
+<p>I want to be able to monitor each of the 3 phases coming in to the property, each of the 3 phases on the inverter, lighting, oven, garage, pool, power outlets and&nbsp;hot water.</p>
+<p>Can someone point me in the correct direction as to how this should be set up as far as sketches go?</p>
+<p>Thanks</p>
+<p>Grant</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10035.html" class="topic-previous" title="Go to previous forum topic">‹ who can provide an reliable emoncms service ??????</a>
+              <a href="10099.html" class="topic-next" title="Go to next forum topic">Diversion of Surplus 3-phase Power ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-26972"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 22/01/2015 - 00:54.</div>
+    <div class="content">
+     <p>First question: do you have any genuine 3-phase loads (i.e. motors), or are they all single-phase loads connected to one of three phases?<br />
+Second question - what is your system voltage (phase-neutral)?<br />
+Third - Do you have 3 ac adapters?<br />
+Fourth - How are the loads that you want to individually measure split across the three phases?</p>
+<p>Depending on the answers to those, I suspect the most simple and accurate way for you is to use one emonTx per phase, running the &quot;continuous&quot; sketch. The three TX&#39;s won&#39;t report their results synchronously, so you&#39;ll get 3 sets of 4 readings going to both your RPi and to your GLCD. (No, the GLCD gets its data direct from the emonTx&#39;s by default). You&#39;ll need to modify your GLCD sketch to listen to all 3 emonTx&#39;s, and maybe combine some of the values. You cannot get too ambitious in the GLCD, memory is extremely limited.</p>
+<p>First alternative: It should be possible to send the data back from your RPi to the GLCD - Paul (PB66) might be able to confirm that, and what processing can be done in the RPi</p>
+<p>Second alternative: If you don&#39;t have two infeeds + 2 separate loads per phase, then you&#39;ve got to do some fiddles to shift the voltage waveform to be synchronous with the load on the &#39;other&#39; phase. That will need a new sketch (a merge of the &#39;continuous&#39; and &#39;three-phase&#39;).</p>
+<p>I don&#39;t want to go any further until you&#39;ve thought about that.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26973"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Thu, 22/01/2015 - 02:50.</div>
+    <div class="content">
+     <p>Thanks Robert,</p>
+<p>1. I have no 3 phase loads.</p>
+<p>2. 240v (new Zealand)</p>
+<p>3. yes have three ac adaptors</p>
+<p>4.</p>
+<p>phase 1 - hot water</p>
+<p>Phase 2 - Oven &amp; Pool</p>
+<p>Phase 3 - everything else.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26991"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 22/01/2015 - 10:53.</div>
+    <div class="content">
+     <p>In that case, my main proposal will give you the 3 nett grid connection powers/energies, the 3 PV infeed powers/energies, then separately Oven, Pool and the option of splitting everything else into two groups. Note that you can uprate the 4th input on your emonTx V3 by adding a parallel resistor to the existing burden, should you need to, and if "everything else" is on separate feeds, then provided it's physically possible you can put several wires through the CT and get the total current that way. (They must be the same phase of course, else you get the vector sum, which isn't what you want.) You will have a spare input on the Phase 1 emonTx, it sounds as if you're happy with that.<br />
+Alternative 2 looks to be dead.  We'll prod Paul if you're keen to look at Alternative 1. The GLCD gets the time by that route anyway, and its sketch will almost certainly need some work done, depending on how much detail you want to display on it.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26992"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 22/01/2015 - 11:16.</div>
+    <div class="content">
+     <p>Sending data out over RFM&nbsp;from emonHub is possible. The current version only sends the time update for glcd&nbsp;(there is also&nbsp;a &quot;hack&quot; to add PacketGen) but this is a big part of current developments and will hopefully be widely implemented in the not too distant&nbsp;future.</p>
+<p>We could in the mean time add a very simple &quot;PacketGen like hack&quot; to &quot;fetch&quot; the data you need from emonCMS and broadcast it, this may add a couple of seconds to the responsiveness but it will also allow the data from 3 phases to be sent to glcd&nbsp;via 1 payload rather than 3 so should help with the limited resources at the glcd&nbsp;end.</p>
+<p>Aligning the data of the 3 phases maybe something you want to consider, not just for the glcd display but for the whole project, Maybe you also&nbsp;could use the glcd transmission from emonHub to trigger or align the 3 emonTx&#39;s.</p>
+<p>​Happy to chip in where I can if needed</p>
+<p>Paul&nbsp;&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27000"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Thu, 22/01/2015 - 12:40.</div>
+    <div class="content">
+     <p>I haven't looked at Robin's 'continuous' sketch with a view to synchronising the totals, presumably the 3 emonTx's are close together and I'd have favoured extending MartinR's "full-fat" serial comms solution - where the master synchronises and requests data from the others and only itself transmits, in preference to receiving synchronising commands by radio. But that'll need developing, Martin did 'discretesampling', not continuous.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27002"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 22/01/2015 - 12:59.</div>
+    <div class="content">
+     <p>Unfortunately&nbsp;I&sup2;C isn&#39;t an (easy) option with the emonTx v3 as A4 and A5 are already used.</p>
+<p>Shame really as I already have a working I&sup2;C set-up where the Pi is the master and a number of emonTx v2 based boards are &quot;polled&quot;. The method I use is possibly&nbsp;the closest we will achieve to absolute identical timing&nbsp;as the Pi broadcasts a calculations trigger and then collects the payloads one after the other during the interval.</p>
+<p>It reminds me of school and written exams, the Pi screams &quot;times up, pens down&quot; and then goes about collecting &quot;the exam papers&quot; at it&#39;s own pace. Do they still use pen and paper in exams these days?</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27016"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Thu, 22/01/2015 - 18:37.</div>
+    <div class="content">
+     <p>Hi Guys,</p>
+<p>This is all new to me so please be patient.</p>
+<p>Thanks for your responses. I&#39;m thinking that i get the&nbsp;correct data out of the system before I start&nbsp;playing around with getting the GLCD running.</p>
+<p>Photo attached of the three emonTx&#39;s installed, ignore the labels on them as they are now incorrect.</p>
+<p>As you can see from those labels in the photo, that was how i have planed to monitor the power and have them set up.</p>
+<p>What we are saying now is I can only monitor circuits on the emonTx that are on the same phase?</p>
+<p>Node10: CT1=Grid1, CT2=PV2, CT3=Hotwater</p>
+<p>Node11: CT1=Grid2, CT2=PV2, CT3=Lights, CT4=Garage</p>
+<p>Node12: CT1=Grid3, CT2=PV3, CT3=Oven, CT4=Pool</p>
+<p>Do the AC adapters need to be powered&nbsp;from there own&nbsp;phase also?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27018"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 22/01/2015 - 18:54.</div>
+    <div class="content">
+     <p>They do indeed need to be on the same phase as the current clamps, effectively each emonTx is specific&nbsp;to one phase only.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27022"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Thu, 22/01/2015 - 19:51.</div>
+    <div class="content">
+     <p>Thanks,</p>
+<p>So i have some work to do, I&#39;ll add three power points to allow the AC adaptors to be connected to each of there own phases.</p>
+<p>and to ensure i can use all the inputs from the emonTx&#39;s, I&#39;ll shift something from Phase 2, lighting perhaps,(everything else) to Phase 1 which currently&nbsp;has only the hot water.</p>
+<p>I&#39;ll upload MartinR&#39;s &quot;full-fat&quot; sketch and see what results i get.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27023"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Thu, 22/01/2015 - 19:59.</div>
+    <div class="content">
+     <p>Good to see another Kiwi on here pushing the boundaries ;). Welcome from ChCh.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27024"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Thu, 22/01/2015 - 20:04.</div>
+    <div class="content">
+     <p>Thanks for the welcome from Waikanae, Wellington.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27029"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="RWall&#039;s picture" title="RWall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by RWall (not verified) on Thu, 22/01/2015 - 21:56.</div>
+    <div class="content">
+     <p>I'm locked out again.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27061"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7584.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="McFly&#039;s picture" title="McFly&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7584.html" title="View user profile.">McFly</a> on Fri, 23/01/2015 - 21:12.</div>
+    <div class="content">
+     <p>Hi there,</p>
+<p>best regards from Germany to all Kiwis out there... I love NZ... ;-)</p>
+<p>@pb66: I am also heavily interested in sending data from emoncms to an emonGLCD. Could you point me in the right direction what to do to transmit&nbsp;a feed value via emonHub?&nbsp;How to implement this&nbsp;&quot;PacketGen like hack&quot;?</p>
+<p>Thank you very much</p>
+<p>Matthias</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27063"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="RWall&#039;s picture" title="RWall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by RWall (not verified) on Fri, 23/01/2015 - 22:25.</div>
+    <div class="content">
+     <p><i>"I'll upload MartinR's "full-fat" sketch and see what results i get."</i></p>
+<p>I don't advise that! It is for the emonTx V2, therefore all the I/O pin numbers will be different, the radio is probably different and might need a different JeeLib, and there are problems with the serial data connection as Paul points out.</p>
+<p>The reason for suggesting that each emonTx deals with one phase only was accuracy. The AC adapter is both a power supply AND a voltage measurement. The emonTx 3-phase sketch makes an educated guess at the voltage of the 2nd &amp; 3rd phases - see the comments in the sketch for the details and the side effects. Keeping one emonTx per phase removes all those errors/guesses.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27064"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Fri, 23/01/2015 - 22:27.</div>
+    <div class="content">
+     <p>@Matthias, Sure, if you want to start a thread with some details we can see if we can throw something together, it will be just a hard-coded&nbsp;&quot;hack&quot; though, a better solution is in the pipework.</p>
+<p>​Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27087"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Mon, 26/01/2015 - 18:53.</div>
+    <div class="content">
+     <p>Hi All,</p>
+<p>So&nbsp;I have now installed the three power points one on each phase.</p>
+<p>I have left the default emonTx sketch on each of the emonTx&#39;s.</p>
+<p>I have not yet replaced the labels on each of the emonTx&#39;s, so they are incorrect still.</p>
+<p>&nbsp;</p>
+<p>So i have been watching the PV outputs, they do not appear to be correct, the inverter is saying its producing 213Wand the emonTx&#39;s are saying 154W.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27093"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 26/01/2015 - 13:10.</div>
+    <div class="content">
+     <p>[Hopefully, normal service is resumed, and I can answer now!]</p>
+<p>Something's not right there. Is it just the PV inputs, or is everything wrong by the same factor?</p>
+<p>First, are you on the right phase? And have you checked the calibration? The numbers don't appear to have the right relationship for just one problem (like phase, where I'd expect a factor of cos(120°), and it's far too far out to be a straightforward calibration discrepancy, so I don't have an immediate solution, and some detective work is required.</p>
+<p>What ac adapters are you using (what is the output voltage at what mains input voltage?), which CTs are you using?</p>
+<p>Is the 3.3 V d.c. on your emonTx's roughly right?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27105"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Mon, 26/01/2015 - 20:22.</div>
+    <div class="content">
+     <p>Not sure about anything of the other inputs, as I&#39;m not sure how to messure them.</p>
+<p>What I&#39;m doing is adding the 3 PV outputs that are being measured by the three emonTx from the input display of emoncms and comparing there total to what the inverter is telling me. see attached.</p>
+<p>Is this the correct way of checking it?</p>
+<p>How can i check what is on each Phase and compare it to the inputs on emoncms?</p>
+<p>I&#39;ll double check to ensure i have each clip on the correct wire,the board is a mess so its hard to locate the correct one.</p>
+<p>I&#39;m using the CT&#39;s purchased from open energy store.</p>
+<p>The adaptor is one someone suggested on the forums <a href="http://www.jaycar.co.nz/productView.asp?ID=MP3027&amp;form=CAT2&amp;SUBCATID=1000#12, I&#039;ll check" title="http://www.jaycar.co.nz/productView.asp?ID=MP3027&amp;form=CAT2&amp;SUBCATID=1000#12, I&#039;ll check">http://www.jaycar.co.nz/productView.asp?ID=MP3027&amp;form=CAT2&amp;SUBCATID=100...</a> the output voltage from the AC adpator later today,the mains input is 240ish volts.I&#39;ll get teh specifications from the packaging tonight.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27116"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 26/01/2015 - 20:39.</div>
+    <div class="content">
+     <p><i>"What I'm doing is adding the 3 PV outputs that are being measured by the three emonTx from the input display of emoncms and comparing there total to what the inverter is telling me. see attached."</i><br />
+That should be the correct way, what we need to know is whether all are wrong by the same proportion, or whether one or more is wrong by different amounts. Can your inverter tell you the output per phase? That there is a big spread of values makes me a little suspicious.<br />
+If you are not using the "shop" adapter, you certainly need to check and most probably adjust the calibration. (That link does not tell me any details of the adapter sufficient for me to calculate a coefficient. If you can measure the actual mains voltage and the actual output voltage of the adapter, then it's possible to get the exact value. Alternatively, you could simply tweak the coefficients until all 3 emonTx's read the same mains voltage as your meter/the inverter. And yes, I would expect them to be fractionally different.)<br />
+We can worry about the power when we have the voltage correct.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27118"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Mon, 26/01/2015 - 20:50.</div>
+    <div class="content">
+     <p>Not sure if the inverter is able to tell me per phase will try and find out.</p>
+<p>Yeah, not able to use the shop adaptor as there is no&nbsp;version for a NZ outlet. I&#39;ll get the specifications from the packaging and measure the&nbsp; input and output voltages.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27130"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Tue, 27/01/2015 - 00:43.</div>
+    <div class="content">
+     <p>Here are the calculations I use to scale/calibrate my EmonTX sketch (using the same adaptor from Jaycar). Even with the measured output voltage I still have to scale my readings by a factor of about 2.6 to get something accurate. But it has been running fine like this for quite a few months and seems to be very stable/consistent.</p>
+<p>Calibrating after a full months data will hopefully improve things more - I just calibrated a few days ago after getting my monthly bill and comparing to what I measured. Will check again in a months time...</p>
+<p>&nbsp;</p>
+<pre>
+// Voltage calibration constant:
+
+// AC-AC Voltage adapter is designed to step down the voltage from 230V to 9V
+// but the AC Voltage adapter is running open circuit and so output voltage is
+// likely to be 20% higher than 9V (9 x 1.2) = 10.8V. 
+// Open circuit step down = 230 / 10.8 = 21.3
+
+// The output voltage is then steped down further with the voltage divider which has 
+// values Rb = 10k, Rt = 120k (which will reduce the voltage by 13 times.
+
+// The combined step down is therefore 21.3 x 13 = 276.9 which is the 
+// theoretical calibration constant entered below.
+
+// NZ voltage = 240
+// Output voltage of AC-AC adapter = 11.23
+// EmonTx shield voltage divider = 11
+// --&gt; ( 240 / 11.23 ) * 11 = 235.1
+
+// Current calibration constant:
+
+// CT ratio / burden resistance for EmonTX shield
+// --&gt; (100A / 0.05A) / 33 Ohms = 60.606
+
+// Measured load using the powerCal below with no scale factor
+// - first HWC (3kW)  = 3000 / 1126.9 = 2.66217
+// - then Enasolar    = 1.71 / 1.78   = 0.96967 = 2.55748 (instantaneous)
+// - then Enasolar    = 1.78 / 1.76   = 1.01136 = 2.58654 (instantaneous)
+// - then Enasolar    = 6.47 / 6.70   = 0.96567 = 2.49774 (daily total)
+// - then spreadsheet =               = 0.97    = 2.42281 (2014-08-27)
+// - then spreadsheet =               = 1.00683 = 2.43936 (2014-09-03)
+// - then manual      =               = 1.135   = 2.76867 (2015-01-21 - full month report from openHAB vs Meridian)
+
+// default/startup values
+float scaleFactor_CT1 = 2.76867;  // Grid
+float scaleFactor_CT2 = 2.76867;  // Solar (Enasolar output)
+float scaleFactor_CT3 = 2.76867;  // HWC (3kW)
+float scaleFactor_CT4 = 2.76867;  // UFHP</pre>         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27131"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 27/01/2015 - 00:53.</div>
+    <div class="content">
+     <p>It's helpful of you, Ben, but it isn't definitive because ordinary component tolerances come into play, in the voltage regulator and resistors tolerances as well as the adapter tolerance and regulation. It's all spelled out in Building Blocks. So Grant, apart from having an emonTx rather than the Shield, will need to tweak his calibration constants in any case.   </p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27132"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6498.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-6498.jpg" alt="sumnerboy&#039;s picture" title="sumnerboy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6498.html" title="View user profile.">sumnerboy</a> on Tue, 27/01/2015 - 01:05.</div>
+    <div class="content">
+     <p>Yep - agree - was more just showing the steps I went thru and how much of a scale factor I had to apply in order to get accurate results. Hope I haven&#39;t confused the issue... :S</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27135"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Tue, 27/01/2015 - 17:25.</div>
+    <div class="content">
+     <p>Hey sumnerboy, i was confused before you posted anything.</p>
+<p>Ok, I have had a look at the building blocks calibration page and are confused now.</p>
+<p>Phase 1 - Mains = 243.2&nbsp;- AC output = 11.49</p>
+<p>Phase 2 - Mains = 245.3 - AC output = 11.65</p>
+<p>Phase 3 Mains = 244.6 - AC output = 11.59</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27142"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 27/01/2015 - 13:00.</div>
+    <div class="content">
+     <p>OK, we can use those values to calculate your voltage calibration constants. First, the ratios aren't the same (manufacturing tolerances, as I said!). Second, the numbers I'm going to give you <b>do not</b> take into account the resistor tolerances in your emonTx, nor the tolerance of the voltage regulator which is used as the reference.</p>
+<p>The voltage calibration constants are:</p>
+<p>Phase 1: 243.2 &times; 13 &div; 11.49 = 275.161<br />
+Phase 2: 245.3 &times; 13 &div; 11.65 = 273.725<br />
+Phase 3: 244.6 &times; 13 &div; 11.59 = 274.357</p>
+<p>(13 is the voltage divider ratio = (120k + 10k) &div; 10k)</p>
+<p>Those aren't vastly different to the default values, so don't expect to see a massive change in the numbers.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27179"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Wed, 28/01/2015 - 11:57.</div>
+    <div class="content">
+     <p>I have the new sketch&#39;s in place on the emonTx&#39;s, so at least the readings are close enough for now.</p>
+<p>Are there any good instructions on emoncms and setting up inputs &amp; feeds etc, I have some working however they probably need some tweaking.</p>
+<p>GLCD is the next thing i have loaded up the SolarPV sketch and this appears to be working however of course its only for one phase.</p>
+<p>Is it possible to pull the readings for the GLCD from the feeds in emoncms?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27188"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 28/01/2015 - 13:39.</div>
+    <div class="content">
+     <p><i>"Is it possible to pull the readings for the GLCD from the feeds in emoncms?"</i></p>
+<p>It should be possible - Paul's answered that in outline above.</p>
+<p>Failing that, and bearing in mind memory in the GLCD is limited, you could try modifying that. Here's what you need to do in outline:</p>
+<p>Add two extra instances of PayloadTX (one for each emonTx - let's call them emontx1, emontx2, emontx3).<br />
+Replicate the code that checks and stores the emonTx data: "if (node_id == emonTx_nodeID)..." once for each emonTx (3 node ID's required).<br />
+Finally, you'll need change "power_calculations()" to add up the three phases. Doing it this way will update the power and the display each time a set of data comes in - this may not be your choice and you might want to look at treating one phase as "master" and updating only when that sends the data.<br />
+You'll need to have lines like "consuming = emontx1.power1 + emontx2.power1 + emontx3.power1;", etc.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27190"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 28/01/2015 - 14:03.</div>
+    <div class="content">
+     <blockquote><p><em>&quot;Is it possible to pull the readings for the GLCD from the feeds in emoncms?&quot;</em></p>
+</blockquote>
+<p>As Robert, points out there is more than one way to do it, with pro&#39;s and con&#39;s to both. If the glcd&#39;s&nbsp;limited memory&nbsp;is able to cope with the extra code it maybe a more permanent solution as a &quot;emonHub hack&quot; to retrieve data from emoncms could get &quot;broken&quot; by future emonhub updates.</p>
+<p>However following the earlier suggestions&nbsp;Matthias(McFly) started this thread&nbsp;<a href="10065.html">How to send feed data from emoncms to emonGLCD?</a>, He has&nbsp;implemented and shared a working solution that could work for you too.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27201"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Wed, 28/01/2015 - 17:10.</div>
+    <div class="content">
+     <p>Thanks for the replies I&#39;ll have a play around and post the results.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27209"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Wed, 28/01/2015 - 22:52.</div>
+    <div class="content">
+     <p>So hopefully I have got something together I&#39;ll try it tonight.</p>
+<p>Is there anyway to include an external temperature reading from either underground weather or&nbsp;PVoutput both sites&nbsp; have the temp from my weather station?</p>
+<p>I guess the best way of doing this would be to get the temperature on to the emoncms server, which for me is local, and grab it from there that way any network issues that are outside me control will not be effected.</p>
+<p>I&#39;m not using the temperature senor on the emonTx, I have a&nbsp;prefect temperature sitting on my roof, just a matter on how to get it back to the GLCD.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27215"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 28/01/2015 - 22:59.</div>
+    <div class="content">
+     <p>I see no reason why you shouldn&#39;t be able to get another value, depending on what you have already you could possibly get the external temp and append it to the same payload as the feed values,&nbsp;</p>
+<p>The only concern is holding up emonhub&nbsp;if the network is slow or a website&nbsp;is down etc, more elaborate code could be used to run the requests in a&nbsp;separate&nbsp;thread.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27237"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Fri, 30/01/2015 - 06:02.</div>
+    <div class="content">
+     <p>ok, so i have made some progress, I thought...</p>
+<p>this is the edited sketch i&#39;m now using and mostly it is working.with the exception of a&nbsp; couple of cases which i&#39;ll explain after the sketch. I have highlighted the lines&nbsp;I have either added or edited to include all 3 phases.</p>
+<p>//------------------------------------------------------------------------------------------------------------------------------------------------</p>
+<p>#define RF69_COMPAT 0 // set to 1 to use RFM69CW<br />
+#include &lt;JeeLib.h&gt;&nbsp;&nbsp; // make sure V12 (latest) is used if using RFM69CW</p>
+<p>#include &lt;JeeLib.h&gt;<br />
+#include &lt;GLCD_ST7565.h&gt;<br />
+#include &lt;avr/pgmspace.h&gt;<br />
+GLCD_ST7565 glcd;</p>
+<p>#include &lt;OneWire.h&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // <a href="http://www.pjrc.com/teensy/td_libs_OneWire.html" title="http://www.pjrc.com/teensy/td_libs_OneWire.html">http://www.pjrc.com/teensy/td_libs_OneWire.html</a><br />
+#include &lt;DallasTemperature.h&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // <a href="http://download.milesburton.com/Arduino/MaximTemperature/" title="http://download.milesburton.com/Arduino/MaximTemperature/">http://download.milesburton.com/Arduino/MaximTemperature/</a> (3.7.2 Beta needed for Arduino 1.0)<br />
+#include &lt;RTClib.h&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Real time clock (RTC) - used for software RTC to reset kWh counters at midnight<br />
+#include &lt;Wire.h&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Part of Arduino libraries - needed for RTClib<br />
+RTC_Millis RTC;</p>
+<p>//--------------------------------------------------------------------------------------------<br />
+// RFM12B Settings<br />
+//--------------------------------------------------------------------------------------------<br />
+#define MYNODE 20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Should be unique on network, node ID 30 reserved for base station<br />
+#define RF_freq RF12_433MHZ&nbsp;&nbsp;&nbsp;&nbsp; // frequency - match to same frequency as RFM12B module (change to 868Mhz or 915Mhz if appropriate)<br />
+#define group 210&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // network group, must be same as emonTx and emonBase</p>
+<p>//---------------------------------------------------<br />
+// Data structures for transfering data between units<br />
+//---------------------------------------------------<br />
+typedef struct { int power1, power2, power3, Vrms; } PayloadTX;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // neat way of packaging data for RF comms<br />
+<strong>PayloadTX emontx1;<br />
+PayloadTX emontx2;<br />
+PayloadTX emontx3;</strong></p>
+<p>typedef struct { int temperature; } PayloadGLCD;<br />
+PayloadGLCD emonglcd;</p>
+<p>//---------------------------------------------------<br />
+// emonGLCD SETUP<br />
+//---------------------------------------------------<br />
+//#define emonGLCDV1.3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // un-comment if using older V1.3 emonGLCD PCB - enables required internal pull up resistors. Not needed for V1.4 onwards<br />
+const int SolarPV_type=1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Select solar PV wiring type - Type 1 is when use and gen can be monitored seperatly. Type 2 is when gen and use can only be monitored together, see solar PV application documentation for more info<br />
+const int maxgen=7000;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // peak output of soalr PV system in W - used to calculate when to change cloud icon to a sun<br />
+const int PV_gen_offset=50;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // When generation drops below this level generation will be set to zero - used to force generation level to zero at night</p>
+<p>const int greenLED=6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Green tri-color LED<br />
+const int redLED=9;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Red tri-color LED<br />
+const int LDRpin=4;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // analog pin of onboard lightsensor<br />
+const int switch1=15;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Push switch digital pins (active low for V1.3, active high for V1.4)<br />
+const int switch2=16;<br />
+const int switch3=19;</p>
+<p>//---------------------------------------------------<br />
+// emonGLCD variables<br />
+//---------------------------------------------------<br />
+int hour = 12, minute = 0;<br />
+double usekwh = 0, genkwh = 0;<br />
+double use_history[7], gen_history[7];<br />
+int cval_use, cval_gen;<br />
+byte page = 1;</p>
+<p>
+//---------------------------------------------------<br />
+// Temperature Sensor Setup<br />
+//---------------------------------------------------<br />
+#define ONE_WIRE_BUS 5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // temperature sensor connection - hard wired<br />
+OneWire oneWire(ONE_WIRE_BUS);<br />
+DallasTemperature sensors(&amp;oneWire);<br />
+double temp, maxtemp,mintemp;</p>
+<p>
+//--------------------------------------------------------------------------------------------<br />
+// Flow control<br />
+//--------------------------------------------------------------------------------------------<br />
+unsigned long last_emontx;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Used to count time from last emontx update<br />
+unsigned long last_emonbase;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Used to count time from last emontx update<br />
+boolean last_switch_state, switch_state;<br />
+unsigned long fast_update, slow_update;</p>
+<p>//--------------------------------------------------------------------------------------------<br />
+// Setup<br />
+//--------------------------------------------------------------------------------------------<br />
+void setup()<br />
+{<br />
+&nbsp; delay(500); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //wait for power to settle before firing up the RF<br />
+&nbsp; rf12_initialize(MYNODE, RF_freq,group);<br />
+&nbsp; delay(100);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //wait for RF to settle befor turning on display<br />
+&nbsp; glcd.begin(0x19);<br />
+&nbsp; glcd.backLight(200);<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp; sensors.begin();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // start up the DS18B20 temp sensor onboard&nbsp;<br />
+&nbsp; sensors.requestTemperatures();<br />
+&nbsp; temp = (sensors.getTempCByIndex(0));&nbsp;&nbsp;&nbsp;&nbsp; // get inital temperture reading<br />
+&nbsp; mintemp = temp; maxtemp = temp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // reset min and max</p>
+<p>&nbsp; pinMode(greenLED, OUTPUT);<br />
+&nbsp; pinMode(redLED, OUTPUT);<br />
+&nbsp;<br />
+&nbsp; #ifdef emonGLCDV1.3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //enable internal pull up resistors for push switches on emonGLCD V1.3 (old)<br />
+&nbsp; pinMode(switch1, INPUT); pinMode(switch2, INPUT); pinMode(switch2, INPUT);<br />
+&nbsp; digitalWrite(switch1, HIGH); digitalWrite(switch2, HIGH); digitalWrite(switch3, HIGH);<br />
+&nbsp; #endif<br />
+}</p>
+<p>//--------------------------------------------------------------------------------------------<br />
+// Loop<br />
+//--------------------------------------------------------------------------------------------<br />
+void loop()<br />
+{<br />
+&nbsp;<br />
+&nbsp; if (rf12_recvDone())<br />
+&nbsp; {<br />
+&nbsp;&nbsp;&nbsp; if (rf12_crc == 0 &amp;&amp; (rf12_hdr &amp; RF12_HDR_CTL) == 0)&nbsp; // and no rf errors<br />
+&nbsp;&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int node_id = (rf12_hdr &amp; 0x1F);<br />
+<strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (node_id == 10) {emontx1 = *(PayloadTX*) rf12_data; last_emontx = millis();}<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (node_id == 11) {emontx2 = *(PayloadTX*) rf12_data; last_emontx = millis();}<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (node_id == 12) {emontx3 = *(PayloadTX*) rf12_data; last_emontx = millis();}</strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (node_id == 15)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RTC.adjust(DateTime(2013, 1, 1, rf12_data[1], rf12_data[2], rf12_data[3]));<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; last_emonbase = millis();<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp;<br />
+&nbsp;&nbsp;&nbsp; }<br />
+&nbsp; }</p>
+<p>&nbsp; //--------------------------------------------------------------------------------------------<br />
+&nbsp; // Display update every 200ms<br />
+&nbsp; //--------------------------------------------------------------------------------------------<br />
+&nbsp; if ((millis()-fast_update)&gt;200)<br />
+&nbsp; {<br />
+&nbsp;&nbsp;&nbsp; fast_update = millis();<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; DateTime now = RTC.now();<br />
+&nbsp;&nbsp;&nbsp; int last_hour = hour;<br />
+&nbsp;&nbsp;&nbsp; hour = now.hour();<br />
+&nbsp;&nbsp;&nbsp; minute = now.minute();<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; if (SolarPV_type==1){</p>
+<p><strong>&nbsp;&nbsp;&nbsp; usekwh += (emontx1.power1 + emontx2.power1 + emontx3.power1 * 0.2) / 3600000;<br />
+&nbsp;&nbsp;&nbsp; genkwh += (emontx1.power2 + emontx2.power2 + emontx3.power2 * 0.2) / 3600000;</strong><br />
+&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; if (SolarPV_type==2){<br />
+&nbsp;&nbsp;&nbsp; usekwh += ((emontx1.power1 + emontx1.power2) * 0.2) / 3600000;<br />
+&nbsp;&nbsp;&nbsp; genkwh += (emontx1.power2 * 0.2) / 3600000;<br />
+&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; if (last_hour == 23 &amp;&amp; hour == 00)<br />
+&nbsp;&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int i; for (i=6; i&gt;0; i--) gen_history[i] = gen_history[i-1];<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; genkwh = 0;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(i=6; i&gt;0; i--) use_history[i] = use_history[i-1];<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; usekwh = 0;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp; gen_history[0] = genkwh;<br />
+&nbsp;&nbsp;&nbsp; use_history[0] = usekwh;<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; if (SolarPV_type==1){</p>
+<p><strong>&nbsp;&nbsp;&nbsp; cval_use = cval_use + (emontx1.power1 + emontx2.power1 + emontx3.power1 - cval_use)*0.50;<br />
+&nbsp;&nbsp;&nbsp; cval_gen = cval_gen + (emontx1.power2 + emontx2.power2 + emontx3.power2 - cval_gen)*0.50;</strong></p>
+<p>&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; if (SolarPV_type==2){<br />
+&nbsp;&nbsp;&nbsp; cval_use = cval_use + ((emontx1.power1 + emontx1.power2) - cval_use)*0.50;<br />
+&nbsp;&nbsp;&nbsp; cval_gen = cval_gen + ((emontx1.power2 + emontx2.power2 + emontx3.power2) - cval_gen)*0.50;<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; if (cval_gen&lt;PV_gen_offset) cval_gen=0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //set generation to zero when generation level drops below a certian level (at night) eg. 20W<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; last_switch_state = switch_state;<br />
+&nbsp;&nbsp;&nbsp; switch_state = digitalRead(switch1);&nbsp;<br />
+&nbsp;&nbsp;&nbsp; if (!last_switch_state &amp;&amp; switch_state) { page += 1; if (page&gt;4) page = 1; }</p>
+<p>&nbsp;&nbsp;&nbsp; if (page==1)<br />
+&nbsp;&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp;&nbsp; draw_solar_page(cval_use, usekwh, cval_gen, maxgen, genkwh, temp, mintemp, maxtemp, hour,minute, last_emontx, last_emonbase);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; glcd.refresh();<br />
+&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp; /*else if (page==2)<br />
+&nbsp;&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; draw_power_page( &quot;POWER&quot; ,cval_use, &quot;USE&quot;, usekwh);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; draw_temperature_time_footer(temp, mintemp, maxtemp, hour,minute);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; glcd.refresh();<br />
+&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp; else if (page==3)<br />
+&nbsp;&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; draw_power_page( &quot;SOLAR&quot; ,cval_gen, &quot;GEN&quot;, genkwh);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; draw_temperature_time_footer(temp, mintemp, maxtemp, hour,minute);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; glcd.refresh();<br />
+&nbsp;&nbsp;&nbsp; }*/<br />
+&nbsp;&nbsp;&nbsp; else if (page==2)<br />
+&nbsp;&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; draw_history_page(gen_history, use_history);<br />
+&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp; int LDR = analogRead(LDRpin);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Read the LDR Value so we can work out the light level in the room.<br />
+&nbsp;&nbsp;&nbsp; int LDRbacklight = map(LDR, 0, 1023, 50, 250);&nbsp;&nbsp;&nbsp; // Map the data from the LDR from 0-1023 (Max seen 1000) to var GLCDbrightness min/max<br />
+&nbsp;&nbsp;&nbsp; LDRbacklight = constrain(LDRbacklight, 0, 255);&nbsp;&nbsp; // Constrain the value to make sure its a PWM value 0-255<br />
+&nbsp;&nbsp;&nbsp; if ((hour &gt; 22) ||&nbsp; (hour &lt; 5)) glcd.backLight(0); else glcd.backLight(LDRbacklight);&nbsp;</p>
+<p>&nbsp;&nbsp;&nbsp; int PWRleds= map(cval_use-cval_gen, 0, maxgen, 0, 255);&nbsp;&nbsp;&nbsp;&nbsp; // Map importing value from (LED brightness - cval3 is the smoothed grid value - see display above<br />
+&nbsp;&nbsp;&nbsp; if (PWRleds&lt;0) PWRleds = PWRleds*-1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // keep it positive<br />
+&nbsp;&nbsp;&nbsp; PWRleds = constrain(PWRleds, 0, 255);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Constrain the value to make sure its a PWM value 0-255<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; if (cval_gen&gt;PV_gen_offset) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (cval_gen &gt; cval_use) {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //show green LED when gen&gt;consumption cval are the smooth curve values&nbsp;<br />
+&nbsp;analogWrite(redLED, 0);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;analogWrite(greenLED, PWRleds);&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //red if consumption&gt;gen<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; analogWrite(greenLED, 0);<br />
+&nbsp;analogWrite(redLED, PWRleds);&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp; } else {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Led&#39;s off at night and when solar PV is not generating<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; analogWrite(redLED, 0);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; analogWrite(greenLED, 0);<br />
+&nbsp;&nbsp;&nbsp; }<br />
+&nbsp; }<br />
+&nbsp;<br />
+&nbsp; if ((millis()-slow_update)&gt;10000)<br />
+&nbsp; {<br />
+&nbsp;&nbsp;&nbsp; slow_update = millis();</p>
+<p>&nbsp;&nbsp;&nbsp; sensors.requestTemperatures();<br />
+&nbsp;&nbsp;&nbsp; double rawtemp = (sensors.getTempCByIndex(0));<br />
+&nbsp;&nbsp;&nbsp; if ((rawtemp&gt;-20) &amp;&amp; (rawtemp&lt;50)) temp=rawtemp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //is temperature withing reasonable limits?<br />
+&nbsp;&nbsp;&nbsp; if (temp &gt; maxtemp) maxtemp = temp;<br />
+&nbsp;&nbsp;&nbsp; if (temp &lt; mintemp) mintemp = temp;<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; emonglcd.temperature = (int) (temp * 100);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // set emonglcd payload<br />
+&nbsp;&nbsp;&nbsp; rf12_sendNow(0, &amp;emonglcd, sizeof emonglcd);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //send temperature data via RFM12B using new rf12_sendNow wrapper -glynhudson<br />
+&nbsp;&nbsp;&nbsp; rf12_sendWait(2);&nbsp;&nbsp;&nbsp;<br />
+&nbsp; }<br />
+}</p>
+<p>So this mostly works as per the images labeled correct, what i cant explain is the images labeled FAILED</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27241"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 30/01/2015 - 15:04.</div>
+    <div class="content">
+     <p>You've actually got a "Type 2" installation, according to what you wrote earlier, but the maths you're doing is for a Type 1. So you're doing the wrong sums.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27244"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Fri, 30/01/2015 - 22:03.</div>
+    <div class="content">
+     <p>That was stupid, thanks, have been using the wrong modified sketch.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27246"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sat, 31/01/2015 - 00:45.</div>
+    <div class="content">
+     <p>Yeah, been there, done that. My favourite is to edit one sketch, load a different copy and wonder why the change hasn't done anything.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27248"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7561.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-7561.jpg" alt="grantwatson&#039;s picture" title="grantwatson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: What i can monitor</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7561.html" title="View user profile.">grantwatson</a> on Sat, 31/01/2015 - 09:13.</div>
+    <div class="content">
+     <p>Thanks all for your help, the system is up and running fairly well at the moment, just a few tweaks to make so it&#39;s producing what i want it to.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10045"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Wk_sagfGevEr6LuI5YgKhVxOu7593yPHfhHjkwpvD1I" value="form-Wk_sagfGevEr6LuI5YgKhVxOu7593yPHfhHjkwpvD1I"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10045 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:00:32 GMT -->
+</html>

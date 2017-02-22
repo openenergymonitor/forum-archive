@@ -1,0 +1,1031 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12104 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:14:39 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>MQTT changes 6th Feb | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node sticky">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">MQTT changes 6th Feb</h3>
+        <span class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 28/01/2016 - 22:19</span>
+        <div class="content"><p>Some changes are due to be merged later today (6th Feb) which will affect emoncms users using MQTT.</p>
+<p>The changes were discussed in <a href="12091.html">detail here</a>, with <a href="https://github.com/emoncms/emoncms/pull/466">concise summary of the changes here</a>.</p>
+<p>Brief overview:&nbsp;</p>
+<p>Emoncms&nbsp;has always used the<a href="https://github.com/bluerhinos/phpMQTT"> &#39;bluerhinos&#39; MQTT library</a>, which is no longer being developed and lacks the performance&nbsp;needed to move emoncms forward (specifically to support the new <a href="https://github.com/openenergymonitor/emonhub/blob/emon-pi/configuration.md#1-publishing-to-mqtt">emonHub&nbsp;MQTT&nbsp;node variable topic structure</a>), so a decision has been made to use <a href="http://https//github.com/mgdm/">Mosquitto-PHP</a>&nbsp;instead, and from the update later today, emoncms will expect the Mosquitto-PHP&nbsp;library&nbsp;to be installed.</p>
+<p>To install Mosquitto-PHP;</p>
+<pre>
+sudo apt-get install libmosquitto-dev
+sudo pecl install Mosquitto-alpha</pre><p><em>​(​Hit enter to autodetect libmosquitto location)</em></p>
+<p>Add the PHP config extension files;</p>
+<pre>
+sudo sh -c &#39;echo &quot;extension=mosquitto.so&quot; &gt; /etc/php5/cli/conf.d/20-mosquitto.ini&#39;
+sudo sh -c &#39;echo &quot;extension=mosquitto.so&quot; &gt; /etc/php5/apache2/conf.d/20-mosquitto.ini&#39;</pre><p>Also, the MQTT base topic is now standardised as &#39;emon&#39;, so any existing &#39;publishers&#39; will need updating.</p>
+<p>The base topic can be set in settings.php in the MQTT section. Be sure to copy across the latest settings file (backup your current settings file first!)</p>
+<pre>
+cp /var/www/emoncms/default.settings.php /var/www/emoncms/settings.php
+
+or if using an emonPi:
+
+cp /var/www/emoncms/default.emonpi.settings.php /var/www/emoncms/settings.php</pre><p>The <a href="https://github.com/emoncms/emoncms/blob/stable/docs/RaspberryPi/MQTT.md">Enabling&nbsp;MQTT&nbsp;guide</a> will also be updated at the same time, and it&#39;s worth having a read through, as the subscriber formats have been improved.</p>
+<p><strong>ALSO</strong> remember to update emonhub&nbsp;<a href="https://github.com/emoncms/emoncms/blob/dev-mosquitto-php/docs/RaspberryPi/MQTT.md#to-enable-mqtt-posting-from-emonhub">as per the MQTT guide</a>&nbsp;(if you are using it - such as an emonpi).&nbsp;</p>
+<p>Paul<br />
+&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10729.html" class="topic-previous" title="Go to previous forum topic">‹ STABLE: emonPi and RFM69Pi emonbase ready-to-go SD card image (emonSD-17Jun15)</a>
+              <a href="5986.html" class="topic-next" title="Go to next forum topic">Emonhub installation/update ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-39182"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Sun, 07/02/2016 - 02:08.</div>
+    <div class="content">
+     <p>I just tried this, and the topic in settings.php is now &quot;emon&quot; whereas the topic in &quot;emonhub.conf&quot; is &quot;nodes&quot;</p>
+<p>Doing a web update of EMONCMS didn&#39;t update emonhub.conf for some reason so I ended up with a non working system until I changed the topic in one of them. Anyone doing this may want to lay aside some time as some of the inputs may need another setup afterwards if&nbsp;they appear as new topics.</p>
+<p>The new topic structure makes much more sense when interfacing with other things</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39184"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 07/02/2016 - 10:41.</div>
+    <div class="content">
+     <p>Sorry Kevin, I&nbsp;missed a step from the post above re updating emonhub, so the emonhub.conf shares the same basetopic. - it&#39;s added now.</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39185"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Sun, 07/02/2016 - 11:03.</div>
+    <div class="content">
+     <p>Hi Paul</p>
+<p>I must have missed something. I have followed update instructions. I find I am publishing but not subscribing. I see no reference to base topic in settings.php other than&nbsp;</p>
+<p>// The &#39;subscriber&#39; topic format is rx/* - where * is the emoncms input node number.&nbsp;</p>
+<p>see my post&nbsp;http://openenergymonitor.org/emon/node/12143</p>
+<p>In case there have been further up dates I tried&nbsp;cd /var/www/emoncms&nbsp;&amp;&amp; git pull</p>
+<p>This produced this error.</p>
+<p>Auto-merging docs/RaspberryPi/MQTT.md<br />
+CONFLICT (content): Merge conflict in docs/RaspberryPi/MQTT.md<br />
+Automatic merge failed; fix conflicts and then commit the result.</p>
+<p>Regards</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39188"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 07/02/2016 - 13:32.</div>
+    <div class="content">
+     <p>Hello Ian, when was the last time you did a git pull/update before this? We had an issue with branch merging yesterday.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39189"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Sun, 07/02/2016 - 14:13.</div>
+    <div class="content">
+     <p>Hi Trystan</p>
+<p>Some time this morning. &nbsp;Just tried again with a new error:-</p>
+<p>pi@emon2:~ $ cd /var/www/emoncms &amp;&amp; git pull</p>
+<p>U &nbsp; &nbsp; &nbsp; docs/RaspberryPi/MQTT.md<br />
+Pull is not possible because you have unmerged files.<br />
+Please, fix them up in the work tree, and then use &#39;git add/rm &lt;file&gt;&#39;<br />
+as appropriate to mark resolution, or use &#39;git commit -a&#39;.</p>
+<p>Now I am totally baffled!</p>
+<p>Regards</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39193"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 07/02/2016 - 15:52.</div>
+    <div class="content">
+     <p>But I believe that you did a git pull yesterday, during the time we had an issue with branch merging. -http://openenergymonitor.org/emon/node/12143</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39194"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Sun, 07/02/2016 - 16:28.</div>
+    <div class="content">
+     <p>Hi Paul</p>
+<p>Yes, I did do a git pull yesterday. As I had the MQTT subscribing&nbsp;problem that I thought may be related to not being up to date I attempted another git pull this morning with the result:-</p>
+<p>Auto-merging docs/RaspberryPi/MQTT.md<br />
+CONFLICT (content): Merge conflict in docs/RaspberryPi/MQTT.md<br />
+Automatic merge failed; fix conflicts and then commit the result.</p>
+<p>I therefore made a later attempt today with the result:-</p>
+<p>U &nbsp; &nbsp; &nbsp; docs/RaspberryPi/MQTT.md<br />
+Pull is not possible because you have unmerged files.<br />
+Please, fix them up in the work tree, and then use &#39;git add/rm &lt;file&gt;&#39;<br />
+as appropriate to mark resolution, or use &#39;git commit -a&#39;.</p>
+<p>I googled the error which resulted in the advice to run&nbsp;a git status:-</p>
+<p>&nbsp;cd /var/www/emoncms &amp;&amp; git status<br />
+On branch stable<br />
+Your branch and &#39;origin/stable&#39; have diverged,<br />
+and have 3 and 1 different commit each, respectively.<br />
+&nbsp; (use &quot;git pull&quot; to merge the remote branch into yours)<br />
+You have unmerged paths.<br />
+&nbsp; (fix conflicts and run &quot;git commit&quot;)</p>
+<p>Unmerged paths:<br />
+&nbsp; (use &quot;git add &lt;file&gt;...&quot; to mark resolution)</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; both modified: &nbsp; docs/RaspberryPi/MQTT.md</p>
+<p>no changes added to commit (use &quot;git add&quot; and/or &quot;git commit -a&quot;)</p>
+<p>I reasoned that my&nbsp;<span style="line-height: 1.6;">d</span><span style="line-height: 1.6;">o</span><span style="line-height: 1.6;">cs/</span>RaspberryPi<span style="line-height: 1.6;">/MQTT.</span><span style="line-height: 1.6;">m</span><span style="line-height: 1.6;">d must be different so I deleted it but I still have the same error. Is there a git command that will bring me up to date regardless of the files my end?</span></p>
+<p>Regards</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39195"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 07/02/2016 - 16:34.</div>
+    <div class="content">
+     <p>There will be a way to fix this via git commands, but if you want to take the easy route, rename your emoncms folder to oldemoncms, then git clone emoncms, so you have a completely clean download.<br />
+Don't forget to create and edit your settings.php file.<br />
+Once you are back working, delete the oldemoncms folder.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39196"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Sun, 07/02/2016 - 16:44.</div>
+    <div class="content">
+     <p>Thanks, I will take the easy way out!</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39207"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Mon, 08/02/2016 - 10:48.</div>
+    <div class="content">
+     <p>Hi Paul</p>
+<p>Git issues sorted and I am up to date and now with the latest settings.php.</p>
+<p>&nbsp;// Used with scripts/phpmqtt_input.php<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &#39;userid&#39;=&gt;1,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &#39;basetopic&#39;=&gt; &#39;emon&#39;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; );</p>
+<p>&nbsp;</p>
+<p>I am publishing from emoncms to&nbsp;mqtt with no problem at all. However I still see no subscribed inputs. I know the topic&nbsp;emon/11/dcahnew&nbsp;is&nbsp;being published from NodeRed&nbsp;as I can see it&nbsp;on a third party app.</p>
+<p>I checked services with&nbsp;sudo service --status-all.</p>
+<p>&nbsp;[ - ] &nbsp;mountnfs.sh<br />
+&nbsp;[ ? ] &nbsp;mqtt_input<br />
+&nbsp;[ + ] &nbsp;mysql<br />
+&nbsp;[ + ] &nbsp;networking</p>
+<p>mqtt_input appears and I understand that the fact it has [?] is not important.</p>
+<p>The only thing I am not sure of&nbsp;is userid which I understand means&nbsp;the first&nbsp;user. I have 2 users the second one being a test. Can you check the curent user id number in emoncms?&nbsp;</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39208"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 08/02/2016 - 10:56.</div>
+    <div class="content">
+     <p>Hello Ian, You can check the user id with emoncms/user/get.json. It should&nbsp; really be printed on the user page.</p>
+<p>For anyone else experiencing the &quot;Pull is not possible because you have unmerged files.&quot; error, Pauls advice is probably the safest solution. If you dont have any branches or changes locally this will also&nbsp; work:</p>
+<p>git fetch --all<br />
+git reset --hard origin/master</p>
+<p>This issue will only affect systems updated in the last week or so I think, I just updated my system from an earlier point and the update went smoothly.<br />
+&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39213"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Mon, 08/02/2016 - 15:19.</div>
+    <div class="content">
+     <p>Hi Trystan</p>
+<p>Thanks. That confirmed I am user 1 so there must be some other reason I am not subscribing.</p>
+<p>I just noticed this line in&nbsp;&nbsp;phpmqtt_input.php &nbsp;&nbsp;</p>
+<p>$mqtt_client-&gt;connect(&quot;localhost&quot;, 1883, 5);</p>
+<p>Is it supposed to get the mosquitto&nbsp;server&nbsp;address from here or settings.php.? I did try putting my server&nbsp;url in but subscribe is still not working.</p>
+<p>My server is not localhost as it is on a different&nbsp;Pi.</p>
+<p>EDIT later today</p>
+<p>I managed to stop mqtt_input so I could start phpmqtt_input.php manually. This is the result:-</p>
+<p>pi@emon2:/var/www/emoncms/scripts $ php phpmqtt_input.php<br />
+Subscribing to: emon/#<br />
+I got code 0 and message Connection Accepted.<br />
+Subscribed to a topic<br />
+emon/11 438<br />
+set_timevalue<br />
+emon/11 438<br />
+emon/11 438<br />
+emon/11 438</p>
+<p>Now I see the input so the problem is in the mqtt_input boot startup. I must have messed up somewhere.</p>
+<p>How do I reverse this instruction&nbsp;<strong>sudo update-rc.d mqtt_input defaults</strong>?</p>
+<p>&nbsp;</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39223"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 08/02/2016 - 15:50.</div>
+    <div class="content">
+     <p>Hello Ian</p>
+<p>I think just re-running the mqtt_input installation steps should do it:</p>
+<p>cd /etc/init.d &amp;&amp; sudo ln -s /var/www/emoncms/scripts/mqtt_input<br />
+sudo chown root:root /var/www/emoncms/scripts/mqtt_input<br />
+sudo chmod 755 /var/www/emoncms/scripts/mqtt_input<br />
+sudo update-rc.d mqtt_input defaults<br />
+&nbsp;</p>
+<p>Good point about the mqtt server and port settings, Il look into changing that.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39226"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Mon, 08/02/2016 - 17:08.</div>
+    <div class="content">
+     <p>Hi Trystan</p>
+<p>I think I have found the problem but not how to completely solve it. Beyond my Linux skills. The instructions in mqtt_input diifer from the documents here:-</p>
+<p><a href="https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/MQTT.md" title="https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/MQTT.md">https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/MQTT.md</a></p>
+<p>mqtt_input has these lines:-</p>
+<p>Installation<br />
+# 1) Move this to /etc/init.d/ folder<br />
+# 2) sudo chown root:root /etc/init.d/mqtt_input<br />
+# 3) sudo chmod +x /etc/init.d/mqtt_input<br />
+# 4) sudo update-rc.d mqtt_input defaults<br />
+#</p>
+<p>MQTT.md has these lines:-</p>
+<p>cd /etc/init.d &amp;&amp; sudo ln -s /var/www/emoncms/scripts/mqtt_input<br />
+sudo chown root:root /var/www/emoncms/scripts/mqtt_input<br />
+sudo chmod 755 /var/www/emoncms/scripts/mqtt_input<br />
+sudo update-rc.d mqtt_input defaults</p>
+<p>I am not sure which is correct but having deleted mqtt_input in&nbsp;/etc/init.d/ folder and trying both I have ended up with a working system if I run&nbsp;<strong>sudo service mqtt_input stop</strong> followed by&nbsp;<strong>sudo service mqtt_input start</strong> from SSH into server after a reboot. So it still needs a little tweak.</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39227"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Mon, 08/02/2016 - 17:40.</div>
+    <div class="content">
+     <p>Both versions have the same effect and should work equally well, but...</p>
+<p>When I wrote the MQTT.md guide, I decided to symlink the mqtt_input script instead of moving it to init.d because if we later made improvements to the script, then a &#39;emoncms git pull&#39; will automatically update it, otherwise, if we actually moved out of the emoncms directory&nbsp;it would not be updated.</p>
+<p>I&#39;ll suggest that both guides are aligned.</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39230"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Mon, 08/02/2016 - 18:19.</div>
+    <div class="content">
+     <p>Hi Paul</p>
+<p>That makes sense. What are the commands to stop and start the service when using the symlink?&nbsp;&nbsp;Although I am now working I seem to have to start mqtt_input manually to get it working.</p>
+<p>What is the best way of reverting to the symlink start as I have probably made a mess of&nbsp;init.d ?</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39232"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Mon, 08/02/2016 - 20:17.</div>
+    <div class="content">
+     <p>I have the same problem as Ian.</p>
+<p>For some reason during the boot process the mqtt_input process exits and I have to manually restart it. I assumed on my system that it was a conflict between Openhab, Owserver and Samba. A workaround is to create an Openhab rule that restarts the service after a delay of 120 seconds from the first entry in the Syslog. Restarting it earlier doesn&#39;t work.</p>
+<p>Is there any way of turning on logging in the MQTT&nbsp;Input process so I can see where it is failing?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39240"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Mon, 08/02/2016 - 23:26.</div>
+    <div class="content">
+     <p>Ian, simply delete the mqtt_input script&nbsp;from the&nbsp;/etc/init.d/ directory, then follow the MQTT.md guide to set up the symlink.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39241"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Mon, 08/02/2016 - 23:36.</div>
+    <div class="content">
+     <p>Kev, can you remind me please;</p>
+<ol>
+<li>Which operating system you&#39;re using</li>
+<li>How you built your system - from an image or from scratch</li>
+<li>Are you full write or low write</li>
+</ol>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39242"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Mon, 08/02/2016 - 23:46.</div>
+    <div class="content">
+     <p>Paul,</p>
+<p>Raspberry Pi version of Jessie<br />
+Built from Scratch following&nbsp;https://github.com/openenergymonitor/emonpi/blob/master/docs/SD-card-build.md with the EMONPI&nbsp;LCD Screen left out to allow me to use all my GPIO Pins and Openhab running in a folder on /home/pi/data. No Node Red<br />
+I&#39;m running the Low Write version</p>
+<p>I&#39;m also using the latest MQTT arrangement</p>
+<p>I also have a spare Pi to test with</p>
+<p>Cheers</p>
+<p>Kevin</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39243"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 09/02/2016 - 00:06.</div>
+    <div class="content">
+     <p>That installation guide is being actively prepared by Glyn, so he&#39;s probably best placed to answer this.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39244"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Tue, 09/02/2016 - 00:11.</div>
+    <div class="content">
+     <p>OK, will he see this post or should I PM /&nbsp;email him?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39245"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 09/02/2016 - 00:18.</div>
+    <div class="content">
+     <p>Glyn&nbsp;is pretty active in the forum at this time (it&#39;s too cold to climb mountains!!) so I&#39;d be surprised&nbsp;if he didn&#39;t pick this up.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39246"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Tue, 09/02/2016 - 00:21.</div>
+    <div class="content">
+     <p>OK, thanks</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39249"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 09/02/2016 - 00:42.</div>
+    <div class="content">
+     <p>I&#39;m here! It is indeed too cold to climb mountains (outside at least!).&nbsp;I&#39;ve just pushed an update to improve the logging for MQTT input script.</p>
+<p><a href="https://github.com/emoncms/emoncms/commit/b970b0c26ca53c17a96ed9b88293a6725a263d34" title="https://github.com/emoncms/emoncms/commit/b970b0c26ca53c17a96ed9b88293a6725a263d34">https://github.com/emoncms/emoncms/commit/b970b0c26ca53c17a96ed9b88293a6...</a></p>
+<p>The script now logs to the main emoncms logger which can be viewed Admin panel in Emoncms. If you have the log&nbsp;level set to WARN which is the default for emonPi you should see a log entry from MQTT input to notify that it&#39;s connected to your MQTT server. If you change loglevel&nbsp;to &#39;info&#39; in settings.php (then restart the MQTT input service)&nbsp;you should see every MQTT message that the MQTT input script subscribes to posted to the log.&nbsp;</p>
+<p>You will need to git pull then restart the service&nbsp;to pull in latest&nbsp;update.&nbsp;</p>
+<p>BTW: the emonPi build guide is still a work in progress as stated at the beginning. It&#39;s very much in a state of flux at the moment. E.g the current migrate / backup system is about to be replaced by the Emncms backup module:&nbsp;https://github.com/emoncms/backup&nbsp;&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39250"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Tue, 09/02/2016 - 00:54.</div>
+    <div class="content">
+     <p>Thanks Glyn, I&#39;ll pull in the update and report back here. If you have a chance can you take a look at my other current issue at&nbsp;<a href="12146.html">http://openenergymonitor.org/emon/node/12146</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39253"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Tue, 09/02/2016 - 05:06.</div>
+    <div class="content">
+     <p>Update added, log level set to 1 and server rebooted. I can see it start, then the messages stop with no reason, then they start again when openhab restarts the service. I can&#39;t see any clues why it exits, just an empty time between line 117 &amp; 118</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39255"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 09/02/2016 - 08:50.</div>
+    <div class="content">
+     <p>The log seems to show the script working great. I&#39;m not sure if this is making a difference but I would recommend reducing the number of decimal places you have the temperature measured to&nbsp;e.g. &nbsp;(&nbsp;26.66667). When does the crash happen? It seems to be working until the end of the log</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39258"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Tue, 09/02/2016 - 09:44.</div>
+    <div class="content">
+     <p>It&#39;s the around 90ish second gap that&#39;s the issue, around the time&nbsp;Openhab starts, 70% of the time,&nbsp;MQTT&nbsp;updates stop,&nbsp;the&nbsp;updates and&nbsp;log entries only start again after Openhab issues &quot;sudo service mqtt_input start&quot; from a rule.</p>
+<p>The incoming temperatures are from Owserver via Openhab. I only need them to 1 decimal place so happy to turn them down if you can tell me how!&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39262"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Tue, 09/02/2016 - 09:54.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>I have reverted to the&nbsp;MQTT.md guide setup.</p>
+<p>Something very strange on my setup.</p>
+<p>I rebooted and there was no input updating so it was not working as expected. I looked in the log and saw:-</p>
+<p>2016-02-09 09:37:40.556|WARN|phpmqtt_input.php|Starting MQTT Input script</p>
+<p>So the script was starting&nbsp;but no subscribing! &nbsp;So nothing to lose I did a:-&nbsp;</p>
+<p>pi@emon2:~ $ sudo service mqtt_input stop<br />
+pi@emon2:~ $ sudo service mqtt_input start</p>
+<p>This time the input did start updating! &nbsp;This is exactly what I found earlier, I have to do a stop and restart after a boot for php_input to work. Could this be a timing&nbsp;issue?</p>
+<p>Log attached</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39266"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 09/02/2016 - 13:21.</div>
+    <div class="content">
+     <p>@sheppy, you could use something like nodeRED to reduce the number of decimal places then post to a fresh MQTT topic.&nbsp;</p>
+<p>@Ian that&#39;s very strange</p>
+<p>Could you try and reset the MQTT input script service:</p>
+<p>sudo&nbsp;rm&nbsp;/etc/init.d/mqtt_input</p>
+<p>cd /etc/init.d &amp;&amp; sudo ln -s /var/www/emoncms/scripts/mqtt_input<br />
+sudo chown root:root /var/www/emoncms/scripts/mqtt_input<br />
+sudo chmod 755 /var/www/emoncms/scripts/mqtt_input<br />
+sudo update-rc.d mqtt_input defaults</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39269"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Tue, 09/02/2016 - 15:31.</div>
+    <div class="content">
+     <p>Hi Glyn</p>
+<p>I had already tried that&nbsp;but have just done it again.</p>
+<p>Exactly the same result. No mqtt&nbsp;inputs until I stopped and started the service. Latest log attached.</p>
+<p>I could overcome it with a delayed&nbsp;script stopping&nbsp;and starting the service&nbsp;I guess.</p>
+<p>Ian&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39271"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 09/02/2016 - 16:23.</div>
+    <div class="content">
+     <p>Could it be that the mqtt_input service is starting before the MQTT&nbsp;broker ?</p>
+<p>Try adding &quot;mosquitto&quot; as a start dependency in&nbsp;/etc/init.d/mqtt_input</p>
+<blockquote><p><a href="https://github.com/emoncms/emoncms/blob/master/scripts/mqtt_input#L30"># Required-Start: $remote_fs $syslog mysql&nbsp;<strong>mosquitto</strong></a></p>
+</blockquote>
+<p>Sorry I haven&#39;t been able&nbsp;try&nbsp;it myself as I don&#39;t have a setup at a&nbsp;stage suitable at the moment.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39272"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Tue, 09/02/2016 - 17:00.</div>
+    <div class="content">
+     <p>Hi Paul</p>
+<p>Broker is on a different Pi and already running. I did wonder if the network was taking a while to connect.</p>
+<p>Could I add a delay or a requirement for&nbsp;network&nbsp;to be connected&nbsp;in Paul&#39;s (Reed) mqtt_input ?</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39274"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Tue, 09/02/2016 - 17:36.</div>
+    <div class="content">
+     <p>This issue appears new, and I wonder if it&#39;s&nbsp;only surfaced since changing from the bluerhinos&nbsp;extension to the <a href="https://github.com/mgdm/Mosquitto-PHP">Mosquitto-PHP</a>&nbsp;extension.</p>
+<p>To confirm this, are you able to identify when you last had a fully working system, (what release/date&nbsp;of emoncms worked)&nbsp;and what you did that appears to have broken it?</p>
+<p>If we can establish the timeframe of when it worked and when it didn&#39;t, we can look more closely of what changes were made between the two.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39275"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 09/02/2016 - 17:44.</div>
+    <div class="content">
+     <p>You can add &quot; $network &quot; instead of mosquitto, but that may not be a fail safe solution as it will set the order of the processes starting so that the mqtt_input&nbsp;service is started after the network services but may trip up if those services haven&#39;t established a <u>working</u> connection, eg wifi&nbsp;up and running but no network connection available.&nbsp;</p>
+<p>However&nbsp;the &quot;delay&quot; offers&nbsp;no guarantees&nbsp;there will be a connection either, ideally the mqtt_input service should start the php script and that script should handle both the connection, ie it should try and connect if it cannot it should log an error message once, wait and try again in a loop until it connects or gets restarted. The alternative is to add a &quot;service mqtt_input restart&quot; to the ifup&nbsp;routine somewhere&nbsp;but that starts to get messy IMO.</p>
+<p>Perhaps the mqtt_input could ping the mqtt broker ip and loop until it gets a response before continuing to connect, a single log message &quot;waiting for response from broker&quot; before the loop could indicate a connection failure if not followed by a &quot;successful&nbsp;connection&quot; message.</p>
+<p>Either would work, confirm&nbsp;before connect or retry after failure, I have to say I&#39;m surprised the php&nbsp;mqtt&nbsp;library doesn&#39;t handle this automatically, I hope it does reconnections !</p>
+<p>Try the $network dependency first though as the lib may well be able to handle the connection if the services are started in the right order perhaps.</p>
+<p>Paul&nbsp;&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39277"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 09/02/2016 - 18:01.</div>
+    <div class="content">
+     <p>Ah yes, good point we have not tested on external MQTT servers. Trystan is looking to add more checking into the script to try and reconnect periodically if connection to MQTT server in unavailable &nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39282"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Tue, 09/02/2016 - 20:29.</div>
+    <div class="content">
+     <p>Hi Paul (R).</p>
+<p>Can&#39;t help identify when the problem started. I have a main server running 8.4 and that has never had a problem with mqtt. I have set up a new server with 9.3 basically to test everything before upgrading. As it happens I only started implementing mqtt on the 7th, the day after you announced the changes so I have never had any version of 9 running mqtt.</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39284"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Tue, 09/02/2016 - 21:54.</div>
+    <div class="content">
+     <p>I have this issue on startup using a local mosquitto instance. One maybe 2 updates get through from EMONHUB before the&nbsp;MQTT_input usually, but not always, terminates so everything is maybe working at the beginning. Taking a read through syslog, it seems that the network does a lot of changing as it comes up related to DHCP leases, I wonder if this is to blame? I think the way DHCP works was changed in Jessie as static ip addresses are no longer set in /etc/network/interfaces.</p>
+<p>EDIT: looking into this further, I&#39;ve just set a static ip and that has got rid of the syslog ip changes. Mosquitto is started before mqtt_input. Unfortunately it still terminates with no logging after a few updates get through with no obvious reasons, on this test image I have mosquitto&nbsp;bridged&nbsp;to the mosquitto instance on my live system so the ethernet network has to be working to receive any updates. Both my Pi&#39;s are hard wired.</p>
+<p>Could mqtt_input have some periodic if service failed then restart logic added? As I get the odd feed update pass through could the network be present for a short time before the script fails, or is it messages that are stuck in mosquitto from the last reboot that I&#39;m seeing initially?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39290"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 09/02/2016 - 22:33.</div>
+    <div class="content">
+     <p>I&#39;ve updated the script to have an auto reconnect if the connection is closed. Available in the latest commit to master:</p>
+<p><a href="https://github.com/emoncms/emoncms/commit/2a69df8ca34fb94d6b20e131270d496736fa4aca" title="https://github.com/emoncms/emoncms/commit/2a69df8ca34fb94d6b20e131270d496736fa4aca">https://github.com/emoncms/emoncms/commit/2a69df8ca34fb94d6b20e131270d49...</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39291"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Tue, 09/02/2016 - 23:08.</div>
+    <div class="content">
+     <p>2 successful reboots in on the test system and it looks like you nailed it. Will update my live system shortly and update this post.</p>
+<p>Sadly the early success didn&#39;t make the transition to my live system. Looking at the log it seems to have reconnected once after a second and then not tried again. My experience with using Openhab to restart the service suggests it needs to be around 120 seconds after the initial booting syslog entry.</p>
+<p>2016-02-09 23:03:16.268|WARN|phpmqtt_input.php|Starting MQTT Input script<br />
+2016-02-09 23:03:17.559|WARN|phpmqtt_input.php|Subscribing to: emon/#<br />
+2016-02-09 23:03:17.560|WARN|phpmqtt_input.php|Not connected, retrying connection<br />
+2016-02-09 23:03:17.561|WARN|phpmqtt_input.php|Connecting to MQTT server: Connection Accepted.: code: 0<br />
+2016-02-09 23:03:17.561|WARN|phpmqtt_input.php|Subscribed to topic: emon/#</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39303"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Wed, 10/02/2016 - 09:27.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>Updated the script this morning but still the same problem.</p>
+<p>Have stop and start mqtt_input to subscribe.</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39304"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 10/02/2016 - 11:29.</div>
+    <div class="content">
+     <p>Kevin: it should keep trying to reconnect, every 5 seconds. But it looks like it did manage to connect but perhaps not receiving anything? Once running, if your stop/start mosquitto does it disconnect and reconnect ok for you?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39305"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Wed, 10/02/2016 - 15:14.</div>
+    <div class="content">
+     <p>Hi Trystan</p>
+<p>To stop and start mosquitto I actually rebooted the Pi running mosquitto.</p>
+<p>Version 9.3 emoncms&nbsp;did NOT reconnect. Just out of interest I am running version 8.4 on a 3rd Pi that is using the same mosquitto server and that reconnected without any trouble.</p>
+<p>As previously reported if I stop and start the&nbsp;mqtt&nbsp;service it works fine.&nbsp;</p>
+<p>I am running Jessie on the Pi with 9.3 and Wheezy on the Pi with 8.4.</p>
+<p>Also I believe&nbsp;the 8.4 is using bluerhino&#39;s&nbsp;library as I got that running in May 2015.</p>
+<p>Ian</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39338"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Sun, 14/02/2016 - 22:09.</div>
+    <div class="content">
+     <p>Is it possible to subscribe to an additional base topic either now or in the future with the new setup? I currently use Openhab to translate the topic&nbsp;and have discovered its double posting.</p>
+<p>EDIT: I got around it by adding a bridge into mosquitto.conf to translate the topic.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39425"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7997.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="sheppy&#039;s picture" title="sheppy&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7997.html" title="View user profile.">sheppy</a> on Sun, 14/02/2016 - 22:48.</div>
+    <div class="content">
+     <p>@TrystanLee&nbsp;yes, stopping and restarting mosquitto does cause it to reconnect when all is working, so this seems to be a start up problem.</p>
+<p>In the attached log:</p>
+<p>the first set at 21:57 is as it reboots<br />
+the second set at 21:59 is after openhab&nbsp;issues &quot;sudo service mqtt_input restart&quot; from a rule<br />
+the last set around 22:40 is when I manually issued &quot;sudo service mosquitto stop&quot; followed by &quot;sudo service mosquitto start&quot; about a minute later</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39429"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1894.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Ian Eagland&#039;s picture" title="Ian Eagland&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1894.html" title="View user profile.">Ian Eagland</a> on Mon, 15/02/2016 - 09:13.</div>
+    <div class="content">
+     <p>Hi</p>
+<p>Pleased to report that after pulling in latest changes, including an update to phpmqtt_input.php, that if the remote mosquitto server is shut down and restarted&nbsp;version&nbsp;&nbsp;9.31 &nbsp;&nbsp;2016.02.13 reconnects to php automatically.</p>
+<p>Thanks for all the effort.</p>
+<p>Regards</p>
+<p>Ian</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39629"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9527.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="jsrossouw@yahoo.com&#039;s picture" title="jsrossouw@yahoo.com&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: MQTT changes 6th Feb</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9527.html" title="View user profile.">jsrossouw@yahoo.com</a> on Mon, 22/02/2016 - 06:46.</div>
+    <div class="content">
+     <p>Hi there,</p>
+<p>&nbsp;</p>
+<p>Does someone have a guide or some info on how to get the mqtt service to run under windows?</p>
+<p>&nbsp;</p>
+<p>Kind Regards,</p>
+<p>Stephan Rossouw</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/12104"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-vyH0bF22VdE-eyvf94CnpwDgS1zSV1M8agK8N_9IxkE" value="form-vyH0bF22VdE-eyvf94CnpwDgS1zSV1M8agK8N_9IxkE"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/12104 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:14:40 GMT -->
+</html>

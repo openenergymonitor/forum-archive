@@ -1,0 +1,879 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10019 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:48:14 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>EmonCMS multi rate scheduler | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">EmonCMS multi rate scheduler</h3>
+        <span class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Sun, 18/01/2015 - 15:22</span>
+        <div class="content"><p>Multi-rate are offerings some distribution companies make to charge diferent prices for different days/hours of the year.</p>
+<p>I want this support on EmonCMS. So i dig into it and start developping a new process that you can add to an input and will act conditionaly on the input value depending on the current date and time.</p>
+<p>This topic is about already discussed considerations on the follow topics:</p>
+<p><a href="2499.html" title="http://openenergymonitor.org/emon/node/2499">http://openenergymonitor.org/emon/node/2499</a></p>
+<p><a href="3915.html">http://openenergymonitor.org/emon/node/3915</a></p>
+<p>Give your requirements if you have any idea that could be implemented also.<br />
+So far i&#39;ve completed developement of FR1 - FR4. Will release soon on github.(Edit: done!)<br />
+Let me know if you can help develope FR5 to FR7 requirents.<br />
+&nbsp;</p>
+<p><strong>Functional Requirements:</strong><br />
+&nbsp;<s><strong>FR1</strong></s> - Allow to specify any range from any starting to end day, month, hour or minute.<br />
+&nbsp;<s><strong>FR2</strong></s> - Have any defined feed only updated for the specified time condition and allow next process in chain to act acordingly.<br />
+&nbsp;<s><strong>FR3</strong></s> - New proccess function in input\process_model.php<br />
+&nbsp;<s><strong>FR4</strong></s> - New Scheduler module with database and multiuser configuration schedules support.<br />
+&nbsp;<strong>FR5 </strong>- Javascript date picker style GUI to easy build a schedule expression.<br />
+&nbsp;<strong>FR6</strong> - New visualization table that supports multiple feeds on the same graphic with different prices defined for each feed and combined prices per day/month/year on the fly.<br />
+&nbsp;<strong>FR7</strong> - Use redis caching.</p>
+<p>&nbsp;</p>
+<p>I&#39;ve come to this single line syntax examples for define time ranges:</p>
+<pre style="font-size: 85%">
+&#39;12:00-23:59&#39;
+&#39;Mon-Fri | 00:00-23:59&#39;
+&#39;Summer | Mon-Fri | 00:00-23:59&#39;
+&#39;Winter | Mon-Fri | 00:00-23:59&#39;
+&#39;Winter | Mon-Fri | 09:00-09:59, Summer | Mon-Fri | 08:00-08:59&#39;
+&#39;Mon,Wed | 00:00-06:00, 12:00-00:00, Fri-Sun | 00:00-06:00, 12:00-00:00&#39;
+&#39;12/25 | 00:00-23:59&#39;
+&#39;12/01 - 12/31 | Sat,Sun | 09:00-11:59, 13:00-19:59&#39;
+&#39;01/15, 02/29, 01/01-02/18, 08/01-12/25, 09/19 | Mon-Fri | 12:00-14:14, 18:00-22:29, Thu | 18:00-22:44&#39;
+
+&#39;Mon-Fri|00:00-06:59, Sat|00:00-09:29,13:00-18:29,22:00-23:59, Sun|00:00-23:59&#39;    &lt;- Weekly Winter Empty 
+&#39;Mon-Fri|07:00-09:29,12:00-18:29,21:00-23:59, Sat|09:30-12:59,18:30-21:59&#39;         &lt;- Weekly Winter Full
+&#39;Mon-Fri|09:30-11:59,18:30-20:59&#39;                                                  &lt;- Weekly Winter Top
+       
+&#39;Mon-Fri|00:00-06:59, Sat|00:00-08:59,14:00-19:59,22:00-23:59, Sun|00:00-23:59&#39;    &lt;- Weekly Summer Empty 
+&#39;Mon-Fri|07:00-09:14,12:15-23:59, Sat|09:00-13:59,20:00-21:59&#39;                     &lt;- Weekly Summer Full
+&#39;Mon-Fri|09:15-12:14&#39;                                                              &lt;- Weekly Summer Top
+</pre><p>&nbsp;</p>
+<p>Bellow is the new Scheduler configuration GUI module.</p>
+<p><img alt="" src="../sites/default/files/Untitled_1.jpg" style="height:203px; width:666px" /></p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12191.html" class="topic-previous" title="Go to previous forum topic">‹ Problem with email at emoncms event</a>
+              <a href="12032.html" class="topic-next" title="Go to next forum topic">My Emoncms.org account multigraphs have stopped updating. ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-27228"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Thu, 29/01/2015 - 20:38.</div>
+    <div class="content">
+     <p>Showing off the results of the new features. :)</p>
+<p>This are the multi-graph for the multi-rate calculations for the same input being derived to 3 feeds for each scheduled time interval and 3 feeds with total kWh for each schedule also :<br />
+<img alt="" src="../sites/default/files/graph_2.png" style="height:353px; width:601px" /></p>
+<p>Here is the used processlist configuration for the power input:</p>
+<p><img alt="" src="../sites/default/files/Feedconf.png" style="height:478px; width:690px" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27242"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/5027.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Eric_AMANN&#039;s picture" title="Eric_AMANN&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/5027.html" title="View user profile.">Eric_AMANN</a> on Fri, 30/01/2015 - 17:23.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>This looks really good !!!</p>
+<p>Looking forward trying it.</p>
+<p>Eric</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27250"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3655.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="keithpark&#039;s picture" title="keithpark&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3655.html" title="View user profile.">keithpark</a> on Sat, 31/01/2015 - 10:26.</div>
+    <div class="content">
+     <p>That looks awesome, looking forward to trying it out.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29665"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7889.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bruno&#039;s picture" title="Bruno&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7889.html" title="View user profile.">Bruno</a> on Thu, 16/04/2015 - 16:06.</div>
+    <div class="content">
+     <p>As a portuguese&nbsp;user this is REALLY an awesome feature :D</p>
+<p>In my case I have 4 different rates per day! Let&#39;s see if I can manage to install it :)</p>
+<p>&nbsp;</p>
+<p>Edit: Ups, I though this was already an existing module in github&nbsp;but it seems it isn&#39;t. chaveiro where can I get this module? :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29676"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 16/04/2015 - 22:37.</div>
+    <div class="content">
+     <p>Bruno - this is a development project, having answered many of your other posts about a range of issues I think you should get a feel for the tried and tested stuff that help is on hand for and resolve some of the more basic issues before delving into this.&nbsp;</p>
+<p>Paul&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29679"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6518.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JD&#039;s picture" title="JD&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6518.html" title="View user profile.">JD</a> on Thu, 16/04/2015 - 23:37.</div>
+    <div class="content">
+     <p>This is a needed feature, thank you. &nbsp;In southern California, we have time-of-use OR amount-of-use pricing plans. &nbsp;Check out all of the options... this is just residential!</p>
+<p><a data-jsb_prepared="cnlfysjzp1" href="https://www.sce.com/wps/portal/home/residential/rates/residential-plan/!ut/p/b1/hc9Bb4JAEAXg3-KBo-yDte7qbUkoLm2kimlxLw00uJIga5BK_PfdGi-mauf2Jt9LZogiGVFNfqx03lWmyevfrMafHo_ETKaQPKAhZIBkLpYCLwwWrC3AnRH4r_9B1DWJ3p5GkDFbgbHU48_sD1gy34L38DUJPB_cv4BJhHAWJxasFhSSLjBPhaDA-AIeHBkTpWtTnB9ei6agXBPVlpuyLVv3u7XrbdftD1MHDvq-d7Uxui7dL7NzcKuyNYeOZNeS7HcZKjlUxakf_AD6d_A9/dl4/d5/L2dBISEvZ0FBIS9nQSEh/">https://www.sce.com/wps/portal/home/residential/rates/residential-plan/!ut/p/b1/hc9Bb4JAEAXg3-KBo-yDte7qbUkoLm2kimlxLw00uJIga5BK_PfdGi-mauf2Jt9LZogiGVFNfqx03lWmyevfrMafHo_ETKaQPKAhZIBkLpYCLwwWrC3AnRH4r_9B1DWJ3p5GkDFbgbHU48_sD1gy34L38DUJPB_cv4BJhHAWJxasFhSSLjBPhaDA-AIeHBkTpWtTnB9ei6agXBPVlpuyLVv3u7XrbdftD1MHDvq-d7Uxui7dL7NzcKuyNYeOZNeS7HcZKjlUxakf_AD6d_A9/dl4/d5/L2dBISEvZ0FBIS9nQSEh/</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29680"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6518.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="JD&#039;s picture" title="JD&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6518.html" title="View user profile.">JD</a> on Fri, 17/04/2015 - 01:19.</div>
+    <div class="content">
+     <p>Oh, and it would be nice to incorporate a feature where the billing &quot;start day&quot; could be defined: &nbsp;it is almost never the 1st of the month. &nbsp;At my house thbe billing cycle&nbsp;is the 11th of the month, and one month is calculated from 11th of Jan to 11th of Feb etc. &nbsp;</p>
+<p>Would love to be able to calculate cost on a user-defined billing cycle.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29687"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/7889.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Bruno&#039;s picture" title="Bruno&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/7889.html" title="View user profile.">Bruno</a> on Fri, 17/04/2015 - 09:32.</div>
+    <div class="content">
+     <p>You are right Paul! I found this thread while I was searching for other threads that could have some information to solve some of my doubts and got excited with the possibility to have this on EmonCMS :p</p>
+<p>This can wait :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29692"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Fri, 17/04/2015 - 10:47.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>This is already on Extended branch, official github is here :</p>
+<p><a href="https://github.com/emoncms/emoncms/tree/Extended" title="https://github.com/emoncms/emoncms/tree/Extended">https://github.com/emoncms/emoncms/tree/Extended</a></p>
+<p>As of today there is a commit waiting for merge that fix some issues with graphs on mobile devices and adds touch support, ask for the merge to Trystan or get it directly from here:</p>
+<p><a href="https://github.com/chaveiro/emoncms/tree/Extended" title="https://github.com/chaveiro/emoncms/tree/Extended">https://github.com/chaveiro/emoncms/tree/Extended</a></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-29800"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 20/04/2015 - 16:20.</div>
+    <div class="content">
+     <p>Pull request merged into extended thankyou Chaveiro</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35403"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8169.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="cab123&#039;s picture" title="cab123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8169.html" title="View user profile.">cab123</a> on Mon, 26/10/2015 - 23:41.</div>
+    <div class="content">
+     <p>Hi Chaveiro, how&nbsp;is it possible to account for summer /winter time&nbsp;automatically? your example works only on winter time?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35434"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8733.jpg" alt="CidiRome&#039;s picture" title="CidiRome&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8733.html" title="View user profile.">CidiRome</a> on Tue, 27/10/2015 - 21:55.</div>
+    <div class="content">
+     <p>Hi Chaveiro.</p>
+<p>Save me some work.</p>
+<p>Are those schedule for the Portuguese distribuition&nbsp;company&nbsp;EDP?</p>
+<p>Remember me from the Thomson firmware tweaking with JTAG?</p>
+<p>Best Regards.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35438"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8733.jpg" alt="CidiRome&#039;s picture" title="CidiRome&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8733.html" title="View user profile.">CidiRome</a> on Wed, 28/10/2015 - 09:55.</div>
+    <div class="content">
+     <p>Hi.</p>
+<p>I&#39;ve came up with some expressions for winter and summer, but it seems to have some problems:</p>
+<p>If I understood correctly correctly the pipe &quot;|&quot; means&nbsp;&quot;or&quot; and the comma &quot;,&quot; means &quot;and&quot;. I would use a more universal &quot;&amp;&quot; for &quot;and&quot; and &quot;|&quot; for &quot;or&quot; but that doesn&#39;t metter.</p>
+<blockquote><p>Eco<br />
+Winter|Mon-Fri|00:00-06:59,Winter|Sat|00:00-09:29,Winter|Sat|13:00-18:29,Winter|Sat|22:00-23:59,Winter|Sun|00:00-23:59Summer|Mon-Fri|00:00-06:59,Summer|Sat|00:00-08:59,Summer|Sat|14:00-19:59,Summer|Sat|22:00-23:59,Summer|Sun|00:00-23:59</p>
+<p>Normal<br />
+Winter|Mon-Fri|07:00-09:29,Winter|Mon-Fri|12:00-18:29,Winter|Mon-Fri|21:00-23:59,Winter|Sat|09:30-12:59,Winter|Sat|18:30-21:59Summer|Mon-Fri|07:00-09:14,Summer|Mon-Fri|12:15-23:59,Summer|Sat|09:00-13:59,Summer|Sat|20:00-21:59</p>
+<p>Cheias<br />
+Winter | Mon-Fri | 09:30-11:59, Winter | Mon-Fri | 18:30-20:59, Summer | Mon-Fri | 09:15-12:14</p>
+</blockquote>
+<p>Until now the Eco and Normal worked but the Cheias didn&#39;t, the expression returns false when it should return true. now (09:54 28-10-2015) is in &quot;Winter | Mon-Fri | 09:30-11:59&quot;</p>
+<p>I will try to look at the javascript code and try to understand how it works to see if I can deduce where the error comes from.</p>
+<p>Best Regards.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35447"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Wed, 28/10/2015 - 14:20.</div>
+    <div class="content">
+     <p>Hi, what is the timezone setting on emoncms for your user?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35449"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8733.jpg" alt="CidiRome&#039;s picture" title="CidiRome&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8733.html" title="View user profile.">CidiRome</a> on Wed, 28/10/2015 - 17:14.</div>
+    <div class="content">
+     <p>Hi.</p>
+<p>I&#39;m in Portugal. UTC / GMT +0 Lisbon, London as you wish...</p>
+<p>Best Regards.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35451"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Wed, 28/10/2015 - 20:17.</div>
+    <div class="content">
+     <p>In /user/view the setting is Europe/Lisbon or UTC ?</p>
+<p>Also please&nbsp; post the debug text that appears when you click the eye icon next to that schedule rule.</p>
+<p>The meaning of the operation characters:</p>
+<ul>
+<li>-&nbsp; Range</li>
+<li>,&nbsp; Addition</li>
+<li>|&nbsp; Granularity separator</li>
+</ul>
+<p>As a note, that expression can also be written more efficiently as:</p>
+<p>Winter|Mon-Fri|09:30-11:59,18:30-20:59 , Summer|Mon-Fri|09:15-12:14</p>
+<p>Off topic: S&oacute; reparei agora que j&aacute; tinhas falado disto, sou o mesmo do forum dos thomson. :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35452"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8169.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="cab123&#039;s picture" title="cab123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8169.html" title="View user profile.">cab123</a> on Wed, 28/10/2015 - 19:57.</div>
+    <div class="content">
+     <p>Hi chaveiro, don&#39;t forget my question!</p>
+<p>&nbsp;</p>
+<p>br</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35456"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8733.jpg" alt="CidiRome&#039;s picture" title="CidiRome&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8733.html" title="View user profile.">CidiRome</a> on Wed, 28/10/2015 - 22:11.</div>
+    <div class="content">
+     <p>Hi.</p>
+<p>In user setting was&nbsp;UTC (GMT +00:00), I changed now to&nbsp;Europe/Lisbon (GMT +00:00) but I believe it is the same...</p>
+<p>Now the &quot;Normal&quot;&nbsp;applies and returns TRUE, but that should have already happen this afternoon and didn&#39;t.</p>
+<p>I was thinking of a way to test other dates/times but I don&#39;t want to mess with the computer date... A data/time selection to test the schedule against would be cool...</p>
+<p>
+Here is a graph that shows the times no schedule was applied (The rules for the schedules are the ones from my post @10:55.<br />
+<img alt="" src="../../../vieirasoft.net/Capture_Emon_EDP_TRI.png" style="width: 617px; height: 222px;" /></p>
+<p>Off&nbsp;topic:<br />
+I&#39;ve made some changes to the dial widget, here is the code it you want to use it:<br />
+&nbsp;</p>
+<blockquote><p>(...) &nbsp;<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [11, &nbsp; &quot;Blue &lt;-&gt; Red, Zero at upper-left&quot;],<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [12, &nbsp; &quot;Voltage 300V Dial&quot;] // Green colors at acceptable voltages<br />
+(...)<br />
+&nbsp; switch (parseInt (type))<br />
+&nbsp; &nbsp; {<br />
+&nbsp; &nbsp; case 0:<br />
+&nbsp; &nbsp; &nbsp; // Standard dial from 0 to maxvalue if offset is not set.<br />
+&nbsp; &nbsp; &nbsp; // TODO: seperate between needle position at maximum/minimum and the value displayed.<br />
+&nbsp; &nbsp; &nbsp; // TODO: Do we need to limit the value being displayed? Only needle position should be limited.<br />
+&nbsp; &nbsp; &nbsp; if (position&lt;0)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; position = 0;<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; case 1:<br />
+&nbsp; &nbsp; &nbsp; angleOffset = -0.75;<br />
+&nbsp; &nbsp; &nbsp; segment = [&quot;#e61703&quot;,&quot;#ff6254&quot;,&quot;#ffa29a&quot;,&quot;#70ac21&quot;,&quot;#378d42&quot;,&quot;#046b34&quot;];<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; case 2:<br />
+&nbsp; &nbsp; &nbsp; if (position&lt;0)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; position = 0;<br />
+&nbsp; &nbsp; &nbsp; segment = [&quot;#046b34&quot;,&quot;#378d42&quot;,&quot;#87c03f&quot;,&quot;#f8a01b&quot;,&quot;#f46722&quot;,&quot;#bf2025&quot;];<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; case 3:<br />
+&nbsp; &nbsp; &nbsp; angleOffset = -0.75;<br />
+&nbsp; &nbsp; &nbsp; segment = [&quot;#046b34&quot;,&quot;#378d42&quot;,&quot;#87c03f&quot;,&quot;#f8a01b&quot;,&quot;#f46722&quot;,&quot;#bf2025&quot;];<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; case 4:<br />
+&nbsp; &nbsp; &nbsp; if (position&lt;0)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; position = 0;<br />
+&nbsp; &nbsp; &nbsp; segment = [&quot;#bf2025&quot;,&quot;#f46722&quot;,&quot;#f8a01b&quot;,&quot;#87c03f&quot;,&quot;#378d42&quot;,&quot;#046b34&quot;];<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; case 5:<br />
+&nbsp; &nbsp; &nbsp; angleOffset = -0.75;<br />
+&nbsp; &nbsp; &nbsp; segment = [&quot;#bf2025&quot;,&quot;#f46722&quot;,&quot;#f8a01b&quot;,&quot;#87c03f&quot;,&quot;#378d42&quot;,&quot;#046b34&quot;];<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; case 6:<br />
+&nbsp; &nbsp; &nbsp; angleOffset = -0.75;<br />
+&nbsp; &nbsp; &nbsp; segment = [&quot;#f46722&quot;,&quot;#f8a01b&quot;,&quot;#87c03f&quot;,&quot;#87c03f&quot;,&quot;#f8a01b&quot;,&quot;#f46722&quot;];<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; case 7:<br />
+&nbsp; &nbsp; &nbsp; if (position&lt;0)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; position = 0;<br />
+&nbsp; &nbsp; &nbsp; segment = [&quot;#a7cbe2&quot;,&quot;#68b7eb&quot;,&quot;#0d97f3&quot;,&quot;#0f81d0&quot;,&quot;#0c6dae&quot;,&quot;#08578e&quot;];<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; case 8:<br />
+&nbsp; &nbsp; &nbsp; //temperature dial blue-red, first segment blue should mean below freezing C<br />
+&nbsp; &nbsp; &nbsp; angleOffset = -0.25;<br />
+&nbsp; &nbsp; &nbsp; segment = [&quot;#b7beff&quot;,&quot;#ffd9d9&quot;,&quot;#ffbebe&quot;,&quot;#ff9c9c&quot;,&quot;#ff6e6e&quot;,&quot;#ff3d3d&quot;];<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; case 9:<br />
+&nbsp; &nbsp; &nbsp; //temperature dial blue-red, first segment blue should mean below freezing C<br />
+&nbsp; &nbsp; &nbsp; angleOffset = 0;<br />
+&nbsp; &nbsp; &nbsp; segment = [&quot;#e94937&quot;,&quot;#da4130&quot;,&quot;#c43626&quot;,&quot;#ad2b1c&quot;,&quot;#992113&quot;,&quot;#86170a&quot;];<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; case 10:<br />
+&nbsp; &nbsp; &nbsp; //light: from dark grey to white<br />
+&nbsp; &nbsp; &nbsp; if (position&lt;0)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; position = 0;<br />
+&nbsp; &nbsp; &nbsp; segment = [&quot;#202020&quot;,&quot;#4D4D4D&quot;,&quot;#7D7D7D&quot;,&quot;#EEF0F3&quot;,&quot;#F7F7F7&quot;, &quot;#FFFFFF&quot;];<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; case 11:<br />
+&nbsp; &nbsp; &nbsp; //temperature dial blue-red, first 2 segments blue should mean below freezing C<br />
+&nbsp; &nbsp; &nbsp; angleOffset = -0.5;<br />
+&nbsp; &nbsp; &nbsp; segment = [&quot;#0d97f3&quot;,&quot;#a7cbe2&quot;,&quot;#ffbebe&quot;,&quot;#ff8383&quot;,&quot;#ff6464&quot;,&quot;#ff3d3d&quot;];<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; case 12:<br />
+&nbsp; &nbsp; &nbsp; if (position&lt;0)<br />
+&nbsp; &nbsp; &nbsp; &nbsp; position = 0;<br />
+&nbsp; &nbsp; &nbsp; segment = [&quot;#f8a01b&quot;,&quot;#f8a01b&quot;,&quot;#f8a01b&quot;,&quot;#378d42&quot;,&quot;#046b34&quot;,&quot;#bf2025&quot;];<br />
+&nbsp; &nbsp; &nbsp; break;<br />
+&nbsp; &nbsp; }<br />
+(...)</p>
+</blockquote>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35459"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8733.jpg" alt="CidiRome&#039;s picture" title="CidiRome&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8733.html" title="View user profile.">CidiRome</a> on Thu, 29/10/2015 - 01:06.</div>
+    <div class="content">
+     <p>I&#39;ve been testing and now this expression should return false but it returns true:</p>
+<p>Summer | Mon | 13:00-21:59,23:00-23:59, Wed | 15:30-18:30,22:00-23:59, Winter | Mon |19:30-20:29,22:00-23:59</p>
+<p>I believe that there is some problem with the winter and summer usage in the same expression.</p>
+<p>What is the file that has the code that analyzes the expressions so I can analise it and try to understand the code?</p>
+<p>Alert Output:<br />
+Schedule expression returned &#39;true&#39;.Details:Expression =Summer | Mon | 13:00-21:59,23:00-23:59, Wed | 15:30-18:30,22:00-23:59, Winter | Mon |19:30-20:29,22:00-23:59Input =22:50:35 Wed 28-10-2015 0 GMT+0000Day =00:00:00 Wed 28-10-2015 0 Europe/LisbonHrMin =22:50:35 Wed 28-10-2015 0 Europe/LisbonWeekDay =Wed________________________________________MATCHArray( &nbsp; &nbsp;[0] =&gt; Summer | Mon | 13:00-21:59,23:00-23:59, &nbsp; &nbsp; [1] =&gt; Summer | &nbsp; &nbsp; [dst] =&gt; Summer &nbsp; &nbsp; [2] =&gt; Summer &nbsp; &nbsp; [3] =&gt; &nbsp; &nbsp; [4] =&gt; Summer &nbsp; &nbsp;[5] =&gt; &nbsp; &nbsp; [days] =&gt; &nbsp; &nbsp; [6] =&gt; &nbsp; &nbsp; [7] =&gt; &nbsp; &nbsp; [8] =&gt; &nbsp; &nbsp; [9] =&gt; Mon | &nbsp; &nbsp; [daysweek] =&gt; Mon &nbsp; &nbsp; [10] =&gt; Mon &nbsp; &nbsp; [11] =&gt; &nbsp; &nbsp; [12] =&gt; Mon &nbsp; &nbsp;[hours] =&gt; 13:00-21:59,23:00-23:59, &nbsp; &nbsp; [13] =&gt; 13:00-21:59,23:00-23:59, &nbsp; &nbsp; [14] =&gt; 23:59, &nbsp; &nbsp; [15] =&gt; 23:59)________________________________________MATCHArray( &nbsp; &nbsp;[0] =&gt; Wed | 15:30-18:30,22:00-23:59, &nbsp; &nbsp; [1] =&gt; &nbsp; &nbsp; [dst] =&gt; &nbsp; &nbsp; [2] =&gt; &nbsp; &nbsp; [3] =&gt; &nbsp; &nbsp; [4] =&gt; &nbsp; &nbsp; [5] =&gt; &nbsp; &nbsp; [days] =&gt; &nbsp; &nbsp; [6] =&gt; &nbsp; &nbsp; [7] =&gt; &nbsp; &nbsp; [8] =&gt; &nbsp; &nbsp; [9] =&gt; Wed | &nbsp; &nbsp; [daysweek] =&gt; Wed &nbsp; &nbsp; [10] =&gt; Wed &nbsp; &nbsp; [11] =&gt; &nbsp; &nbsp; [12] =&gt; Wed &nbsp; &nbsp;[hours] =&gt; 15:30-18:30,22:00-23:59, &nbsp; &nbsp; [13] =&gt; 15:30-18:30,22:00-23:59, &nbsp; &nbsp; [14] =&gt; 23:59, &nbsp; &nbsp; [15] =&gt; 23:59)&nbsp;&nbsp; &nbsp;Wed &lt;- FOUND A WEEKDAYH 15:30-18:30&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;15:30-18:30 &nbsp;----&gt;Wed 2015-10-28 15:30:00 Europe/Lisbon - Wed 2015-10-28 18:30:59 Europe/Lisbon ? Wed 2015-10-28 22:50:35 Europe/LisbonH 22:00-23:59&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;22:00-23:59 &nbsp;----&gt;Wed 2015-10-28 22:00:00 Europe/Lisbon - Wed 2015-10-28 23:59:59 Europe/Lisbon ? Wed 2015-10-28 22:50:35 Europe/Lisbon &lt;- FOUND A HOUR1________________________________________MATCHArray( &nbsp; &nbsp;[0] =&gt; Winter | Mon |19:30-20:29,22:00-23:59 &nbsp; &nbsp;[1] =&gt; Winter | &nbsp; &nbsp; [dst] =&gt; Winter &nbsp; &nbsp; [2] =&gt; Winter &nbsp; &nbsp; [3] =&gt; &nbsp; &nbsp; [4] =&gt; Winter &nbsp; &nbsp;[5] =&gt; &nbsp; &nbsp; [days] =&gt; &nbsp; &nbsp; [6] =&gt; &nbsp; &nbsp; [7] =&gt; &nbsp; &nbsp; [8] =&gt; &nbsp; &nbsp; [9] =&gt; Mon | &nbsp; &nbsp;[daysweek] =&gt; Mon &nbsp; &nbsp; [10] =&gt; Mon &nbsp; &nbsp; [11] =&gt; &nbsp; &nbsp; [12] =&gt; Mon &nbsp; &nbsp;[hours] =&gt; 19:30-20:29,22:00-23:59 &nbsp; &nbsp;[13] =&gt; 19:30-20:29,22:00-23:59 &nbsp; &nbsp;[14] =&gt; 23:59 &nbsp; &nbsp;[15] =&gt; 23:59)&nbsp;&nbsp; &nbsp;Mon________________________________________MATCHArray( &nbsp; &nbsp;[0] =&gt; &nbsp; &nbsp; [1] =&gt; &nbsp; &nbsp; [dst] =&gt; &nbsp; &nbsp; [2] =&gt; &nbsp; &nbsp; [3] =&gt; &nbsp; &nbsp; [4] =&gt; &nbsp; &nbsp; [5] =&gt; &nbsp; &nbsp; [days] =&gt; &nbsp; &nbsp; [6] =&gt; &nbsp; &nbsp; [7] =&gt; &nbsp; &nbsp; [8] =&gt; &nbsp; &nbsp; [9] =&gt; &nbsp; &nbsp; [daysweek] =&gt; &nbsp; &nbsp; [10] =&gt; &nbsp; &nbsp; [11] =&gt; &nbsp; &nbsp; [12] =&gt; &nbsp; &nbsp; [hours] =&gt; &nbsp; &nbsp; [13] =&gt; )&nbsp;&nbsp; &nbsp;</p>
+<p>Update:<br />
+I&#39;ve found the php where the expression is tested, I will try to understand it to see if I can get to the error that causes the test expression to give the incorrect result.<br />
+Is there a reason not to remove the expression spaces right in the beginning instead of several times later?</p>
+<p>I&#39;ve updated my expressions to this (Some errors corrected and where improved as you suggested):</p>
+<p>Eco<br />
+Winter|Mon-Fri|00:00-06:59,Sat|00:00-09:29,13:00-18:29,22:00-23:59,Sun|00:00-23:59,Summer|Mon-Fri|00:00-06:59,Sat|00:00-08:59,14:00-19:59,22:00-23:59,Sun|00:00-23:59</p>
+<p>Normal<br />
+Winter|Mon-Fri|07:00-09:29,12:00-18:29,21:00-23:59,Sat|09:30-12:59,18:30-21:59,Summer|Mon-Fri|07:00-09:14,12:15-23:59,Sat|09:00-13:59,20:00-21:59</p>
+<p>Cheias<br />
+Winter|Mon-Fri|09:30-11:59,18:30-20:59,Summer|Mon-Fri|09:15-12:14</p>
+<p>Best Regards.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35491"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Thu, 29/10/2015 - 20:21.</div>
+    <div class="content">
+     <p>Cidi,</p>
+<p>The expression was executed at<strong> 22:50:35</strong> <strong>Wed </strong>28-10-2015 0 GMT+0000</p>
+<p>Summer | Mon | 13:00-21:59,23:00-23:59,<br />
+<strong>Wed </strong>| 15:30-18:30<strong>,22:00-23:59</strong>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;- Wed 22:50 fits here<br />
+Winter | Mon |19:30-20:29,22:00-23:59</p>
+<p>It&#39;s returning true on the bold part, it is correct.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35492"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Thu, 29/10/2015 - 20:21.</div>
+    <div class="content">
+     <p>cab123: I dont understand your question, can you give an example of what you want?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35494"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8733.jpg" alt="CidiRome&#039;s picture" title="CidiRome&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8733.html" title="View user profile.">CidiRome</a> on Thu, 29/10/2015 - 21:26.</div>
+    <div class="content">
+     <p>Hi Chaveiro.</p>
+<p>The expression says Summer, the present date is winter.</p>
+<p>So&nbsp;22:50:35&nbsp;Wed&nbsp;28-10-2015 0 GMT+0000, does not fit the winter part of the expression:<br />
+<strong>Winter </strong>| Mon |19:30-20:29,22:00-23:59</p>
+<p>Cheers.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35497"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8733.jpg" alt="CidiRome&#039;s picture" title="CidiRome&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8733.html" title="View user profile.">CidiRome</a> on Fri, 30/10/2015 - 21:15.</div>
+    <div class="content">
+     <p>Again.</p>
+<p>I believe I understood it.</p>
+<p>If we select various hours intervals it will assume they are on the same day/day interval of the before, but if we specify a day/day interval it will not be interpreted as the same day light period as the one before.</p>
+<p>So we have to spec iffy the Winter/Summer for each day/day interval or it will be applied without distintion&nbsp;of winter/summer.</p>
+<p>I changed my rules to this, and I believed that it answers&nbsp;cab123&nbsp;question:</p>
+<blockquote><p>Eco<br />
+Winter|Mon-Fri|00:00-06:59,Winter|Sat|00:00-09:29,13:00-18:29,22:00-23:59,Winter|Sun|00:00-23:59,Summer|Mon-Fri|00:00-06:59,Summer|Sat|00:00-08:59,14:00-19:59,22:00-23:59,Summer|Sun|00:00-23:59</p>
+<p>Normal<br />
+Winter|Mon-Fri|07:00-09:29,12:00-18:29,21:00-23:59,Winter|Sat|09:30-12:59,18:30-21:59,Summer|Mon-Fri|07:00-09:14,12:15-23:59,Summer|Sat|09:00-13:59,20:00-21:59</p>
+<p>Cheias<br />
+Winter|Mon-Fri|09:30-11:59,18:30-20:59,Summer|Mon-Fri|09:15-12:14</p>
+</blockquote>
+<p>Cheers.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35502"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8169.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="cab123&#039;s picture" title="cab123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8169.html" title="View user profile.">cab123</a> on Thu, 29/10/2015 - 23:34.</div>
+    <div class="content">
+     <p>I think i got it, i&#39;ve set up the schedulers like this:</p>
+<p>&nbsp;</p>
+<p><img alt="" src="../../../lh3.googleusercontent.com/-XWSP3Dy-hQM/VjKrpmk3MrI/AAAAAAAAC-k/cyAvsa56TSs/s512-Ic42/Schedules.jpg" style="width: 512px; height: 190px;" /></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35516"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8733.jpg" alt="CidiRome&#039;s picture" title="CidiRome&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8733.html" title="View user profile.">CidiRome</a> on Fri, 30/10/2015 - 11:37.</div>
+    <div class="content">
+     <p>cab123:</p>
+<p>It seems you enhanced the expression on overlapping periods that are the same in summer and winter.</p>
+<p>I will do that to my expression too and post it later.</p>
+<p>Best Regards.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35531"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Fri, 30/10/2015 - 20:54.</div>
+    <div class="content">
+     <p>Nice you figure it out.<br />
+As a reference this is what im using for PT.</p>
+<p><strong>Tri Weekly Empty </strong><br />
+Winter|Mon-Fri|00:00-06:59, Winter|Sat|00:00-09:29,13:00-18:29,22:00-23:59, Winter|Sun|00:00-23:59 , Summer|Mon-Fri|00:00-06:59, Summer|Sat|00:00-08:59,14:00-19:59,22:00-23:59, Summer|Sun|00:00-23:59</p>
+<p><strong>Tri Weekly Full</strong><br />
+Winter|Mon-Fri|07:00-09:29,12:00-18:29,21:00-23:59, Winter|Sat|09:30-12:59,18:30-21:59 , Summer|Mon-Fri|07:00-09:14,12:15-23:59, Summer|Sat|09:00-13:59,20:00-21:59</p>
+<p><strong>Tri Weekly Top</strong><br />
+Winter|Mon-Fri|09:30-11:59,18:30-20:59 , Summer|Mon-Fri|09:15-12:14</p>
+<p><strong>Bi Weekly Empty</strong><br />
+Winter|Mon-Fri|00:00-06:59, Winter|Sat|00:00-09:29,13:00-18:29,22:00-23:59, Winter|Sun|00:00-23:59 , Summer|Mon-Fri|00:00-06:59, Summer|Sat|00:00-08:59,14:00-19:59,22:00-23:59, Summer|Sun|00:00-23:59</p>
+<p><strong>Bi Weekly Full </strong><br />
+Winter|Mon-Fri|07:00-23:59, Winter|Sat|09:30-12:59,18:30-21:59 , Summer|Mon-Fri|07:00-23:59, Summer|Sat|09:00-13:59,20:00-21:59</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35533"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8733.jpg" alt="CidiRome&#039;s picture" title="CidiRome&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8733.html" title="View user profile.">CidiRome</a> on Fri, 30/10/2015 - 21:45.</div>
+    <div class="content">
+     <p>Hi.</p>
+<p>My last changes and improvements gave this for Weekly Tri schedule&nbsp;<span style="line-height: 20.8px;">on EDP Portugal&nbsp;</span><span style="line-height: 1.6;">(Also Applies to bi, </span><span style="line-height: 1.6;">normally the meters are tri even when the </span><span style="line-height: 1.6;">tariff</span><span style="line-height: 1.6;"> is bi so we can check the three</span><span style="line-height: 1.6;">).</span></p>
+<p>Eco:<br />
+Mon-Fri | 00:00-06:59, Sun | 00:00-23:59, Sat | 00:00-08:59,14:00-18:29,22:00-23:59, Winter | Sat | 09:00-09:29,13:00-13:59, Summer | Sat | 18:30-19:59</p>
+<p>Normal<br />
+Mon-Fri | 07:00-09:14,12:15-18:29,21:00-23:59, Sat | 09:30-12:59,20:00-21:59, Summer | Mon-Fri | 12:00-12:14,18:30-20:59</p>
+<p>Cheias<br />
+Mon-Fri | 09:30-11:59, Summer | Mon-Fri | 09:15-09:29, Winter | Mon-Fri | 12:00-12:14</p>
+<p>Lets see how it works.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35536"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8169.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="cab123&#039;s picture" title="cab123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8169.html" title="View user profile.">cab123</a> on Fri, 30/10/2015 - 23:04.</div>
+    <div class="content">
+     <p>Great! Very nice implementation, thank you chaveiro!</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35537"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8733.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8733.jpg" alt="CidiRome&#039;s picture" title="CidiRome&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8733.html" title="View user profile.">CidiRome</a> on Sat, 31/10/2015 - 09:49.</div>
+    <div class="content">
+     <p>After a few tests I&#39;ve seen that my last implementation don&#39;t work correctly.</p>
+<p>In my last expression I tried to put first the most occurring&nbsp;options first so that the script can exit at the first true (if it&#39;s programmed&nbsp;that way), and like that,&nbsp;the situations where the winter and the summer are equal would come first.</p>
+<p>For now I&#39;ve changed the order and put the winter/summer options before the other, lets see how it goes....</p>
+<blockquote><p>Semanal Eco<br />
+Winter | Sat | 09:00-09:29,13:00-13:59, Summer | Sat | 18:30-19:59, Mon-Fri | 00:00-06:59, Sun | 00:00-23:59, Sat | 00:00-08:59,14:00-18:29,22:00-23:59</p>
+<p>​Semanal Normal<br />
+Summer | Mon-Fri | 12:00-12:14,18:30-20:59, Mon-Fri | 07:00-09:14,12:15-18:29,21:00-23:59, Sat | 09:30-12:59,20:00-21:59</p>
+<p>Semanal<br />
+Cheias Summer | Mon-Fri | 09:15-09:29, Winter | Mon-Fri | 12:00-12:14, Mon-Fri | 09:30-11:59</p>
+</blockquote>
+<p>Update:<br />
+This rules failed to work correctly too:<br />
+- This morning the very first part of the rule Eco&nbsp;didn&#39;t apply from 09h to 09h30;<br />
+- I have too assume one of two things: there is something about making this rules I didn&#39;t understand yet, or there are bugs in the processing.</p>
+<p>Chaveiro, please shed some light on this.</p>
+<p>Best Regards.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35544"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8169.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="cab123&#039;s picture" title="cab123&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8169.html" title="View user profile.">cab123</a> on Sat, 31/10/2015 - 15:32.</div>
+    <div class="content">
+     <p>A bit off topic, but related, how do you guys track&nbsp;the price/kWh on each period?</p>
+<p>&nbsp;</p>
+<p>my previous implementation was a cron job feeding emoncms&nbsp;a couple of flags and the &euro;/kWh. Now the flags are not necessary because of this great scheduler feature, but to track current price i think i have to keep a separate script that feeds emoncms with the price so i can make the correct&nbsp;multiplications on the live feed. Also it is important to be able to change the price several times since utility companies are always increasing the tariffs</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39160"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9397.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Xino&#039;s picture" title="Xino&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9397.html" title="View user profile.">Xino</a> on Sat, 06/02/2016 - 14:19.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Landed here&nbsp;when searching for multi-tarif&nbsp;kWh calculation...</p>
+<p>&nbsp;</p>
+<p>Any update on this feature?</p>
+<p>Good job so&nbsp;far.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39201"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6165.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Dvbit&#039;s picture" title="Dvbit&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6165.html" title="View user profile.">Dvbit</a> on Sun, 07/02/2016 - 21:13.</div>
+    <div class="content">
+     <p>Thanks this is definetely what I was looking for: Italy schedules are fractioned in F1 F2 F3</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39233"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6165.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Dvbit&#039;s picture" title="Dvbit&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6165.html" title="View user profile.">Dvbit</a> on Mon, 08/02/2016 - 21:36.</div>
+    <div class="content">
+     <p>For Italian Users</p>
+<p>Here is the schedule definition of our timewindows</p>
+<p>id Name Expression Public<br />
+2 F1 Mon-Fri|08:00-18:59<br />
+3 F2 Mon-Fri|07:00-07:59, Mon-Fri|19:00-22:59, Sat|07:00-22:59<br />
+4 F3 Mon-Sat|23:00-06:59, Sun|00:00-23:59, 1/1, 1/6 , 4/25, 5/1, 6/2, 8/15, 11/1, 12/8, 12/25 , 12/26</p>
+<p>Now testing with the input process list from Chaveiro seems perfect</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39614"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9397.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Xino&#039;s picture" title="Xino&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9397.html" title="View user profile.">Xino</a> on Sun, 21/02/2016 - 18:17.</div>
+    <div class="content">
+     <p>When I make changes to a schedule they will only work if I reboot. Is this how it should be?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39670"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Mon, 22/02/2016 - 22:29.</div>
+    <div class="content">
+     <p>Hi xino, can you explain exactly the problem?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39671"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9397.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Xino&#039;s picture" title="Xino&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: EmonCMS multi rate scheduler</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9397.html" title="View user profile.">Xino</a> on Mon, 22/02/2016 - 22:40.</div>
+    <div class="content">
+     <p>&eacute; assim ...</p>
+<p>If I make changes to a schedule the result will show true or false depending on this change, but independently of the schedules result, there is no change on&nbsp;the feed of this schedule. It will only work correctly after a sudo reboot. There&#39;s&nbsp;obviously a service that can be restarted instead of a reboot but I haven&#39;t discovered that yet.</p>
+<p>Thanks for the support.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10019"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-31PhwswROKflGbOyTPbGEKBYgZBcGyT5kKMIw3Ku-7c" value="form-31PhwswROKflGbOyTPbGEKBYgZBcGyT5kKMIw3Ku-7c"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10019 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:48:31 GMT -->
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1499 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:37:21 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Idle question regarding interrupt based sampling of sensor data | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Idle question regarding interrupt based sampling of sensor data</h3>
+        <span class="submitted">Submitted by <a href="../user/2255.html" title="View user profile.">wbortz</a> on Thu, 29/11/2012 - 20:40</span>
+        <div class="content"><p>On a previous project I worked on, we had a small micro sampling data in an interrupt routine, and then processing and sending the data once a certain condition was met in the main program loop, all the while still sampling data via that interrupt. &nbsp;We were fairly short on processor power, so the interrupt had to be fairly optimized, as did the calculation code.&nbsp;</p>
+<p>Has anyone considered that sort of setup here? &nbsp;Are there any obvious reasons not to do it that way, such as for instance the&nbsp;Arduino not having the processing power to handle it?</p>
+<p>I don&#39;t think the added accuracy is that terribly important, but I did notice that when I changed my sampling delay from 1 s to 2 s I started missing the startup current surge from my fridge more frequently. &nbsp;Not a big deal, but seeing that surge makes it easier to identify the fridge as the culprit, as opposed to a light left on somewhere in the house.</p>
+<p>Just wondering if anyone has ruled this out already. &nbsp;</p>
+<p>Wade</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="1543.html" class="topic-previous" title="Go to previous forum topic">‹ Power adaptors for Arduino and R-Pi</a>
+              <a href="1545.html" class="topic-next" title="Go to next forum topic">Too many &quot;ethernet_requests&quot; and emonBase stops sending (NanodeRF_multinode_bulksend) ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-7922"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arvidb&#039;s picture" title="arvidb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Idle question regarding interrupt based sampling of sensor data</h3>
+
+    <div class="submitted">Submitted by arvidb (not verified) on Sun, 02/12/2012 - 18:36.</div>
+    <div class="content">
+     <p>I've been looking into this a bit. Looking at the hardware spec, it should be possible to do full three-phase current and voltage measurements using a single emonTX. One would need to sample first and calculate later, i.e.</p>
+<p>1) sample a couple of wavelengths<br />
+2) do the calculations over the complete data set<br />
+3) send the calculated data<br />
+4) sleep<br />
+5) repeat</p>
+<p>in contrast to today's:</p>
+<p>1) take one sample and calculate<br />
+2) repeat for 20 half-waves<br />
+3) send the calculated data<br />
+4) sleep<br />
+5) repeat</p>
+<p>To sample 3-phase, I &amp; U, two whole 50 Hz wavelengths at 1.5 kHz:</p>
+<p>* total sampling frequency = 6 channels * 1500 Hz = 9 kHz<br />
+* total storage = 2/50 (sampling time) * 1500 (freq) * 6 (channels) * 2 (bytes/sample) = 720 bytes</p>
+<p>9 kHz sampling rate is possible while retaining the full 10 bit resolution. The chip's got 2 kB of RAM, so depending on other memory usage, it should be enough (I haven't investigated this yet).</p>
+<p>Also, it should be possible to compensate for voltage phase shift by simply shifting the sampling of the voltage in time instead of the PHASECAL calculation done in EmonLib today.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7928"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Idle question regarding interrupt based sampling of sensor data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 02/12/2012 - 22:26.</div>
+    <div class="content">
+     <p>Has it not been done? Here: <a href="467.html" title="http://openenergymonitor.org/emon/node/467">http://openenergymonitor.org/emon/node/467</a></p>
+<p>The reason for measuring a short period then sleeping is to extend the operating period when battery powered. If mains powered, that is obviously not a concern.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7932"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arvidb&#039;s picture" title="arvidb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Idle question regarding interrupt based sampling of sensor data</h3>
+
+    <div class="submitted">Submitted by arvidb (not verified) on Mon, 03/12/2012 - 03:52.</div>
+    <div class="content">
+     <p>Great! Thanks for the link!</p>
+<p>I did some thinking and realised that even at 4.5 kHz sample rate, one sample period is 4 degrees phase shift at 50 Hz. So using that kind of shift instead of the PHASECAL calculation won&#39;t do.</p>
+<p>The reason I looked at interrupt driven sampling (or rather free-running sampling) was that I saw that the HW should be able to handle three-phase current+voltage measurements, and it seemed a bit excessive to use three emonTXs for that then. I thought it was simply not possible to sample often enough when doing calculations in-between each sample.</p>
+<p>But since the emonTX is sleeping most of the time anyway, one could just sample current+voltage for one phase at a time. It should just be a matter of adding the needed voltage input circuitry.</p>
+<p>It looks like you manage about 5 kHz sample rate in <a href="https://github.com/openenergymonitor/emonTxFirmware/blob/master/emonTx_CT123_3Phase_Voltage/emonTx_CT123_3Phase_Voltage.ino">Robert&#39;s 3-phase code</a>: sample delay for L3 is 17 samples = two phase-to-phase periods; 17*3/2 would be # of samples for a complete cycle, and x4 since you sample three currents and one voltage = 102 samples/cycle, or 5100 per second. Free-running sampling could raise this to some 9 kHz, which perhaps would increase the accuracy (?), but it doesn&#39;t make a difference as to how many phases one can sample. More phases just mean less sleep (and more power draw).</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7938"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Idle question regarding interrupt based sampling of sensor data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Mon, 03/12/2012 - 15:24.</div>
+    <div class="content">
+     <p>The main problem with using a single voltage measurement for a 3-phase system is that the voltages can vary quite significantly from phase to phase. I regularly see 10V between phases in my house. This will be an unknown error if you only monitor a single phase.</p>
+<p>I don&#39;t think there is an issue time wise</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7953"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="arvidb&#039;s picture" title="arvidb&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Idle question regarding interrupt based sampling of sensor data</h3>
+
+    <div class="submitted">Submitted by arvidb (not verified) on Tue, 04/12/2012 - 00:06.</div>
+    <div class="content">
+     <p>Yes, just like you did in <a href="1170.html">your (beautiful!) setup</a>, I&#39;d like to measure the voltage of each phase too. And what I&#39;m trying to say (in my own convoluted way ;) is that this can be done with a single emonTX, if one just adds the circuitry for two additional voltage inputs.</p>
+<p>Using interrupt-driven sampling one could additionally increase the number of samples per phase and 50 Hz cycle to ~90, from today&#39;s ~50. Which may not matter much...</p>
+<p>I&#39;m just waiting for the USB-to-serial programmer to be in stock again so that I can order my emonTX and start coding. :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7958"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1824.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Idle question regarding interrupt based sampling of sensor data</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1824.html" title="View user profile.">MartinR</a> on Tue, 04/12/2012 - 09:00.</div>
+    <div class="content">
+     <p>You&#39;re right of course, it&#39;s straight forward to add the extra circuitry for more inputs on a breadboard but with emonTx PCBs only costing &pound;5 it would make sense to use those just for the time it would save wiring the breadboard.&nbsp;When you get to that point you have to consider that an ATMega chip is also only &pound;5, and you get 3 times the processing power - that was my train of thought anyway. The stackability of emonTx boards makes things so easy. I don&#39;t know if this was a design feature or pure luck but either way it was a stroke of genius by Glyn and Trystan.</p>
+<p>I&#39;m running interrupt based code of my system. It&#39;s a 3-phase version of the code I posted here: <a href="1535.html">http://openenergymonitor.org/emon/node/1535</a></p>
+<p>A normal ADC conversion takes about 120us so if you&#39;re doing 4 per sample that&#39;s a minimum of 480us for each sample, or 41 per mains cycle. You can speed up the conversion time by changing the ADC clock. I double it in my code above so each conversion takes about 60us.</p>
+<p>Thanks for the compliment on my system BTW, it&#39;s grown a bit now with 3 power controllers. I&#39;ll post some more pictures soon.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/1499"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-sdamPO1cjrUNPditOQNwwu-HwKmD3tsZYeyAs0cxAJk" value="form-sdamPO1cjrUNPditOQNwwu-HwKmD3tsZYeyAs0cxAJk"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/1499 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:37:21 GMT -->
+</html>

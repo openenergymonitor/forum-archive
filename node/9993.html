@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/9993 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:11:17 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Getting back actual time from emoncms | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Getting back actual time from emoncms</h3>
+        <span class="submitted">Submitted by <a href="../user/6717.html" title="View user profile.">brutzler</a> on Sun, 11/01/2015 - 12:34</span>
+        <div class="content"><p>Hi,</p>
+<p>is it possible to request the actual time via api-interface?</p>
+<p>I am using the api-Interface with an arduino, exchanging data over the api-interface. (sending input values and so on)</p>
+<p>To get the actual time for the arduino, i am just thinking for a way to get it from my emoncms-server.<br />
+OK, i could use a RTC or NTP-Server, but this is additional hardware, or communication interface. Would be great, if I could use already available communication.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="9966.html" class="topic-previous" title="Go to previous forum topic">‹ Editing Data Points on Emoncms</a>
+              <a href="9992.html" class="topic-next" title="Go to next forum topic">Changing graphs in emoncms? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-26671"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6717.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="brutzler&#039;s picture" title="brutzler&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting back actual time from emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6717.html" title="View user profile.">brutzler</a> on Sun, 11/01/2015 - 18:54.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>after long search, I decided to make this change in the feed_controller.php:</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $f = $feed-&gt;get($feedid);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // if public or belongs to user<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($f[&#39;public&#39;] || ($session[&#39;userid&#39;]&gt;0 &amp;&amp; $f[&#39;userid&#39;]==$session[&#39;userid&#39;] &amp;&amp; $session[&#39;read&#39;]))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($route-&gt;action == &quot;value&quot;) $result = $feed-&gt;get_value($feedid);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($route-&gt;action == &quot;timevalue&quot;) $result = $feed-&gt;get_timevalue_seconds($feedid);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($route-&gt;action == &quot;get&quot;) $result = $feed-&gt;get_field($feedid,get(&#39;field&#39;)); // &#39;/[^\w\s-]/&#39;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($route-&gt;action == &quot;aget&quot;) $result = $feed-&gt;get($feedid);</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($route-&gt;action == &#39;histogram&#39;) $result = $feed-&gt;histogram_get_power_vs_kwh($feedid,get(&#39;start&#39;),get(&#39;end&#39;));<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($route-&gt;action == &#39;kwhatpower&#39;) $result = $feed-&gt;histogram_get_kwhd_atpower($feedid,get(&#39;min&#39;),get(&#39;max&#39;));<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($route-&gt;action == &#39;kwhatpowers&#39;) $result = $feed-&gt;histogram_get_kwhd_atpowers($feedid,get(&#39;points&#39;));<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($route-&gt;action == &#39;data&#39;) $result = $feed-&gt;get_data($feedid,get(&#39;start&#39;),get(&#39;end&#39;),get(&#39;dp&#39;));<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($route-&gt;action == &#39;average&#39;) $result = $feed-&gt;get_average($feedid,get(&#39;start&#39;),get(&#39;end&#39;),get(&#39;interval&#39;));<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<strong>if ($route-&gt;action == &#39;time&#39;) $result = time();&nbsp;&nbsp;&nbsp;&nbsp;</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>On sending:<br />
+<a href="http://192.168.1.80/emoncms/feed/time.json?id=25&amp;apikey=123xyz" title="http://192.168.1.80/emoncms/feed/time.json?id=25&amp;apikey=123xyz">http://192.168.1.80/emoncms/feed/time.json?id=25&amp;apikey=123xyz</a><br />
+I get back the actual UNIX-time-stamp.</p>
+<p>Its only working, if I add a valid feed-ID.</p>
+<p>Anyone a better idea?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26672"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6717.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="brutzler&#039;s picture" title="brutzler&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting back actual time from emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6717.html" title="View user profile.">brutzler</a> on Sun, 11/01/2015 - 19:11.</div>
+    <div class="content">
+     <p>Edit:</p>
+<p>here its better (no feed-id necessary)</p>
+<p>The change is in line 113 of feed_controller.php</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $result = array(&#39;success&#39;=&gt;false, &#39;message&#39;=&gt;&#39;Feed does not exist&#39;);<br />
+<strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if ($route-&gt;action == &quot;time&quot;) $result = time();&nbsp;&nbsp; </strong><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp; return array(&#39;content&#39;=&gt;$result);</p>
+<p>with<br />
+<u><strong>http://192.168.1.80/emoncms/feed/time.json</strong></u><br />
+I get back the UNIX-timestamp</p>
+<p>----------------------------------------------<br />
+I did one post between. Where is it????</p>
+<p><strong><em>Moderators Note&nbsp;&gt;&gt; Stuck in the moderation queue! - now published!&nbsp;<br />
+Paul</em></strong></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26675"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6717.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="brutzler&#039;s picture" title="brutzler&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Getting back actual time from emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6717.html" title="View user profile.">brutzler</a> on Sun, 11/01/2015 - 23:35.</div>
+    <div class="content">
+     <p>Or makes it even more readable ;-)</p>
+<p><strong>if ($route-&gt;action == &quot;time&quot;) $result = date(&quot;d.m.Y - H:i&quot;,time());&nbsp; </strong></p>
+<p>Result:<br />
+&quot;12.01.2015 - 00:35&quot;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/9993"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-Nprlv35p6_jMmo91ti1LYJnu_0DgCgw8bAKXVARdxKg" value="form-Nprlv35p6_jMmo91ti1LYJnu_0DgCgw8bAKXVARdxKg"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/9993 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:11:17 GMT -->
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/634 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:07:06 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Returning data from EmonLib functions | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Returning data from EmonLib functions</h3>
+        <span class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Sat, 28/04/2012 - 19:12</span>
+        <div class="content"><p>When running the standard &quot;Voltage and Current&quot; sketch, several parameters including &#39;real power&#39; are calculated and displayed to the screen.&nbsp; This activity takes place in functions within the library file, EmonLib.cpp.</p>
+<p>In order to control the power to my immersion heater, my sketch needs to know how much power is available.&nbsp; It therefore needs access to the displayed variable, realPower.&nbsp; On examination of the file EmonLib.h, I was pleased to discover that realPower is a public member of class EnergyMonitor so can therefore be accessed from my sketch using the construct, emon1.realPower.&nbsp;</p>
+<p>OK, so what&#39;s the point I&#39;m making.&nbsp; Well, it&#39;s basically one of inconsistency.&nbsp; The first sketch that I looked at was the &quot;Current Only&quot; one.&nbsp; This calls the library function calcIrms() which returns the calculated value of Irms.&nbsp; This calculated value is then assigned to a similarly named local variable for use in the sketch.&nbsp;&nbsp; To the casual observer, it may not be apparent that the same value could have been properly obtained in a more direct way.</p>
+<p>The loop() function in the &#39;Current Only&#39; sketch is at present like this:</p>
+<pre>
+<span style="color: rgb(204, 102, 0);">void</span> <span style="color: rgb(204, 102, 0);"><b>loop</b></span>()
+{
+&nbsp;&nbsp;<span style="color: rgb(204, 102, 0);">double</span> Irms = emon1.calcIrms(1480);  <span style="color: rgb(126, 126, 126);">// Calculate Irms only</span>
+&nbsp;&nbsp;
+&nbsp;&nbsp;<span style="color: rgb(204, 102, 0);"><b>Serial</b></span>.<span style="color: rgb(204, 102, 0);">print</span>(Irms*230.0);	       <span style="color: rgb(126, 126, 126);">// Apparent power</span>
+&nbsp;&nbsp;<span style="color: rgb(204, 102, 0);"><b>Serial</b></span>.<span style="color: rgb(204, 102, 0);">print</span>(<span style="color: rgb(0, 102, 153);">&quot; &quot;</span>);
+&nbsp;&nbsp;<span style="color: rgb(204, 102, 0);"><b>Serial</b></span>.<span style="color: rgb(204, 102, 0);">println</span>(Irms);		       <span style="color: rgb(126, 126, 126);">// Irms</span>
+}
+</pre><p>If it were to be re-written as below, I think it would be more clear as to what it going on.&nbsp;</p>
+<pre>
+<span style="color: rgb(204, 102, 0);">void</span> <span style="color: rgb(204, 102, 0);"><b>loop</b></span>()
+{
+&nbsp; <span style="color: rgb(204, 102, 0);">double</span> dummy = emon1.calcIrms(1480);  <span style="color: rgb(126, 126, 126);">// Calculate Irms only
+</span>
+&nbsp; <span style="color: rgb(204, 102, 0);"><b>Serial</b></span>.<span style="color: rgb(204, 102, 0);">print</span>(emon1.Irms*230.0);	       <span style="color: rgb(126, 126, 126);">// Apparent power</span>
+&nbsp;&nbsp;<span style="color: rgb(204, 102, 0);"><b>Serial</b></span>.<span style="color: rgb(204, 102, 0);">print</span>(<span style="color: rgb(0, 102, 153);">&quot; &quot;</span>);
+&nbsp;&nbsp;<span style="color: rgb(204, 102, 0);"><b>Serial</b></span>.<span style="color: rgb(204, 102, 0);">println</span>(emon1.Irms);		       <span style="color: rgb(126, 126, 126);">// Irms</span>
+}
+</pre><p>The same approach could then be used for assessing relevant values from calcVI() in the Current and Voltage sketch, as I am intending to do.</p>
+<p>Robin<br />
+	&nbsp;</p>
+<p>
+	&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="625.html" class="topic-previous" title="Go to previous forum topic">‹ dual time in calculation of the price.</a>
+              <a href="624.html" class="topic-next" title="Go to next forum topic">Location of library files ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-4347"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Returning data from EmonLib functions</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 10/05/2012 - 10:16.</div>
+    <div class="content">
+     <p>Hello Robin</p>
+<p>Sorry for the slow reply, yes your right, I was wondering when writing it what would be best, I thought that as Irms is the only one calculated in the case of calcIrms&nbsp;I might as well pass it. But yes maybe it would best for consistency as you say to just reference the public variable: emon1.Irms</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-4358"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/956.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Returning data from EmonLib functions</h3>
+
+    <div class="submitted">Submitted by <a href="../user/956.html" title="View user profile.">calypso_rae</a> on Thu, 10/05/2012 - 16:51.</div>
+    <div class="content">
+     <p>Hi Tristan,</p>
+<p>My readings thus far of Irms are not particularly consistent, but when using calcVI() to determine realPower, the results are very much better.&nbsp; Dither in the I and V readings appear to be cancelling each other out, or something like that.&nbsp; Robert Wall and I have been exchanging ideas about this.</p>
+<p>I wonder whether this aspect has already been raised on the forum, i.e. that power can be more accurately determined by measuring voltage and current, rather than just current.&nbsp;</p>
+<p>Hope your Euro-tour went well,</p>
+<p>Cheers, Robin</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/634"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-jEjsRHRieZbaAzi5CWHAJYTPifZ59SThhxxUY5xPNsk" value="form-jEjsRHRieZbaAzi5CWHAJYTPifZ59SThhxxUY5xPNsk"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/634 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 16:07:06 GMT -->
+</html>

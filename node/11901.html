@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11901 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:09 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Set Input Fields via API in emoncms | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Set Input Fields via API in emoncms</h3>
+        <span class="submitted">Submitted by <a href="../user/9211.html" title="View user profile.">ian351c</a> on Wed, 30/12/2015 - 14:41</span>
+        <div class="content"><p>Hello all,</p>
+<p>I have recently embarked on a project to install emoncms&nbsp;and integrate it with several Z-Wave sensors via the HomeSeer&nbsp;JSON API. I have managed to create a PHP script that creates/updates inputs in emoncms via its JSON API. I would like to be able to update the &quot;description&quot; field for each of my new inputs as described here:&nbsp;<a href="https://github.com/emoncms/emoncms/blob/master/Modules/input/Views/input_api.php">https://github.com/emoncms/emoncms/blob/master/Modules/input/Views/input_api.php</a>. I have run into two issues so far: one I have resolved and the other one not so much. First, I have discovered that fields passed on the URL must be enclosed in double quotes, not single quotes. Second, and the reason for this post, is that while updating fields works from a browser using authentication, it does not appear to work from a script using the API keys. I have tried various methods or passing the data:</p>
+<p><strong>Using the format in the docs for &quot;Set input fields&quot; (fails auth):</strong></p>
+<p>http://emon.home/emoncms/input/set.json?inputid=17&amp;fields={&quot;description&quot;:&quot;Inside Temp&quot;}</p>
+<p>Error: {&quot;success&quot;:false,&quot;message&quot;:&quot;Username or password empty&quot;}</p>
+<p><strong>Using the format in the &quot;APIKEY&quot; section of the docs except for field update instead of data input (still fails auth even though I am passing the correct apikey):</strong></p>
+<p>http://emon.home/emoncms/input/set.json?inputid=17&amp;fields={&quot;description&quot;:&quot;Inside Temp&quot;}&amp;apikey=xxx</p>
+<p>Error: {&quot;success&quot;:false,&quot;message&quot;:&quot;Username or password empty&quot;}</p>
+<p><strong>Using apikey as the first field (note that auth appears to succeed in this case):</strong></p>
+<p>http://emon.home/emoncms/input/set.json?apikey=xxx&amp;inputid=17&amp;fields={&quot;description&quot;:&quot;Inside Temp&quot;}</p>
+<p>Error: {&quot;success&quot;:false,&quot;message&quot;:&quot;Field could not be updated&quot;}</p>
+<p><strong>Passing username/password in the URL (fails auth):</strong></p>
+<p>http://username:password@emon.home/emoncms/input/set.json?inputid=17&amp;fields={&quot;description&quot;:&quot;Inside Temp&quot;}</p>
+<p>Error: {&quot;success&quot;:false,&quot;message&quot;:&quot;Username or password empty&quot;}</p>
+<p><strong>Setting up a context to pass username/password in PHP like here:&nbsp;http://www.hashbangcode.com/blog/using-authentication-and-filegetcontents (still fails auth):</strong></p>
+<p>http://emon.home/emoncms/input/set.json?inputid=17&amp;fields={&quot;description&quot;:&quot;Inside Temp&quot;}</p>
+<p>Error: {&quot;success&quot;:false,&quot;message&quot;:&quot;Username or password empty&quot;}</p>
+<p>&nbsp;</p>
+<p>Has anyone had any success doing this programmatically?</p>
+<p>&nbsp;</p>
+<p>Thanks.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10366.html" class="topic-previous" title="Go to previous forum topic">‹ Support for third party electricity monitors</a>
+              <a href="11936.html" class="topic-next" title="Go to next forum topic">[Feature request] Dew point feed ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-37676"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Set Input Fields via API in emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Wed, 30/12/2015 - 16:39.</div>
+    <div class="content">
+     <p>Just tested from the browser and no problem:</p>
+<p>http://server/input/set.json?inputid=2&amp;fields={%22description%22:%22test2%22}&amp;apikey=SOME_KEY</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37680"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/9211.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-9211.jpg" alt="ian351c&#039;s picture" title="ian351c&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Set Input Fields via API in emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/9211.html" title="View user profile.">ian351c</a> on Wed, 30/12/2015 - 17:25.</div>
+    <div class="content">
+     <p>Yes, a browser works, but command line (script, wget, etc.) does not.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37891"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Set Input Fields via API in emoncms</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 05/01/2016 - 09:51.</div>
+    <div class="content">
+     <p>I think it may be that you need single quotes around the request:</p>
+<p>wget &#39;http://localhost/emoncms/feed/set.json?id=1&amp;fields={&quot;tag&quot;:&quot;testing&quot;}&amp;apikey=KEY&#39;</p>
+<p>also tested with a php script works ok:</p>
+<p>&lt;?php</p>
+<p>file_get_contents(&#39;http://localhost/emoncms/feed/set.json?id=1&amp;fields={&quot;tag&quot;:&quot;testing&quot;}&amp;apikey=KEY&#39;);</p>
+<p>The return message from emoncms is not correct but it does update.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11901"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-bydGJNJQ8pAO2rasO6sglqxkf5bZ5soJ3kY1Ry__KgU" value="form-bydGJNJQ8pAO2rasO6sglqxkf5bZ5soJ3kY1Ry__KgU"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11901 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:09 GMT -->
+</html>

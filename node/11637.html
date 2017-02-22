@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11637 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:57:24 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>emoncms input api issue  | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/6.html">Archived: Questions and support </a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">emoncms input api issue </h3>
+        <span class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Thu, 19/11/2015 - 22:01</span>
+        <div class="content"><p>I&#39;m having some trouble getting the emoncms input api to work correctly and suspect some changes have broken something along the way.</p>
+<p>Around a year ago for v8.3.5, I submitted a change to allow values to be omitted so that individual&nbsp;inputs could be updated using the bulk api. for example if a node has 5 inputs and you only want to update 2 and 4&nbsp;submitting a data string of &quot;null,123,null.123,null&quot; would update 2 and 4 to &quot;123&quot; while 1,3 and 5 would not be updated, this was obvious to confirm as the &quot;last updated&quot; column on the inputs page would not be refreshed and it was very common to see a range of times in&nbsp;green and orange for any node updated this way.</p>
+<p>This no longer works! and I&#39;m unsure why, the code changes I made are still present through to v9.x and as far as I&#39;m aware emoncms.org hasn&#39;t been updated (other than dash&nbsp;and viz parts)</p>
+<p>So far only tested on emoncms.org as I don&#39;t currently have a local instance to test it on.&nbsp;</p>
+<p>Could someone try this url out on a local install (by replacing&nbsp;the .org url with local url and &nbsp;please&nbsp;change node id if 31 is in use)&nbsp;</p>
+<p><a href="http://emoncms.org/input/bulk.json?data=[[0,31,1,null,3,null,5]]&amp;sentat=time()">http://emoncms.org/input/bulk.json?data=[[0,31,1,<strong>null</strong>,3,<strong>null</strong>,5]]&amp;sentat=time()</a></p>
+<p>it should (and previously did) result in node 31 input 1,3 &amp;5, being updated to 1,3 &amp; 5 respectively&nbsp;(if logged in add &quot;&amp;apikey=abc123etc&quot; otherwise), each time it is refreshed the &quot;last updated&quot; for 1,3&amp;5 should get renewed while 2 and 4 should just get longer/older.</p>
+<p>Maybe a emoncms or php dev could shed some light on the issue?&nbsp;</p>
+<p>I have tried all the possible keywords (null nan none etc in lower, upper and camel case)&nbsp;but I was aware previously only &quot;null&quot; would work (without quotes) eg</p>
+<blockquote><p>null<br />
+false<br />
+&quot;&quot;<br />
+&quot;null&quot;<br />
+&quot;nan&quot;<br />
+&quot; &quot; (changes in browser bar to &quot;%20&quot;)<br />
+&quot;None&quot;<br />
+AND &quot;SomeBogusText&quot; !!!!</p>
+</blockquote>
+<p>all result in the absent values being updated as 0 and</p>
+<blockquote><p>nan<br />
+Null<br />
+Nan<br />
+NULL<br />
+NAN<br />
+None</p>
+</blockquote>
+<p>all prevent any of the inputs being updated at all.</p>
+<p>I have found this&nbsp;<a href="10497.html">Best practise for bulk upload</a> thread&nbsp;that confirms it was working in April but not in September.</p>
+<p>Any help or thoughts welcome.</p>
+<p>Paul</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11608.html" class="topic-previous" title="Go to previous forum topic">‹ Problems with emonhub after updating</a>
+              <a href="11638.html" class="topic-next" title="Go to next forum topic">Noob question: How to post to emoncms.org from raspi, data in text document. ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-36191"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms input api issue </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 21/11/2015 - 13:11.</div>
+    <div class="content">
+     <p>Can anyone who has used the selectable input api (or been unable to) confirm if/when it worked, please ?</p>
+<p>It would also be really appreciated if some helpful soul(s) could just try it locally&nbsp;to help me narrow the search. It will create one input which can be easily deleted again.</p>
+<p>I would rather not have to install emoncms&nbsp;just now to test one url and find it works&nbsp;on local installs and just not emoncms.org since it is a customized version which&nbsp;(obviously) I cannot access for debugging.</p>
+<p>Normally I would suspect&nbsp;it didn&#39;t survive the V8.5+ and ongoing changes, but since emoncms.org is running a version that pre-dates all those changes it seems unlikely.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36194"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms input api issue </h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 21/11/2015 - 14:42.</div>
+    <div class="content">
+     <p>It doesn&#39;t seem to like &#39;nan&#39;!</p>
+<p><strong>Error: Format error, json string supplied is not valid</strong></p>
+<p>If I replace nan with null that works, and I get 1 input node with&nbsp;3 keys - 1,3 &amp; 5.</p>
+<p>Paul<br />
+Raspberry Pi v2, Wheezy, emoncms v9.1 - 2015. 11. 02</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36195"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms input api issue </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 21/11/2015 - 14:49.</div>
+    <div class="content">
+     <p>Ooops! My apologies, confused myself when writing out the test url, &quot;nan&quot; shouldn&#39;t and never did work (see lists) that should be &quot;null&quot; not &quot;nan&quot;. Thanks for trying it, would it be too much to ask you to try again&nbsp;using</p>
+<p>&quot;http://emoncms.org/input/bulk.json?data=[[0,31,1,<strong>null</strong>,3,<strong>null</strong>,5]]&amp;sentat=time()&quot;&nbsp;</p>
+<p>edited to fit as per the first time?</p>
+<p>Paul</p>
+<p>ps i&#39;ve now fixed the original</p>
+<p>&nbsp;</p>
+<p>EDIT - Cheers&nbsp;Paul - just seen your edit after my edit that is the expected output AND if you haven&#39;t deleted it yet could you try same url but repalce&nbsp;one more value with another &quot;null&quot; and see if that input retains the older &quot;updated at&quot; entry?&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36196"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms input api issue </h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 21/11/2015 - 14:46.</div>
+    <div class="content">
+     <p>See previous post (which I edited a few moments ago)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36197"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms input api issue </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 21/11/2015 - 14:52.</div>
+    <div class="content">
+     <p>Cheers Paul sorry for the post clashing, I was about to walk out the front door when I saw your post so I was&nbsp;rushing a bit. did you see my last edit? if it&#39;s not too late.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36198"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms input api issue </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 21/11/2015 - 15:01.</div>
+    <div class="content">
+     <p>for example</p>
+<p>&quot;http://emoncms.org/input/bulk.json?data=[[0,31,<strong>11</strong>,null,<strong>null</strong>,null,<strong>55</strong>]]&amp;sentat=time()&quot;&nbsp;</p>
+<p>should update 1&nbsp;and 5 to &quot;11&quot; and &quot;55&quot;while 3&#39;s value should remain at &quot;3&quot; and the &quot;updated at&quot; column should be orange and say <em>n&nbsp;</em>Minutes while 1 &amp; 5 go green and say<em> </em><em>n&nbsp;</em>Seconds.</p>
+<p>&nbsp;</p>
+<p>This is good news it looks like a &quot;emoncms.org&quot; only issue :-)</p>
+<p>I will suggest an addition to the api help page to include this since Chaverio&nbsp;has kindly updated it so users are&nbsp;aware of it.</p>
+<p>Anyway thanks again, must dash !!</p>
+<p>Paul&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36200"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms input api issue </h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 21/11/2015 - 15:15.</div>
+    <div class="content">
+     <p>It does not create 2 &amp; 4, as you probably expect.</p>
+<p><img alt="" src="../sites/default/files/updated.png" style="width: 710px; height: 154px;" /></p>
+<p>but if I post -&nbsp;data=[[0,31,1,2,3,4,5]]&amp;sentat=time()<br />
+and then a few moments later -&nbsp;data=[[0,31,1,null,3,null,5]]&amp;sentat=time()<br />
+I get;</p>
+<p><img alt="" src="../sites/default/files/testers.png" /></p>
+<p>So yes you are correct.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-36202"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: emoncms input api issue </h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 21/11/2015 - 17:54.</div>
+    <div class="content">
+     <p>Many thanks Paul! That&#39;s good news.</p>
+<p>Hopefully Trystan can pick this up and take a look at emoncms.org.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11637"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-vD_Ek6l-C0ThvLIWmeQM2Nvj0uh-KxWvICkatxV-BZc" value="form-vD_Ek6l-C0ThvLIWmeQM2Nvj0uh-KxWvICkatxV-BZc"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11637 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:57:28 GMT -->
+</html>

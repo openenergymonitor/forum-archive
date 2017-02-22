@@ -1,0 +1,594 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Why using 470k resistor dividers is bad for emonTx accuracy | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/emon/sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/emon/modules/node/node.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/defaults.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/system/system-menus.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/user/user.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/mollom/mollom.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/forum/forum.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/modules/views/css/views.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/modules/comment/comment.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="/emon/sites/all/themes/emon3/style.css?r" />
+<style type="text/css" media="all">@import "/emon/sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="/emon/" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="/emon/">Home</a> » <a href="/emon/forum">Forums</a> » <a href="/emon/forum/4">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+        <span class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Tue, 20/11/2012 - 22:20</span>
+        <div class="content"><p>just spent a very frustrating evening wondering why this happens....</p>
+<p>Standard emonTx running emonTx_C123_Voltage with a 100W light bulb as a load...</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/emontx470k_fwd.jpg" style="width: 332px; height: 289px;" /></p>
+<p>then exactly the same setup with the current transformer reversed...</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/emontx470k_rev.jpg" /></p>
+<p>a 20% difference! How can this be?</p>
+<p>It took me a while to work it out but if you think about it the only difference between the two situations is that in the first case the voltage and current are in phase and in the second they are out of phase. When the ADC multiplexer switches from the relatively large voltage input to the small&nbsp;current input any residual charge on the mux gets dumped through the 470k divider circuit. In the in-phase case this adds to the voltage on the current input and makes it over read, in the out-of-phase case it subtracts and we get a value that;s too low.</p>
+<p>Here&#39;s the result of switching the divider resistors to 3.3k....</p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/emontx3k3_fwd.jpg" /></p>
+<p><img alt="" src="http://openenergymonitor.org/emon/sites/default/files/emontx3k3_rev.jpg" /></p>
+<p>There&#39;s still some effect but the error is much smaller.</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="/emon/node/3366" class="topic-previous" title="Go to previous forum topic">‹ EmonTx setup problems</a>
+              <a href="/emon/node/3368" class="topic-next" title="Go to next forum topic">emonTX3 alternative design ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-7484"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robin&#039;s picture" title="Robin&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by Robin (not verified) on Tue, 20/11/2012 - 23:21.</div>
+    <div class="content">
+     <p>Thanks for this insight.&nbsp; Very interesting.</p>
+<p>In my view, (shared by many others, I believe), there should be a 2.5V rail stabilized by an op-amp, and buffer op-amps on most or all of the ADC inputs.&nbsp; Mine is modified in this way.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7486"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Tue, 20/11/2012 - 23:54.</div>
+    <div class="content">
+     <p>Hi, from another Robin,</p>
+<p>Yes, that is a very interesting observation.&nbsp; I&#39;ve been seeing similar effects myself today when measuring V and I streams using a shared reference which is buffered.</p>
+<p>My interest has been to determine the DC-offset of the system.&nbsp; With a shared reference, there can only be one DC-offset.&nbsp; Right?&nbsp; Well, not necessarily it seems.&nbsp; Using a LP filter, my voltage stream shows a constant DC offset of around 507.&nbsp; By use of a second LP filter, my current sensor can show around a 7-level difference.&nbsp; The resulting value from this LP filter is dependent on the direction and magnitude of the current, and is entirely repeatable.&nbsp;</p>
+<p>I don&#39;t have individual buffers on the V and I streams, only on the reference rail.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7487"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Wed, 21/11/2012 - 01:03.</div>
+    <div class="content">
+     <p>Do you have a decoupling capacitor connected to the bias chain midpoint? How does that affect it? Conventional wisdom says that when connecting a charged capacitor to another, the charges will be shared by the two series capacitors and the voltages will change in the inverse ratio of the capacitance.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7495"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1332" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1332" title="View user profile.">JBecker</a> on Wed, 21/11/2012 - 08:46.</div>
+    <div class="content">
+     <p>Martin,</p>
+<p>very good test with astonishing result. I can only backup your findings with my (subjective) experience. Since decreasing the voltage divider resistor values to 2 x 4k7 I get much more accurate readings especially at low current/power values. This was a long time ago, so I cannot give exact results, sorry. And I only have one emonTx hardware, so I cannot compare directly.</p>
+<p>I understand that the use of 470k comes from the wish to get the supply current in sleep mode as low as possible and make battery operation possible. Are you using the original emonTx hardware for your tests?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7497"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Wed, 21/11/2012 - 09:19.</div>
+    <div class="content">
+     <p>Yes, original tx hardware. I take the point about battery operation but this is only really an issue when there&#39;s an a/c voltage input and I would expect that most people would use mains power in that case.</p>
+<p>I can see how using a single reference would make things worse. You may have a low impedance reference but you also have a direct path between current and voltage inputs. Any ripple that the (relatively) large voltage input puts onto the reference will directly affect the current measurement. This is probably what Robin (calypso_rae) is seeing. It would be interesting to feed the reference voltage into another analogue input and try and plot the ripple. You could then experiment with capacitors on the reference voltage to see if you could improve the situation. Probably best to try good quality tantalum capacitors.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7503"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 21/11/2012 - 10:42.</div>
+    <div class="content">
+     <p><em>Any ripple that the (relatively) large voltage input puts onto the reference will directly affect the current measurement. This is probably what Robin (calypso_rae) is seeing. It would be interesting to feed the reference voltage into another analogue input and try and plot the ripple.</em>&nbsp;</p>
+<p>Yes, Martin, that&#39;s just what I&#39;ve been doing.&nbsp; Adding an extra analogue measurement of the reference does not seem to affect the result of the current measurement which follows immediately.&nbsp; So the ability of the ADC to measure a relatively small voltage immediately after measuring a much larger one does seem to be OK.&nbsp;</p>
+<p>With a modified version of my RawSamplesTool, I can now measure voltage, current and the reference voltage during one particular mains cycle.&nbsp; These values are all written to arrays for subsequent analysis.&nbsp; As far as I can see, changing the current has minimal effect on my measurements of the reference voltage.&nbsp; What I have noticed, however, is that my measurements of the reference voltage do contain a few rogue values.&nbsp; These values are generally 511 or 512, but during most recorded cycles I&#39;ve seen the occasional 504 or 519.&nbsp;&nbsp; I&#39;ve no idea why these odd values might be occurring.</p>
+<p>When just measuring V and I, I&#39;m seeing around 67 loops per (50Hz) mains cycle.&nbsp; With the additional measurement of Vref, that number drops to around 48.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7510"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 21/11/2012 - 13:19.</div>
+    <div class="content">
+     <p>Here is a spreadsheet with results for my triple-measurement tool in 3 conditions: first with no power at the CT, and then with 3kW in each direction (by reversing the CT).&nbsp;</p>
+<p>This is the graph for when no current is flowing.&nbsp; I can&#39;t see any 50Hz ripple on my bufferered reference voltage, only the odd rogue value.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7515"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Wed, 21/11/2012 - 14:06.</div>
+    <div class="content">
+     <p>the rogue values do seem strange, maybe there&#39;s some fast noise spikes that you just catch occasionally?</p>
+<p>If you want to increase the number of samples per cycle try this in your setup...</p>
+<p>ADCSRA &amp;= 0xf8;&nbsp;<br />
+	ADCSRA |= 0x06;</p>
+<p>it doubles the ADC clock speed to 250kHz but seems to have no noticeable&nbsp;effect on the results. The ATMega328 data sheet says max 200kHz for full resolution but this document <a href="http://www.atmel.com/Images/doc2559.pdf">http://www.atmel.com/Images/doc2559.pdf</a>&nbsp;implies it&#39;s ok to exceed that with the statement:<em>&quot;For optimum performance, the ADC clock should not exceed 200 kHz. However, frequencies up to 1 MHz do not reduce the ADC resolution significantly.&quot;</em></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7516"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 21/11/2012 - 14:30.</div>
+    <div class="content">
+     <p>Thanks Martin, so far I&#39;ve done nothing adventurous when taking analogue measurements.&nbsp; The basic arrangement has always seemed fine to me.</p>
+<p>The sketch that I&#39;ve recently used for capturing raw data is attached.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7524"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1658" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1658.jpg" alt="RobP&#039;s picture" title="RobP&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1658" title="View user profile.">RobP</a> on Wed, 21/11/2012 - 20:14.</div>
+    <div class="content">
+     <p>Has anyone tried using the LM285LP-2.5 micropower voltage reference in place of one of the resistors of the potential divider?</p>
+<p>(I&#39;m still not at a point where I can easily try it before suggesting it.&nbsp; They are 56p at Farnell.)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7525"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Wed, 21/11/2012 - 20:18.</div>
+    <div class="content">
+     <p>Changing the resistors isn&#39;t the solution!</p>
+<p>When you stop to analyse what is going on, it is apparent that the switches in the multiplexer are working as a charge pump, transferring 14 pF (that is the value of the sample &amp; hold capacitor) worth of charge from one input to the next each time they are switched.&nbsp; With the bias supply decoupling capacitor at 10 &micro;F, and assuming the current input is steady at 1.65 V and the voltage input is steady at 3.3 V, then the voltage on the current input decoupling capacitor will rise by about 2.4 &micro;V on each reading - <strong><em>irrespective of the resistor values!</em></strong>&nbsp; - until a new steady-state is reached.&nbsp; What reducing the resistor values does is by shortening the time constant, allows that charge to drain away into the bias chain more quickly.</p>
+<p>So the solution is a little more complicated - the decoupling capacitor should be increased - probably as far as the pcb layout will allow, but at the same time the resistor values should be reduced to maintain a sensible time constant so that the input settles sufficiently quickly at power-on.</p>
+<p>There is an unfortunate side effect if that is done - it will allow overcurrent in the internal protection diodes of the analogue input, so a series resistor will be required to limit the input current and prevent damage to the processor chip.</p>
+<p>[Note: For simplicity, I&#39;ve ignored the minor complication that the voltage input is a.c. - of course what this means is it builds charge in one half cycle and drains it in the next, so a steady state is never reached. It superimposes a voltage ripple on the current wave, as demonstrated].</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7527"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 21/11/2012 - 22:14.</div>
+    <div class="content">
+     <p>Sorry Robert, my Mac doesn&#39;t know how to open a Unix Executable File :(</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7531"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Wed, 21/11/2012 - 23:41.</div>
+    <div class="content">
+     <p>? ? ?</p>
+<p>No Unix executable files around here, your Mac is lying through its teeth. The file is an LTSpice circuit description - a simulation of two inputs and the sample &amp; hold capacitor. As far as I know, LTSpice isn&#39;t available in a Mac version. But a version of Spice surely must be. The file is actually readable text describing the circuit that should be easy to convert to a different version.</p>
+<p>Just for you....</p>
+<p><img alt="" src="data:image/png;base64,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" /></p>
+<p>&nbsp;</p>
+<p>And here&#39;s the current input crosstalk - in green (note the voltage input in blue for reference is divided by 50000)</p>
+<p><img alt="" src="data:image/png;base64,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" /></p>
+<p>&nbsp;</p>
+<p>As the amplitude of the crosstalk is small (0.01 LSB peak-peak) , it will only be significant if it causes the current input to cross into a different count when it otherwise would not have done.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7537"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Thu, 22/11/2012 - 10:14.</div>
+    <div class="content">
+     <p>Thanks Robert,</p>
+<p>There may well be others who will appreciate the alternative format, rather than the .asc original</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7555"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Thu, 22/11/2012 - 15:40.</div>
+    <div class="content">
+     <p>By way of verification that my buffered reference arrangement really does work without problems, here are the results from a simple test I&#39;ve just run.&nbsp; The test circuit was a standard Mk2 rig with the LM358 buffered reference.&nbsp; To provide a direct measurement of the reference, the fixed end of the CT was fed to the Arduino&#39;s analogue i/p 0.</p>
+<p>Measurements from all three inputs (reference, current, and voltage) were repeatedly taken and their min/max values noted.&nbsp; During this process, the AC voltage was turned on and off a couple of times.&nbsp; This caused the voltage data to change as expected, but the other two data streams were essentially unaffected.</p>
+<p>In short, the buffered reference appears to be unaffected by the application of the AC voltage.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7577"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Fri, 23/11/2012 - 16:44.</div>
+    <div class="content">
+     <p>Excellent analysis Robert (sorry for the delay in replying, I&#39;ve been away from the computer for a few days)</p>
+<p>To test the theory I tried putting a 1M potentiometer in parallel with one of the 3.3k resistors so that I could make very fine adjustments to the bias voltage. Sure enough, at certain voltages, there&#39;s a step change in the reported power of about 10W so as you predicted the lower value resistors don&#39;t solve the problem and I probably just hit a sweet spot with the particular resistor combination I used.</p>
+<p>On the plus side it&#39;s pretty impressive that the system can resolve this level of power at all when you consider the range it can handle.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7579"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Fri, 23/11/2012 - 17:27.</div>
+    <div class="content">
+     <p>Robin&#39;s (Calypso_rae) buffer works in this situation because it presents a very low output impedance and the feedback action quickly sucks out the charge that has been dumped on its output. That isn&#39;t to say there might not be some narrow spikes of a microvolt or two while the feedback gets its act together.</p>
+<p>(I presume you&#39;ve read up on what happens with very low level inputs?)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7581"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Fri, 23/11/2012 - 18:30.</div>
+    <div class="content">
+     <p><em>I presume you&#39;ve read up on what happens with very low level inputs?</em></p>
+<p>No, I haven&#39;t but it sounds like I should :) I should probably go back and read a lot of useful stuff on here as I came into this pretty late.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7590"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1332" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1332.jpg" alt="JBecker&#039;s picture" title="JBecker&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1332" title="View user profile.">JBecker</a> on Fri, 23/11/2012 - 22:43.</div>
+    <div class="content">
+     <blockquote><p>....&nbsp; I probably just hit a sweet spot with the particular resistor combination I used.</p>
+</blockquote>
+<p>Must have been the same effect for me too. I clearly saw much better (lower) zero-power readings when changing to the lower resistance values. Thank you, Robert for making clear that this just occurred by chance and is not a &#39;real&#39; effect.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7595"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Sat, 24/11/2012 - 00:14.</div>
+    <div class="content">
+     <p>Well, it is &#39;chance&#39; that you hit it because it depends critically on the actual voltage as determined by resistor tolerances and drift and capacitor leakage and input bias currents and ... (etc, etc) and a &#39;real&#39; effect because it is predictable if you know enough about those things and linearity in the ADC. The actual <a href="http://openenergymonitor.org/emon/buildingblocks/measurement-implications-of-adc-resolution-at-low-current-values">mechanism</a> by which this happens is quite straightforward.&nbsp; Trystan did some wonderful animated pages a few months ago demonstrating how the errors vary <a href="http://vis.openenergymonitor.org/dev/adc/noiseless">here</a>, <a href="http://vis.openenergymonitor.org/dev/adc/noisy">here</a> and <a href="http://vis.openenergymonitor.org/dev/adc/noise.mp4">here</a>, as well as <a href="http://openenergymonitor.org/emon/emontx/accuracy">this</a>. You can recreate this with a low-valued pot in series with one of the bias resistors, or I did it with a pot across the supply with the wiper connected to the bias via a high value resistor, to &#39;pull&#39; the bias about +/- 2 ADC steps.</p>
+<p>So in the real world - chance.</p>
+<p>But as I pointed out, reducing the resistor values changes the time constant, and you have to come down to 1 k to halve the ripple voltage (to 20 &micro;V). Doubling the capacitor and halving the resistors does the same and leaves the settling time unchanged. But again as I pointed out, the input is then at risk because you have reduced the equivalent impedance in series with the input.</p>
+<p>Interestingly, the charge pump effect disappears if the circuit is rearranged in the &#39;conventional&#39; way, with the input transducers grounded at one end and the capacitor coupling the signal to the biassed input - as in a normal audio amplifier. All you see then are narrow spikes ( 2 mV high but only 200 ns wide according to my simulation) as the s&amp;h capacitor discharges into the burden. I haven&#39;t tried to work out whether the ADC would see these or not.</p>
+<p>There may be other factors at work, of course. I was only attempting to explain the mechanism of one input cross-talking into another via the sample &amp; hold capacitor. I would expect common grounds and ground currents to have an effect too.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7601"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1658" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-1658.jpg" alt="RobP&#039;s picture" title="RobP&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1658" title="View user profile.">RobP</a> on Sat, 24/11/2012 - 07:04.</div>
+    <div class="content">
+     <p>If I am following this correctly, would there be any mileage in making the ADC take a reference reading before each current measurement?</p>
+<p>On emonTx for example, if a dummy plug was to be inserted in the spare current jack with terminating short to the bias network.....</p>
+<p>Then you sample in the order:&nbsp; voltage - reference - current,&nbsp; voltage - reference - current,&nbsp; etc....</p>
+<p>I am thinking that this way the ADC sample and hold is always starting from the same point before taking that tricky current measurement.</p>
+<p>Has this been thought of already?&nbsp; Would it work? (I am still trying to catch up.)</p>
+<p>There may be good reasons why it shouldn&#39;t or cannot be done?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7615"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Sat, 24/11/2012 - 13:31.</div>
+    <div class="content">
+     <p>I don&#39;t see how that will help. It adds to the cycle time</p>
+<p>[Edit] <strike>and fudges rather than cures the problem.</strike></p>
+<p>It doesn&#39;t even do that when you think it through. It would just act as a charge pump on the spare input, then on the next reading transfer the voltage on that forward to the input it would have done it to in the first place. So it might alleviate the problem a little, but not cure it.</p>
+<p>BTW, an 18 Ohm resister isn&#39;t a lot different to a short circuit when the charge on a 14 pF (yes, PICOFARAD) capacitor is being discussed, especially when compared with 235 kOhms!</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7620"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Sat, 24/11/2012 - 16:38.</div>
+    <div class="content">
+     <p><em>Robp: would there be any mileage in making the ADC take a reference reading before each current measurement?</em></p>
+<p>I&#39;m so glad that someone else has suggested this.&nbsp; I tried this very thing yesterday: V, ref, I, V, ref, I, ...</p>
+<p>With that 3-way sequence, I saw a distinct reduction in the amount of calculated that is present per mains cycle.&nbsp; I think this is because the new measurement sequence is effectively introducing a phase-shift between the V and I waveforms, so the Power Factor is no longer unity.&nbsp; The V and I waveforms will only recombine correctly if their alternating samples are taken with even spacing.&nbsp; This kind of effect is investigated in the set of graphs that I posted a couple of weeks ago on the <a href="http://openenergymonitor.org/emon/node/870#comment-7218">PHASECAL</a> thread.</p>
+<p>I tried extending this idea to a &#39;balanced&#39; 4-way sequence: V, ref, I, ref, calculations, V, ref, I, ref, calculations, ...&nbsp;&nbsp; This resulted in a very strange effect.&nbsp; I repeated the run and the strange effect appeared once more.&nbsp; I was not actually using the Vref values, I was instead using a fixed value of 512 which appears to be correct for my rig.</p>
+<p>(My reasons for trying out these new measurement sequences was somewhat different than is being discussed on this thread, but the results may be of interest)</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7760"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/1824" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="MartinR&#039;s picture" title="MartinR&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/1824" title="View user profile.">MartinR</a> on Wed, 28/11/2012 - 08:46.</div>
+    <div class="content">
+     <p>A (slightly) interesting update on this. I tried removing the a/c input, and even the ADC voltage reading, and there&#39;s still a slight change of about 10W when the CT direction is changed. Made no sense to me for a while but I eventually concluded it must be due to 50Hz leakage in the system, possibly from the 5V supply (the setup was powered from a PC via USB).</p>
+<p>Since the ADC mux leakage and this supply leakage must be adding to produce the 20W I was seeing it occurred to me that if I swapped the phase of the 9v a/c input they might cancel - so I tried it. Sure enough there is a significant reduction in the change in power when the CT direction is swapped, not enough to cancel though, there&#39;s still a few watts left. Probably of no practical use but I thought it was interesting.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7788"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Tue, 17/12/2013 - 09:24.</div>
+    <div class="content">
+     <p>I&#39;m currently working on a version of Mk2 which uses a pair of HPFs rather than the LPF arrangement that I had before.&nbsp; It will also have a &#39;tally&#39; mode whereby per-cycle energy values can be &#39;tallied&#39; for subsequent analysis.</p>
+<p>Here is a 30s run for the 0W situation.&nbsp; My CT is sitting on the floor around one core of an extension into which a couple of loads are connected, but not switched on.</p>
+<p>Although there&#39;s quite a spread in the data, there&#39;s minimal long-term drift.&nbsp; During that same measurement period, the energy bucket drifted by 16J, so that around 0.5W.</p>
+<p>[Edit - in my post that follows this one, I meant to say 11 Joules of drift (over a 30-second period) rather than 11 Watts.&nbsp; For some reason, I can&#39;t edit that post ...] [I have... RW]</p>
+<p>
+	&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-7791"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/956" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-956.jpg" alt="calypso_rae&#039;s picture" title="calypso_rae&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/956" title="View user profile.">calypso_rae</a> on Wed, 28/11/2012 - 18:45.</div>
+    <div class="content">
+     <p>Here is an equivalent run with the standard Mk2 fiter arrangement (LP + HP combo) .&nbsp; This time there was only <strike>11W</strike> 11 J of drift during the 30s measurement period.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16835"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4595" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4595.jpg" alt="José&#039;s picture" title="José&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4595" title="View user profile.">José</a> on Tue, 17/12/2013 - 04:26.</div>
+    <div class="content">
+     <p>Hello everyone, well I&#39;m starting here, and found that with resisencias of 470k cause problems to the input of the ADC, had not reviewed these comments but what I did is lower the resistance (100k)&nbsp;and apparently solucuin&oacute; but did not do a thorough analysis this.</p>
+<p>Apparently this is not so, according to comments posted here<br />
+	Finally. What is the most appropriate solution s must lower the value of the resistors?.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16840"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/924" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/924" title="View user profile.">Robert Wall</a> on Tue, 17/12/2013 - 15:37.</div>
+    <div class="content">
+     <p>Because those resistors represent a large current drain when using batteries, the recommended value is 470 k&Omega;. If you are using mains power, then the value does not matter very much, but if you make it too small, the impedance of the loop formed by the resistors and decoupling capacitor in parallel and the input of the ADC may be low enough for a fault on the mains downstream of the c.t. to generate enough current to damage the protection diodes in the Atmel processor input circuit and cause it to fail.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16876"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="/emon/user/4595" title="View user profile."><img src="http://openenergymonitor.org/emon/sites/default/files/imagecache/avatar/pictures/picture-4595.jpg" alt="José&#039;s picture" title="José&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Why using 470k resistor dividers is bad for emonTx accuracy</h3>
+
+    <div class="submitted">Submitted by <a href="/emon/user/4595" title="View user profile.">José</a> on Wed, 18/12/2013 - 19:57.</div>
+    <div class="content">
+     <p>Thanks, I think the 100k resistor I&#39;m working with, is fine as it will not use batteries, and ye took some samples seem fine. I hope to continue working to get the final result.<br />
+	Thank you, again.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="/emon/node/1385"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-GeJRttGPawUn81a00wqjQ1PbH3D7749cZGrul6MCHwQ" value="form-GeJRttGPawUn81a00wqjQ1PbH3D7749cZGrul6MCHwQ"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+</html>

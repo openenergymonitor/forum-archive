@@ -1,0 +1,403 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11607 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:50:02 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>i need a help with this sketch | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">i need a help with this sketch</h3>
+        <span class="submitted">Submitted by <a href="../user/8380.html" title="View user profile.">dansir</a> on Mon, 16/11/2015 - 08:54</span>
+        <div class="content"><p>hy everyone.can somebody help me with this sketch?it is from oem but it woudn&#39;t compile.</p>
+<p>&nbsp;</p>
+<p>
+//--------------------------------------------------------------------------------------<br />
+// Mains AC Non-Invasive Energy Monitor (2 channel)<br />
+// Last revision 27th Oct 2010<br />
+// Licence: GNU GPL<br />
+// By Trystan Lea (updated to support two channel energy monitoring by Glyn Hudson)<br />
+//--------------------------------------------------------------------------------------<br />
+//--------------------------------------------------------------------------------------<br />
+// VARIABLE DECLERATION<br />
+//--------------------------------------------------------------------------------------<br />
+&nbsp; //--ENERGY MEASURMENT VARIABLES------------------------------<br />
+&nbsp;<br />
+&nbsp; //Power measurement/time variables<br />
+&nbsp; unsigned long t_now, t_diff, t_last, t_culm;<br />
+&nbsp;&nbsp;<br />
+&nbsp; //kwhTotal is cumulative kwh today.<br />
+&nbsp; double Solarkwh =0.0;<br />
+&nbsp; double Mainskwh =0.0;<br />
+//--------------------------------------------------------------------------------------<br />
+// EMON<br />
+//--------------------------------------------------------------------------------------<br />
+// include the library code:<br />
+#include &lt;LiquidCrystal.h&gt;&nbsp; // initialize the library with the numbers of the interface pins<br />
+LiquidCrystal lcd(8, 9, 10, 11, 12, 13);<br />
+int menuState = 0;<br />
+int menu = 0;<br />
+int wavelengths = 3000;&nbsp;&nbsp; //number of wavelengths to sample<br />
+int inPinV = 1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Analog input pin number that voltage signal is connected to<br />
+int inPinI_1 = 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Analog input pin number that current signal is connected to. Channel 1<br />
+int inPinI_2 = 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Analog input pin number that current signal is connected to. Channel 2<br />
+int menupin = 1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Arduino pin 1 goes to pushbutton for menu<br />
+int RelayOn = 4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Arduino pin 4 goes to the opto isolator (full power)<br />
+int HRelayOn = 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Arduino pin 3 goes to opto isolator (half power)<br />
+int led_on = 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Arduino pin 6 goes to panel LED</p>
+<p>//channel 1<br />
+double VCAL = 1.28348;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Voltage calibration scaler<br />
+double ICAL_1 = 0.05815;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Current calibration scaler<br />
+double ICAL_2 = 0.05806;<br />
+double PHASECAL = 2.3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Shifts voltage relative to current,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //subtracting any phase shifting caused by components<br />
+&nbsp;&nbsp;&nbsp;<br />
+int emon_timeout = 2000;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //how long to wait ms if something goes wrong.</p>
+<p>class Channel<br />
+{<br />
+&nbsp; public:<br />
+&nbsp;&nbsp;&nbsp; void emon_calc(int,double);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //create pulse function<br />
+&nbsp;&nbsp;&nbsp; double realPower,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Output variables<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; apparentPower,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; powerFactor,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Vrms,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Irms,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; whInc,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wh;<br />
+&nbsp; private: // Variable declaration for emon_calc procedure<br />
+&nbsp;&nbsp; int lastSampleV,sampleV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //sample_ holds the raw analog read value, lastSample_ holds the last sample_<br />
+&nbsp;&nbsp;&nbsp; int lastSampleI,sampleI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; double lastFilteredV,filteredV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Filtered_ is the raw analog value minus the DC offset<br />
+&nbsp;&nbsp;&nbsp; double lastFilteredI, filteredI;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; double phaseShiftedV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Holds the calibrated phase shifted voltage.<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; double sqV,sumV,sqI,sumI,instP,sumP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //sq = squared, sum = Sum, inst = instantaneous<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; int startV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Instantaneous voltage at start of sample window.<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; boolean lastVCross, checkVCross;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Used to measure number of times threshold is crossed.<br />
+&nbsp;&nbsp;&nbsp; int crossCount;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // &#39;&#39;<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; unsigned long lwhtime, whtime;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //used to calculate energy used.<br />
+};<br />
+Channel ch1,ch2;&nbsp;&nbsp;&nbsp; //create two incidence of class channel for the two channels<br />
+//--------------------------------------------------------------------------------------<br />
+// SETUP<br />
+//--------------------------------------------------------------------------------------<br />
+void setup()<br />
+{<br />
+&nbsp;&nbsp; lcd.begin(16, 2); // set up the LCD&#39;s number of columns and rows:<br />
+&nbsp;<br />
+&nbsp;&nbsp; Serial.begin(9600);<br />
+&nbsp;&nbsp; pinMode(RelayOn,OUTPUT); // this sets the pin named RelayOn to be an output<br />
+&nbsp;&nbsp; pinMode(HRelayOn,OUTPUT); // this sets the pin named RelayOn to be an output<br />
+&nbsp;&nbsp; pinMode(menupin, INPUT); // this sets the pin named menupin to be an input<br />
+&nbsp;&nbsp; pinMode (led_on, OUTPUT); //this sets the pin named led_on to be an output<br />
+&nbsp;&nbsp; t_culm = (3600000 * 12);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //On first run, advances the 24hr timer by 12hrs (so can restart at midday!)&nbsp;<br />
+&nbsp;&nbsp; //t_culm = (3600000 * 23.75);&nbsp; //FOR TESTING ONLY<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp; digitalWrite(RelayOn,HIGH);&nbsp;&nbsp; //Switches relay off<br />
+&nbsp;&nbsp; digitalWrite(HRelayOn,HIGH);&nbsp; //Switches relay off<br />
+&nbsp;&nbsp;<br />
+&nbsp;&nbsp; //Introduces 15 second delay to allow caps to charge up<br />
+&nbsp;&nbsp;&nbsp; lcd.clear();<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 0);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;&nbsp; Please Wait&nbsp; &quot;);<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 1);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;Initialising....&quot;);<br />
+&nbsp;&nbsp;&nbsp; delay (15000);<br />
+}<br />
+unsigned long wtime;<br />
+//--------------------------------------------------------------------------------------<br />
+// MAIN LOOP<br />
+//--------------------------------------------------------------------------------------<br />
+void loop()<br />
+{<br />
+&nbsp; //-------------------------------------------------------------------------------------------<br />
+&nbsp; // 1) Calculate energy monitor values<br />
+&nbsp; //-------------------------------------------------------------------------------------------<br />
+&nbsp; ch1.emon_calc(inPinI_1,ICAL_1);&nbsp; //Energy Monitor calc function for channel 1, pass Arduino analog in pin nummber and calibration coefficient<br />
+&nbsp; ch2.emon_calc(inPinI_2,ICAL_2);&nbsp; //Energy Monitor calc function, for channel 2, pass Arduino analog in pin nummber and calibration coefficient<br />
+&nbsp; //--ENERGY MEASURMENT CALCULATION----------------&nbsp;&nbsp;<br />
+&nbsp;<br />
+&nbsp;//Power measurement<br />
+&nbsp; t_now = millis();<br />
+&nbsp;&nbsp;&nbsp; if ( t_now &gt; t_last ) {&nbsp;&nbsp; //check to see if millis has overflowed back to zero (after approx 49 days)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t_diff = t_now - t_last; } //if not, the time each emon cycle takes<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else {&nbsp; //if millis has reset...<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t_diff = 4127; }&nbsp;&nbsp; //t_diff = (the amount of time each average emon cycle takes), again dealing with the millis reset.<br />
+&nbsp; t_culm += t_diff;<br />
+&nbsp; t_last = t_now;<br />
+&nbsp;<br />
+&nbsp; if ( t_culm &gt; (3600000 * 24)){ //check to see if 24hrs has elapsed<br />
+&nbsp; Solarkwh = 0; // RESET<br />
+&nbsp; Mainskwh = 0; // RESET<br />
+&nbsp; t_culm = 0;&nbsp;&nbsp; // RESET<br />
+&nbsp; }<br />
+&nbsp; //ch1.realPower = 2534;&nbsp; //FOR TESTING ONLY<br />
+&nbsp; //ch2.realPower = 1522;&nbsp; //FOR TESTING ONLY<br />
+&nbsp;<br />
+&nbsp; //Calculate number of kwh generated.<br />
+&nbsp; Solarkwh = Solarkwh + ((ch1.realPower/1000.0) * 1.0/3600.0 * (t_diff/1000.0));<br />
+&nbsp; Mainskwh = Mainskwh + ((ch2.realPower/1000.0) * 1.0/3600.0 * (t_diff/1000.0));&nbsp;<br />
+&nbsp;&nbsp;&nbsp; //------------Data Output-------------<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; //Read menupin to see what menu to display<br />
+&nbsp;&nbsp;&nbsp; menuState = digitalRead(menupin);<br />
+&nbsp;&nbsp;&nbsp; if ( menuState == LOW) {<br />
+&nbsp;&nbsp;&nbsp; menu = menu+1; }<br />
+&nbsp;&nbsp;&nbsp; if (menu &gt; 4){<br />
+&nbsp;&nbsp;&nbsp; menu = 0;<br />
+&nbsp;&nbsp;&nbsp; }&nbsp;<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; //MENU 0&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; if (menu == 0) {<br />
+&nbsp;&nbsp;&nbsp; // clear the lcd screen<br />
+&nbsp;&nbsp;&nbsp; lcd.clear();<br />
+&nbsp;&nbsp;&nbsp; //if-else statement to alter LCD print format depending upon power reading<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 0);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (ch1.realPower &gt;= 1000)&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lcd.print(&quot;Solar &quot;); lcd.print(ch1.realPower / 1000.0, 3); lcd.print(&quot; kW&quot;);&nbsp; }<br />
+&nbsp;&nbsp;&nbsp; else&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lcd.print(&quot;Solar &quot;); lcd.print(ch1.realPower, 0); lcd.print(&quot; Watts&quot;);&nbsp; }<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 1);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (ch2.realPower &gt;= 5000)&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lcd.print(&quot;M/Power over 5kW&quot;); }<br />
+&nbsp;&nbsp;&nbsp; else<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (ch2.realPower &gt;= 1000)&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lcd.print(&quot;Mains &quot;); lcd.print(ch2.realPower / 1000.0, 3); lcd.print(&quot; kW&quot;);&nbsp; }<br />
+&nbsp;&nbsp;&nbsp; else&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lcd.print(&quot;Mains &quot;); lcd.print(ch2.realPower, 0); lcd.print(&quot; Watts&quot;);&nbsp; }<br />
+&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp; //MENU 1 - to enable detailed readings for calibration<br />
+&nbsp;&nbsp;&nbsp; if (menu == 1) {<br />
+&nbsp;&nbsp;&nbsp; lcd.clear();<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 0);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;Solar &quot;); lcd.print(Solarkwh); lcd.print(&quot; kWh&quot;);<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 1);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;Mains &quot;); lcd.print(Mainskwh); lcd.print(&quot; kWh&quot;);&nbsp; }<br />
+&nbsp;&nbsp;&nbsp; //MENU 2 - to enable detailed readings for calibration<br />
+&nbsp;&nbsp;&nbsp; if (menu == 2) {<br />
+&nbsp;&nbsp;&nbsp; lcd.clear();<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 0);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;PowerF &quot;); lcd.print(ch1.powerFactor, 2);<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 1);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;Voltage &quot;); lcd.print(ch1.Vrms, 0); lcd.print(&quot; V&quot;);&nbsp; }<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; //MENU 3 - to enable detailed readings for calibration<br />
+&nbsp;&nbsp;&nbsp; if (menu == 3) {<br />
+&nbsp;&nbsp;&nbsp; lcd.clear();<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 0);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;Solar &quot;); lcd.print(ch1.realPower, 0); lcd.print(&quot; W&quot;);<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 1);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;Mains &quot;); lcd.print(ch2.realPower, 0); lcd.print(&quot; W&quot;);&nbsp; }<br />
+&nbsp;&nbsp;&nbsp;<br />
+&nbsp;&nbsp;&nbsp; //MENU 4 - DEMO MODE<br />
+&nbsp;&nbsp;&nbsp; if (menu == 4) {<br />
+&nbsp;&nbsp;&nbsp; lcd.clear();<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 0);<br />
+&nbsp;&nbsp;&nbsp; lcd.print (&quot;Press button for&quot;);<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 1);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;3 secs for demo&quot;);<br />
+&nbsp;&nbsp;&nbsp; delay (3000);<br />
+&nbsp;&nbsp;&nbsp; if (digitalRead(menupin)== LOW) {&nbsp; //check to see if button is still pressed<br />
+&nbsp;&nbsp;&nbsp; lcd.clear();<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 0);<br />
+&nbsp;&nbsp;&nbsp; lcd.print (&quot;DEMO MODE&quot;);<br />
+&nbsp;&nbsp;&nbsp; delay (2000);<br />
+&nbsp;&nbsp;&nbsp; lcd.clear();<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 0);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;Solar 1.326 kW&quot;);<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 1);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;Mains 298 Watts&quot;);<br />
+&nbsp;&nbsp;&nbsp; digitalWrite (led_on,HIGH);<br />
+&nbsp;&nbsp;&nbsp; delay (10000);<br />
+&nbsp;&nbsp;&nbsp; lcd.clear();<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 0);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;Solar 18.36 kWh&quot;);<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 1);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;Mains 4.29 kWh&quot;);<br />
+&nbsp;&nbsp;&nbsp; digitalWrite (led_on,HIGH);<br />
+&nbsp;&nbsp;&nbsp; delay (10000);<br />
+&nbsp;&nbsp;&nbsp; lcd.clear();<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 0);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;PowerF 0.98&quot;);<br />
+&nbsp;&nbsp;&nbsp; lcd.setCursor(0, 1);<br />
+&nbsp;&nbsp;&nbsp; lcd.print(&quot;Voltage 247 V&quot;);<br />
+&nbsp;&nbsp;&nbsp; digitalWrite (led_on,HIGH);<br />
+&nbsp;&nbsp;&nbsp; delay (10000);<br />
+&nbsp;&nbsp;&nbsp; menu = 0; }<br />
+&nbsp;&nbsp;&nbsp; else {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; menu = 0; }<br />
+&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+&nbsp;//checks to see if can run at full power<br />
+&nbsp; if (ch1.realPower &gt; (ch2.realPower +1090)) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; digitalWrite(HRelayOn,HIGH); //turn the half power output off<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; digitalWrite(RelayOn,LOW); //turn the full output on<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+&nbsp; else{<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; digitalWrite(RelayOn,HIGH); //turn the output off<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //checks to see if can run at half power<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (ch1.realPower &gt; (ch2.realPower +545)) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; digitalWrite(HRelayOn,LOW); }//turn the output on<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; digitalWrite(HRelayOn,HIGH); //turn the output off<br />
+&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp; }<br />
+&nbsp;//LED control<br />
+&nbsp;&nbsp; if (digitalRead(RelayOn) == LOW) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp; analogWrite(led_on, 200);&nbsp; }<br />
+&nbsp;&nbsp; else if (digitalRead(HRelayOn) == LOW) {<br />
+&nbsp;&nbsp;&nbsp;&nbsp; analogWrite(led_on, 30);&nbsp;&nbsp; } //quarter brightness<br />
+&nbsp;&nbsp; else {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; digitalWrite (led_on,HIGH);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; delay (100);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; digitalWrite (led_on,LOW);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;}<br />
+&nbsp;</p>
+<p>&nbsp;</p>
+<p>the errors are &quot;<br />
+Arduino: 1.6.5 (Windows 8.1), Board: &quot;Arduino/Genuino Uno&quot;<br />
+sketch_oct26a.cpp.o: In function `loop&#39;:<br />
+C:\Program Files\Arduino/sketch_oct26a.ino:121: undefined reference to `Channel::emon_calc(int, double)&#39;<br />
+C:\Program Files\Arduino/sketch_oct26a.ino:122: undefined reference to `Channel::emon_calc(int, double)&#39;<br />
+collect2.exe: error: ld returned 1 exit status<br />
+Error compiling.<br />
+&nbsp; This report would have more information with<br />
+&nbsp; &quot;Show verbose output during compilation&quot;<br />
+&nbsp; enabled in File &gt; Preferences.<br />
+i can&#39;t realise where is the problem.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11578.html" class="topic-previous" title="Go to previous forum topic">‹ All nodes Inactive</a>
+              <a href="6183.html" class="topic-next" title="Go to next forum topic">Wind direction visualization ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-35954"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4234.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="XaroRSA&#039;s picture" title="XaroRSA&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: i need a help with this sketch</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4234.html" title="View user profile.">XaroRSA</a> on Mon, 16/11/2015 - 09:37.</div>
+    <div class="content">
+     <p>at quick glance, looks to me like you did not create a class Channel instance.</p>
+<p>Not sure what the syntax is, but it would be something like var instance =&nbsp;new Channel;</p>
+<p>&nbsp;</p>
+<p>Edit: nevermind i see u did :I</p>
+<p>&nbsp;</p>
+<p>Arnt you missing a constructor for that class?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-35958"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: i need a help with this sketch</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Mon, 16/11/2015 - 11:18.</div>
+    <div class="content">
+     <p>Isn't there a big piece of the class Channel missing - like the definition of "Channel::emon_calc(int, double)" Is it in another file that you haven't downloaded? After all, that's what the error message is telling you.</p>
+<p>A reference to the source of the sketch would help. If you don't give us enough information, we can't do much.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11607"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-CFTkBNblWK99Xsh_TmzFhXLyDr3VxLCWkhMeDEjP4mQ" value="form-CFTkBNblWK99Xsh_TmzFhXLyDr3VxLCWkhMeDEjP4mQ"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11607 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:50:02 GMT -->
+</html>

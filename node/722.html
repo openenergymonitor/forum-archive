@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/722 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:12:56 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Sensor communication protocols - proposal | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Sensor communication protocols - proposal</h3>
+        <span class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Thu, 07/06/2012 - 20:28</span>
+        <div class="content"><p>Thinking about the problem of having lots of sensors spread over the house all talking over RF12B modules to a single central emonBase (or Rasp PI etc.) and how they should all interact.</p>
+<p>I&#39;m liking the idea that they could all use the MQTT-S protocol, <a href="http://mqtt.org/MQTTs_Specification_V1.0.pdf">http://mqtt.org/MQTTs_Specification_V1.0.pdf</a></p>
+<p>which is designed for this type of scenario (only using ZigBee modules).</p>
+<p>&nbsp;</p>
+<p>However, I&#39;m also thinking that the sensors should just broadcast what they are monitoring and then let the receiver interpret and do what it wants with the data (not always just blindly upload or display on GLCD etc.)</p>
+<p>You could for instance have a couple of sensors against your hot water tank or solar tube, central heating pipes etc. all sending temperature data along with a description/code of what the data relates to.</p>
+<p>This way, if there is 1 or several sensors, it doesn&#39;t matter to the receiver, its simply listening for packets to arrive and doing something with the data.</p>
+<p>Don&#39;t think I&#39;m explaining this very well :-)</p>
+<p>Lets go with an example, the data &quot;packet&quot; could have a two bytes (16 bits) to start indicating what the value relates to</p>
+<p>Bits: AAAAAAAAAAAABBBB</p>
+<p>The &quot;A&quot; could be the sensor type (range of 4096 values) and the &quot;B&quot; bits (16 values) the measurement type/scale for instance</p>
+<p>&quot;A&quot; values could be:</p>
+<ul>
+<li>
+		1 = Top of water tank</li>
+<li>
+		2 = Bottom of water tank</li>
+<li>
+		3 = Incoming cold mains</li>
+<li>
+		4 = Solar PV power generation (AC)</li>
+<li>
+		5 = Solar PV power generation (DC)</li>
+</ul>
+<p>and the &quot;B&quot; values could be</p>
+<ul>
+<li>
+		0 = Power (Watts)</li>
+<li>
+		1 = Temperature <sup>o</sup>C</li>
+<li>
+		2 = Power (kW)</li>
+<li>
+		3 = Power (kW/hour)</li>
+<li>
+		4 = Volts (AC)</li>
+<li>
+		5 = Volts (DC)</li>
+<li>
+		6 = Current (AC)</li>
+<li>
+		7 = Current (DC)</li>
+<li>
+		8 = Lux (light)</li>
+<li>
+		9 = Frequency (hz)</li>
+</ul>
+<p>The next few bytes could then contain the reading/value, along with the time/date taken (linux timestamp?) if available.</p>
+<p>Probably needs a packet length byte in there to help processing.</p>
+<p>&nbsp;</p>
+<p>Once this is done, any new sensors coming on board are automatically known to the emonBase and it can start &quot;doing stuff&quot; with the values its receiving without additional coding.</p>
+<p>&nbsp;</p>
+<p>Additionally, new devices can simply listen for the relevant packets they want for instance the famous solar power hot water heater problem, could listen for exported power data packets, along with temperature of the hot water etc.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="724.html" class="topic-previous" title="Go to previous forum topic">‹ Help! can Arduino Uno run both LCD and RFM12B?</a>
+              <a href="696.html" class="topic-next" title="Go to next forum topic">fundamental but important question re switching controllers and utility meters ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/722 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:12:56 GMT -->
+</html>

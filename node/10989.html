@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10989 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:30:41 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>TA12-100 | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/4.html">Archived: Hardware</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">TA12-100</h3>
+        <span class="submitted">Submitted by <a href="../user/8446.html" title="View user profile.">mel</a> on Tue, 14/07/2015 - 21:11</span>
+        <div class="content"><p>Hello everybody,</p>
+<p>I have non invasive current sensor TA12-100 <img alt="" src="../../../www.elecfreaks.com/wiki/images/thumb/2/2c/TA12-100_B.JPG/450px-TA12-100_B.jpg" style="width: 450px; height: 326px;" /></p>
+<p>I found only one sketch for this sensor</p>
+<pre>
+/****************************************************************************/
+// Function: Measure the amplitude current of the alternating current and
+// the effective current of the sinusoidal alternating current.
+// Hardware: Grove - Electricity Sensor
+// Date: Jan 19,2013
+// by <a href="http://www.seeedstudio.com/" title="www.seeedstudio.com">www.seeedstudio.com</a>
+#define ELECTRICITY_SENSOR A1 // Analog input pin that sensor is attached to
+float amplitude_current; //amplitude current
+float effective_value; //effective current
+void setup() {
+  Serial.begin(9600);
+  pins_init();
+}
+void loop() {
+  int sensor_max;
+  sensor_max = getMaxValue();
+  Serial.print(&quot;sensor_max = &quot;);
+  Serial.println(sensor_max);
+  //the VCC on the Grove interface of the sensor is 5v
+  amplitude_current=(float)sensor_max/1024*5/200*1000000;
+  effective_value=amplitude_current/1.414;
+  //minimum_current=1/1024*5/800*1000000/1.414=8.6(mA)
+  //Only for sinusoidal alternating current
+  Serial.println(&quot;The amplitude of the current is(in mA)&quot;);
+  Serial.println(amplitude_current,1);
+  //Only one number after the decimal point
+  Serial.println(&quot;The effective value of the current is(in mA)&quot;);
+  Serial.println(effective_value,1);
+}
+void pins_init(){
+  pinMode(ELECTRICITY_SENSOR, INPUT);
+}
+/*Function: Sample for 1000ms and get the maximum value from the SIG pin*/
+int getMaxValue(){
+  int sensorValue; //value read from the sensor
+  int sensorMax = 0;
+  uint32_t start_time = millis();
+  while((millis()-start_time) &lt; 1480)//sample for 1000ms
+  {
+    sensorValue = analogRead(ELECTRICITY_SENSOR);
+    if (sensorValue &gt; sensorMax)
+    {
+      /*record the maximum sensor value*/
+      sensorMax = sensorValue;
+    }
+  }
+  return sensorMax;
+}</pre><p>But the results of measurements is incorrect. For crosscheck i&#39;m using <a href="http://www.aliexpress.com/item/5-65-A-230V-50HZ-reset-to-zero-show-voltage-current-power-Single-phase-Din-rail/1366282678.html">energy meter.</a></p>
+<p>When on energy meter current is 0.57A on com port shows</p>
+<pre>
+sensor_max = 80
+The amplitude of the current is(in mA) 1953.1
+The effective value of the current is(in mA) 1381.3</pre><p>When on energy meter 11.27A on com port shows</p>
+<pre>
+sensor_max = 1023
+The amplitude of the current is(in mA) 24975.6
+The effective value of the current is(in mA) 17663.1</pre><p>&nbsp;</p>
+<p>What should I do to get right figures?</p>
+<p>Or it is better to use EmonLib?</p>
+<p>&nbsp;</p>
+<p>Thank you in advance for your help</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="10992.html" class="topic-previous" title="Go to previous forum topic">‹ using LF306S current transducer</a>
+              <a href="10899.html" class="topic-next" title="Go to next forum topic">OpenEMC - An EmonTH mod for woodworkers ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-32230"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: TA12-100</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Tue, 14/07/2015 - 21:50.</div>
+    <div class="content">
+     <p>That sketch appears to be reading the peak value of current and then assuming the current is a perfect sine wave in order to calculate the rms value. That's OK if (a) your mains voltage is a pure sine wave (in many places, it is not) and (b) you have a linear load (many, like computer power supplies, are not). It's not even measuring the peak-peak amplitude, and as I've no idea what is inside the moulding or on the circuit board, the sketch you're using seems unfit for purpose.</p>
+<p>The most troubling part is you are using it at 11.27 A, which is over twice its rated capacity. It is reporting sensor_max = 1023, which is the maximum value you can get from the analogue input and that is not surprising as the specified current is 5 A maximum. If you want to measure more than 5 A, you have the wrong device and need a different CT.</p>
+<p>For currents less than 5 A. you will probably get more accurate values from emonLib. But you will need to do a basic check first: I assume the 3 connections are GND, VCC and Analog In. Using a multimeter, check that the analog in sits at roughly Vcc/2 (i.e. 2.5 V dc for a 5 V Arduino supply). If that is OK, you should be able to use it with emonLib, but you will need to deduce the calibration coefficient required. Your unit would appear to have an internal 200 &Omega; burden and produces 1 V per 5 A input, so I make your calibration coefficient 5.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-32242"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8446.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="mel&#039;s picture" title="mel&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: TA12-100</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8446.html" title="View user profile.">mel</a> on Wed, 15/07/2015 - 06:33.</div>
+    <div class="content">
+     <p>Robert, &nbsp;thank you for the detailed&nbsp;answer.</p>
+<p>Now it becomes more clear</p>
+<p>I will try to use&nbsp;CST-013-000</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/10989"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-cka-HI4dcpG0PohYtvLr8gA_fpWJOfKuPuF3BwwQUrg" value="form-cka-HI4dcpG0PohYtvLr8gA_fpWJOfKuPuF3BwwQUrg"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/10989 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:30:42 GMT -->
+</html>

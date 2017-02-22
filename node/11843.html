@@ -1,0 +1,991 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11843 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:20 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Emonpi/emonbase data migration | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Emonpi/emonbase data migration</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 21/12/2015 - 18:24</span>
+        <div class="content"><p>With the new image in testing and on its way, Glyn and I have been discussing the need for a way to migrate data across from an existing sd card to the new image. First Id like to apologise that we dont yet have a particularly easy or automated solution but it is possible to do this following these manual steps if your happy to navigate terminal and use SSH.</p>
+<p>There are three main parts that need copying over to migrate from an old sd card to a new one.</p>
+<p>1. mysql database<br />
+2. phpfina and phptimeseries data files<br />
+3. emonhub.conf and emoncms.conf</p>
+<p>To access the SD card directly on windows you will need a linux file system viewer such as:<br />
+<a href="http://sourceforge.net/projects/ext2fsd/" title="http://sourceforge.net/projects/ext2fsd/">http://sourceforge.net/projects/ext2fsd/</a></p>
+<p><strong>1) Exporting the database and copying data files to your computer</strong></p>
+<p>To export emoncms mysql database on the existing image: connect to your pi via SSH and then export the mysql database by using the mysqldump tool:</p>
+<p>&nbsp;&nbsp;&nbsp; mysqldump -u root -p emoncms &gt; emoncms.sql</p>
+<p>(Alternatively with full root user permissions you can copy the mysql data folder directly /home/pi/data/mysql)</p>
+<p>Next copy the files: emoncms.sql, emonhub.conf, emoncms.conf and the data folders: phpfina and phptimeseries from the SD card to your computer by dragging and dropping them across.</p>
+<p><strong>2) Copy the saved files to the new SD card</strong></p>
+<p>If your dragging and dropping onto a live running system stop the emonhub, emoncms-nodes-service and feedwriter services first.</p>
+<p>Drag and drop all the files that you just copied to the new SD card in the data folder. This either appears as a separate partition (partition 3, 484Mb) if you insert the new SD card in your computer or if you connect via an SSH session the data partition is mounted at /home/pi/data.</p>
+<p>Import the database from the mysqldump:</p>
+<p>&nbsp;&nbsp;&nbsp; mysql -u root -p emoncms &lt; emoncms.sql</p>
+<p>If you have permission problems while copying the data files across you can temporarily change the folder permissions for the data folders phpfina and phptimeseries with the following:</p>
+<p>&nbsp;&nbsp;&nbsp; sudo chown pi:pi /home/pi/data/phpfina<br />
+&nbsp;&nbsp;&nbsp; sudo chown www-data:www-data -R /home/pi/data/phpfina</p>
+<p>Run the database updater in emoncms under the Administration tab in emoncms.</p>
+<p>It is probably a good idea at this point to clear redis via SSH with:</p>
+<p>&nbsp;&nbsp;&nbsp; redis-cli &quot;flushall&quot;</p>
+<p>and then finally start emonhub, emoncms-nodes-service and feedwriter services again.</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11894.html" class="topic-previous" title="Go to previous forum topic">‹ Emonbase passwords</a>
+              <a href="11898.html" class="topic-next" title="Go to next forum topic">Problems with RFM12Pi and raspberrypi Module ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-37346"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 21/12/2015 - 19:37.</div>
+    <div class="content">
+     <p>Improving on this a bit I&#39;ve wrapped up the above 1) export and 2) import steps as two scripts that are available here:</p>
+<p><a href="https://github.com/emoncms/usefulscripts/tree/master/emonpi-migrate" title="https://github.com/emoncms/usefulscripts/tree/master/emonpi-migrate">https://github.com/emoncms/usefulscripts/tree/master/emonpi-migrate</a></p>
+<p>The emonpi-export.sh script creates a compressed archive with the mysql dump, phpfina, phptimeseries, emonhub.conf and emoncms.conf. It also stops the feedwriter before starting and restarts it again at the end to ensure the data files are copied while not being written to.</p>
+<p>The emonpi-import.sh script extracts the files to their correct locations and imports the mysql dump it stops all the services before starting, performs a redis-cli flush and restarts the services again at the end.</p>
+<p>To use these:</p>
+<ol>
+<li>SSH into existing emonpi/emonbase</li>
+<li>Enable write mode: rpi-rw</li>
+<li>git clone <a href="https://github.com/emoncms/usefulscripts.git" title="https://github.com/emoncms/usefulscripts.git">https://github.com/emoncms/usefulscripts.git</a></li>
+<li>sh usefulscripts/emonpi-migrate/emonpi-export.sh</li>
+</ol>
+<p>Copy the resultant backup.tar.gz which will be created in /home/pi/data to your computer.</p>
+<p>Create the new SD card with the new image. Either copy the backup.tar.gz manually onto the data partition prior to powering up the pi with an sd card reader or copy it over using ssh then:</p>
+<ol>
+<li>SSH into emonpi/emonbase with new image</li>
+<li>Enable write mode: rpi-rw</li>
+<li>git clone <a href="https://github.com/emoncms/usefulscripts.git" title="https://github.com/emoncms/usefulscripts.git">https://github.com/emoncms/usefulscripts.git</a></li>
+<li>sh usefulscripts/emonpi-migrate/emonpi-import.sh</li>
+</ol>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37355"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 22/12/2015 - 00:46.</div>
+    <div class="content">
+     <p>These sound like a great addition, how involved would it be to have the &quot;export&quot; script included in emoncms,&nbsp;in php so&nbsp;that it could be triggered from &nbsp;button in admin or better still via an api? that would make a great back-up tool, especially if cron&nbsp;could use the api say once a week or so.</p>
+<p>And if an a sql dump be done for a single account by user or&nbsp;apikey it would make the emoncms.org to local transition so much easier too</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37368"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Tue, 22/12/2015 - 13:12.</div>
+    <div class="content">
+     <p>Hello Paul, same thoughts here, I&#39;ve added it in ran in much the same way as the emonpi updater.</p>
+<p>To get this working you need the usefulscripts repository in the home directory: /home/pi</p>
+<p>and the cron entry:</p>
+<p>&nbsp;* * * * * /home/pi/usefulscripts/emonpi-migrate/emonpi-export-wrapper.sh &gt;&gt; /home/pi/data/emonpibackup.log 2&gt;&amp;1</p>
+<p><img alt="" src="../sites/default/files/createbackup.png" style="height: 215px; width: 600px;" /></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37378"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Tue, 22/12/2015 - 17:34.</div>
+    <div class="content">
+     <p>Is there a technical spec for the microSD card for the emonPi&nbsp;(Raspberry Pi 2 model B??)? &nbsp;I seem to remember a thread recommendation for a high endurance (1,000,000 writes) SD card but I cannot locate it. &nbsp;What about speed class rating? &nbsp;or&nbsp;microSD, microSDHC, microSDXC?</p>
+<p>And is there a &quot;how to&quot; for formatting the new SD card for the emonPi? &nbsp;This is how the current emonPi&nbsp;SD card is setup.</p>
+<pre>
+​pi@emonpi ~ $ df -Th
+Filesystem      Type      Size  Used Avail Use% Mounted on
+rootfs          rootfs    2.7G  2.4G  121M  96% /
+/dev/root       <strong>ext4</strong>      2.7G  2.4G  121M  96% /
+devtmpfs        devtmpfs  460M     0  460M   0% /dev
+tmpfs           tmpfs      93M  272K   93M   1% /run
+tmpfs           tmpfs     5.0M     0  5.0M   0% /run/lock
+tmpfs           tmpfs     186M     0  186M   0% /run/shm
+tmpfs           tmpfs      30M   44K   30M   1% /tmp
+tmpfs           tmpfs      30M   10M   21M  34% /var/log
+/dev/mmcblk0p1  <strong>vfat</strong>       56M   19M   37M  34% /boot
+/dev/mmcblk0p3  <strong>ext2</strong>      788M  117M  632M  16% /home/pi/data</pre><p>It looks like there is a boot partition of type&nbsp;<strong>vfat</strong>, a&nbsp;/home/pi/data partition of <strong>ext2</strong> and everything else on type&nbsp;<strong>ext4</strong>. How are all of these partitioned &amp; formatted&nbsp;and then&nbsp;<strong>emonSD-22Dec2015.img.zip</strong> image added to the new&nbsp;SD card?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37387"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 22/12/2015 - 23:03.</div>
+    <div class="content">
+     <p>I would recommend using the <a href="11799.html">new&nbsp;pre-built SD card image</a>. Flashing &nbsp;the image (.img) to the SD card will set up all three partitions. Any (4GB min) card will work. We don&#39;t use a&nbsp;particularly&nbsp;high spec card since mostly the ratings are for speed of writing and that is not really an issue for us. We just go with a standard good quality branded SD card. The partition setup of the new card is pretty much the same as previous one. The partition setup is listed on the new image forum thread post.&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37453"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Thu, 24/12/2015 - 05:12.</div>
+    <div class="content">
+     <p>Ugh! &nbsp;I need a few hints! &nbsp;I flashed the&nbsp;<strong>emonSD-22Dec2015.img.zip</strong> image to a new 8 GB SD card. &nbsp;And I used the above&nbsp;emonPi export and import tool for backup and migration. &nbsp;All seemed to be OK except I have no Nodes data and no updates. &nbsp;And there is no info in the emoncms.log. &nbsp;I restarted the&nbsp;sudo service emoncms-nodes-service restart (and a few other services)&nbsp;and did a paper-clip restart of the emonPi. &nbsp;The emonhub.log looks like this:</p>
+<p>2015-12-24 05:08:28,340 INFO &nbsp; &nbsp; MQTT &nbsp; &nbsp; &nbsp; Unexpected disconnection<br />
+2015-12-24 05:08:28,466 INFO &nbsp; &nbsp; MQTT &nbsp; &nbsp; &nbsp; Connecting to MQTT Server<br />
+2015-12-24 05:08:28,471 WARNING &nbsp;MQTT &nbsp; &nbsp; &nbsp; Connection refused - not authorised<br />
+2015-12-24 05:08:28,472 DEBUG &nbsp; &nbsp;MQTT &nbsp; &nbsp; &nbsp; CONACK =&gt; Return code: 5<br />
+2015-12-24 05:08:28,473 INFO &nbsp; &nbsp; MQTT &nbsp; &nbsp; &nbsp; Unexpected disconnection<br />
+2015-12-24 05:08:28,574 INFO &nbsp; &nbsp; MQTT &nbsp; &nbsp; &nbsp; Connecting to MQTT Server<br />
+2015-12-24 05:08:28,579 WARNING &nbsp;MQTT &nbsp; &nbsp; &nbsp; Connection refused - not authorised</p>
+<p>​How do I troubleshoot this?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37457"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Thu, 24/12/2015 - 10:47.</div>
+    <div class="content">
+     <p>Ah, I see what&#39;s happened. You have done everything correct.&nbsp;</p>
+<p>What&#39;s happened is the migration script has copied your emonhub.conf config file. This is the file you can edit in the EmonHub tab of local Emoncms. The new image has&nbsp;MQTT authentication turned on by default. You need to &nbsp;add mqtt_user and mqtt_passwd into the file see:&nbsp;<a href="https://github.com/openenergymonitor/emonhub/blob/emon-pi/conf/emonhub.conf#L69">https://github.com/openenergymonitor/emonhub/blob/emon-pi/conf/emonhub.conf#L69</a></p>
+<p>If you have not made any changes to the emonhub.conf file, you could just copy over the default:</p>
+<p>cp /home/pi/emonhub/emonhub.conf /home/pi/data/emonhub.conf</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37458"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 24/12/2015 - 10:57.</div>
+    <div class="content">
+     <p>I&#39;ve updated the emonpi-import script to save the emonhub.conf from the backup to old.emonhub.conf and then use the clean emonhub.conf as Glyn suggested as default.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37473"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Thu, 24/12/2015 - 15:59.</div>
+    <div class="content">
+     <p>It works! &nbsp;Thank you!</p>
+<p>In the copy command <strong>cp /home/pi/emonhub/emonhub.conf /home/pi/data/emonhub.conf</strong>&nbsp;there is no <strong>emonhub.conf </strong>file located in the&nbsp;<strong>/home/pi/emonhub&nbsp;</strong>directory. &nbsp;So I grabbed the file you referenced at <strong>https://github.com/openenergymonitor/emonhub/blob/emon-pi/conf/emonhub.conf&nbsp;</strong>and copied it to the&nbsp;<strong>/home/pi/data</strong>&nbsp;directory. &nbsp;That works and now I just need to add in my changes.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37475"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Thu, 24/12/2015 - 17:27.</div>
+    <div class="content">
+     <p>A few more issues:</p>
+<p>1) &nbsp;I cannot save any changes to the emonhub.conf via the&nbsp;EmonHub&nbsp;Config&nbsp;Editor. &nbsp;I can edit the emoncms.log&nbsp;file at&nbsp;/home/pi/data/emoncms.log and all works OK.</p>
+<p>2) &nbsp;There is no information in the emoncms.log. &nbsp;I am not sure what the permissions should be...</p>
+<blockquote><p>pi@emonpi:/var/log$ ls -al emoncms.log</p>
+<p>-rw-rw-rw- 1 root root 0 Dec 24 16:17 emoncms.log</p>
+</blockquote>
+<p>3) &nbsp;the Feeds webpage (<a href="http://192.168.40.230/emoncms/feed/list" title="http://192.168.40.230/emoncms/feed/list">http://192.168.40.230/emoncms/feed/list</a>) is always blank. &nbsp;it just displays this:</p>
+<p><img alt="" src="../sites/default/files/Screen%20Shot%202015-12-24%20at%2011.01.24%20AM_thumb.jpg" /></p>
+<p>4) &nbsp;the Dashboards are all blank (except for one). I cleared out the browser cache and tried a few different browsers. The MyElectric&nbsp;app&nbsp;looks A-OK. &nbsp;I read thru Paul&#39;s&nbsp;<a href="11844.html">**Dashboards missing**</a>, including its link,&nbsp;but it did not seem to help.</p>
+<p>How do I troubleshoot these items?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37481"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 24/12/2015 - 18:52.</div>
+    <div class="content">
+     <p><em>I read thru Paul&#39;s&nbsp;**Dashboards missing**, including its link,&nbsp;but it did not seem to help.</em></p>
+<p>My post only applies to installations or updates that were made via git. From reading&nbsp;the above, I believe that you installed via an image file.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37482"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Thu, 24/12/2015 - 18:54.</div>
+    <div class="content">
+     <p>yes. &nbsp;The &quot;emonSD-22Dec2015.img.zip&quot; image file.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37484"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Thu, 24/12/2015 - 18:59.</div>
+    <div class="content">
+     <p>Could it be <a href="11854.html">related to this post</a>?</p>
+<p>The dashboard&nbsp;module was removed on the 18th Dec, and I see that your SD card image is dated 22 Dec. I&#39;m just wondering if the image file was rebuilt including those changes??</p>
+<p>Are you able to trigger a software update from the emonPi, as&nbsp;that bug was sorted earlier today.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37485"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 24/12/2015 - 19:12.</div>
+    <div class="content">
+     <p>Thanks Jon for the spot, I&#39;ve updated the script to point to the right place for emonhub.conf</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37486"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Thu, 24/12/2015 - 19:19.</div>
+    <div class="content">
+     <p><em>&quot;Are you able to trigger a software update from the emonPi, as that bug was sorted earlier today.&quot;</em></p>
+<p>Yes. &nbsp;I did a emonpi update at&nbsp;16:43:25 GMT today and it looks like it&nbsp;found a change:</p>
+<blockquote><p>git pull /var/www/emoncms/Modules/dashboard<br />
+From <a href="https://github.com/emoncms/dashboard" title="https://github.com/emoncms/dashboard">https://github.com/emoncms/dashboard</a><br />
+&nbsp; &nbsp;b321f20..9d5188f &nbsp;master &nbsp; &nbsp; -&gt; origin/master<br />
+Updating b321f20..9d5188f<br />
+Fast-forward<br />
+&nbsp;dashboard_model.php | 6 ++++--<br />
+&nbsp;1 file changed, 4 insertions(+), 2 deletions(-)</p>
+</blockquote>
+<p>I&#39;ll try the <a href="http://serverip/emoncms/admin/db?apply=true" title="http://SERVERIP/emoncms/admin/db?apply=true">http://SERVERIP/emoncms/admin/db?apply=true</a> and see what happens.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37487"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Thu, 24/12/2015 - 19:58.</div>
+    <div class="content">
+     <p>I typed in&nbsp;http://192.168.40.230/emoncms/admin/db?apply=true and that did&nbsp;not change anything.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37516"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Sat, 26/12/2015 - 17:42.</div>
+    <div class="content">
+     <p>Some things started working and some things I&#39;m not&nbsp;sure how to troubleshoot.&nbsp;The big issues are:</p>
+<ol>
+<li>There is no information in the emoncms.log &nbsp;it is completely&nbsp;blank and&nbsp;at&nbsp;zero bytes.</li>
+<li>the Dashboards are all blank (except for one). I cleared out the browser cache and tried a few different browsers.</li>
+</ol>
+<p>I read something about a dashboard module being removed in the current version... &nbsp;is this something I need to&nbsp;reinstall?</p>
+<p>&nbsp;</p>
+<p>I cannot save any changes to the emonhub.conf via the EmonHub Config Editor. &nbsp;I can edit the emoncms.log file at /home/pi/data/emoncms.log. &nbsp;So there is a work-around.</p>
+<p>Luckily the Feeds webpage (<a href="http://192.168.40.230/emoncms/feed/list" title="http://192.168.40.230/emoncms/feed/list">http://192.168.40.230/emoncms/feed/list</a>) started displaying the correct info. &nbsp;I am not sure if it was because of the <a href="http://192.168.40.230/emoncms/admin/db?apply=true" title="http://192.168.40.230/emoncms/admin/db?apply=true">http://192.168.40.230/emoncms/admin/db?apply=true</a> command or if the Feeds had to go thru an re-calc something. &nbsp;Either way it seemed to take a few hours to work.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37523"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 26/12/2015 - 19:13.</div>
+    <div class="content">
+     <p>Hello Jon, yes the dashboard module needs to be reinstalled. To reinstall, run this once you&#39;ve connected to the pi via SSH. See <a href="http://openenergymonitor.org/tools/realescapestring">http://openenergymonitor.org/tools/realescapestring </a> The latest update to emoncms makes a couple of changes to the emoncms login implementation and you may find emoncms presenting you with the error &quot;Incorrect password, if you're sure it's correct try clearing your browser cache.&quot;  If you're using passwords with special characters, the way emoncms now handles these has changed.  I have created a small tool that applies the mysql real escape string modification, that has now been removed from emoncms, so that it's possible to login again; after which you can change your password in emoncms.  The tool is here and runs locally in your browser using javascript, and so is safe, nothing is sent to a remote server. You can check it for yourself with a test string and the browser's network tab.  </p>
+<p><em>Note: The reason for this change is that using mysql real escape string is not best practice and is being deprecated and removed from php in v7.0.0. Using prepared statements is recommended instead, which is part of the reason for this change now. It also helps ensure that the string length is not expanded beyond the maximum set. </em> </p>
+<p>If the above does not solve the problem you may also need to update your emoncms database. To do this without being logged in, add the line  </p>
+<p>$updatelogin = true;  to settings.php  </p>
+<p>Then run:  </p>
+<p>http://localhost/emoncms/admin/db?apply=true"</p>
+<!-- >http://openenergymonitor.org/emon/node/11798</a><br /> --><!-- >http://openenergymonitor.org/emon/node/11798</a><br /> --><p>
+cd /var/www/emoncms/Modules &amp;&amp; git clone&nbsp;https://github.com/emoncms/dashboard.git</p>
+<p>To make emonhub.conf editable, try:</p>
+<p>sudo chown pi:www-data /home/pi/data/emonhub.conf<br />
+sudo chmod 664 /home/pi/data/emonhub.conf</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37524"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sat, 26/12/2015 - 20:31.</div>
+    <div class="content">
+     <p>The dashboards are installed (from the new modularised dashboard git repo)  on the 22nd Dec image. I migrated over my home emonpi to the 22nd Dec image using the migrate tool and my dashboards all migrated over and seem to work fine so far. Is the issue your dashboards did not migrate or is it that you cannot create a new dashboard?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37525"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Sat, 26/12/2015 - 20:35.</div>
+    <div class="content">
+     <p>Emoncms log now only shows warning messages, if you don't have any messages in the log than that means you have no errors! Emoncms log level can be changed in /var/www/emoncms/settings.php</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37527"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Sat, 26/12/2015 - 21:25.</div>
+    <div class="content">
+     <p>Trystan - I&#39;m not sure I understand the &quot;mysql real escape string&quot; or what I should be entering&nbsp;to that webpage. &nbsp; We can set this aside for now since I know all of my IDs &amp; passwords an&nbsp;my IDs &amp; passwords&nbsp;(and other names are all fairly simple). &nbsp;Also the URL above looks like this:&nbsp;</p>
+<blockquote><p><a href="http://The%20latest%20update%20to%20emoncms%20makes%20a%20couple%20of%20changes%20to%20the%20emoncms%20login%20implementation%20and%20you%20may%20find%20emoncms%20presenting%20you%20with%20the%20error%20&quot;Incorrect%20password,%20if%20your%20sure%20its%20correct%20try%20clearing%20your%20browser%20cache.&quot;%20%20If%20your%20using%20passwords%20with%20special%20characters%20the%20way%20emoncms%20now%20handles%20these%20had%20now%20changed.%20%20I%20have%20created%20a%20small%20tool%20that%20applies%20the%20mysql%20real%20escape%20string%20modification%20that%20has%20now%20been%20removed%20from%20emoncms%20so%20that%20its%20possible%20to%20login%20again%20after%20which%20you%20can%20change%20your%20password%20in%20emoncms.%20%20The%20tool%20is%20here%20and%20runs%20locally%20in%20your%20browser%20using%20javascript%20and%20so%20is%20safe,%20nothing%20is%20sent%20to%20a%20remote%20server,%20you%20can%20check%20it%20for%20yourself%20with%20a%20test%20string%20and%20the%20browser&#039;s%20network%20tab.%20%20&lt;a%20href=" title="http://The%20latest%20update%20to%20emoncms%20makes%20a%20couple%20of%20changes%20to%20the%20emoncms%20login%20implementation%20and%20you%20may%20find%20emoncms%20presenting%20you%20with%20the%20error%20&quot;Incorrect%20password,%20if%20your%20sure%20its%20correct%20try%20clearing%20your%20browser%20cache.&quot;%20%20If%20your%20using%20passwords%20with%20special%20characters%20the%20way%20emoncms%20now%20handles%20these%20had%20now%20changed.%20%20I%20have%20created%20a%20small%20tool%20that%20applies%20the%20mysql%20real%20escape%20string%20modification%20that%20has%20now%20been%20removed%20from%20emoncms%20so%20that%20its%20possible%20to%20login%20again%20after%20which%20you%20can%20change%20your%20password%20in%20emoncms.%20%20The%20tool%20is%20here%20and%20runs%20locally%20in%20your%20browser%20using%20javascript%20and%20so%20is%20safe,%20nothing%20is%20sent%20to%20a%20remote%20server,%20you%20can%20check%20it%20for%20yourself%20with%20a%20test%20string%20and%20the%20browser&#039;s%20network%20tab.%20%20&lt;a%20href=">http://The%20latest%20update%20to%20emoncms%20makes%20a%20couple%20of%20...</a> &nbsp;</p>
+</blockquote>
+<p>instead of of this:&nbsp;</p>
+<blockquote><p><a href="http://openenergymonitor.org/tools/realescapestring " title="http://openenergymonitor.org/tools/realescapestring ">http://openenergymonitor.org/tools/realescapestring </a></p>
+</blockquote>
+<p>I did try the&nbsp;http://localhost/emoncms/admin/db?apply=true yesterday and I am not sure if it helped on not.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37529"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Sat, 26/12/2015 - 21:45.</div>
+    <div class="content">
+     <p>Glyn - Only one Dashboard migrated (a simple one).&nbsp;</p>
+<p><img alt="" src="../sites/default/files/Screen%20Shot%202015-12-26%20at%203.27.25%20PM%202.png" /></p>
+<p>None&nbsp;of the MultiGraphs made the migration. &nbsp;They all look like this:</p>
+<p><img alt="" src="../sites/default/files/Screen%20Shot%202015-12-26%20at%203.41.00%20PM%202.png" /></p>
+<p>Yes, I can create new Dashboards with <u>new</u>&nbsp;MultiGraphs. &nbsp;I cannot use or modify and use old MultiGraphs.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37530"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Sat, 26/12/2015 - 22:01.</div>
+    <div class="content">
+     <p>I just ran the command &quot;&nbsp;sudo service mysql status&quot;&nbsp;and came across these error messages:&nbsp;</p>
+<blockquote><p>pi@emonpi:/var/log$ sudo service mysql status<br />
+● mysql.service - LSB: Start and stop the mysql database server daemon<br />
+&nbsp; &nbsp;Loaded: loaded (/etc/init.d/mysql)<br />
+&nbsp; &nbsp;Active: active (running) since Thu 2015-12-24 16:17:20 GMT; 2 days ago<br />
+&nbsp; Process: 486 ExecStart=/etc/init.d/mysql start (code=exited, status=0/SUCCESS)<br />
+&nbsp; &nbsp;CGroup: /system.slice/mysql.service<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;├─ 730 /bin/sh /usr/bin/mysqld_safe<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;├─1156 /usr/sbin/mysqld --basedir=/usr --datadir=/home/pi/data/mysql --plugin-dir=/usr/...<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;└─1157 logger -t mysqld -p daemon.error</p>
+<p>Dec 24 16:17:20 emonpi mysql[486]: Starting MySQL database server: mysqld . . ..<br />
+Dec 24 16:17:20 emonpi mysql[486]: Checking for tables which need an upgrade, are corrupt or were<br />
+Dec 24 16:17:20 emonpi mysql[486]: not closed cleanly..<br />
+Dec 24 16:17:20 emonpi systemd[1]: Started LSB: Start and stop the mysql database server daemon.<br />
+Dec 24 16:22:56 emonpi mysqld[1157]: <strong>151224 16:22:56 [ERROR] /usr/sbin/mysqld: Table &#39;./emoncm...ired</strong><br />
+Dec 24 16:22:56 emonpi mysqld[1157]: <strong>151224 16:22:56 [Warning] Checking table: &nbsp; &#39;./emoncms/da...ard&#39;</strong><br />
+Dec 24 16:22:56 emonpi mysqld[1157]: <strong>151224 16:22:56 [ERROR] /usr/sbin/mysqld: Table &#39;./emoncm...ired</strong><br />
+Dec 24 16:22:56 emonpi mysqld[1157]: <strong>151224 16:22:56 [Warning] Checking table: &nbsp; &#39;./emoncms/re...rme&#39;</strong><br />
+Dec 24 16:22:56 emonpi mysqld[1157]: <strong>151224 16:22:56 [ERROR] /usr/sbin/mysqld: Table &#39;./emoncm...ired</strong><br />
+Dec 24 16:22:56 emonpi mysqld[1157]: <strong>151224 16:22:56 [Warning] Checking table: &nbsp; &#39;./emoncms/users&#39;</strong><br />
+Hint: Some lines were ellipsized, use -l to show in full.<br />
+pi@emonpi:/var/log$</p>
+</blockquote>
+<p>Could this be the Dashboard issues?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37531"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 26/12/2015 - 22:08.</div>
+    <div class="content">
+     <p>v9 introduced a change in the feed naming protocol, breaking the links between the feeds and the multigraphs.</p>
+<p>To deal with this, go to &#39;Extra&#39; &gt; &#39;Visualisation&#39; &gt; &#39;Multigraph&#39;, and for each of your old&nbsp;multigraphs,&nbsp;reselect the feeds again, copying the format of the old feeds. Then delete the old feed entries before saving the multigraph.</p>
+<p>The other links between Multigraphs&nbsp;&amp; Dashboards should still be there.</p>
+<p>Could the MYSQL errors above be due to being unable to locate the multigraph links as above?</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37532"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Sat, 26/12/2015 - 22:42.</div>
+    <div class="content">
+     <p>Paul - I&#39;ve updated three MultiGraphs and all three have started working A-OK. &nbsp;Thank you!</p>
+<p>I cannot answer the last line: &quot;Could the MYSQL errors above be due to being unable to locate the multigraph links as above?&quot; &nbsp;Hopefully that was directed to T &amp; G.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37533"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sat, 26/12/2015 - 22:46.</div>
+    <div class="content">
+     <p>No, I was suggesting, update the multigraphs, then retry</p>
+<pre>
+$ sudo service mysql status</pre><p>...and see if there are any current errors showing.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37535"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Sun, 27/12/2015 - 00:52.</div>
+    <div class="content">
+     <p>Paul - I am still getting some errors...</p>
+<p>pi@emonpi:~$ sudo service mysql status<br />
+● mysql.service - LSB: Start and stop the mysql database server daemon<br />
+&nbsp; &nbsp;Loaded: loaded (/etc/init.d/mysql)<br />
+&nbsp; &nbsp;Active: active (running) since Sat 2015-12-26 22:17:19 GMT; 2h 28min ago<br />
+&nbsp; Process: 480 ExecStart=/etc/init.d/mysql start (code=exited, status=0/SUCCESS)<br />
+&nbsp; &nbsp;CGroup: /system.slice/mysql.service<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;├─ 731 /bin/sh /usr/bin/mysqld_safe<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;├─1155 /usr/sbin/mysqld --basedir=/usr --datadir=/home/pi/data/mysql --plugin-dir=/usr/lib/mysql/plugin --pid-fi...<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;└─1156 logger -t mysqld -p daemon.error</p>
+<p>Dec 26 22:17:19 emonpi mysql[480]: Checking for tables which need an upgrade, are corrupt or were<br />
+Dec 26 22:17:19 emonpi mysql[480]: not closed cleanly..<br />
+Dec 26 22:17:19 emonpi systemd[1]: Started LSB: Start and stop the mysql database server daemon.<br />
+Dec 26 22:48:07 emonpi /etc/mysql/debian-start[1292]: Checking for insecure root accounts.<br />
+Dec 26 22:48:08 emonpi mysqld[1156]: <strong>151226 22:48:08 [ERROR] /usr/sbin/mysqld: Table &#39;./emoncms/dashboard&#39; is marked ...paired</strong><br />
+Dec 26 22:48:08 emonpi mysqld[1156]: <strong>151226 22:48:08 [Warning] Checking table: &nbsp; &#39;./emoncms/dashboard&#39;</strong><br />
+Dec 26 22:48:08 emonpi mysqld[1156]: <strong>151226 22:48:08 [ERROR] /usr/sbin/mysqld: Table &#39;./emoncms/multigraph&#39; is marked...paired</strong><br />
+Dec 26 22:48:08 emonpi mysqld[1156]: <strong>151226 22:48:08 [Warning] Checking table: &nbsp; &#39;./emoncms/multigraph&#39;</strong><br />
+Dec 26 22:48:08 emonpi mysqld[1156]: <strong>151226 22:48:08 [ERROR] /usr/sbin/mysqld: Table &#39;./emoncms/rememberme&#39; is marked...paired</strong><br />
+Dec 26 22:48:08 emonpi mysqld[1156]: <strong>151226 22:48:08 [Warning] Checking table: &nbsp; &#39;./emoncms/rememberme&#39;</strong><br />
+Hint: Some lines were ellipsized, use -l to show in full.<br />
+pi@emonpi:~$&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37541"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Sun, 27/12/2015 - 10:23.</div>
+    <div class="content">
+     <p>MYSQL error&nbsp;1156 means &#39;MySQL error code 1156 (ER_NET_PACKETS_OUT_OF_ORDER): Got packets out of order&#39;.</p>
+<p>This could still be related to the password issue, can you confirm if you are currently using any special characters in your passwords, such as $ % ^ ?</p>
+<p>It&#39;s unfortunate that the error is&nbsp;ellipsized&nbsp;as we can&#39;t see the full error&nbsp;text. Can you retry, with the SSH window maximised&nbsp;and run with the -l suffix.</p>
+<pre>
+sudo service mysql status -l</pre><p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37552"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Sun, 27/12/2015 - 15:53.</div>
+    <div class="content">
+     <p>
+Paul - Concerning passwords: I can confirm no special characters. &nbsp;I am still using the default passwords for everything and my user&nbsp;password is similar to a simple &quot;abc1&quot;. &nbsp;(&nbsp;I plan to change them once I get things working a little better)</p>
+<p>I ran the &quot;sudo service mysql status -l&quot; command and it produced no new info. &nbsp;The output looks the same as above.&nbsp;I read thru<strong> /etc/init.d/mysql&nbsp;</strong>file&nbsp;and I am guessing the bash script&nbsp;will only react to these options &quot;start,&nbsp;stop,&nbsp;restart,&nbsp;reload,&nbsp;force-reload,&nbsp;status&quot;.</p>
+<p>
+One interesting thing about the error you mentioned &quot;MYSQL error&nbsp;1156 means &#39;MySQL error code 1156 (ER_NET_PACKETS_OUT_OF_ORDER): Got packets out of order&#39;.&quot; &nbsp;The emonPi seems to &quot;lockup&quot; fairly easily and I can only restart it by unplugging the power which I hate to do. It has been this way since day one with the Dec 22 image. &nbsp;A paper-clip shutdown will not work.</p>
+<p>After&nbsp;a cold startup if I push the LCD momentary switch more that a few times then the LCD&nbsp;locks up. So I can get to the P1: watts / P2: watts screen and all looks A-OK. &nbsp;One more push and the screen freezes.</p>
+<p>I wonder if I corrupted the mySQL&nbsp;DB?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37597"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Mon, 28/12/2015 - 17:37.</div>
+    <div class="content">
+     <p>I decided to start over with a fresh image, SD Card, etc. and I am still getting some odd errors (I understand this is a beta). &nbsp;Here is one of the items found...</p>
+<p>I noticed the log times are in UTC and are no longer my local time of CST. &nbsp;I set the Timezone&nbsp;on the My Account webpage from UTC to America/Chicago. But that did not change anything. &nbsp;I went looking for the&nbsp;<a href="https://guide.openenergymonitor.org/#timezone">raspi-config</a>&nbsp;command to change the time zone but I could not locate the command. &nbsp;Did this change?</p>
+<p><img alt="" src="../sites/default/files/timezone_thumb.png" /></p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37598"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Mon, 28/12/2015 - 17:53.</div>
+    <div class="content">
+     <p>Presumably youre&nbsp;using Jessie OS?</p>
+<p>If so, as always it&#39;s:</p>
+<pre>
+sudo raspi-config</pre><p>​But then you have posted a screenshot of raspi-config&nbsp;timezone setup, so I don&#39;t understand your question.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37600"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Mon, 28/12/2015 - 18:03.</div>
+    <div class="content">
+     <p>I am using what is included in the&nbsp;emonSD-22Dec2015.img.zip image. &nbsp;I think that is Jessie.</p>
+<p>Sorry. &nbsp;My bad for not explaining the pic better. &nbsp;The pic&nbsp;is an old picture from&nbsp;<strong><a href="https://guide.openenergymonitor.org/#timezone">emonPi / emonBase Setup</a></strong>&nbsp;webpage.</p>
+<p>I typed in the&nbsp;sudo raspi-config and I get this response: &quot;sudo: raspi-config: command not found&quot;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37601"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Mon, 28/12/2015 - 18:09.</div>
+    <div class="content">
+     <p>Aah right, I believe that the image file is a cut down version of Jessie called Minibian, which I haven&#39;t&nbsp;used yet, but it&#39;s maybe worth googling it to find out about Minibian &amp; timezones. Otherwise its a question for Glyn.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37603"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/238.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-238.jpg" alt="Paul Reed&#039;s picture" title="Paul Reed&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/238.html" title="View user profile.">Paul Reed</a> on Mon, 28/12/2015 - 20:17.</div>
+    <div class="content">
+     <p>Out of interest,<a href="http://www.teknynja.com/2014/03/raspberry-piminibian-adjusting-locale.html"> I found this link</a>.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37604"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Mon, 28/12/2015 - 22:00.</div>
+    <div class="content">
+     <p>Paul - Thank you! &nbsp;The&nbsp;<strong>dpkg-reconfigure tzdata</strong>&nbsp;did the trick!!</p>
+<p>As a side note - I am not sure the&nbsp;<strong>dpkg-reconfigure locales</strong> quite works. &nbsp;Even though I picked <strong>en_US.UTF-8 UTF-8</strong>&nbsp;in the first screen and <strong>en.US.UTF-8</strong> in the second screen&nbsp;I would always end up with this response:</p>
+<p>Generating locales (this might take a while)...<br />
+&nbsp; en_GB.UTF-8... done<br />
+&nbsp; en_US.UTF-8... done<br />
+Generation complete.</p>
+<p>Hopefully the time zone change&nbsp;doesn&#39;t mess up data storage.</p>
+<div>2015-12-28 <strong>21:35:12,862</strong> INFO&nbsp;&nbsp;&nbsp;&nbsp; RFM2Pi&nbsp;&nbsp;&nbsp;&nbsp; Publishing: emonhub/rx/5/values 570,264,834,123.39,19.2,0,0,0,0,0,4859<br />
+2015-12-28 21:35:12,865 INFO&nbsp;&nbsp;&nbsp;&nbsp; RFM2Pi&nbsp;&nbsp;&nbsp;&nbsp; Publishing: emonhub/rx/5/rssi 0<br />
+2015-12-28 21:35:12,867 DEBUG&nbsp;&nbsp;&nbsp; RFM2Pi&nbsp;&nbsp;&nbsp;&nbsp; 4152 adding frame to buffer =&gt; [1451338512, 5, 570, 264, 834, 123.39, 19.200000000000003, 0, 0, 0, 0, 0, 4859]<br />
+2015-12-28 21:35:12,869 DEBUG&nbsp;&nbsp;&nbsp; RFM2Pi&nbsp;&nbsp;&nbsp;&nbsp; 4152 Sent to channel&#39; : ToEmonCMS<br />
+2015-12-28 <strong>15:35:17,907</strong> DEBUG&nbsp;&nbsp;&nbsp; RFM2Pi&nbsp;&nbsp;&nbsp;&nbsp; 4153 NEW FRAME : OK 5 56 2 9 1 65 3 53 48 192 0 0 0 0 0 0 0 0 0 0 0 253 18 0 0 (-0)<br />
+2015-12-28 15:35:17,911 DEBUG&nbsp;&nbsp;&nbsp; RFM2Pi&nbsp;&nbsp;&nbsp;&nbsp; 4153 Timestamp : 1451338517.91<br />
+2015-12-28 15:35:17,912 DEBUG&nbsp;&nbsp;&nbsp; RFM2Pi&nbsp;&nbsp;&nbsp;&nbsp; 4153 From Node : 5<br />
+2015-12-28 15:35:17,912 DEBUG&nbsp;&nbsp;&nbsp; RFM2Pi&nbsp;&nbsp;&nbsp;&nbsp; 4153&nbsp;&nbsp;&nbsp; Values : [568, 265, 833, 123.41, 19.200000000000003, 0, 0, 0, 0, 0, 4861]<br />
+2015-12-28 15:35:17,914 INFO&nbsp;&nbsp;&nbsp;&nbsp; RFM2Pi&nbsp;&nbsp;&nbsp;&nbsp; Publishing: emonhub/rx/5/values 568,265,833,123.41,19.2,0,0,0,0,0,4861<br />
+2015-12-28 15:35:17,917 INFO&nbsp;&nbsp;&nbsp;&nbsp; RFM2Pi&nbsp;&nbsp;&nbsp;&nbsp; Publishing: emonhub/rx/5/rssi 0</div>
+<div>&nbsp;</div>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37611"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Tue, 29/12/2015 - 01:39.</div>
+    <div class="content">
+     <p>On to the next unusual issue. &nbsp;The emonPi&nbsp;LCD display will freeze after pushing the LCD momentary&nbsp;switch a few times. &nbsp;I get to the Power 1: 1000W&nbsp;/ Power 2: 2000W and all works OK &amp; I can see the power change as the power&nbsp;changes within my house. &nbsp;But one more switch&nbsp;push and the LCD is locked. &nbsp;The&nbsp;<strong>sudo service emonPiLCD status</strong> states this:</p>
+<blockquote><p>pi@emonpi:~$ sudo service emonPiLCD status<br />
+● emonPiLCD.service - LSB: emonPi LCD controller<br />
+&nbsp; &nbsp;Loaded: loaded (/etc/init.d/emonPiLCD)<br />
+&nbsp; &nbsp;Active: active<strong> (exited)</strong> since Tue 2015-12-22 07:32:54 CST; 6 days ago<br />
+&nbsp; Process: 400 ExecStart=/etc/init.d/emonPiLCD start (code=exited, status=0/SUCCESS)</p>
+<p>Dec 22 07:32:53 emonpi systemd[1]: Starting LSB: emonPi LCD controller...<br />
+Dec 22 07:32:53 emonpi emonPiLCD[400]: Starting system emonPiLCD daemon:.<br />
+Dec 22 07:32:54 emonpi systemd[1]: Started LSB: emonPi LCD controller.</p>
+</blockquote>
+<p>I do not know why the dates and times are different in the above. &nbsp;And the emonPiLCD&nbsp;log looks like this:</p>
+<blockquote><p>2015-12-28 19:21:35,344 INFO Backlight off<br />
+2015-12-28 19:21:35,446 INFO Backlight off<br />
+2015-12-28 19:21:35,532 INFO lcd button press 0<br />
+2015-12-28 19:21:35,548 INFO Mode button pressed<br />
+2015-12-28 19:21:35,550 INFO Page: 0<br />
+2015-12-28 19:21:35,551 INFO Data: []<br />
+2015-12-28 19:21:42,567 INFO lcd button press 0<br />
+2015-12-28 19:21:42,648 INFO Mode button pressed<br />
+2015-12-28 19:21:42,649 INFO Page: 1<br />
+2015-12-28 19:21:42,650 INFO Data: []<br />
+2015-12-28 19:21:48,995 INFO lcd button press 0<br />
+2015-12-28 19:21:51,465 INFO lcd button press 0<br />
+2015-12-28 19:21:51,535 INFO Mode button pressed<br />
+2015-12-28 19:21:51,536 INFO Page: 2<br />
+2015-12-28 19:21:51,537 INFO Data: []<br />
+2015-12-28 19:21:58,041 INFO lcd button press 0<br />
+2015-12-28 19:21:58,115 INFO Mode button pressed<br />
+2015-12-28 19:21:58,116 INFO Page: 3<br />
+2015-12-28 19:21:58,117 INFO Data: [&#39;2009&#39;, &#39;2601&#39;, &#39;4610&#39;, &#39;246.93&#39;, &#39;18.8&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;395&#39;]<br />
+2015-12-28 19:22:03,830 INFO lcd button press 0<br />
+2015-12-28 19:22:04,848 INFO lcd button press 0<br />
+2015-12-28 19:22:06,000 INFO lcd button press 0</p>
+</blockquote>
+<p>and doing a <strong>sudo service emonPiLCD restart</strong> causes this in the log:</p>
+<blockquote><p>2015-12-28 19:29:16,630 INFO emonPiLCD Start<br />
+2015-12-28 19:29:16,734 INFO I2C LCD Detected on 0x27<br />
+2015-12-28 19:29:18,049 INFO Connecting to MQTT Server</p>
+</blockquote>
+<p>And now I am good for three more LCD switch pushes.</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37620"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Tue, 29/12/2015 - 09:17.</div>
+    <div class="content">
+     <p>Nice work. Yes as you have found raspi-config is not included. How about using tzselect? Seems a bit more user friendly guiding through the process.&nbsp;&nbsp;</p>
+<p>pi@emonpi:~$ tzselect<br />
+Please identify a location so that time zone rules can be set correctly.<br />
+Please select a continent, ocean, &quot;coord&quot;, or &quot;TZ&quot;.<br />
+&nbsp;1) Africa<br />
+&nbsp;2) Americas<br />
+&nbsp;3) Antarctica<br />
+&nbsp;4) Arctic Ocean<br />
+&nbsp;5) Asia<br />
+&nbsp;6) Atlantic Ocean<br />
+&nbsp;7) Australia<br />
+&nbsp;8) Europe<br />
+&nbsp;9) Indian Ocean<br />
+10) Pacific Ocean<br />
+11) coord - I want to use geographical coordinates.<br />
+12) TZ - I want to specify the time zone using the Posix TZ format.<br />
+#? 8<br />
+Please select a country whose clocks agree with yours.<br />
+&nbsp;1) &Aring;land Islands &nbsp; &nbsp; &nbsp; &nbsp; 18) Greece &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;35) Norway<br />
+&nbsp;2) Albania &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 19) Guernsey &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;36) Poland<br />
+&nbsp;3) Andorra &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 20) Hungary &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 37) Portugal<br />
+&nbsp;4) Austria &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 21) Ireland &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 38) Romania<br />
+&nbsp;5) Belarus &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 22) Isle of Man &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 39) Russia<br />
+&nbsp;6) Belgium &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 23) Italy &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 40) San Marino<br />
+&nbsp;7) Bosnia &amp; Herzegovina &nbsp;24) Jersey &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;41) Serbia<br />
+&nbsp;8) Britain (UK) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;25) Latvia &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;42) Slovakia<br />
+&nbsp;9) Bulgaria &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;26) Liechtenstein &nbsp; &nbsp; &nbsp; &nbsp; 43) Slovenia<br />
+10) Croatia &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 27) Lithuania &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 44) Spain<br />
+11) Czech Republic &nbsp; &nbsp; &nbsp; &nbsp;28) Luxembourg &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;45) Sweden<br />
+12) Denmark &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 29) Macedonia &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 46) Switzerland<br />
+13) Estonia &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 30) Malta &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 47) Turkey<br />
+14) Finland &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 31) Moldova &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 48) Ukraine<br />
+15) France &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;32) Monaco &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;49) Vatican City<br />
+16) Germany &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 33) Montenegro<br />
+17) Gibraltar &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 34) Netherlands<br />
+#? 8</p>
+<p>The following information has been given:</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; Britain (UK)</p>
+<p>Therefore TZ=&#39;Europe/London&#39; will be used.<br />
+Local time is now: &nbsp; &nbsp; &nbsp;Tue Dec 29 09:10:39 GMT 2015.<br />
+Universal Time is now: &nbsp;Tue Dec 29 09:10:39 UTC 2015.<br />
+Is the above information OK?<br />
+1) Yes<br />
+2) No<br />
+#? 1</p>
+<p>You can make this change permanent for yourself by appending the line<br />
+&nbsp; &nbsp; &nbsp; &nbsp; TZ=&#39;Europe/London&#39;; export TZ<br />
+to the file &#39;.profile&#39; in your home directory; then log out and log in again.</p>
+<p>Here is that TZ value again, this time on standard output so that you<br />
+can use the /usr/bin/tzselect command in shell scripts:<br />
+Europe/London</p>
+<p>You can add the line to the profile file using text editor&nbsp;$ nano .profile&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37644"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8298.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-8298.jpg" alt="Jon&#039;s picture" title="Jon&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8298.html" title="View user profile.">Jon</a> on Tue, 29/12/2015 - 20:30.</div>
+    <div class="content">
+     <p>Glyn&nbsp;-&nbsp;to me the&nbsp;<strong>dpkg-reconfigure tzdata</strong>&nbsp;seemed easier to use.</p>
+<blockquote><p>​rpi-rw<br />
+sudo dpkg-reconfigure tzdata<br />
+&nbsp; &nbsp; (now pick Geographic area, click OK, select the city or region and click OK)<br />
+rpi-ro</p>
+</blockquote>
+<p>The part I did not understand was the reference to the .profile file. &nbsp;Does the Time Zone info disappear on reboot / reset / restart if &quot;TZ=&#39;Europe/London&#39;; export TZ​&quot; does not appear in the .profile file?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37660"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/10.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-10.jpg" alt="glyn.hudson&#039;s picture" title="glyn.hudson&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/10.html" title="View user profile.">glyn.hudson</a> on Wed, 30/12/2015 - 08:37.</div>
+    <div class="content">
+     <p>After running&nbsp;tzselect&nbsp;the time zone will disappear on reboot unless TZ= is not added to .profile file. Does&nbsp;dpkg-reconfigure tzdata add this line automatically?&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-37663"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Emonpi/emonbase data migration</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 30/12/2015 - 09:30.</div>
+    <div class="content">
+     <p>Hi Glyn, &quot;dpkg-reconfigure tzdata&quot; is the command&nbsp;used by raspi-config behind the scenes, it doesn&#39;t add anything to ~/.profile but it is a persistent change. I think&nbsp;this method is the better approach as I believe&nbsp;it&nbsp;effects&nbsp;all users rather than just pi.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/11843"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-T12JVQqpDbOzxrKV2CkJVFK0cU0911rBaFxHYHN1Trs" value="form-T12JVQqpDbOzxrKV2CkJVFK0cU0911rBaFxHYHN1Trs"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11843 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:49:22 GMT -->
+</html>

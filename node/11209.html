@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11209 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:43:52 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>SDK: Developing graphical apps / widgets Modules | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">SDK: Developing graphical apps / widgets Modules</h3>
+        <span class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Thu, 03/09/2015 - 14:52</span>
+        <div class="content"><p>To anyone creating new apps / screens.</p>
+<p>Create widgets!&nbsp;</p>
+<p>Don&#39;t look at the apps modules for examples, they are to be reformulated.</p>
+<p>By using the widget framework it&#39;s possible for the user to create his own dashboards combining simple widget components. As a developer you can create each widget easily each one on just a JS file.</p>
+<p>The bonus to the developer of using the widgets framework is not having to deal with the widget configuration UI every time. Give focus on the functionality instead.<br />
+Configurations are taken care by the designer framework (in designer.js) with the dashboard editor, for you.</p>
+<p>&nbsp;</p>
+<p>Lets start:</p>
+<p>A simple good demo is the feedvalue_render.js widget at <a href="../../../github.com/chaveiro/emoncms/blob/stable/Modules/dashboard/widget/feedvalue/feedvalue_render.html" title="https://github.com/chaveiro/emoncms/blob/stable/Modules/dashboard/widget/feedvalue/feedvalue_render.js">https://github.com/chaveiro/emoncms/blob/stable/Modules/dashboard/widget...</a></p>
+<p>1 - Create a folder with this structure (can have many widgets on the same module):<br />
+&nbsp;&nbsp;&nbsp; Modules/<strong>module_name</strong>/widget/<strong>widgetname</strong>/</p>
+<p>&nbsp;</p>
+<p>2 - Add two files to the <strong>widgetname </strong>folder:&nbsp; (replace <strong>widgetname </strong>with the name of the widget):<br />
+&nbsp;&nbsp;&nbsp; <strong>widgetname</strong>_render.js<br />
+&nbsp;&nbsp;&nbsp; <strong>widgetname</strong>_widget.php &lt;- (this is optional, useful to pass php variables to js)</p>
+<p>It&#39;s on the widgetname_render.js that you set config options and ui draw options.<br />
+This two files get loaded automatically (if existent) when the widget is used so you don&#39;t have to deal with that also.</p>
+<p>&nbsp;</p>
+<p>3 - This functions are called automatically by the framework, change <strong>widgetname</strong> to match the folder path <strong>widgetname</strong>:</p>
+<ul>
+<li><strong>widgetname</strong>_widgetlist() &lt;- called during configuration. Add config option with addOption function.</li>
+<li><strong>widgetname</strong>_init() &lt;- called one time on page load, for you to draw the widget ui.</li>
+<li><strong>widgetname</strong>_fastupdate() &lt;- called about 30x per second, for UI animations.</li>
+<li><strong>widgetname</strong>_slowupdate() &lt;- called every time feeds data is pooled,</li>
+</ul>
+<p>&nbsp;</p>
+<p>4 - You can get the widget configured values with :</p>
+<p>&nbsp;&nbsp;&nbsp; var feedid = $(this).attr(&quot;feedid&quot;); // gets config feedid setting</p>
+<p>&nbsp;</p>
+<p>5 - And feed details with last values updated every 5secs with:</p>
+<p>&nbsp;&nbsp;&nbsp; var val = associd[feedid][&#39;value&#39;];</p>
+<p>&nbsp;</p>
+<p>6 - Remember that it&#39;s in <strong>widgetname</strong>_render.js you will deal with all instances of the same widget on the screen, so you iterate each instance with:</p>
+<p>$(&#39;.<strong>widgetname</strong>&#39;).each(function(index) {<br />
+&nbsp;&nbsp;&nbsp; var feedid = $(this).attr(&quot;feedid&quot;); // gets config feedid setting<br />
+&nbsp;&nbsp;&nbsp; var val = associd[feedid][&#39;value&#39;];<br />
+&nbsp;&nbsp;&nbsp; $(this).html(&quot;Feed value is: &quot; + val); // draw text and feed value on each widget instance on the dashboard<br />
+}</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="11211.html" class="topic-previous" title="Go to previous forum topic">‹ MQTT versus HTTP protocols</a>
+              <a href="11196.html" class="topic-next" title="Go to next forum topic">Port not open? ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/11209 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 14:43:53 GMT -->
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3302 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:56:59 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Owl Intuition Multicast not working on emoncms raspberry pi sd image (SOLVED) | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/5.html">Archived: Software</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Owl Intuition Multicast not working on emoncms raspberry pi sd image (SOLVED)</h3>
+        <span class="submitted">Submitted by Guest on Sun, 08/12/2013 - 14:43</span>
+        <div class="content"><p>Hi all,</p>
+<p>&nbsp;</p>
+<p>I have a owl intuition system and been using a python script to read owl&#39;s multicast feed and publish to emoncms.org</p>
+<p>Last night I installed emoncms on my rpi as outlined in &quot;RaspberryPI + Harddrive + Emoncms&quot;.</p>
+<p>Everything is working fine, except the python script doesn&#39;t read the multicast feed... no errors, nothing, just sits there and nothing is read/sent to opencms...</p>
+<p>I tried the same script on a &quot;plain&quot; raspbian install and it works fine...</p>
+<p>I also tried a different C program which also doesn&#39;t work...</p>
+<p>&nbsp;</p>
+<p>Seems I can&#39;t listen to multicast messages on port 22600 when using the opencms sd image, and can&#39;t figure out why...</p>
+<p>&nbsp;</p>
+<p>Any ideas?</p>
+<p>&nbsp;</p>
+<p>TIA, Gustavo Melo</p>
+<p>&nbsp;</p>
+<p>The python script:</p>
+<p>&nbsp;</p>
+<p>##################################################################</p>
+<p>&acute;GNU Lesser General Public License for more details.</p>
+<p>You should have received a copy of the GNU Lesser General Public License<br />
+	along with this library.&nbsp; If not, see &lt;http://www.gnu.org/licenses/&gt;.</p>
+<p>&quot;&quot;&quot;</p>
+<p>from twisted.internet.protocol import DatagramProtocol<br />
+	from lxml import objectify<br />
+	from decimal import Decimal<br />
+	import socket<br />
+	import requests</p>
+<p>sock = socket.socket(socket.AF_INET, # Internet<br />
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; socket.SOCK_DGRAM) # UDP</p>
+<p>
+	MCAST_ADDR = &#39;224.192.32.19&#39;<br />
+	MCAST_PORT = 22600</p>
+<p>class node(object):<br />
+	# structure for storing data about channels<br />
+	def __init__(self, channel_id, current_w, daily_wh):<br />
+	#&nbsp; self.channel_id = channel_id<br />
+	&nbsp; self.current_w = Decimal(current_w)<br />
+	#&nbsp; self.daily_wh = Decimal(daily_wh)</p>
+<p>	def __str__(self):<br />
+	&nbsp; return &#39;%s&#39; % (<br />
+	#&nbsp;&nbsp; self.channel_id,<br />
+	&nbsp;&nbsp; self.current_w,<br />
+	#&nbsp;&nbsp; self.daily_wh<br />
+	&nbsp; )</p>
+<p>
+	class OwlMessage(object):<br />
+	def __init__(self, datagram):<br />
+	&nbsp; #print &quot;datagram: %r&quot; % (datagram,)<br />
+	&nbsp; self.root = objectify.fromstring(datagram)<br />
+	&nbsp;<br />
+	&nbsp; # there are also weather events -- we don&#39;t care about these<br />
+	&nbsp; assert (self.root.tag == &#39;electricity&#39;), (&#39;OwlMessage XML must have `electricity` root node (got %r).&#39; % self.root.tag)<br />
+	&nbsp;<br />
+	&nbsp; # note that the MAC address is given by the message, not the packet.<br />
+	&nbsp; # this can be spoofed<br />
+	&nbsp; self.mac = self.root.attrib[&#39;id&#39;]<br />
+	&nbsp;<br />
+	&nbsp; # read signal information for the sensor&#39;s 433MHz link<br />
+	&nbsp; self.rssi = Decimal(self.root.signal[0].attrib[&#39;rssi&#39;])<br />
+	&nbsp; self.lqi = Decimal(self.root.signal[0].attrib[&#39;lqi&#39;])<br />
+	&nbsp;<br />
+	&nbsp; # read battery information from the sensor.<br />
+	&nbsp; self.battery = Decimal(self.root.battery[0].attrib[&#39;level&#39;][:-1])<br />
+	&nbsp;<br />
+	&nbsp; # read sensors (channels)<br />
+	&nbsp; self.channels = {}<br />
+	&nbsp; for channel in self.root.chan:<br />
+	&nbsp;&nbsp; assert channel.attrib[&#39;id&#39;] not in self.channels, &#39;Channel duplicate&#39;<br />
+	&nbsp;&nbsp;<br />
+	&nbsp;&nbsp; assert channel.curr[0].attrib[&#39;units&#39;] == &#39;w&#39;, &#39;Current units must be watts&#39;<br />
+	&nbsp;&nbsp; assert channel.day[0].attrib[&#39;units&#39;] == &#39;wh&#39;, &#39;Daily usage must be watthours&#39;<br />
+	&nbsp;&nbsp;<br />
+	&nbsp;&nbsp; # we&#39;re good and done our tests, create a channel<br />
+	&nbsp;&nbsp; self.channels[channel.attrib[&#39;id&#39;]] = node(channel.attrib[&#39;id&#39;], channel.curr[0].text, channel.day[0].text)</p>
+<p>	def __str__(self):<br />
+	&nbsp; return &#39;csv=%s&#39; % (<br />
+	&nbsp;&nbsp; &#39;,&#39;.join((str(x) for x in self.channels.itervalues()))<br />
+	&nbsp; )</p>
+<p>
+	class OwlIntuitionProtocol(DatagramProtocol):<br />
+	def __init__(self, iface=&#39;&#39;):<br />
+	&nbsp; &quot;&quot;&quot;<br />
+	&nbsp; Protocol for Owl Intution (Network Owl) multicast UDP.<br />
+	&nbsp;<br />
+	&nbsp; :param iface: Name of the interface to use to communicate with the Network Owl.&nbsp; If not specified, uses the default network connection on the cost.<br />
+	&nbsp; :type iface: str<br />
+	&nbsp; &quot;&quot;&quot;<br />
+	&nbsp; self.iface = iface</p>
+<p>def startProtocol(self):<br />
+	&nbsp; self.transport.joinGroup(MCAST_ADDR, self.iface)</p>
+<p>	def datagramReceived(self, datagram, address):<br />
+	&nbsp; msg = OwlMessage(datagram)<br />
+	&nbsp; self.owlReceived(address, msg)</p>
+<p>	def owlReceived(self, address, msg):<br />
+	&nbsp; print &#39;%s&#39; % (msg)<br />
+	&nbsp; curlmessage = &#39;%s&#39; % (msg)<br />
+	&nbsp; r = requests.post(&quot;http://localhost/emoncms/input/post.json?node=1&amp;&quot;+curlmessage+&quot;,&quot;&quot;&amp;apikey=XXXXXXXXXXXXXX&quot;)</p>
+<p>if __name__ == &#39;__main__&#39;:<br />
+	from twisted.internet import reactor<br />
+	from argparse import ArgumentParser<br />
+	parser = ArgumentParser()<br />
+	parser.add_argument(&#39;-i&#39;, &#39;--iface&#39;, dest=&#39;iface&#39;, default=&#39;&#39;, help=&#39;Network interface to use for getting data.&#39;)</p>
+<p>	options = parser.parse_args()</p>
+<p>	protocol = OwlIntuitionProtocol(iface=options.iface)<br />
+	reactor.listenMulticast(MCAST_PORT, protocol, listenMultiple=True)<br />
+	reactor.run()</p>
+<p>#########################################################################</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="4049.html" class="topic-previous" title="Go to previous forum topic">‹ cannot create feeds....</a>
+              <a href="11094.html" class="topic-next" title="Go to next forum topic">My Electric - Interesting Behaviour ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-16638"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="GustavoMelo&#039;s picture" title="GustavoMelo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Owl Intuition Multicast not working on emoncms raspberry pi sd image (SOLVED)</h3>
+
+    <div class="submitted">Submitted by GustavoMelo (not verified) on Sun, 08/12/2013 - 16:04.</div>
+    <div class="content">
+     <p>ok, feeling stupid but:</p>
+<p>&nbsp;</p>
+<p>Solved by adding &quot;sudo ufw allow 22600&quot; :)</p>
+<p>&nbsp;</p>
+<p>Thank you anyway,</p>
+<p>&nbsp;</p>
+<p>Gustavo Melo</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16640"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Owl Intuition Multicast not working on emoncms raspberry pi sd image (SOLVED)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sun, 08/12/2013 - 15:51.</div>
+    <div class="content">
+     <p>Great, yes sorry I should make a clearer note that there is a firewall installed as defaultt in the latest image as well as the other standard security things like disabling root access and mysql_sequre_install.</p>
+<p>Nice to see the python script for interface with the owl, it would be great to include this in the usefulscripts repository, thats also installed as default with the harddrive image:</p>
+<p><a href="http://github.com/emoncms/usefulscripts" title="http://github.com/emoncms/usefulscripts">http://github.com/emoncms/usefulscripts</a></p>
+<p>Do you use github? can you send me a pull request there?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-16652"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="GustavoMelo&#039;s picture" title="GustavoMelo&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Owl Intuition Multicast not working on emoncms raspberry pi sd image (SOLVED)</h3>
+
+    <div class="submitted">Submitted by GustavoMelo (not verified) on Sun, 08/12/2013 - 18:52.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>&nbsp;</p>
+<p>I used the code from:</p>
+<p>&nbsp;</p>
+<p><a href="https://github.com/micolous/intuition" title="https://github.com/micolous/intuition">https://github.com/micolous/intuition</a></p>
+<p>&nbsp;</p>
+<p>Just adapted it to post the results to emoncms and cleaned up the results to send just the power values...</p>
+<p>&nbsp;</p>
+<p>But I can clean it up a bit and send it to you...</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18961"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="joshdinsdale&#039;s picture" title="joshdinsdale&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Owl Intuition Multicast not working on emoncms raspberry pi sd image (SOLVED)</h3>
+
+    <div class="submitted">Submitted by joshdinsdale (not verified) on Tue, 04/03/2014 - 16:07.</div>
+    <div class="content">
+     <p>hi Gustavo</p>
+<p>&nbsp;</p>
+<p>Any chance you could make your script public, or perhaps send me a copy? I&#39;ve tried using your pasted version but it crashes sometimes, it doesnt seem to be ignoring the heating values.</p>
+<p>I&#39;m not really coder but I am going to try and fix the problem. :)</p>
+<p>&nbsp;</p>
+<p>Thanks</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-18963"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <img src="../sites/default/files/imagecache/avatar/default_0.png" alt="joshdinsdale&#039;s picture" title="joshdinsdale&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Owl Intuition Multicast not working on emoncms raspberry pi sd image (SOLVED)</h3>
+
+    <div class="submitted">Submitted by joshdinsdale (not verified) on Tue, 04/03/2014 - 16:44.</div>
+    <div class="content">
+     <p>Scratch that, it is working, just got to get to grips with emoncms now. :)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-33276"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/8569.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="j20ands10&#039;s picture" title="j20ands10&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Owl Intuition Multicast not working on emoncms raspberry pi sd image (SOLVED)</h3>
+
+    <div class="submitted">Submitted by <a href="../user/8569.html" title="View user profile.">j20ands10</a> on Wed, 12/08/2015 - 14:17.</div>
+    <div class="content">
+     <p>rather a daft question I know but how do you run the script on raspbian?</p>
+<p>Am interested in getting my owl system working with emoncms but no idea where to start</p>
+<p>any help appriciated</p>
+<p>
+​<br />
+&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/3302"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-9nvdpBgYBr8s9xYcDIXWdKozXieYXCE5XjmGT2v7qfQ" value="form-9nvdpBgYBr8s9xYcDIXWdKozXieYXCE5XjmGT2v7qfQ"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/3302 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:56:59 GMT -->
+</html>

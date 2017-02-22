@@ -1,0 +1,497 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/9981 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:43:50 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+        <span class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Thu, 08/01/2015 - 23:04</span>
+        <div class="content"><p>I&#39;ve been doing some work recently on a heating controller implementation building it from the ground up so as to get a better idea of the requirements:&nbsp;<a href="https://github.com/emoncms/development/blob/master/experimental/control/open_thermostat_scheduler/readme.md">https://github.com/emoncms/development/blob/master/experimental/control/open_thermostat_scheduler/readme.md</a>. I&#39;ve also been looking at how emoncms might be built differently if the target is the raspberrypi connected directly to the rfm12pi board rather than a multi user cloud environment that is several steps away from the rfm network <a href="https://github.com/emoncms/emonview">https://github.com/emoncms/emonview</a></p>
+<p>I think a better integration between the nature of the rfm network that is predominantly used (structures etc), emonhub and emoncms or equivalent on the raspberrypi could provide a better overall system setup experience, how much information should the node transmit so that emoncms/view and auto describe the detected nodes? Controlling things also adds some new requirements and lots of questions in terms of control packet structures, acks and so on.</p>
+<p>Then it would be good use the encryption that the rfm69 offers.</p>
+<p>I&#39;ve been trying to work through these ideas and questions and would be interested in hearing other peoples thoughts on what we should be thinking about, requirements and the best way forward.</p>
+<p>items below:</p>
+<p>- RFM Network encryption<br />
+- Automatic ID assignment<br />
+- Automatic node detection and description<br />
+- Polling powered nodes<br />
+- ACK&#39;s<br />
+- Control packets</p>
+<p>
+<strong>RFM Network encryption</strong><br />
+The RFM69 supports hardware 128bit AES encryption.<br />
+For encryption to work every node in the network must have the same encryption key which needs to be unique to that particular network. This raises the question of how to set the encryption key on each node when the system is being setup.&nbsp; Sending the encryption key over the air as part of a pairing mechanism, even if that pairing window is short (I.e basestation has to be placed in a pairing mode manually for say 60s while the remote node is powered up), still makes it possible for a determined attacker to gain access if they have left a continuously listening node in proximity. It seems to me that the only way to do it securely is to set the encryption key as part of a wired manual setup procedure.&nbsp; It could potentially be possible to do this by connecting the raspberrypi to the node and using an inotool + web interface setup (equivalent of using arduino ide but using the raspberrypi and the arduino ide abstracted through the raspberrypi web ui)</p>
+<p>
+<strong>Automatic ID assignment</strong><br />
+At the moment if you want to install multiple emontx or emonth nodes each node needs to be programmed with a unique nodeid. If your not familiar with arduino this can add quite a bit of complication to system setup. It could be possible to implement DHCP style auto id assignment so that nodeid&#39;s 1-30 are assigned sequentially to nodes as they are connected. If each node is powered up sequentially on node 0 it could start by sending a nodeid request command to the basestation. The basestation could then send back an allocated nodeid which could be stored in EEPROM. Technically this shouldn&rsquo;t be too hard to implement but it does create a series of problems that may be harder to solve:</p>
+<p>- Communication between wireless nodes currently relies on fixed nodeid&#39;s. Basestation would need ability to set nodeid settings on other nodes that listen directly adding another layer of development complexity, not impossible.</p>
+<p>- Adds complexity to node and base station code that makes the code less readable, harder to understand for new coders and less likely to be modified, developed, extended in the spirit of hackable open source hardware.</p>
+<p>- Setting the encryption key on the node may require direct programming anyway and so perhaps the setup complexity saved with auto id would be undone by the subsequent addition of encryption key setting.</p>
+<p>- Another solution that might ease system setup without requiring an auto id solution would be a serial interface for setting the id and authentication key without needing a full reprogram, or a intool based raspberrypi programmer that could even be run from the web application.</p>
+<p><strong>Automatic node detection and description</strong><br />
+It would be very nice if when you plug up a new node it appears in the list with its name, hardware version, firmware version, variable names, all automatically decoded values. There could be several different ways of doing this.</p>
+<p>1) By nodeid<br />
+Nodeid&#39;s have been standardised for some time to refer to certain node types. Node descriptions could be fetched via a local or remote lookup table linked to the nodeid. Node 9 and 10 is usually an emontx, Node 19 is an EmonTH. The main problem with using nodeid&#39;s is that there could be many variations of emontx, different firmware versions with different packet structures and 30 nodeid&#39;s may not cover all the possible variations and then multiple installations of any of those variations. This problem could be solved using the same lookup table approach with a serial number packet:</p>
+<p>2) By a serial number packet<br />
+Similar to nodeid the node could have a serial number which would allow a greater number of node types and version, that would then allow the basestation to perform a lookup either to a local lookup table or to an remote table that could hold up to date info. If the local table approach would be used a table update mechanism would be needed. This would either need a way for the basestation to ask for the serial number or to have an initial time when the node is powered up when the basestation needs to acknowledge that it received the serial number packet, likely to be less problematic than having the basestation able to poll at any time as that would require the node to be in listening mode but it would require resetting the nodes if the basestation lost its settings.</p>
+<p>3) By an extended descriptor packet<br />
+The node could transmit all the information required for the basestation to decode and describe the node. As with serial number this would either need a way to make sure the basestation receives this information.</p>
+<p>4) If the encryption key and nodeid was assigned when the node is connected to the basestation directly the descriptor for the node could be transferred from the node to the basestation at that point via serial.</p>
+<p><strong>Polling powered nodes</strong><br />
+At the moment all nodes push their measurements at predefined intervals, say every 10s. There is no coordination of packet timing between nodes, this can result in packet loss if node tx times are aligned. Some nodes such as the emontx powered from the ACAC Adapter could have its readings polled by the basestation. The basestation could then sequentially poll all the powered listening nodes avoiding packetloss. Receiving the data back from the node is also an acknowledgement by its nature. Implementation would require a configuration in the basestation software to set poll times and gap between each node as well as timeout settings and then a script or thread within emonhub that generated the measurement request packets. A format and content to these packets would need to be decided upon and the code required to read these packets and send the measurements added to the nodes. Not impossible but would it offer a significant benefit? One nice feature could be the ability to poll a node faster for a shorter period, say power values at 1 second while looking at the data in realtime.</p>
+<p><strong>ACK&#39;s</strong><br />
+When sending control commands it becomes more important to ensure that the control packet was received and so it may be useful to specify that an ack is required and have some way of relaying information about failed commands back to the UI&nbsp; (could be implemented with a mqtt log topic and a filter for relevant messages in the UI). Some way of automatically retrying and setting the max number of attempts might also need to be added.</p>
+<p><strong>Control packets</strong><br />
+In the heating controller concept I put together here <a href="https://github.com/emoncms/development/blob/master/experimental/control/open_thermostat_scheduler/readme.md" title="https://github.com/emoncms/development/blob/master/experimental/control/open_thermostat_scheduler/readme.md">https://github.com/emoncms/development/blob/master/experimental/control/...</a></p>
+<p>The control node has a structure defined in the [nodes] section in the equivalent of emonhub.conf:</p>
+<p>[nodes]</p>
+<p>[[30]]<br />
+&nbsp;&nbsp;&nbsp; nodename = thermostat<br />
+&nbsp;&nbsp;&nbsp; names = state, setpoint<br />
+&nbsp;&nbsp;&nbsp; codes = h,h</p>
+<p>messages sent to the tx mqtt topic of the form</p>
+<p>&nbsp;&nbsp;&nbsp; tx/thermostat 1,1800</p>
+<p>is then translated into a packet to be sent to the node for decoding at the other end using the struct approach used for sending node measurement data.</p>
+<p>Should commands sent to particular nodes be limited in this way? There could be a second topic that will send encoded data directly.</p>
+<p>Then there is the scenario where the control node also sends measurement data and needs a different decoder assigned to its node. Perhaps there needs to be two different definitions one for data going out to node 30 and the other for data received from node 30.</p>
+<p>&nbsp;</p>
+<p>Interested to hear peoples thoughts</p>
+<p>Trystan</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="12221.html" class="topic-previous" title="Go to previous forum topic">‹ Summing the values of two inputs</a>
+              <a href="12213.html" class="topic-next" title="Go to next forum topic">Setting up an energy monitoring project for final year project ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-26586"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/6325.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="haden&#039;s picture" title="haden&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/6325.html" title="View user profile.">haden</a> on Fri, 09/01/2015 - 07:15.</div>
+    <div class="content">
+     <p>Sounds very interesting.</p>
+<p>I did have some similar thoughts about an automatic pairing of base and clients. My idea was to use either a cable or some sort of docking. It could be done with some pogo pins on the base station.</p>
+<p>Another though was to implement the mesh network of the RFM69, but&nbsp;I don&#39;t know if the encryption is end-to-end or it need to decrypt/encrypt it at each node.</p>
+<p>Regards</p>
+<p>Kim</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26776"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 14/01/2015 - 12:04.</div>
+    <div class="content">
+     <p>Thanks Kim, good to hear similar lines of thinking. Searching for mesh networking and RFM69 i came across this which looks interesting <a href="http://www.airspayce.com/mikem/arduino/RadioHead" title="http://www.airspayce.com/mikem/arduino/RadioHead">http://www.airspayce.com/mikem/arduino/RadioHead</a> has anyone used this?</p>
+<p>I&#39;ve been looking at the control packet format item again, I think it would be good to allow control nodes to send data packets containing sensor data and receive a packet containing control parameters that have different payload structures.</p>
+<p>At the moment following the emonhub config file approach decoders for receiving sensor data are defined like this:</p>
+<p>[nodes]<br />
+&nbsp;&nbsp;&nbsp; [[10]]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nodename = livingroom<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; names = temperature<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; codes = h,</p>
+<p>I&#39;ve added in here the node and variable name properties. The corresponding structure on the sensor node looks like this:</p>
+<p>&nbsp;&nbsp;&nbsp; typedef struct {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int temperature<br />
+&nbsp;&nbsp;&nbsp; } Payload;<br />
+&nbsp;&nbsp;&nbsp; Payload livingroom_sensor_values;</p>
+<p>Lets say that livingroom node now has a relay attached to control a radiator actuator and that the control parameters that we need to set are: actuator on/off state and room setpoint, If it is sufficient to define a single type of control packet for a particular node that contains all the control parameters - which I think it is in probably most cases. We could have a second structure used for decoding packets received on the livingroom node</p>
+<p>&nbsp;&nbsp;&nbsp; typedef struct {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; byte state,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int setpoint<br />
+&nbsp;&nbsp;&nbsp; } PayloadCtrl;<br />
+&nbsp;&nbsp;&nbsp; PayloadCtrl livingroom_control_params;</p>
+<p>the emonhub config file would then need a separate section for describing packets that are outgoing, perhaps this would look like this:</p>
+<p>[nodes_rx]<br />
+&nbsp;&nbsp;&nbsp; [[10]]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nodename = livingroom<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; names = temperature<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; codes = h,</p>
+<p>[nodes_tx]<br />
+&nbsp;&nbsp;&nbsp; [[10]]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nodename = livingroom<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; names = state, setpoint<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; codes = B, h</p>
+<p>When transmitting control data out from the basestation or any other node we could use the target node flag packet header as designed by jcw <a href="http://jeelabs.org/2011/01/14/nodes-addresses-and-interference/" title="http://jeelabs.org/2011/01/14/nodes-addresses-and-interference/">http://jeelabs.org/2011/01/14/nodes-addresses-and-interference/</a> or keep the header as the nodeid from which the packet was send and add another byte to the packet data itself including the target id.</p>
+<p>interested to hear any preferences either way and other ideas for defining sensor node and control packets and whether to add the target id in the data part or follow jcw&#39;s recommendation of swapping the target with the sent from nodeid and then including the sent from in the packet data if needed</p>
+<p>
+&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26779"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Wed, 14/01/2015 - 14:44.</div>
+    <div class="content">
+     <p>Hi Trystan.</p>
+<p>As you know I&#39;m working on &quot;control&quot; in&nbsp;emonhub currently. I too think there should be separate Tx and Rx settings for each node, There maybe some instances where the payloads can be the same eg passing current meter readings to a Wh counting node but I think these would be few and far between, in the majority of cases they will differ.</p>
+<p>Within the sketch the &quot;Payload&quot; data type created by the typedef struct is often given a name ending in Tx eg emonTx, I have for a while been using &quot;PayloadTx&quot; and &quot;PayloadRx&quot; as the types and that seems to work well.</p>
+<p>In the emonhub.conf however I was thinking more along the lines of splitting the node into [[[Rx]]] and [[[Tx]]] rather than listing the node twice so that thier could be some common data eg node name etc and the complete node could be cut and pasted in (or even just appended to the file by a script) as one &quot;node&quot;&nbsp;</p>
+<blockquote><p>[nodes]<br />
+&nbsp; &nbsp; &nbsp; [[10]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;nodename = livingroom<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[[[Rx]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;names = temperature<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;datacodes = h,<br />
+&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;[[[Tx]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;names = state, setpoint<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; codes = B, h</p>
+</blockquote>
+<p>and in the sketches</p>
+<blockquote><p>typedef struct {<br />
+&nbsp; &nbsp; &nbsp; int temperature<br />
+} PayloadTx;<br />
+PayloadTx&nbsp;emonTx;&nbsp;</p>
+<p>
+typedef struct {<br />
+&nbsp; &nbsp; &nbsp; byte state,<br />
+&nbsp; &nbsp; &nbsp; int setpoint<br />
+} PayloadRx;<br />
+PayloadRx&nbsp;emonRx;</p>
+</blockquote>
+<p>I think we should definitely use jcw&#39;s&nbsp;&quot;flagged as&nbsp;source or target&quot;, as then the devices sketch only has to deal with relevant packets rather than every sketch needing the ability to weed&nbsp;out the packets destined for that device. Especially as it makes sending the targeted packets so easy by effectively done by just adding 64 to the node id at serial.write() time.&nbsp;</p>
+<p>I don&#39;t think this is useable other than across the rfm network as it will impose a 64 node (id) limit which granted is double the current rfm limit but a restriction all the same. Yes we could add a different value outside of the rfm network but that may just be confusing and it&#39;s not totally &quot;human readable&quot; either as a sum has to be done (albeit a simple one) My thoughts were to expand on the flag idea alittle and use a negative number so node 10 is from the node and -10 is to the node, the minus sign being the source or target flag (so it works with bytes, ints and longs)</p>
+<p>Although I like the potentially easy set up of DCHP nodes, the reality is even with my home network I use fixed IP&#39;s to make networking easier and I suspect the same may apply to the node network, combined with a need to swap out sketches, calibrate, pass encryption keys etc I think it is probably more secure, reliable and simpler to connect the node to a pc at some point.</p>
+<p>However I believe that process could be made easier, maybe a custom UI to abstract the user from the IDE, git conf files etc. Certainly interlinking the sketches and datacodes/node settings would be a start, Robert and I thought adding the datacodes to the 3 or 4 non-int-only sketches could be a first step, so users can copy and paste from the sketch to the conf.</p>
+<p>I have since &nbsp;thought this through a little more and would like to experiment with easily recognizable __VARIABLES__ used in sketches, so that a bash script could be initiated to configure a node device connected by FTDI. Something like a &quot; config_node 10 &quot; command would look at emonhub.conf for node 10</p>
+<p>[nodes]<br />
+&nbsp; &nbsp; &nbsp; [[10]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;nodename = livingroom<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; device = emonTx v3<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sketch = some_generic_sketch.ino<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [[[Rx]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; names = temperature<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;datacodes = h,<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [[[Tx]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; names = state, setpoint<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; codes = B, h</p>
+<p>And would replace the __VARIABLES__ in the sketch file with the values given node id, device frequency, group and of course an encryption key whilst it is in text format. Then compile and upload it to the node from the same command. so once the user has the details in the conf one command does it all with some reassuring status messages.</p>
+<p>There are many mays something like this could evolve and I think a webpage where a user could select a sketch to suit thier needs from a short list for the chosen device, select a node id, specify rfm settings, choose variables and data types etc and this would provide &quot;cut and paste&quot; or downloadable data for sketches and emonhub.conf or for a &quot;makefile&quot; to compile. I previously commented on using something like the packetgen webpage to generate a datacodes string, this could be extended to provide a complete nodes section entry with matching typedef structs.</p>
+<p>As you are aware I&#39;ve been experimenting with I&sup2;C also, the reason I mention this is with regard to your &quot;polling&quot; comments. The way my I&sup2;C works is emonhub sends out a &quot;broadcast&quot; to trigger the calculations in each node, it then collects a frame each node sequentially, as long as all the nodes are polled between the broadcasts the data packets are all for the same exact period in time despite being collected at different times, the nodes also continue to collect data towards the next period whilst waiting to have the last periods totals collected. This works well as the previous periods totals are not zero&#39;d until they get an ack confirming emonhub has them, so if not collected the new intervals totals are added to last so you never lose data.</p>
+<p>This could also work with rfm although you have the added power conservation complications with battery powered nodes, but it is possible to ensure they are the first to be polled so they can sleep and a wake up timer set by the original &quot;broadcast&quot; would wake the node moments before the next &quot;broadcast&quot; effectively resetting the devices time counting every interval so it should never get out of sync.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26781"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Wed, 14/01/2015 - 16:07.</div>
+    <div class="content">
+     <p>Hello Paul,</p>
+<p>great!</p>
+<p>emonhub conf format</p>
+<p>[nodes]<br />
+&nbsp; &nbsp; &nbsp; [[10]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;nodename = livingroom<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[[[Rx]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;names = temperature<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;datacodes = h,<br />
+&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;[[[Tx]]]<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;names = state, setpoint<br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; codes = B, h</p>
+<p>looks great.</p>
+<p>happy to for jcw&#39;s&nbsp;&quot;flagged as&nbsp;source or target&quot;. I agree more and more about DHCP as I think about it, it just becomes over complicated and that the better approach is making configuration easier. Really like your idea :</p>
+<p>&quot;I have since &nbsp;thought this through a little more and would like to experiment with easily recognizable __VARIABLES__ used in sketches, so that a bash script could be initiated to configure a node device connected by FTDI. Something like a &quot; config_node 10 &quot; command would look at emonhub.conf for node 10&quot;</p>
+<p>that would be a very neat way of connecting the two, solving the nodeid, decoding, descriptions, potentially encryption key all in one.</p>
+<p>brilliant!</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-26908"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Tue, 20/01/2015 - 22:53.</div>
+    <div class="content">
+     <p>I have experimented a&nbsp;bit with using &quot;easily recognizable __VARIABLES__ &quot; &nbsp;to do a&nbsp;&quot;sketch merge&quot; and found it is quite easily done. There are many questions around&nbsp;best way&nbsp;to implement it.</p>
+<p>However, the (basic) method I currently have working is to use 2 markers disguised as comments so as not to effect the normal use of the sketch. The markers are added before&nbsp;and after the&nbsp;&quot;mergeable&quot;&nbsp;variables&nbsp;such as the node id and typedef structs&nbsp;etc.When the sketch is &quot;merged&quot; the 2 markers are replaced with block comment markers so the existing variables cannot be seen and the new variables are added. This seems to work ok and is very simple.</p>
+<p>This method would mean any existing sketches can easily be made into &quot;mergeable&quot; templates by adding 2 comments and slightly rearranging the variable positioning in the sketch to group the &quot;mergable&quot; vars away from the ones to be retained. There also needs to be some info made available&nbsp;about each participating sketch eg what variables are available etc so the user can choose from them and configure their&nbsp;own payloads.</p>
+<p>I think this will mean that there will be a need for some mapping between the sketches variable names and the users preferred input names. The alternative is too use individual variable markers so that the users names are merged into the sketch, but this may prove confusing when diagnosing a sketch issue. I think retaining the generic variable names in the sketch would be better when discussing the sketch and they are not seen after compiling so names are not important.</p>
+<p>The &quot;prototype&quot; version I have also creates a &quot;filecopy&quot; of the sketch using date and nodename&nbsp;as a filename (eg 20150120_kitchenNode.ino)&nbsp;and/or saves the file in a temp location in the required &quot;inotool&quot; structure and calls inotool&nbsp;&quot;make&quot; and &quot;upload&quot; and/or creates a &quot;Makefile&quot; in the sketche&#39;s sub-directory for <a href="https://github.com/sudar/Arduino-Makefile">&quot;aduino_mk&quot;</a> to use. (I have had both these &quot;outputs&quot; working but have not actually&nbsp;compiled yet as I&#39;m working on a windows PC)</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27315"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/11.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-11.jpg" alt="cagabi&#039;s picture" title="cagabi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/11.html" title="View user profile.">cagabi</a> on Mon, 02/02/2015 - 15:01.</div>
+    <div class="content">
+     <p>Hello,</p>
+<p>I have been reading through this post and i am finding it incredibly interesting and have some things to add.</p>
+<p><strong>Encryption</strong><br />
+I say this first because it is related to other points below.</p>
+<p>I was talking the other&nbsp;day to Adam and Michael about the DHCP service and how to implement encryption without having to plug the node to the computer to write the key (which makes the DHCP pointless). I have been researching an idea that Adam had and ended reading about Public Key encryption, and i think this might be the answer. If you read carefully the introduction in<a href="https://en.wikipedia.org/wiki/Public-key_cryptography#Enveloped_Public_Key_Encryption"> here</a> , you will understand how it works. A brief summary: you use the public key to encrypt and the private key to decrypt, if you try to decrypt with the public key what has been encrypted with the public key it doesn&#39;t work. That is why it is secure. This is called asymetric encryption while the one with only one key to do everything is called symetric encryption.</p>
+<p>Sitiutation: Node A wants to send something encrypted to node B: A asks B for its public key (via a non encrypted message) -&gt; A gets B&#39;s public key (via a non encrypted message) -&gt; A encrypts the message with B&#39;s public key and sends it (this message can only be decrypted with B&#39;s private key that&nbsp;only B knows)</p>
+<p>&nbsp;</p>
+<p><strong>Automatic ID assingment</strong><br />
+Well, i still think it is quite a good idea. For me the reason for having DHCP isn&#39;t to avoid pluging the node and uploading something, the reason is to avoid having to mess up with the nodes ids and keep a map (if you have plenty of them) to ensure you don&#39;t put the wrong node id when updating the firmware. We may still get into this problem if we want to use any kind of unique identifier but a serial number feels&nbsp;different that the node.</p>
+<p>The main problem for me was the encryption, but using the Public Key would solve the issue. And something else that this encryption would solve is how the base sends the node id back to the node. An option would be to put the serial number in the same message with the node id, so that the node gets it. Another option is that the base broadcasts to all the nodes: &quot;Registration successful, your node id is klsddjfdskfjhdslkjghdfskjlgh&quot; (node id encrypted with node public key sent when requesting the registration). The nodes which are in the registration process will listen to the message, decrypt the node id and if they get an integer it is for them, or just in case another registering node gets an integer after decrypting (i guess quite difficult to happen), the message can be &quot;node:3&quot; explode it and get the integer. This applies specially to RF networks. Using IP adresses makes it easier.</p>
+<p>&nbsp;</p>
+<p><strong>Automatic node detection and description</strong><br />
+I am not completely clear about the aim of this one. I think it is a good idea that the node sends and &quot;extended descriptor package&quot; after registering and keep an up to date table with this information but i can only see it for information purposes. This applies&nbsp;to a sensing unit.</p>
+<p>&nbsp;</p>
+<p><strong>Polling powered nodes</strong><br />
+I think there is a good reason in your first post Trystan to think it is a good idea: &quot;The basestation could sequentially poll all the powered listening nodes avoiding packetloss&quot;, That could be enough.</p>
+<p>Another one that Adam was saying is that for sensors on batteries it is better to be able to request the measurement when you want it or to be able to set the intervals easily (Not in the node).</p>
+<p>&nbsp;</p>
+<p><strong>Control module trigered by an input processor</strong><br />
+This was not in the original list but i want to ask. The approach i see in the &nbsp;&quot;Open heating controller/thermostat scheduler&quot; is to have something running continuously, and (sorry i think in therms of emonCMS and not emonView) i guess in emonCMS it would be a module with a cron task.</p>
+<p>But, what if you want to do some control as a reply to some meassured data? When talking with Adam and Michael they said and i agree the scheduled tasks seems easier, every now and again the module checks all the feeds on its list and if there is change on the value it does something.</p>
+<p>I had a look and found out that to add input processors you need to hack the input module, bad thing. But it would be a great feature to have a processor that triggers the controller of a module that analyses the input and then sends some control signals o request some other meassurements if needed.</p>
+<p>This would be great to combine with Polling data from the nodes. Your &quot;control module&quot; in emonCMS requests the data from the node (trigered by the scheduler or even manually), the node replies and the input triggers the control module that analyzes the meassurement and decides if something needs to be done.</p>
+<p>&nbsp;</p>
+<p><strong>Graphical user interface for setting up nodes</strong><br />
+What a great idea, i love it</p>
+<p><strong>Cointrol packets</strong><br />
+I see this is a hot thing. I have nothing to say but i will follow what you do and tell Adam and Michael they should keep an eye on this. This is very important as they are developing control units so it would be great if they can use what will be the standard way for emonCMS to set up and send control signals. You are doing an amazing work.</p>
+<p>All the best&nbsp;</p>
+<p>&nbsp; &nbsp;Carlos</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27320"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1741.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1741.jpg" alt="ukmoose&#039;s picture" title="ukmoose&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1741.html" title="View user profile.">ukmoose</a> on Mon, 02/02/2015 - 19:48.</div>
+    <div class="content">
+     <p>Looks good, but as per Twitter conversation of a few weeks ago. &nbsp;It would be great to see&nbsp;compatability / integration with OpenTRV (&nbsp;http://opentrv.org.uk ) built into the design.</p>
+<p>&nbsp;</p>
+<p>The other thing is have you spoken to innovateuk&nbsp;(&nbsp;https://interact.innovateuk.org&nbsp;) they often have funding competitions which might be relevant.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27490"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Sat, 07/02/2015 - 16:23.</div>
+    <div class="content">
+     <p>Hello Carlos, great to hear your helping Adam and Michael at CAT, Adam mentioned you might be getting involved!</p>
+<p>For people interested there is an ongoing project at CAT the center for alternative technology in Machynlleth Mid-Wales to develop monitoring and control technology for the renewables and heating systems on site, there was a blog post here <a href="http://openenergymonitor.blogspot.co.uk/2013/07/probably-best-student-placement.html" title="http://openenergymonitor.blogspot.co.uk/2013/07/probably-best-student-placement.html">http://openenergymonitor.blogspot.co.uk/2013/07/probably-best-student-pl...</a> about the placement on which Michael from Aberystwyth University is on at the moment.</p>
+<p>Thanks for sharing your thoughts on all this Carlos, Asymetric, public key encryption sounds like what we need, do you know if it would be possible to do this with the RFM69 using its built in AES encryption?</p>
+<p>For the control module triggering, we where discussing here perhaps there is a need for being able to modularise input processing <a href="https://github.com/emoncms/emoncms/pull/280" title="https://github.com/emoncms/emoncms/pull/280">https://github.com/emoncms/emoncms/pull/280</a>, perhaps we could implement some kind of hooks system that calls all module implementations of the hook function name when an event happens?</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-27666"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/11.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-11.jpg" alt="cagabi&#039;s picture" title="cagabi&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/11.html" title="View user profile.">cagabi</a> on Fri, 13/02/2015 - 12:01.</div>
+    <div class="content">
+     <p>Hi,</p>
+<p>Yesterday i spent a while doing a bit of research about the encryption. I &nbsp;have started a new thread specific to this:&nbsp;<a href="10164.html">http://openenergymonitor.org/emon/node/10164</a></p>
+<p>AES is symmetric encryption, so it cannot do the work for us as we want. Anyway we have to keep it in mind as asymmetric encryption normally takes around 2 seconds to encrypt, that might be too much for our battery powered nodes. So maybe we can use the asymmetric encryption to retrieve the key to use with AES, but first we need to make asymmetric one work.</p>
+<p>Cheers,</p>
+<p>&nbsp; &nbsp;Carlos</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-28035"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/4440.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-4440.jpg" alt="pb66&#039;s picture" title="pb66&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/4440.html" title="View user profile.">pb66</a> on Sat, 21/02/2015 - 23:40.</div>
+    <div class="content">
+     <p>Further to the idea of Auto-configuring node&#39;s sketches from the data held in in emonhub.conf, which I&#39;ve had some success with, I would like to throw a related idea&nbsp;out there.</p>
+<p>Basically it&#39;s to extend the &quot;emonhub.conf&quot; to use an additional &quot;hardware.conf&quot; and &quot;firmware.conf&quot;, not unlike&nbsp;the &quot;boards.txt&quot; and &quot;programmers.txt&quot; used by avrdude and the arduino&nbsp;IDE.</p>
+<p>These two files will be easily read/edited and hold profiles for &quot;emon&quot; hardware devices and firmware sketches. The files would only come into play when loading sketches and configuring hardware, again much like the avrdude files. They would not be needed for normal running and could&nbsp;be installed as a full library or just cut and paste in the profiles you need.</p>
+<p>This would allow a unique device name and sketch name to be held in the emonhub.conf along with the custom node data&nbsp;to allow a automatic &quot;plug and upload&quot; system to be used to ease the task, eliminating (or at least reducing) errors to boot.</p>
+<p>Paul</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39667"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Mon, 22/02/2016 - 21:37.</div>
+    <div class="content">
+     <p>I&#39;m currently looking at the above issues (in isolation so far), I currently have working AES128 encryption (done in software) along with a protocol for the sensors to describe their data loads/packets to emonCMS.</p>
+<p>I have an aim to get the sensor data encrypted, sensors nodes to automatically be discovered/added/configured and fairly &quot;plug and play&quot;</p>
+<p>Still in experimental stages at the moment though - and I also have the problem of the initial &quot;seed&quot; key being placed into each node.</p>
+<p>&nbsp;</p>
+<p>This is mainly driven by the hundreds of IoT devices out in the wild which are completely insecure, and I&#39;m fed up of reading about them :-(</p>
+<p>&nbsp;</p>
+<p>PS: Also looking at how difficult it would be to do OTA updates from emonBase to each sensor</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39668"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-3.jpg" alt="TrystanLea&#039;s picture" title="TrystanLea&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3.html" title="View user profile.">TrystanLea</a> on Mon, 22/02/2016 - 21:49.</div>
+    <div class="content">
+     <p>Hello Stuart, that sounds very interesting, Glyn and I met up with Damon from OpenTRV last week where he discussed what sounds like a similar approach. Keen to learn more about what your doing.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-39669"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/450.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="stuart&#039;s picture" title="stuart&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: RFM Network dev next steps: Encryption, Auto id/info, ACK, Poll, Control</h3>
+
+    <div class="submitted">Submitted by <a href="../user/450.html" title="View user profile.">stuart</a> on Mon, 22/02/2016 - 21:56.</div>
+    <div class="content">
+     <p>Sure, I&#39;ve taken some inspiration from the &quot;MySensors&quot; project, although they use NRF24L01 radio chips</p>
+<p><a href="https://github.com/mysensors/Arduino/blob/master/libraries/MySensors/MyHwATMega328.cpp" title="https://github.com/mysensors/Arduino/blob/master/libraries/MySensors/MyHwATMega328.cpp">https://github.com/mysensors/Arduino/blob/master/libraries/MySensors/MyH...</a></p>
+<p>I&#39;ll try and describe what I&#39;m up to, but its still &quot;playing about&quot; at the moment!</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/9981"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-exdlaDdP8_DQ0rW5jhCuMdMLZQS27CDWHS0BWYTs4yE" value="form-exdlaDdP8_DQ0rW5jhCuMdMLZQS27CDWHS0BWYTs4yE"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/9981 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 13:43:51 GMT -->
+</html>

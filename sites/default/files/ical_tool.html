@@ -1,0 +1,281 @@
+// ical_tool - calculates current scale factor (ICAL) for emonTx from OpenEnergyMonitor
+// Martin Roberts 26/02/13
+// requires an optical meter pulse sensor and the PLL50Hz library
+
+//--------------------------------------------------------------------------------------------------
+// default calibration values
+#define VCAL 237.9  // 240:11.2 for transformer x 11:1 for resistor divider
+#define ICAL 111.1 // 100A:0.05A for transformer / 18 Ohms for resistor
+#define ILEAD 200.0 // time in microseconds that current leads voltage by
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// other system constants
+#define LOOPCYCLES 250 // number of mains cycles for outer loop, also time between radio transmissions
+#define POWER_VOLTS 3.3 // used here because it's more accurate than the internal band-gap reference
+#define SUPPLY_FREQUENCY 50
+#define JOULES_PER_PULSE 3600.0 // number of Joules per meter pulse, 1Wh = 3600 Joules
+#define PULSES_PER_CALC 10 // number of meter pulses accumulated before calculations are done
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// constants calculated at compile time
+#define LOOPSAMPLES (LOOPCYCLES * NUMSAMPLES)
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+// Arduino I/O pin useage
+#define LEDPIN 9
+#define PULSEPIN 7 // pin for meter pulse detector (0-7 only) (3 is used by PLL50Hz library)
+//--------------------------------------------------------------------------------------------------
+  
+#include <PLL50Hz.h>
+
+float Vrms,I1rms,I2rms,frequency;
+long totalV1squared,totalV2squared,totalI1squared,totalI2squared,totalP1,totalP2;
+long sumTimerCount;
+float realPower1,apparentPower1,powerFactor1;
+float realPower2,apparentPower2,powerFactor2;
+word cycleCount;
+boolean showCT2;
+float expectedEnergyPerPulse;
+long energyAccumulator,pulseEnergyAccumulator;
+char pulseCount;
+boolean calibrating;
+float Vratio,I1ratio,I2ratio;
+CycleData cd;
+
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(LEDPIN, OUTPUT);
+  digitalWrite(LEDPIN, HIGH);
+  PLL.begin(&cd);
+  
+  // set calibration to default values
+  PLL.updatePhaseShift((int)(ILEAD*16),false);
+  PLL.updatePhaseShift((int)(ILEAD*16),true);
+  Vratio=(VCAL * POWER_VOLTS)/1024;
+  I1ratio=(ICAL * POWER_VOLTS)/1024;
+  I2ratio=(ICAL * POWER_VOLTS)/1024;
+  
+  bitSet(PCMSK2,PULSEPIN); // unmask pin change interrupt for pulse detector
+  showHelp();
+}
+
+void loop()
+{
+  if(PLL.newCycle) addCycle(); // a new mains cycle has been sampled
+  
+  if(calibrating)
+  {
+    calibrate();
+    return;
+  }
+  
+  if(cycleCount>=LOOPCYCLES)
+  {
+    calculateVIPF();
+    showResults();
+  }
+
+  if(Serial.available())
+  {
+    int c=toupper(Serial.read());
+    
+    switch(c)
+    {
+      case 'H':
+      case '?': showHelp(); break;
+      case 'C': calibrating=true; break;
+      case '1': showCT2=false; break;
+      case '2': showCT2=true; break;
+      case 'V': updateVCAL(); break;
+      case 'D': displayCalVals(); break;
+    }
+  }
+
+  digitalWrite(LEDPIN,digitalRead(PULSEPIN)); // copy pulse input state to LED
+}
+
+// add data for new 50Hz cycle to total
+void addCycle()
+{
+  totalV1squared+=cd.cycleV1squared;
+  totalV2squared+=cd.cycleV2squared;
+  totalI1squared+=cd.cycleI1squared;
+  totalI2squared+=cd.cycleI2squared;
+  totalP1+=cd.cycleP1;
+  totalP2+=cd.cycleP2;
+  sumTimerCount+=(OCR1A+1); // for average frequency calculation
+
+  energyAccumulator+=(showCT2?cd.cycleP2:cd.cycleP1);
+  
+  cycleCount++;
+  PLL.newCycle=false;
+}
+
+// calculate voltage, current, power and frequency
+void calculateVIPF()
+{
+  float V2rms; // need this because voltage interpolation makes it different from Vrms
+  
+  Vrms = Vratio * sqrt(((float)totalV1squared)/LOOPSAMPLES); 
+  V2rms = Vratio * sqrt(((float)totalV2squared)/LOOPSAMPLES); 
+  I1rms = I1ratio * sqrt(((float)totalI1squared)/LOOPSAMPLES); 
+  I2rms = I2ratio * sqrt(((float)totalI2squared)/LOOPSAMPLES); 
+
+  realPower1 = (Vratio * I1ratio * (float)totalP1)/LOOPSAMPLES;
+  apparentPower1 = Vrms * I1rms;
+  powerFactor1=abs(realPower1 / apparentPower1);
+  realPower2 = (Vratio * I2ratio * (float)totalP2)/LOOPSAMPLES;
+  apparentPower2 = V2rms * I2rms;
+  powerFactor2=abs(realPower2 / apparentPower2);
+  frequency=((float)LOOPCYCLES*16000000.0)/((float)sumTimerCount*NUMSAMPLES);
+ 
+  totalV1squared=0;
+  totalV2squared=0;
+  totalI1squared=0;
+  totalI2squared=0;
+  totalP1=0;
+  totalP2=0;
+  cycleCount=0;
+  sumTimerCount=0;
+}
+
+void showResults()
+{
+  Serial.print("CT");
+  Serial.write(showCT2?'2':'1');
+  Serial.write(' ');
+  Serial.print("V=");
+  Serial.print(Vrms);
+  Serial.print(" I=");
+  Serial.print(showCT2?I2rms:I1rms);
+  Serial.print(" RP=");
+  Serial.print(showCT2?realPower2:realPower1,0);
+  Serial.print(" AP=");
+  Serial.print(showCT2?apparentPower2:apparentPower1,0);
+  Serial.print(" PF=");
+  Serial.print(showCT2?powerFactor2:powerFactor1,4);
+  Serial.print(" F=");
+  Serial.print(frequency);
+  Serial.println(", 'H' or ? for help");
+}
+
+void calibrate()
+{
+  static int oldPulseCount;
+  static boolean initialised=false;
+
+  if(!initialised)
+  {
+    Serial.println();
+    Serial.print("Waiting for meter pulses.");
+    pulseCount=-2;
+    oldPulseCount=pulseCount;
+    pulseEnergyAccumulator=0;
+    float Iratio=showCT2?I2ratio:I1ratio;
+    float joulesPerBufferUnit = (Vratio * Iratio)/(SUPPLY_FREQUENCY*NUMSAMPLES);
+    expectedEnergyPerPulse = JOULES_PER_PULSE/joulesPerBufferUnit;
+
+    bitSet(PCICR,PCIE2); // enable pin change interrupt
+    cycleCount=0;
+    initialised=true;
+    return;
+  }
+      
+  if(pulseCount>=PULSES_PER_CALC)
+  {
+    bitClear(PCICR,PCIE2); // disable pin change interrupt
+    float energyPerPulse=pulseEnergyAccumulator/PULSES_PER_CALC;
+    Serial.println();
+    float error=(energyPerPulse-expectedEnergyPerPulse)*100/expectedEnergyPerPulse;
+    Serial.print("Current error ");
+    Serial.print(error,1);
+    Serial.print("% ");
+    Serial.print("Old ICAL=");
+    float Iratio=showCT2?I2ratio:I1ratio;
+    Serial.print(Iratio*1024/POWER_VOLTS);
+    Iratio*=(expectedEnergyPerPulse/energyPerPulse);
+    Serial.print(", new ICAL=");
+    Serial.println(Iratio*1024/POWER_VOLTS);
+    if(showCT2) I2ratio=Iratio;
+    else I1ratio=Iratio;
+    Serial.println();
+    calculateVIPF(); // to clear accumulators
+    initialised=false;
+    calibrating=false;
+    return;
+  }
+    
+  if(cycleCount>=(30*SUPPLY_FREQUENCY))
+  {
+    bitClear(PCICR,PCIE2); // disable pin change interrupt
+    Serial.println(" timed out");
+    Serial.println();
+    calculateVIPF();
+    initialised=false;
+    calibrating=false;
+    return;
+  }
+    
+  if(pulseCount!=oldPulseCount) Serial.write('.');
+  oldPulseCount=pulseCount;
+}
+
+ISR(PCINT2_vect)
+{
+  if(digitalRead(PULSEPIN)==HIGH) return; // we want the falling edge
+  if(pulseCount>=0) pulseEnergyAccumulator+=energyAccumulator;
+  pulseCount++;
+  energyAccumulator=0;
+}
+
+void updateVCAL()
+{
+  Serial.println();
+  Serial.print("VCAL");
+  Serial.write('=');
+  Serial.print(Vratio*1024/POWER_VOLTS);
+  Serial.print(" enter new value or 's' to skip ");
+  
+  while(!Serial.available());
+  if(toupper(Serial.peek())=='S')
+  {
+    Serial.write(Serial.read());
+    Serial.println();
+    return;
+  }
+  
+  float Vcal=Serial.parseFloat();
+  Serial.println(Vcal);
+  Vratio= Vcal * POWER_VOLTS/1024;
+  Serial.println();
+}
+
+void displayCalVals()
+{
+  Serial.println();
+  Serial.print("VCAL=");
+  Serial.println(Vratio*1024/POWER_VOLTS);
+  Serial.print("I1CAL=");
+  Serial.println(I1ratio*1024/POWER_VOLTS);
+  Serial.print("I2CAL=");
+  Serial.println(I2ratio*1024/POWER_VOLTS);
+  Serial.println();
+}
+
+void showHelp()
+{
+  Serial.println();
+  Serial.println("ical_tool");
+  Serial.println("H,? - display this Help");
+  Serial.println("1,2 - display data for CT1/2");
+  Serial.println("C   - Calibrate ICAL");
+  Serial.println("V   - enter new VCAL");
+  Serial.println("D   - Display calibration data");
+  Serial.println();
+}
+
+

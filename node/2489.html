@@ -1,0 +1,311 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2489 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:21:21 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Power down, watchdog wake up and power computation | Archived Forum</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="../sites/default/files/emon3_favicon.png" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="../modules/node/node4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/defaults4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/system/system-menus4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/user/user4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/mollom/mollom4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/forum/forum4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/modules/views/css/views4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../modules/comment/comment4b43.css?r" />
+<link type="text/css" rel="stylesheet" media="all" href="../sites/all/themes/emon3/style4b43.css?r" />
+<style type="text/css" media="all">@import "../sites/all/themes/emon3/user_bar.css";</style>
+    <script type="text/javascript"> </script>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+</head>
+
+<body>
+
+<div id="box">
+
+<table border="0" cellpadding="0" cellspacing="0" id="header">
+  <tr>
+    <td id="logo">
+       <h1 class='site-name'><a href="../index.html" title="Home">Archived Forum</a></h1>    </td>
+    <td id="menu">
+      
+                  
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2"><div></div></td>
+</tr>
+</table>
+<!--<div style="background-color:#444444; border-top: 1px solid #888; height:32px;">-->
+
+<table border="0" cellpadding="0" cellspacing="0" id="content">
+  <tr>
+        <td valign="top">
+            <div id="main">
+        <div class="breadcrumb"><a href="../index.html">Home</a> » <a href="../forum.html">Forums</a> » <a href="../forum/3.html">Archived: General Discussion</a></div>     
+        <div class="tabs"></div>
+                          <div class="node">
+
+    
+    
+          <div class="comment" >
+                <h3 class="title" style="">Power down, watchdog wake up and power computation</h3>
+        <span class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Fri, 21/06/2013 - 09:02</span>
+        <div class="content"><p>Hi.</p>
+<p>I&#39;m trying to optimize an emonTX for autonomy. For this, I&#39;m using power down mode and the watchdog to wake the TX up.</p>
+<p>For deeper info, see :</p>
+<p>- <a href="http://donalmorrissey.blogspot.fr/2010/04/putting-arduino-diecimila-to-sleep-part.html">Articles about Arduino sleep modes</a></p>
+<p>- The <a href="http://www.rocketscream.com/blog/2011/07/04/lightweight-low-power-arduino-library/">low power library</a> from Rocket Scream, that makes it easy</p>
+<p>The good point is that the Arduino is almost off and is awakened if a pulse is received or if the watchdog reaches 8 seconds (maximum watchdog time, can be set to less). The consumption depends on the rest of the board being optimized as well.</p>
+<p>The downside of powerdown mode is that all timers are stopped. (And as far as I can tell, you can&#39;t read the watchdog timer when waking up. And anyway, I understand it is not precise, and depends on the voltage.) This means the emonTX can&#39;t manage time when used this way.</p>
+<p>When using pulses to measure a power (say gas, for instance), the TX can then only send pulses up to emonBase, but not power values. This means the power has to be computed either in emoncms or on the base. The logic in OEM is apparently to do most of the post-processing in emoncms. Doing it in the base makes sense as well since it is grid-powered. I don&#39;t have any experience of other platforms (COSM, ThingSpeak) but I reckon they would rather expect power values, which implies power computation earlier in the chain.</p>
+<p>Is there an input process function for that in emoncms ? Not all functions are documented <a href="http://emoncms.org/site/docs/inputprocessing">here</a>. I didn&#39;t understand &quot;rate of change&quot; and &quot;pulse diff&quot;, for instance.</p>
+<p>The TX could send either a number of pulses, either an incrementing counter, the latter ensuring the total consumption is correct even if samples are lost in the radio link.</p>
+<p>I can also try to add that as a feature to the emonBase gateway.</p>
+<p>Any opinion anyone ?</p>
+  <div class="forum-topic-navigation clear-block">
+          <a href="2512.html" class="topic-previous" title="Go to previous forum topic">‹ logging ripple control signals?</a>
+              <a href="2501.html" class="topic-next" title="Go to next forum topic">Putting in the infrastructure ›</a>
+      </div>
+</div>
+      </div>
+    
+    <div class="links">&raquo; <ul class="links inline"><li class="comment_forbidden first last"></li>
+</ul></div>  </div>
+<div id="comments">
+  <a id="comment-13130"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Power down, watchdog wake up and power computation</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 21/06/2013 - 12:55.</div>
+    <div class="content">
+     <p>I believe it is under consideration. As you say, there are a number of advantages in performing the integration closer to the source of the data, not the least being that lost (usually internet) packets will have no effect if it is the cumulative energy value that gets transmitted and recorded, and it does of course make it easier to aggregate historical data, which I think is the primary reason that this whole question is being considered. It also has the potential, at the cost of losing detail, of reducing network traffic.</p>
+<p>It should be possible to use the EEPROM in the emonTx to store the accumulated energy in the event of a loss of power, but my preference would be to keep that function in the base - even if it means equipping it with a rudimentary voltage monitor that is just good enough to detect a mains failure and trigger a write to EEPROM before the d.c. supply collapses. In other words, the base will behave in much the same way as an energy meter does.&nbsp; You then calculate power from the rate of change of energy over time, rather than integrating power over time to calculate energy.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13134"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/3695.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="chaveiro&#039;s picture" title="chaveiro&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Power down, watchdog wake up and power computation</h3>
+
+    <div class="submitted">Submitted by <a href="../user/3695.html" title="View user profile.">chaveiro</a> on Fri, 21/06/2013 - 14:12.</div>
+    <div class="content">
+     <p>You can keep timer2 runing in sleep if it&#39;s configured as asynchronous with a slow external xtal.</p>
+<p>See for example how to implement an RTC in this appnote:</p>
+<p><a href="http://www.atmel.com/Images/doc1259.pdf" title="http://www.atmel.com/Images/doc1259.pdf">http://www.atmel.com/Images/doc1259.pdf</a></p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13135"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Power down, watchdog wake up and power computation</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Fri, 21/06/2013 - 14:25.</div>
+    <div class="content">
+     <p>Robert,</p>
+<p>by &quot;doing the computation in the base&quot;, I mean that could be just transforming a pulse into a power value :</p>
+<p>power = kwh_per_pulse / (now - last_time)</p>
+<p>something like that. The base wouldn&#39;t have to store the information any longer. The only difference would be that an instant power (kwh at time t) would be sent rather than a pulse (1 pulse at time t). I don&#39;t see an increased need for EEPROM trouble.</p>
+<p>It is true that sending power means we don&#39;t mind packet loss so much, thanks to interpolation, but in my former message, I was considering the transmission between TX and Base. In both cases anyway (RF or internet), I was suggesting to send a counter (say 0 to 255 and then back to 0) rather than just a pulse, then calculate the difference with latest counter on receiver side, so that if a packet is lost, next packet will account for two pulses. I may be unclear, but I think this is common practice.</p>
+<p>Thanks chaviro for the link.</p>
+<p>Yet, I&#39;m afraid there&#39;s no such crystal on the emonTX, right ?</p>
+<p>&nbsp;</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13138"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Power down, watchdog wake up and power computation</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Fri, 21/06/2013 - 15:52.</div>
+    <div class="content">
+     <p>I was thinking more along the lines of performing the integration (at source - wherever) and sending the <em>accumulated energy</em> onwards for processing. If you only have a small accumulator (say watts stored as a long integer) you&#39;ll sooner or later hit a roll-over problem but unless the link goes down for at least half the time it takes to get there (I think - given that it probably needs to be signed!), the roll-over &#39;carry bit&#39; can be re-inserted at the receiving end and all you lose when the link fails is detail, not the overall energy consumption nor the <em>average</em> power, though of course you lose the peaks and troughs.</p>
+<p>As I understand it, your scheme is still sending a pulse but you are tagging it with an identity so that you know when one has gone astray. I think you are saying that each pulse represents a quantum of energy? How do you account for negative energy - generation? Do you number your pulses backwards? - I guess that would work.</p>
+<p>I think we are talking of essentially the same mechanism, but I am timing and accumulating the value at the sending end, you are timing and accumulating at the receiving end.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13149"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Power down, watchdog wake up and power computation</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Sat, 22/06/2013 - 23:05.</div>
+    <div class="content">
+     <p>Yes Robert, I think we agree.</p>
+<p>My concern is the emonTX not being able to do power computation itself because of the sleep mode, the objective being to save energy when operating on battery. It would just send a pulse and then the power computation can be done on the base or, further, in emoncms.</p>
+<p>Besides, my other point was that instead of sending a number of pulses (that would be 1 if a packet is sent each time a pulse is counted, or a greater integer number if a packet is generated every N seconds, which can be after several pulses), I think it is better to send an incremented number (that would happen to be the accumulated energy, times the constant pulse/kwh), so that you may lose packets and keep the total correct, with just the peaks being smashed down. As long as you don&#39;t lose all packets in the accumulator&#39;s revolution (like losing 260 pulses when using a 8-bit char, but if you have that kind of noisy RF channel, you won&#39;t be able to do anything anyway).</p>
+<p>I realize I&#39;m just rephrasing your message in a less understandable fashion...</p>
+<p>My point in using an incremented counter was not to actually accumulate so as to compute an energy, but merely to have some sort of error correcting code to fight channel noise. In fact, you&#39;re right, the incremented counter is homogeneous to energy...</p>
+<p>Now, perhaps is there some emoncms input process function that can take this energy and derive the power to generate a nice power chart. If not, it can be created, or there can be something in the Base that does the power computation, and emoncms get the power as an input. The latter is not the logic of OEM, with emonBase transparently forwarding samples.</p>
+<p>I didn&#39;t think of negative values. My use case is the gas meter. (I don&#39;t meter the gas I produce...) But it could work just the same. Yet, I don&#39;t see the use case. My starting point is the pulse counter, which always counts up. Sure, if the TX has two pulse counters, for production and consumption, it could compute the subtraction, but this can be done further on just as well, while keeping the detail on both production and consumption.</p>
+<p>(In France, consumption and production are really seen as two different things, since generally all production goes to the grid and nothing is consumed directly, except for off-grid sites, obviously. This is because the kwh price when selling PV electricity is higher than the price of the grid kwh, as an incentive for renewable energy production.)</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13150"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Power down, watchdog wake up and power computation</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 23/06/2013 - 00:27.</div>
+    <div class="content">
+     <p>If the emonTx is running on battery, then I think in the emonTx you must have the exact setup that emoncms has - the &#39;trapezium rule&#39; that calculates energy between two point readings of power. If it is running on mains power, it does not need to sleep and using the interrupt sketch it can accumulate an exact energy value. This can be on a small scale (8- or 16-bit) provided the carry is handled correctly and for integrity along the whole chain that should be done in emonCMS. I think it would work. The emonTx maximum power is about 24 kW, or 6.66 Wh/s. Therefore if the emonTx sleeps for 5 s and the units are Wh (which seems to make sense, but they don&#39;t have to be), the count increments by 33 counts, 33 counts, 34 counts in successive transmissions (you must accumulate a float and carry the truncation error to the next transmission). At 50 W load I assume you send the same count every 5 s for 14 times, then the next number on the 15th. That does give a problem with the GLCD, because to indicate 50 W you need a filter with a very long time constant, and that would give a significant delay before the display responded. It almost looks as if the present current/voltage/power readings need to be sent for the GLCD, and the emoncms energy data must be added, increasing the rf packet size</p>
+<p>I think it is necessary to have negative counts - the grid c.t. in a&nbsp; &quot;Type 2&quot; setup is guaranteed to see exported energy at some time or other. And you must surely have a pulse (counter) for each c.t.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13159"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Power down, watchdog wake up and power computation</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Sun, 23/06/2013 - 15:01.</div>
+    <div class="content">
+     <blockquote><p>If the emonTx is running on battery, then I think in the emonTx you must have the exact setup that emoncms has - the &#39;trapezium rule&#39; that calculates energy between two point readings of power.</p>
+</blockquote>
+<p>There must be some confusion here. I&#39;m talking about a setup where a pulse counter gets a pulse from a meter, corresponding to a given amount of energy. That can be a gas meter with a reed switch on the least significant wheel, a water meter, even an electricity meter with a flashing led.</p>
+<p>The TX doesn&#39;t read power, it just gets a pulse every, say, 0.01 m3 of gas, and then the rate can be computed from the time interval between two pulses. Except when using power down mode the TX can&#39;t do that, so it has to be either the base or emoncms.</p>
+<p>It seems easy to do in the base but I understand the design paradigm of OEM is to do that kind of post-processing in emoncms. I&#39;m wondering if some process function already exists for that. There are some functions for which I don&#39;t understand the function but might be suited for that.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13160"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Power down, watchdog wake up and power computation</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Sun, 23/06/2013 - 16:18.</div>
+    <div class="content">
+     <p>I do see what you&#39;re saying, and I&#39;m saying that if you do the same thing in the emonTx with electrical energy - and sorry I didn&#39;t explain this properly - then it all fits together very well and means that all the energy inputs from emonTx all the way to emoncms are protected from data loss.</p>
+<p>This meshes in with Trystan&#39;s thoughts about reconfiguring or changing the emoncms.org database so that less data is stored (which is getting expensive <a href="http://openenergymonitor.blogspot.com/2013/05/the-current-emoncms-feed-storage.html">The current emoncms feed storage implementation</a> ). One of the proposals he&#39;s looking at (<a href="http://openenergymonitor.blogspot.com/2013/06/timestore-timeseries-database.html">Timestore timeseries database</a>) throws away the individual timestamp that is saved with each reading and allocates the reading to the nearest time slot (timeslots happen at preset intervals of your choice) and he&#39;s calculated that this will make significant savings.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13241"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Power down, watchdog wake up and power computation</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Wed, 26/06/2013 - 21:38.</div>
+    <div class="content">
+     <p>I can do the following, which would be the easiest and the closest to OEM&#39;s rationale :</p>
+<p>Send an incremented counter from the emonTX (start at 0, increment each pulse, wrap around at 2^16)</p>
+<p>Then in emoncms, use following chain:</p>
+<pre>
+pulse diff (to get the nb of pulses received since last update)
+scale (by kWh/pulse)
+kWh to power</pre><p>I&#39;ll propose that pulse returns a value, not a feed, since in these case we don&#39;t need the intermediate result, and anyone how does can always add a log to feed. There are other things I&#39;d like to change in pulse diff. It looks like work in progress and I&#39;ll try improve it.</p>
+<p>I&#39;m not sure anyone uses pulse diff anyway, or they may get in trouble due to wrapping / counter reset issues.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13244"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/924.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/default_0.png" alt="Robert Wall&#039;s picture" title="Robert Wall&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Power down, watchdog wake up and power computation</h3>
+
+    <div class="submitted">Submitted by <a href="../user/924.html" title="View user profile.">Robert Wall</a> on Wed, 26/06/2013 - 13:26.</div>
+    <div class="content">
+     <p>That sounds good, but does it need to be a new module? It will certainly need to take account of wrapping and reset problems, but as the pulse rate has to fall inside known limits set by your gas supply, CMS can make an educated guess at when there has been an overflow or (usually) a reset and act accordingly.</p>
+<p>I think overflow is &quot;the last pulse count was greater than MAXCOUNT - (time since last x max pulse rate) and the present pulse count is less than 0 + (time since last x max pulse rate)&quot;.<br />
+	I think a reset is &quot;the last pulse count was greater than (time since last x max pulse rate) and the present pulse count is less than 0 + (time since last x max pulse rate).&quot;<br />
+	Clearly it is not easy to be always correct with either.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<a id="comment-13264"></a>
+  <div class="comment comment-published" >
+    <div class="picture">
+  <a href="../user/1531.html" title="View user profile."><img src="../sites/default/files/imagecache/avatar/pictures/picture-1531.gif" alt="Jérôme&#039;s picture" title="Jérôme&#039;s picture" width="50" height="50" class="imagecache imagecache-avatar"/></a></div>
+
+<h3 class="title" style="padding-bottom:5px">Re: Power down, watchdog wake up and power computation</h3>
+
+    <div class="submitted">Submitted by <a href="../user/1531.html" title="View user profile.">Jérôme</a> on Wed, 26/06/2013 - 22:02.</div>
+    <div class="content">
+     <p>No, I don&#39;t mean to create a new module, just adapt pulse_diff(). After digging a little bit more into it, it appears to be closer to what I need than I expected. Just the reset / wrapping that is not properly handled. The rest is what I was looking for.</p>
+<p>I can&#39;t just get rid of the feed output as it is used to get the last sample time and value. But it&#39;s a shame to log a feed just to remember last sample. I&#39;ll investigate. Perhaps is there a way to keep only the last sample, not all the values as a feed.</p>
+<p>And I&#39;d like to pass the max rate as an argument, instead of hardcoding it. That would be easy if I didn&#39;t have the feed id itself as argument.</p>
+         </div>
+    <div class="links">&raquo; <ul class="links"><li class="comment_forbidden first last"></li>
+</ul></div>
+  </div>
+<form action="https://openenergymonitor.org/emon/node/2489"  accept-charset="UTF-8" method="post" id="comment-controls">
+<div>  <div class="box">
+    <h2 class="title">Comment viewing options</h2>    <div class="content"><div class="container-inline"><input type="hidden" name="form_build_id" id="form-B1biwTlz6ZyiZbnh-YpTEyV7ISdw36pRu0tj3pxMaec" value="form-B1biwTlz6ZyiZbnh-YpTEyV7ISdw36pRu0tj3pxMaec"  />
+<input type="hidden" name="form_id" id="edit-comment-controls" value="comment_controls"  />
+<div class="form-item" id="edit-mode-wrapper">
+ <select name="mode" class="form-select" id="edit-mode" ><option value="1">Flat list - collapsed</option><option value="2" selected="selected">Flat list - expanded</option><option value="3">Threaded list - collapsed</option><option value="4">Threaded list - expanded</option></select>
+</div>
+<div class="form-item" id="edit-order-wrapper">
+ <select name="order" class="form-select" id="edit-order" ><option value="1">Date - newest first</option><option value="2" selected="selected">Date - oldest first</option></select>
+</div>
+<div class="form-item" id="edit-comments-per-page-wrapper">
+ <select name="comments_per_page" class="form-select" id="edit-comments-per-page" ><option value="10">10 comments per page</option><option value="30">30 comments per page</option><option value="50">50 comments per page</option><option value="70">70 comments per page</option><option value="90">90 comments per page</option><option value="150">150 comments per page</option><option value="200">200 comments per page</option><option value="250">250 comments per page</option><option value="300" selected="selected">300 comments per page</option></select>
+</div>
+<input type="submit" name="op" id="edit-submit" value="Save settings"  class="form-submit" />
+</div><div class="description">Select your preferred way to display the comments and click "Save settings" to activate your changes.</div></div>
+ </div>
+
+
+</div></form>
+</div>
+      
+              </div>
+    </td>
+      </tr>
+</table>
+
+<div id="footer">
+  <p>Open-source tools for energy monitoring and analysis.&nbsp;Forum has moved to: <a href="https://community.openenergymonitor.org/">https://community.openenergymonitor.org</a></p>
+   
+</div>
+
+
+</div>
+</body>
+
+
+<!-- Mirrored from openenergymonitor.org/emon/node/2489 by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 20 Feb 2017 15:21:21 GMT -->
+</html>
