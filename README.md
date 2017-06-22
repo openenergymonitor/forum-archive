@@ -2,7 +2,7 @@
 
 Archive of old OpenEnergyMonitor forums (May 2016) 
 
-The statidc archive is live here:
+The static archive is live here:
 
 https://openenergymonitor.org/forum-archive
 
