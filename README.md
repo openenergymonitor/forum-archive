@@ -8,7 +8,7 @@ https://openenergymonitor.org/forum-archive
 
 Static html, css and files from old OpenEnergyMonittor Drupal 6 site (previously https://openenergymonitor.org/emon/forum)
 
-All URL's to the old forum has been re-directed to the static archive e.g 
+All URLs to the old forum has been re-directed to the static archive e.g 
 
 *https://openenergymonitor.org/emon/node/12601.html now re-directs to https://openenergymonitor.org/forum-archive/node/12601.html (this is forum post alerting users that the foum has moved!*
 
